@@ -1,0 +1,36 @@
+{
+	"name": "shadowrun5e-compendiums",
+	"title": "Shadowrun 5e Compendiums",
+	"description": "Compendiums to be used with the Shadowrun5e System",
+	"version": "0.1.1",
+	"author": "Shawn Milligan [n3rf_herder#9026], Andrew Cuccinello [DJ#1982]",
+	"packs": [
+		{
+			"name": "shadowrun5e-compendiums-weapons",
+			"label": "SR5e Weapons",
+			"path": "packs/weapons.db",
+			"entity": "Item"
+		},
+		{
+			"name": "shadowrun5e-compendiums-armors",
+			"label": "SR5e Armors",
+			"path": "packs/armors.db",
+			"entity": "Item"
+		},
+		{
+			"name": "shadowrun5e-compendiums-matrix-actions",
+			"label": "SR5e Matrix Actions",
+			"path": "packs/matrix-actions.db",
+			"entity": "Item"
+		}
+	],
+	"compatibleCoreVersion": "0.6.2",
+	"minimumCoreVersion": "0.6.0",
+	"systems": ["shadowrun5e"],
+	"esmodules": [
+		"dist/bundle.js"
+	],
+	"manifest": "https://raw.githubusercontent.com/smilligan93/SR5-Compendiums-FoundryVTT/master/module.json",
+	"download": "https://github.com/smilligan93/SR5-Compendiums-FoundryVTT/archive/master.zip",
+	"url": "https://github.com/smilligan93/SR5-Compendiums-FoundryVTT"
+}
