@@ -7,7 +7,6 @@
 	"packs": [],
 	"compatibleCoreVersion": "0.6.2",
 	"minimumCoreVersion": "0.6.2",
-	"systems": [],
 	"esmodules": [
 		"dist/bundle.js"
 	],
