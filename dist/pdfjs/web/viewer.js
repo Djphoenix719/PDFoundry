@@ -1146,23 +1146,6 @@ const PDFViewerApplication = {
 
         let spreadMode = _app_options.AppOptions.get("spreadModeOnLoad");
 
-        if (stored.page && viewOnLoad !== ViewOnLoad.INITIAL) {
-          hash = `page=${stored.page}&zoom=${zoom || stored.zoom},` + `${stored.scrollLeft},${stored.scrollTop}`;
-          rotation = parseInt(stored.rotation, 10);
-
-          if (sidebarView === _pdf_sidebar.SidebarView.UNKNOWN) {
-            sidebarView = stored.sidebarView | 0;
-          }
-
-          if (scrollMode === _ui_utils.ScrollMode.UNKNOWN) {
-            scrollMode = stored.scrollMode | 0;
-          }
-
-          if (spreadMode === _ui_utils.SpreadMode.UNKNOWN) {
-            spreadMode = stored.spreadMode | 0;
-          }
-        }
-
         if (pageMode && sidebarView === _pdf_sidebar.SidebarView.UNKNOWN) {
           sidebarView = apiPageModeToSidebarView(pageMode);
         }
@@ -3572,7 +3555,7 @@ const defaultOptions = {
     kind: OptionKind.VIEWER + OptionKind.PREFERENCE
   },
   defaultUrl: {
-    value: "compressed.tracemonkey-pldi-09.pdf",
+    value: "",
     kind: OptionKind.VIEWER
   },
   defaultZoomValue: {

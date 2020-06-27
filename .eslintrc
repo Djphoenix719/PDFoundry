@@ -1,0 +1,38 @@
+{
+  "parser": "babel-eslint",
+  "plugins": ["prettier-tslint"],
+  "extends": [
+    "eslint:recommended",
+    "prettier-tslint"
+  ],
+  "settings": {
+  },
+  "env": {
+    "es6": true,
+    "browser": false,
+    "node": true,
+    "jquery": false,
+    "jest": true
+  },
+  "rules": {
+    "quotes": 0,
+    "no-console": 1,
+    "no-debugger": 1,
+    "no-var": 1,
+    "no-trailing-spaces": 0,
+    "eol-last": 0,
+    "no-underscore-dangle": 0,
+    "no-alert": 0,
+    "no-lone-blocks": 0,
+    "prettier/prettier": [
+      "error",
+      {
+        "singleQuote": true
+      }
+    ]
+  },
+  "globals": {
+    "Atomics": false,
+    "SharedArrayBuffer": false
+  }
+}

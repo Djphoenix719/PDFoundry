@@ -1,3 +1,47 @@
-
+form.pdf-settings-form div.pdf-settings-flexwrap {
+  max-height: 400px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+form.pdf-settings-form div.pdf-settings-flexrow {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  padding-top: 4px;
+  line-height: 2em;
+}
+form.pdf-settings-form div.pdf-settings-flexrow.pdf-settings-flexrow-header {
+  border-bottom: 1px solid black;
+}
+form.pdf-settings-form div.pdf-settings-flexrow span {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+form.pdf-settings-form div.pdf-settings-flexrow span:last-child {
+  padding-right: 0;
+}
+form.pdf-settings-form div.pdf-settings-flexrow input, form.pdf-settings-form div.pdf-settings-flexrow button {
+  height: 2em;
+}
+form.pdf-settings-form input[type=number] {
+  min-width: 20px;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 1px 3px;
+  margin: 0;
+  color: #191813;
+  font-family: inherit;
+  font-size: inherit;
+  text-align: inherit;
+  line-height: inherit;
+  border: 1px solid #7a7971;
+  border-radius: 3px;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
 
 /*# sourceMappingURL=bundle.css.map */

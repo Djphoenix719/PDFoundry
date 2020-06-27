@@ -1,0 +1,21 @@
+<form class="pdf-settings-form" autocomplete="off">
+    <h1>{{ name }}</h1>
+    <div class="pdf-settings-flexrow pdf-settings-flexrow-header">
+        <span>Code</span>
+        <span>Name</span>
+        <span>Location</span>
+        <span>Offset</span>
+        <span></span>
+    </div>
+    <div class="pdf-settings-flexwrap">
+        {{#each pdfs as |pdf|}}
+        <div class="pdf-settings-flexrow">
+            <span class="pdf-code" title="{{pdf.code}}">{{pdf.code}}</span>
+            <span class="pdf-name" title="{{pdf.name}}">{{pdf.name}}</span>
+            <span class="pdf-url"><input type="text" autocomplete="off" name="{{pdf.code}}-url" value="{{pdf.url}}"/></span>
+            <span class="pdf-offset"><input type="number" autocomplete="off" name="{{pdf.code}}-offset" value="{{pdf.offset}}"/></span>
+            <span class="pdf-button"><button class="pdf-settings--btn-test">Open Page 5</button></span>
+        </div>
+        {{/each}}
+    </div>
+</form>
