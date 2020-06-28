@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* THIS FILE HAS BEEN CHANGED */
 
 .textLayer {
   position: absolute;
@@ -951,9 +952,11 @@ html[dir='ltr'] .doorHangerRight:before {
 }
 
 #toolbarViewerMiddle {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  /*CHANGE: Float Zoom Left
+  /*position: absolute;*/
+  /*left: 50%;*/
+  /*transform: translateX(-50%);*/
+  float: left;
 }
 
 html[dir='ltr'] #toolbarViewerLeft,
@@ -2336,7 +2339,8 @@ html[dir='rtl'] #documentPropertiesOverlay .row > * {
 
 @media all and (max-width: 900px) {
   #toolbarViewerMiddle {
-    display: table;
+    /* CHANGE: Float viewer left */
+    /*display: table;*/
     margin: auto;
     left: auto;
     position: inherit;

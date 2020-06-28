@@ -146,21 +146,21 @@ function getViewerConfiguration() {
       zoomIn: document.getElementById("zoomIn"),
       zoomOut: document.getElementById("zoomOut"),
       viewFind: document.getElementById("viewFind"),
-      openFile: document.getElementById("openFile"),
-      print: document.getElementById("print"),
-      presentationModeButton: document.getElementById("presentationMode"),
-      download: document.getElementById("download"),
-      viewBookmark: document.getElementById("viewBookmark")
+      openFile: document.getElementById("fvttdummybutton"),
+      print: document.getElementById("fvttdummybutton"),
+      presentationModeButton: document.getElementById("fvttdummybutton"),
+      download: document.getElementById("fvttdummybutton"),
+      viewBookmark: document.getElementById("fvttdummybutton")
     },
     secondaryToolbar: {
       toolbar: document.getElementById("secondaryToolbar"),
       toggleButton: document.getElementById("secondaryToolbarToggle"),
       toolbarButtonContainer: document.getElementById("secondaryToolbarButtonContainer"),
-      presentationModeButton: document.getElementById("secondaryPresentationMode"),
-      openFileButton: document.getElementById("secondaryOpenFile"),
-      printButton: document.getElementById("secondaryPrint"),
-      downloadButton: document.getElementById("secondaryDownload"),
-      viewBookmarkButton: document.getElementById("secondaryViewBookmark"),
+      presentationModeButton: document.getElementById("fvttdummybutton"),
+      openFileButton: document.getElementById("fvttdummybutton"),
+      printButton: document.getElementById("fvttdummybutton"),
+      downloadButton: document.getElementById("fvttdummybutton"),
+      viewBookmarkButton: document.getElementById("fvttdummybutton"),
       firstPageButton: document.getElementById("firstPage"),
       lastPageButton: document.getElementById("lastPage"),
       pageRotateCwButton: document.getElementById("pageRotateCw"),
@@ -3572,7 +3572,7 @@ const defaultOptions = {
     kind: OptionKind.VIEWER + OptionKind.PREFERENCE
   },
   defaultUrl: {
-    value: "compressed.tracemonkey-pldi-09.pdf",
+    value: "",
     kind: OptionKind.VIEWER
   },
   defaultZoomValue: {

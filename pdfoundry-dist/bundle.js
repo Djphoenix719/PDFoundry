@@ -11,12 +11,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFoundry = exports.UnlinkedPDFError = exports.PDFoundryAPIError = void 0;
-const PDFViewerWeb_1 = require("./viewer/PDFViewerWeb");
-const PDFManifest_1 = require("./settings/PDFManifest");
-const PDFDatabase_1 = require("./settings/PDFDatabase");
 /**
  * An error that is thrown by the PDFoundry API
  */
+const PDFDatabase_1 = require("../settings/PDFDatabase");
+const PDFManifest_1 = require("../settings/PDFManifest");
+const PDFViewerWeb_1 = require("../viewer/PDFViewerWeb");
 class PDFoundryAPIError extends Error {
     constructor(message) {
         super(message);
@@ -62,7 +62,9 @@ class PDFoundry {
         if (pdf.url === undefined) {
             throw new UnlinkedPDFError(`PDF with code "${code}" has no specified URL.`);
         }
-        this.openURL(pdf.url, page);
+        page = parseInt(page.toString());
+        page = pdf.offset ? page + pdf.offset : page;
+        this.openURL(`${window.origin}/${pdf.url}`, page);
     }
     /**
      * Open a PDF by URL to the specified page.
@@ -81,7 +83,7 @@ class PDFoundry {
 }
 exports.PDFoundry = PDFoundry;
 
-},{"./settings/PDFDatabase":4,"./settings/PDFManifest":5,"./viewer/PDFViewerWeb":7}],2:[function(require,module,exports){
+},{"../settings/PDFDatabase":4,"../settings/PDFManifest":5,"../viewer/PDFViewerWeb":8}],2:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -131,8 +133,8 @@ class PDFSettingsApp extends Application {
     }
     activateListeners(html) {
         super.activateListeners(html);
-        const buttons = html.parents().find('button');
-        buttons.on('click', function (event) {
+        const testButtons = html.parents().find('button.pdf-test');
+        testButtons.on('click', function (event) {
             event.preventDefault();
             const row = $(this).parent().parent();
             const urlInput = row.find('input.pdf-url');
@@ -145,11 +147,29 @@ class PDFSettingsApp extends Application {
                 return;
             urlValue = encodeURIComponent(urlValue.toString());
             urlValue = `${window.location.origin}/${urlValue}`;
-            if (offsetValue.toString().trim() === "") {
+            if (offsetValue.toString().trim() === '') {
                 offsetValue = 0;
             }
             offsetValue = parseInt(offsetValue);
             new PDFViewerWeb_1.PDFViewerWeb(urlValue, 5 + offsetValue).render(true);
+        });
+        const browseButtons = html.parents().find('button.pdf-browse');
+        browseButtons.on('click', function (event) {
+            return __awaiter(this, void 0, void 0, function* () {
+                event.preventDefault();
+                const row = $(event.target.parentElement);
+                const urlInput = row.find('input.pdf-url').first();
+                const fp = new FilePicker({});
+                // @ts-ignore TODO: foundry-pc-types
+                fp.extensions = ['.pdf'];
+                fp.field = urlInput[0];
+                let urlValue = urlInput.val();
+                if (urlValue !== undefined) {
+                    yield fp.browse(urlValue.toString().trim());
+                }
+                fp.render(true);
+                console.log(event);
+            });
         });
     }
     close() {
@@ -192,47 +212,23 @@ class PDFSettingsApp extends Application {
 }
 exports.PDFSettingsApp = PDFSettingsApp;
 
-},{"../viewer/PDFViewerWeb":7}],3:[function(require,module,exports){
+},{"../viewer/PDFViewerWeb":8}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const PDFSettingsApp_1 = require("./app/PDFSettingsApp");
-const PDFoundry_1 = require("./PDFoundry");
-const PDFDatabase_1 = require("./settings/PDFDatabase");
 // Register UI accessor
-Hooks.once('init', function () {
+const PDFoundry_1 = require("./api/PDFoundry");
+const PDFSettings_1 = require("./settings/PDFSettings");
+Hooks.on('init', function () {
     // @ts-ignore
     ui.PDFoundry = PDFoundry_1.PDFoundry;
 });
-// Hooks.once('init', async function () {
-//     await PDFoundry.register('shadowrun5e', 'modules/pdfoundry/dist/sr5_pdfs.json');
-// });
-Hooks.once('renderSettings', (app, html) => {
-    console.log('Rendering settings.');
-    const beforeTarget = $(html).find('h2').first();
-    //TODO Localize header...
-    const header = $('<h2>Configure PDFs</h2>');
-    beforeTarget.before(header);
-    for (const manifest of PDFDatabase_1.PDFDatabase.MANIFESTS) {
-        console.log(manifest);
-        //TODO: Localize names...
-        const b = $('<button data-action="pdf-settings"></button>');
-        b.html(`<i class="fas fa-file-pdf"></i> ${manifest.name}`);
-        b.on('click', (event) => {
-            const settingsApp = new PDFSettingsApp_1.PDFSettingsApp(manifest);
-            settingsApp.render(true);
-        });
-        beforeTarget.before(b);
-    }
-});
-Hooks.on('renderItemSheet', (app, html) => {
-    console.warn('Render Item!');
-    $(html).find('section.window-content ');
-});
+Hooks.on('renderSettings', PDFSettings_1.PDFSettings.initializeContainer);
 
-},{"./PDFoundry":1,"./app/PDFSettingsApp":2,"./settings/PDFDatabase":4}],4:[function(require,module,exports){
+},{"./api/PDFoundry":1,"./settings/PDFSettings":6}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFDatabase = exports.PDFDatabaseError = void 0;
+const PDFSettings_1 = require("./PDFSettings");
 /**
  * An error thrown during PDF lookup or registration.
  */
@@ -243,6 +239,10 @@ class PDFDatabaseError extends Error {
 }
 exports.PDFDatabaseError = PDFDatabaseError;
 class PDFDatabase {
+    /**
+     * Register a manifest with the database for later lookup
+     * @param manifest
+     */
     static register(manifest) {
         if (!manifest.isInitialized) {
             throw new PDFDatabaseError('Cannot register uninitialized manifest.');
@@ -261,6 +261,7 @@ class PDFDatabase {
             }
         }
         PDFDatabase.MANIFESTS.push(manifest);
+        PDFSettings_1.PDFSettings.addManifestButton(manifest);
     }
     /**
      * Get a PDF definition by it's code.
@@ -280,7 +281,7 @@ class PDFDatabase {
 exports.PDFDatabase = PDFDatabase;
 PDFDatabase.MANIFESTS = [];
 
-},{}],5:[function(require,module,exports){
+},{"./PDFSettings":6}],5:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -444,6 +445,68 @@ PDFManifest.SETTINGS_SCOPE = 'world';
 
 },{}],6:[function(require,module,exports){
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PDFSettings = void 0;
+const PDFSettingsApp_1 = require("../app/PDFSettingsApp");
+const PDFDatabase_1 = require("./PDFDatabase");
+class PDFSettings {
+    /**
+     * Create the container for the settings buttons
+     * @param app
+     * @param html
+     */
+    static initializeContainer(app, html) {
+        if (html.find(`#${PDFSettings.CONTAINER_ID}`).length > 0) {
+            return;
+        }
+        const container = $(`<div id="${PDFSettings.CONTAINER_ID}"></div>`);
+        container.append('<h4>PDFoundry</h4>');
+        const help = $(html.find('h2').get(2));
+        help.before(container);
+        PDFSettings.cleanDestroyedContainers();
+        PDFSettings.CONTAINERS.push(container);
+        for (const manifest of PDFDatabase_1.PDFDatabase.MANIFESTS) {
+            PDFSettings.addManifestButton(manifest);
+        }
+    }
+    /**
+     * Unreference containers whose windows have been destroyed
+     */
+    static cleanDestroyedContainers() {
+        const containers = PDFSettings.CONTAINERS;
+        for (let i = containers.length - 1; i >= 0; i--) {
+            const container = containers[i][0];
+            if (document.body.contains(container)) {
+                continue;
+            }
+            containers.splice(i);
+        }
+    }
+    /**
+     * Add a button to edit the manifest to all containers
+     * @param manifest
+     */
+    static addManifestButton(manifest) {
+        //TODO: Localize names...
+        for (const container of PDFSettings.CONTAINERS) {
+            if (container.find(`#pdf-setting-${manifest.id}`).length > 0) {
+                continue;
+            }
+            const button = $(`<button id="pdf-setting-${manifest.id}"><i class="fas fa-file-pdf"></i> ${manifest.name}</button>`);
+            button.on('click', (event) => {
+                const settingsApp = new PDFSettingsApp_1.PDFSettingsApp(manifest);
+                settingsApp.render(true);
+            });
+            container.append(button);
+        }
+    }
+}
+exports.PDFSettings = PDFSettings;
+PDFSettings.CONTAINERS = [];
+PDFSettings.CONTAINER_ID = 'pdfoundry-config';
+
+},{"../app/PDFSettingsApp":2,"./PDFDatabase":4}],7:[function(require,module,exports){
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -482,7 +545,7 @@ class PDFViewerBase extends Application {
 }
 exports.PDFViewerBase = PDFViewerBase;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFViewerWeb = void 0;
@@ -507,4 +570,4 @@ class PDFViewerWeb extends PDFViewerBase_1.PDFViewerBase {
 }
 exports.PDFViewerWeb = PDFViewerWeb;
 
-},{"./PDFViewerBase":6}]},{},[3]);
+},{"./PDFViewerBase":7}]},{},[3]);

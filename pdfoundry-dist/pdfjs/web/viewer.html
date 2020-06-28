@@ -43,8 +43,9 @@ See https://github.com/adobe-type-tools/cmap-resources
 
   </head>
 
-  <!-- CHANGE: Disable autocomplete to prevent weird autocomplete issues on Chrome -->
-  <form autocomplete="off" onsubmit="event.preventDefault()">
+  <!-- CHANGE: Dummy element used to disable certain features -->
+  <button hidden id="fvttdummybutton"></button>
+
   <body tabindex="1" class="loadingInProgress">
     <div id="outerContainer">
 
@@ -76,7 +77,10 @@ See https://github.com/adobe-type-tools/cmap-resources
       <div id="mainContainer">
         <div class="findbar hidden doorHanger" id="findbar">
           <div id="findbarInputContainer">
-            <input id="findInput" class="toolbarField" title="Find" placeholder="Find in document…" tabindex="91" data-l10n-id="find_input">
+            <!-- CHANGE: Disable autocomplete to prevent weird autocomplete issues on Chrome -->
+            <form style="height: 100%" autocomplete="off" onsubmit="event.preventDefault()">
+              <input id="findInput" autocomplete="off" class="toolbarField" title="Find" placeholder="Find in document…" tabindex="91" data-l10n-id="find_input">
+            </form>
             <div class="splitToolbarButton">
               <button id="findPrevious" class="toolbarButton findPrevious" title="Find the previous occurrence of the phrase" tabindex="92" data-l10n-id="find_previous">
                 <span data-l10n-id="find_previous_label">Previous</span>
@@ -107,28 +111,34 @@ See https://github.com/adobe-type-tools/cmap-resources
 
         <div id="secondaryToolbar" class="secondaryToolbar hidden doorHangerRight">
           <div id="secondaryToolbarButtonContainer">
-            <button id="secondaryPresentationMode" class="secondaryToolbarButton presentationMode visibleLargeView" title="Switch to Presentation Mode" tabindex="51" data-l10n-id="presentation_mode">
-              <span data-l10n-id="presentation_mode_label">Presentation Mode</span>
-            </button>
+            <!-- CHANGE: Disabled for PDFjs Foundry VTT --->
+<!--            <button id="secondaryPresentationMode" class="secondaryToolbarButton presentationMode visibleLargeView" title="Switch to Presentation Mode" tabindex="51" data-l10n-id="presentation_mode">-->
+<!--              <span data-l10n-id="presentation_mode_label">Presentation Mode</span>-->
+<!--            </button>-->
 
-            <button id="secondaryOpenFile" class="secondaryToolbarButton openFile visibleLargeView" title="Open File" tabindex="52" data-l10n-id="open_file">
-              <span data-l10n-id="open_file_label">Open</span>
-            </button>
+            <!-- CHANGE: Disabled for PDFjs Foundry VTT --->
+<!--            <button id="secondaryOpenFile" class="secondaryToolbarButton openFile visibleLargeView" title="Open File" tabindex="52" data-l10n-id="open_file">-->
+<!--              <span data-l10n-id="open_file_label">Open</span>-->
+<!--            </button>-->
 
-            <button id="secondaryPrint" class="secondaryToolbarButton print visibleMediumView" title="Print" tabindex="53" data-l10n-id="print">
-              <span data-l10n-id="print_label">Print</span>
-            </button>
+            <!-- CHANGE: Disabled for PDFjs Foundry VTT --->
+<!--            <button id="secondaryPrint" class="secondaryToolbarButton print visibleMediumView" title="Print" tabindex="53" data-l10n-id="print">-->
+<!--              <span data-l10n-id="print_label">Print</span>-->
+<!--            </button>-->
 
-            <!-- CHANGE: Remove download button --->
+            <!-- CHANGE: Disabled for PDFjs Foundry VTT --->
 <!--            <button id="secondaryDownload" class="secondaryToolbarButton download visibleMediumView" title="Download" tabindex="54" data-l10n-id="download">-->
 <!--              <span data-l10n-id="download_label">Download</span>-->
 <!--            </button>-->
 
-            <a href="#" id="secondaryViewBookmark" class="secondaryToolbarButton bookmark visibleSmallView" title="Current view (copy or open in new window)" tabindex="55" data-l10n-id="bookmark">
-              <span data-l10n-id="bookmark_label">Current View</span>
-            </a>
 
-            <div class="horizontalToolbarSeparator visibleLargeView"></div>
+            <!-- CHANGE: Disabled for PDFjs Foundry VTT --->
+<!--            <a href="#" id="secondaryViewBookmark" class="secondaryToolbarButton bookmark visibleSmallView" title="Current view (copy or open in new window)" tabindex="55" data-l10n-id="bookmark">-->
+<!--              <span data-l10n-id="bookmark_label">Current View</span>-->
+<!--            </a>-->
+
+            <!-- CHANGE: Disabled for PDFjs Foundry VTT --->
+<!--            <div class="horizontalToolbarSeparator visibleLargeView"></div>-->
 
             <button id="firstPage" class="secondaryToolbarButton firstPage" title="Go to First Page" tabindex="56" data-l10n-id="first_page">
               <span data-l10n-id="first_page_label">Go to First Page</span>
@@ -211,26 +221,34 @@ See https://github.com/adobe-type-tools/cmap-resources
                 <span id="numPages" class="toolbarLabel"></span>
               </div>
               <div id="toolbarViewerRight">
-                <button id="presentationMode" class="toolbarButton presentationMode hiddenLargeView" title="Switch to Presentation Mode" tabindex="31" data-l10n-id="presentation_mode">
-                  <span data-l10n-id="presentation_mode_label">Presentation Mode</span>
-                </button>
+                <!-- CHANGE: Disabled for PDFjs Foundry VTT --->
+<!--                <button id="presentationMode" class="toolbarButton presentationMode hiddenLargeView" title="Switch to Presentation Mode" tabindex="31" data-l10n-id="presentation_mode">-->
+<!--                  <span data-l10n-id="presentation_mode_label">Presentation Mode</span>-->
+<!--                </button>-->
 
-                <button id="openFile" class="toolbarButton openFile hiddenLargeView" title="Open File" tabindex="32" data-l10n-id="open_file">
-                  <span data-l10n-id="open_file_label">Open</span>
-                </button>
+                <!-- CHANGE: Disabled for PDFjs Foundry VTT --->
+<!--                <button id="openFile" class="toolbarButton openFile hiddenLargeView" title="Open File" tabindex="32" data-l10n-id="open_file">-->
+<!--                  <span data-l10n-id="open_file_label">Open</span>-->
+<!--                </button>-->
 
-                <button id="print" class="toolbarButton print hiddenMediumView" title="Print" tabindex="33" data-l10n-id="print">
-                  <span data-l10n-id="print_label">Print</span>
-                </button>
+                <!-- CHANGE: Disabled for PDFjs Foundry VTT --->
+<!--                <button id="print" class="toolbarButton print hiddenMediumView" title="Print" tabindex="33" data-l10n-id="print">-->
+<!--                  <span data-l10n-id="print_label">Print</span>-->
+<!--                </button>-->
 
-                <button id="download" class="toolbarButton download hiddenMediumView" title="Download" tabindex="34" data-l10n-id="download">
-                  <span data-l10n-id="download_label">Download</span>
-                </button>
-                <a href="#" id="viewBookmark" class="toolbarButton bookmark hiddenSmallView" title="Current view (copy or open in new window)" tabindex="35" data-l10n-id="bookmark">
-                  <span data-l10n-id="bookmark_label">Current View</span>
-                </a>
+                <!-- CHANGE: Disabled for PDFjs Foundry VTT --->
+<!--                <button id="download" class="toolbarButton download hiddenMediumView" title="Download" tabindex="34" data-l10n-id="download">-->
+<!--                  <span data-l10n-id="download_label">Download</span>-->
+<!--                </button>-->
 
-                <div class="verticalToolbarSeparator hiddenSmallView"></div>
+                <!-- CHANGE: Disabled for PDFjs Foundry VTT --->
+<!--                <a href="#" id="viewBookmark" class="toolbarButton bookmark hiddenSmallView" title="Current view (copy or open in new window)" tabindex="35" data-l10n-id="bookmark">-->
+<!--                  <span data-l10n-id="bookmark_label">Current View</span>-->
+<!--                </a>-->
+
+
+                <!-- CHANGE: Disabled for PDFjs Foundry VTT --->
+<!--                <div class="verticalToolbarSeparator hiddenSmallView"></div>-->
 
                 <button id="secondaryToolbarToggle" class="toolbarButton" title="Tools" tabindex="36" data-l10n-id="tools">
                   <span data-l10n-id="tools_label">Tools</span>
