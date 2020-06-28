@@ -1,6 +1,6 @@
-import { PdfViewerBase } from './pdf-viewer-base';
+import { PDFViewerBase } from './PDFViewerBase';
 
-export class PdfViewerWeb extends PdfViewerBase {
+export class PDFViewerWeb extends PDFViewerBase {
     private m_Page: number;
     private m_FilePath: string;
 

@@ -1,35 +1,43 @@
-form.pdf-settings-form {
-  div.pdf-settings-flexwrap {
-    max-height: 400px;
+form.pdf-settings {
+  div.wrap {
     overflow-y: scroll;
     overflow-x: hidden;
+    max-height: 600px;
   }
 
-  div.pdf-settings-flexrow {
-    display: flex;
-    flex-direction: row;
+  div.row {
+    margin-top: 4px;
 
-    width: 100%;
-    padding-top: 4px;
+    div.row-header {
+      border-bottom: 1px solid #782e22;
 
-    &.pdf-settings-flexrow-header {
-      border-bottom: 1px solid black;
-    }
-
-    span {
-      flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-
-      &:last-child {
-        padding-right: 0;
+      span.pdf-name {
+        padding-left: 1em;
+        float: left;
+      }
+      span.pdf-code {
+        padding-right: 1em;
+        float: right;
       }
     }
+    div.row-body {
+      input.pdf-url {
+        float: left;
+        width: 75%;
+      }
+      input.pdf-offset {
+        width: 15%;
+        float: right;
+      }
+      button.pdf-test {
+        float: right;
+        border: 0;
 
-    line-height: 2em;
-    input, button {
-      height: 2em;
+        line-height: 24px;
+        width: 5%;
+        padding: 0;
+        margin: 0 0 0 4px;
+      }
     }
   }
 
@@ -50,5 +58,11 @@ form.pdf-settings-form {
     -moz-user-select: text;
     -ms-user-select: text;
     user-select: text;
+  }
+
+  .clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
   }
 }

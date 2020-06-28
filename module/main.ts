@@ -1,24 +1,38 @@
-import { PDFSettings } from './settings';
-import { PdfSettingsApp } from './app/pdf-settings-app';
-import { PDFoundry } from './api';
+import { PDFSettingsApp } from './app/PDFSettingsApp';
+import { PDFoundry } from './PDFoundry';
+import { PDFDatabase } from './settings/PDFDatabase';
 
 // Register UI accessor
-Hooks.on('init', function () {
+Hooks.once('init', function () {
     // @ts-ignore
     ui.PDFoundry = PDFoundry;
 });
+// Hooks.once('init', async function () {
+//     await PDFoundry.register('shadowrun5e', 'modules/pdfoundry/dist/sr5_pdfs.json');
+// });
 
-Hooks.once('ready', async function () {
-    // const view = new WebViewerApp('..\\..\\..\\books\\Shadowrun - Hard Targets.pdf', 45).render(true);
-    // PDFOptions.init();
+Hooks.once('renderSettings', (app, html) => {
+    console.log('Rendering settings.');
+    const beforeTarget = $(html).find('h2').first();
+    //TODO Localize header...
+    const header = $('<h2>Configure PDFs</h2>');
+    beforeTarget.before(header);
 
-    try {
-        console.log(game.settings.get('shadowrun5e', 'shadowrun-5th-edition'));
-    } catch (e) {
-        console.warn('Unable to get settings.');
+    for (const manifest of PDFDatabase.MANIFESTS) {
+        console.log(manifest);
+        //TODO: Localize names...
+        const b = $('<button data-action="pdf-settings"></button>');
+        b.html(`<i class="fas fa-file-pdf"></i> ${manifest.name}`);
+
+        b.on('click', (event) => {
+            const settingsApp = new PDFSettingsApp(manifest);
+            settingsApp.render(true);
+        });
+        beforeTarget.before(b);
     }
+});
 
-    await PDFSettings.RegisterFromURL('shadowrun5e', 'modules/pdfoundry/dist/sr5_pdfs.json');
-
-    // new PdfSettingsApp(null).render(true);
+Hooks.on('renderItemSheet', (app, html) => {
+    console.warn('Render Item!');
+    $(html).find('section.window-content ');
 });

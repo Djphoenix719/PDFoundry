@@ -1,31 +1,39 @@
-form.pdf-settings-form div.pdf-settings-flexwrap {
-  max-height: 400px;
+form.pdf-settings div.wrap {
   overflow-y: scroll;
   overflow-x: hidden;
+  max-height: 600px;
 }
-form.pdf-settings-form div.pdf-settings-flexrow {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  padding-top: 4px;
-  line-height: 2em;
+form.pdf-settings div.row {
+  margin-top: 4px;
 }
-form.pdf-settings-form div.pdf-settings-flexrow.pdf-settings-flexrow-header {
-  border-bottom: 1px solid black;
+form.pdf-settings div.row div.row-header {
+  border-bottom: 1px solid #782e22;
 }
-form.pdf-settings-form div.pdf-settings-flexrow span {
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+form.pdf-settings div.row div.row-header span.pdf-name {
+  padding-left: 1em;
+  float: left;
 }
-form.pdf-settings-form div.pdf-settings-flexrow span:last-child {
-  padding-right: 0;
+form.pdf-settings div.row div.row-header span.pdf-code {
+  padding-right: 1em;
+  float: right;
 }
-form.pdf-settings-form div.pdf-settings-flexrow input, form.pdf-settings-form div.pdf-settings-flexrow button {
-  height: 2em;
+form.pdf-settings div.row div.row-body input.pdf-url {
+  float: left;
+  width: 75%;
 }
-form.pdf-settings-form input[type=number] {
+form.pdf-settings div.row div.row-body input.pdf-offset {
+  width: 15%;
+  float: right;
+}
+form.pdf-settings div.row div.row-body button.pdf-test {
+  float: right;
+  border: 0;
+  line-height: 24px;
+  width: 5%;
+  padding: 0;
+  margin: 0 0 0 4px;
+}
+form.pdf-settings input[type=number] {
   min-width: 20px;
   height: 24px;
   background: rgba(0, 0, 0, 0.05);
@@ -42,6 +50,11 @@ form.pdf-settings-form input[type=number] {
   -moz-user-select: text;
   -ms-user-select: text;
   user-select: text;
+}
+form.pdf-settings .clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
 }
 
 /*# sourceMappingURL=bundle.css.map */

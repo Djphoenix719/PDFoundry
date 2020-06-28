@@ -1,12 +1,87 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PDFoundry = void 0;
+exports.PDFoundry = exports.UnlinkedPDFError = exports.PDFoundryAPIError = void 0;
+const PDFViewerWeb_1 = require("./viewer/PDFViewerWeb");
+const PDFManifest_1 = require("./settings/PDFManifest");
+const PDFDatabase_1 = require("./settings/PDFDatabase");
+/**
+ * An error that is thrown by the PDFoundry API
+ */
+class PDFoundryAPIError extends Error {
+    constructor(message) {
+        super(message);
+    }
+}
+exports.PDFoundryAPIError = PDFoundryAPIError;
+/**
+ * An error thrown when a PDF has not been linked by the user.
+ */
+class UnlinkedPDFError extends PDFoundryAPIError {
+    constructor(message) {
+        super(message);
+    }
+}
+exports.UnlinkedPDFError = UnlinkedPDFError;
 class PDFoundry {
+    /**
+     * Register a manifest from the specified URL
+     * @param module The module YOU are calling this from.
+     * @param url The URL (local or absolute) to fetch from.
+     */
+    static register(module, url) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const data = yield $.getJSON(url);
+            const { id, name, pdfs } = data;
+            const manifest = new PDFManifest_1.PDFManifest(module, id, name, pdfs);
+            yield manifest.register();
+            manifest.pull();
+            PDFDatabase_1.PDFDatabase.register(manifest);
+            return manifest;
+        });
+    }
+    /**
+     * Open a PDF by code to the specified page.
+     * @param code
+     * @param page
+     */
+    static open(code, page = 1) {
+        const pdf = PDFDatabase_1.PDFDatabase.getPDF(code);
+        if (pdf === undefined) {
+            throw new PDFDatabase_1.PDFDatabaseError(`Unable to find a PDF with code "${code}".`);
+        }
+        if (pdf.url === undefined) {
+            throw new UnlinkedPDFError(`PDF with code "${code}" has no specified URL.`);
+        }
+        this.openURL(pdf.url, page);
+    }
+    /**
+     * Open a PDF by URL to the specified page.
+     * @param url
+     * @param page
+     */
+    static openURL(url, page = 1) {
+        if (url === undefined) {
+            throw new PDFoundryAPIError('Unable to open PDF; "url" must be defined');
+        }
+        if (page <= 0) {
+            throw new PDFoundryAPIError(`Invalid page: "${page}"`);
+        }
+        new PDFViewerWeb_1.PDFViewerWeb(url, page).render(true);
+    }
 }
 exports.PDFoundry = PDFoundry;
 
-},{}],2:[function(require,module,exports){
+},{"./settings/PDFDatabase":4,"./settings/PDFManifest":5,"./viewer/PDFViewerWeb":7}],2:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -18,70 +93,50 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PdfSettingsApp = void 0;
-const settings_1 = require("../settings");
-const pdf_viewer_web_1 = require("../viewer/pdf-viewer-web");
+exports.PDFSettingsApp = void 0;
+const PDFViewerWeb_1 = require("../viewer/PDFViewerWeb");
 /**
  * Acts as a controller for a PDFManifest
  */
-class PdfSettingsApp extends FormApplication {
-    static set manifest(value) {
-        if (this._open) {
-            throw new settings_1.PDFSettingsError('Cannot set manifest while editor is open.');
-        }
-        PdfSettingsApp._manifest = value;
-    }
-    static set module(value) {
-        if (this._open) {
-            throw new settings_1.PDFSettingsError('Cannot set module while editor is open.');
-        }
-        PdfSettingsApp._module = value;
-    }
-    /**
-     * Get a settings key
-     * @param book
-     * @param name
-     */
-    static getSettingKey(book, name) {
-        return `${settings_1.PDFSettings.ROOT_MODULE_NAME}/${book}/${name}`;
+class PDFSettingsApp extends Application {
+    constructor(manifest, options) {
+        super(options);
+        this._manifest = manifest;
     }
     static get defaultOptions() {
         const options = super.defaultOptions;
         options.id = 'pdf-settings-app';
         options.classes = [];
         options.title = 'Edit PDF Locations';
+        //TODO: Dynamic link this up.
         options.template = 'modules/pdfoundry/templates/settings/pdf-settings.html';
         options.width = 800;
         options.height = 'auto';
+        options.resizable = true;
         return options;
     }
     getData(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            const manifest = PdfSettingsApp._manifest;
-            console.info('Trying to get data from manifest...');
-            console.info(manifest);
+            const manifest = this._manifest;
             if (!manifest.isInitialized) {
-                yield manifest.fetch();
+                yield manifest.register();
+                manifest.pull();
             }
             let { pdfs, name } = manifest;
             pdfs.sort((a, b) => {
                 return a.name.localeCompare(b.name);
             });
-            return {
-                name,
-                pdfs,
-            };
+            return { name, pdfs };
         });
     }
     activateListeners(html) {
         super.activateListeners(html);
-        //TODO: Settings is loading localhost urls for some reason...
-        const buttons = html.parents().find('div.pdf-settings-flexrow button');
+        const buttons = html.parents().find('button');
         buttons.on('click', function (event) {
             event.preventDefault();
             const row = $(this).parent().parent();
-            const urlInput = row.find('span.pdf-url input');
-            const offsetInput = row.find('span.pdf-offset input');
+            const urlInput = row.find('input.pdf-url');
+            const offsetInput = row.find('input.pdf-offset');
             let urlValue = urlInput.val();
             let offsetValue = offsetInput.val();
             if (urlValue === null || urlValue === undefined)
@@ -90,8 +145,11 @@ class PdfSettingsApp extends FormApplication {
                 return;
             urlValue = encodeURIComponent(urlValue.toString());
             urlValue = `${window.location.origin}/${urlValue}`;
+            if (offsetValue.toString().trim() === "") {
+                offsetValue = 0;
+            }
             offsetValue = parseInt(offsetValue);
-            new pdf_viewer_web_1.PdfViewerWeb(urlValue, 5 + offsetValue).render(true);
+            new PDFViewerWeb_1.PDFViewerWeb(urlValue, 5 + offsetValue).render(true);
         });
     }
     close() {
@@ -99,13 +157,13 @@ class PdfSettingsApp extends FormApplication {
             close: { get: () => super.close }
         });
         return __awaiter(this, void 0, void 0, function* () {
-            const rows = $(this.element).find('.pdf-settings-flexwrap div.pdf-settings-flexrow');
-            const manifest = PdfSettingsApp._manifest;
+            const rows = $(this.element).find('div.row');
+            const manifest = this._manifest;
             for (let i = 0; i < rows.length; i++) {
                 const row = $(rows[i]);
                 const bookCode = row.find('span.pdf-code').html();
-                const urlInput = row.find('span.pdf-url input');
-                const offsetInput = row.find('span.pdf-offset input');
+                const urlInput = row.find('input.pdf-url');
+                const offsetInput = row.find('input.pdf-offset');
                 const book = manifest.findByCode(bookCode);
                 if (book === undefined) {
                     //TODO: Standardize error handling.
@@ -122,109 +180,107 @@ class PdfSettingsApp extends FormApplication {
                     offsetValue = '0';
                 }
                 offsetValue = parseInt(offsetValue);
-                manifest.updatePDF(bookCode, {
+                manifest.update(bookCode, {
                     url: urlValue,
                     offset: offsetValue,
                 });
             }
-            yield manifest.updateSettings();
-            console.log('%cClosing settings app...', 'color: red');
-            console.log(manifest);
-            PdfSettingsApp._open = false;
+            yield manifest.push();
             return _super.close.call(this);
         });
     }
 }
-exports.PdfSettingsApp = PdfSettingsApp;
-PdfSettingsApp.URL = 'url';
-PdfSettingsApp.OFFSET = 'offset';
+exports.PDFSettingsApp = PDFSettingsApp;
 
-},{"../settings":4,"../viewer/pdf-viewer-web":7}],3:[function(require,module,exports){
+},{"../viewer/PDFViewerWeb":7}],3:[function(require,module,exports){
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const settings_1 = require("./settings");
-const api_1 = require("./api");
+const PDFSettingsApp_1 = require("./app/PDFSettingsApp");
+const PDFoundry_1 = require("./PDFoundry");
+const PDFDatabase_1 = require("./settings/PDFDatabase");
 // Register UI accessor
-Hooks.on('init', function () {
+Hooks.once('init', function () {
     // @ts-ignore
-    ui.PDFoundry = api_1.PDFoundry;
+    ui.PDFoundry = PDFoundry_1.PDFoundry;
 });
-Hooks.once('ready', function () {
-    return __awaiter(this, void 0, void 0, function* () {
-        // const view = new WebViewerApp('..\\..\\..\\books\\Shadowrun - Hard Targets.pdf', 45).render(true);
-        // PDFOptions.init();
-        try {
-            console.log(game.settings.get('shadowrun5e', 'shadowrun-5th-edition'));
-        }
-        catch (e) {
-            console.warn('Unable to get settings.');
-        }
-        yield settings_1.PDFSettings.RegisterFromURL('shadowrun5e', 'modules/pdfoundry/dist/sr5_pdfs.json');
-        // new PdfSettingsApp(null).render(true);
-    });
+// Hooks.once('init', async function () {
+//     await PDFoundry.register('shadowrun5e', 'modules/pdfoundry/dist/sr5_pdfs.json');
+// });
+Hooks.once('renderSettings', (app, html) => {
+    console.log('Rendering settings.');
+    const beforeTarget = $(html).find('h2').first();
+    //TODO Localize header...
+    const header = $('<h2>Configure PDFs</h2>');
+    beforeTarget.before(header);
+    for (const manifest of PDFDatabase_1.PDFDatabase.MANIFESTS) {
+        console.log(manifest);
+        //TODO: Localize names...
+        const b = $('<button data-action="pdf-settings"></button>');
+        b.html(`<i class="fas fa-file-pdf"></i> ${manifest.name}`);
+        b.on('click', (event) => {
+            const settingsApp = new PDFSettingsApp_1.PDFSettingsApp(manifest);
+            settingsApp.render(true);
+        });
+        beforeTarget.before(b);
+    }
+});
+Hooks.on('renderItemSheet', (app, html) => {
+    console.warn('Render Item!');
+    $(html).find('section.window-content ');
 });
 
-},{"./api":1,"./settings":4}],4:[function(require,module,exports){
+},{"./PDFoundry":1,"./app/PDFSettingsApp":2,"./settings/PDFDatabase":4}],4:[function(require,module,exports){
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PDFSettings = exports.PDFSettingsError = void 0;
-const pdf_settings_app_1 = require("./app/pdf-settings-app");
-const PdfManifest_1 = require("./settings/PdfManifest");
-class PDFSettingsError extends Error {
+exports.PDFDatabase = exports.PDFDatabaseError = void 0;
+/**
+ * An error thrown during PDF lookup or registration.
+ */
+class PDFDatabaseError extends Error {
     constructor(message) {
         super(message);
     }
 }
-exports.PDFSettingsError = PDFSettingsError;
-class PDFSettings {
-    /**
-     * Helper function to load a manifest from a URL and immediately register it.
-     * @see PDFSettings.Register
-     */
-    static RegisterFromURL(module, url) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const manifest = new PdfManifest_1.PdfManifest(module, url);
-            yield manifest.fetch();
-            PDFSettings.Register(module, manifest);
-        });
+exports.PDFDatabaseError = PDFDatabaseError;
+class PDFDatabase {
+    static register(manifest) {
+        if (!manifest.isInitialized) {
+            throw new PDFDatabaseError('Cannot register uninitialized manifest.');
+        }
+        const toValidate = manifest.pdfs;
+        while (toValidate.length > 0) {
+            const thisPdf = toValidate.pop();
+            if (thisPdf === undefined) {
+                throw new PDFDatabaseError(`Undefined PDF found in manifest "${manifest.id}".`);
+            }
+            for (const thatManifest of PDFDatabase.MANIFESTS) {
+                const thatPdf = thatManifest.findByCode(thisPdf.code);
+                if (thatPdf !== undefined) {
+                    throw new PDFDatabaseError(`A PDF with code ${thisPdf.code} already exists in manifest "${thatManifest.id}".`);
+                }
+            }
+        }
+        PDFDatabase.MANIFESTS.push(manifest);
     }
     /**
-     * Register a module with the game settings menu.
-     * @param module The module you are calling from.
-     * @param manifest A manifest that should be loaded.
+     * Get a PDF definition by it's code.
+     * @param code
      */
-    static Register(module, manifest) {
-        if (!manifest.isInitialized) {
-            throw new PDFSettingsError('Tried to register a manifest an uninitialized manifest. Did you forget to call load?');
+    static getPDF(code) {
+        let found = undefined;
+        for (const manifest of PDFDatabase.MANIFESTS) {
+            found = manifest.findByCode(code);
+            if (found !== undefined) {
+                break;
+            }
         }
-        // TODO: Look into if this can be passed again.
-        pdf_settings_app_1.PdfSettingsApp.manifest = manifest;
-        pdf_settings_app_1.PdfSettingsApp.module = module;
-        manifest.registerMenu();
+        return found;
     }
 }
-exports.PDFSettings = PDFSettings;
-PDFSettings.ROOT_MODULE_NAME = 'PDFoundry';
+exports.PDFDatabase = PDFDatabase;
+PDFDatabase.MANIFESTS = [];
 
-},{"./app/pdf-settings-app":2,"./settings/PdfManifest":5}],5:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -236,8 +292,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PdfManifest = exports.PDFManifestError = void 0;
-const pdf_settings_app_1 = require("../app/pdf-settings-app");
+exports.PDFManifest = exports.PDFManifestError = void 0;
 /**
  * An error that occurs in a PDF Manifest.
  */
@@ -247,18 +302,22 @@ class PDFManifestError extends Error {
     }
 }
 exports.PDFManifestError = PDFManifestError;
-class PdfManifest {
-    constructor(module, url) {
+class PDFManifest {
+    // </editor-fold>
+    constructor(module, id, name, pdfs) {
         this._module = module;
-        this._URL = url;
+        this._id = id;
+        this._name = name;
+        this._pdfs = pdfs;
     }
+    // <editor-fold desc="Getters">
     /**
      * The ID of the manifest.
      * Assumed to be unique.
      */
     get id() {
         if (!this.isInitialized) {
-            throw new PDFManifestError('Tried to get the id of a manifest before it was initialized. Did you forget to call init()?');
+            throw new PDFManifestError('Tried to get the id of a manifest before it was initialized. Did you forget to call init?');
         }
         return this._id;
     }
@@ -268,7 +327,7 @@ class PdfManifest {
     get name() {
         if (!this.isInitialized) {
             //TODO: Standardize error handling.
-            throw new PDFManifestError('Tried to get the name of a manifest before it was initialized. Did you forget to call init()?');
+            throw new PDFManifestError('Tried to get the name of a manifest before it was initialized. Did you forget to call init?');
         }
         return this._name;
     }
@@ -277,6 +336,7 @@ class PdfManifest {
      * Changes to the array will not be reflected in the original.
      */
     get pdfs() {
+        // TODO: Less hacky way to deep copy this array?
         return JSON.parse(JSON.stringify(this._pdfs));
     }
     /**
@@ -286,12 +346,38 @@ class PdfManifest {
         return this._pdfs !== undefined;
     }
     /**
+     * Can the active user edit this manifest?
+     */
+    get userCanEdit() {
+        return game.user.isGM;
+    }
+    /**
      * The key used for game settings.
      */
     get settingsKey() {
-        return `${PdfManifest.ROOT_KEY}/${this._id}`;
+        return `${PDFManifest.ROOT_KEY}/${this._id}`;
     }
-    updatePDF(code, data) {
+    // </editor-fold>
+    // <editor-fold desc="Helpers">
+    /**
+     * Helper function to find a PDF by name.
+     */
+    findByName(name) {
+        return this._pdfs.find((pdf) => pdf.name === name);
+    }
+    /**
+     * Helper function to find a PDF by code.
+     */
+    findByCode(code) {
+        return this._pdfs.find((pdf) => pdf.code === code);
+    }
+    // </editor-fold>
+    /**
+     * Update the manifest by PDF code and partial data.
+     * @param code The code of the PDF that should be updated.
+     * @param data Partial changes to the PDF that should be made.
+     */
+    update(code, data) {
         const pdf = this.findByCode(code);
         if (pdf === undefined) {
             // TODO: Standardize error handling.
@@ -300,40 +386,24 @@ class PdfManifest {
         mergeObject(pdf, data, { inplace: true });
     }
     /**
-     * Find the first PDF in the manifest matching an arbitrary comparison.
+     * Register the manifest's storage location with the game settings.
      */
-    find(cmp) {
-        return this._pdfs.find(cmp);
-    }
-    /**
-     * Helper function to find a PDF by name.
-     */
-    findByName(name) {
-        return this.find((pdf) => pdf.name === name);
-    }
-    /**
-     * Helper function to find a PDF by code.
-     */
-    findByCode(code) {
-        return this.find((pdf) => pdf.code === code);
-    }
-    /**
-     * Fetch and optionally load the manifest.
-     */
-    fetch() {
+    register() {
         return __awaiter(this, void 0, void 0, function* () {
-            const data = yield $.getJSON(this._URL);
-            this._id = data.id;
-            this._name = data.name;
-            this._pdfs = data.pdfs;
-            this.registerSettings();
-            this.loadGameSettings();
+            yield game.settings.register(this._module, this.settingsKey, {
+                _id: this._id,
+                _name: this._name,
+                _module: this._module,
+                _pdfs: this._pdfs,
+                scope: PDFManifest.SETTINGS_SCOPE,
+            });
         });
     }
-    loadGameSettings() {
-        const loadedValues = this.fetchSettings();
-        console.log(`%cFetched settings...`, 'color: green');
-        console.log(loadedValues);
+    /**
+     * Pull the manifest, loading it's data from the world.
+     */
+    pull() {
+        const loadedValues = game.settings.get(this._module, this.settingsKey);
         // First time running...
         if (loadedValues === undefined) {
             return;
@@ -348,52 +418,31 @@ class PdfManifest {
         this._name = loadedValues._name;
         this._pdfs = mergeObject(this._pdfs, loadedValues._pdfs, { enforceTypes: false });
     }
-    fetchSettings() {
-        return game.settings.get(this._module, this.settingsKey);
-    }
-    registerSettings() {
+    /**
+     * Push the manifest, saving it to the world.
+     */
+    push() {
         return __awaiter(this, void 0, void 0, function* () {
-            game.settings.register(this._module, this.settingsKey, {
-                _id: this._id,
-                _name: this._name,
-                _module: this._module,
-                _pdfs: this._pdfs,
-                scope: PdfManifest.SETTINGS_SCOPE,
-            });
-        });
-    }
-    registerMenu() {
-        // @ts-ignore
-        game.settings.registerMenu(module, this.settingsKey, {
-            name: this.name,
-            label: this.name,
-            hint: `Edit the PDF locations for ${this.name}.`,
-            icon: 'fas fa-file-pdf',
-            type: pdf_settings_app_1.PdfSettingsApp,
-            restricted: true,
-            onChange: (value) => {
-                console.warn('Settings changed');
-                console.log(value);
-            },
-        });
-    }
-    updateSettings() {
-        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.userCanEdit) {
+                ui.notifications.error(`User ${game.user.name} does not have permission to edit PDF locations.`);
+                return;
+            }
             yield game.settings.set(this._module, this.settingsKey, {
                 _id: this._id,
                 _name: this._name,
                 _module: this._module,
                 _pdfs: this._pdfs,
-                scope: PdfManifest.SETTINGS_SCOPE,
+                scope: PDFManifest.SETTINGS_SCOPE,
             });
         });
     }
 }
-exports.PdfManifest = PdfManifest;
-PdfManifest.ROOT_KEY = 'PDFoundry';
-PdfManifest.SETTINGS_SCOPE = 'world';
+exports.PDFManifest = PDFManifest;
+// <editor-fold desc="Static Fields">
+PDFManifest.ROOT_KEY = 'PDFoundry';
+PDFManifest.SETTINGS_SCOPE = 'world';
 
-},{"../app/pdf-settings-app":2}],6:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -405,14 +454,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PdfViewerBase = void 0;
-class PdfViewerBase extends Application {
-    get pdfJS() {
-        if (this.m_Frame && this.m_Frame.contentWindow) {
-            // @ts-ignore
-            return this.m_Frame.contentWindow.PDFViewerApplication;
-        }
-    }
+exports.PDFViewerBase = void 0;
+class PDFViewerBase extends Application {
     static get defaultOptions() {
         const options = super.defaultOptions;
         options.id = 'pdf-viewer';
@@ -432,18 +475,19 @@ class PdfViewerBase extends Application {
             this.m_Frame = html.parents().find('iframe.pdfViewer').first().get(0);
         });
     }
+    //TODO: Cleanup PDFjs
     close() {
         return super.close();
     }
 }
-exports.PdfViewerBase = PdfViewerBase;
+exports.PDFViewerBase = PDFViewerBase;
 
 },{}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PdfViewerWeb = void 0;
-const pdf_viewer_base_1 = require("./pdf-viewer-base");
-class PdfViewerWeb extends pdf_viewer_base_1.PdfViewerBase {
+exports.PDFViewerWeb = void 0;
+const PDFViewerBase_1 = require("./PDFViewerBase");
+class PDFViewerWeb extends PDFViewerBase_1.PDFViewerBase {
     constructor(file, page) {
         super();
         this.m_FilePath = file;
@@ -461,6 +505,6 @@ class PdfViewerWeb extends pdf_viewer_base_1.PdfViewerBase {
         return data;
     }
 }
-exports.PdfViewerWeb = PdfViewerWeb;
+exports.PDFViewerWeb = PDFViewerWeb;
 
-},{"./pdf-viewer-base":6}]},{},[3]);
+},{"./PDFViewerBase":6}]},{},[3]);

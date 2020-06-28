@@ -1,6 +1,3 @@
-import { PDFSettings } from '../settings';
-import { PdfSettingsApp } from '../app/pdf-settings-app';
-
 /**
  * A definition for a PDF from a manifest.
  */
@@ -24,21 +21,29 @@ export class PDFManifestError extends Error {
     }
 }
 
-export class PdfManifest {
+export class PDFManifest {
+    // <editor-fold desc="Static Fields">
     private static readonly ROOT_KEY: string = 'PDFoundry';
     private static readonly SETTINGS_SCOPE: string = 'world';
+    // </editor-fold>
 
+    // <editor-fold desc="Instance Fields">
     private readonly _URL: string;
 
     private _id: string;
     private _name: string;
     private _module: string;
     private _pdfs: PDFDef[];
+    // </editor-fold>
 
-    constructor(module: string, url: string) {
+    constructor(module: string, id: string, name: string, pdfs: PDFDef[]) {
         this._module = module;
-        this._URL = url;
+        this._id = id;
+        this._name = name;
+        this._pdfs = pdfs;
     }
+
+    // <editor-fold desc="Getters">
 
     /**
      * The ID of the manifest.
@@ -46,7 +51,7 @@ export class PdfManifest {
      */
     public get id() {
         if (!this.isInitialized) {
-            throw new PDFManifestError('Tried to get the id of a manifest before it was initialized. Did you forget to call init()?');
+            throw new PDFManifestError('Tried to get the id of a manifest before it was initialized. Did you forget to call init?');
         }
 
         return this._id;
@@ -58,7 +63,7 @@ export class PdfManifest {
     public get name() {
         if (!this.isInitialized) {
             //TODO: Standardize error handling.
-            throw new PDFManifestError('Tried to get the name of a manifest before it was initialized. Did you forget to call init()?');
+            throw new PDFManifestError('Tried to get the name of a manifest before it was initialized. Did you forget to call init?');
         }
         return this._name;
     }
@@ -68,6 +73,7 @@ export class PdfManifest {
      * Changes to the array will not be reflected in the original.
      */
     public get pdfs(): PDFDef[] {
+        // TODO: Less hacky way to deep copy this array?
         return JSON.parse(JSON.stringify(this._pdfs));
     }
 
@@ -79,13 +85,45 @@ export class PdfManifest {
     }
 
     /**
+     * Can the active user edit this manifest?
+     */
+    public get userCanEdit() {
+        return game.user.isGM;
+    }
+
+    /**
      * The key used for game settings.
      */
     private get settingsKey() {
-        return `${PdfManifest.ROOT_KEY}/${this._id}`;
+        return `${PDFManifest.ROOT_KEY}/${this._id}`;
     }
 
-    public updatePDF(code: string, data: Partial<PDFDef>) {
+    // </editor-fold>
+
+    // <editor-fold desc="Helpers">
+
+    /**
+     * Helper function to find a PDF by name.
+     */
+    public findByName(name: string) {
+        return this._pdfs.find((pdf) => pdf.name === name);
+    }
+
+    /**
+     * Helper function to find a PDF by code.
+     */
+    public findByCode(code: string) {
+        return this._pdfs.find((pdf) => pdf.code === code);
+    }
+
+    // </editor-fold>
+
+    /**
+     * Update the manifest by PDF code and partial data.
+     * @param code The code of the PDF that should be updated.
+     * @param data Partial changes to the PDF that should be made.
+     */
+    public update(code: string, data: Partial<PDFDef>) {
         const pdf = this.findByCode(code);
         if (pdf === undefined) {
             // TODO: Standardize error handling.
@@ -95,44 +133,24 @@ export class PdfManifest {
     }
 
     /**
-     * Find the first PDF in the manifest matching an arbitrary comparison.
+     * Register the manifest's storage location with the game settings.
      */
-    public find(cmp: PDFComparer) {
-        return this._pdfs.find(cmp);
+    public async register() {
+        await game.settings.register(this._module, this.settingsKey, {
+            _id: this._id,
+            _name: this._name,
+            _module: this._module,
+            _pdfs: this._pdfs,
+
+            scope: PDFManifest.SETTINGS_SCOPE,
+        });
     }
 
     /**
-     * Helper function to find a PDF by name.
+     * Pull the manifest, loading it's data from the world.
      */
-    public findByName(name: string) {
-        return this.find((pdf) => pdf.name === name);
-    }
-
-    /**
-     * Helper function to find a PDF by code.
-     */
-    public findByCode(code: string) {
-        return this.find((pdf) => pdf.code === code);
-    }
-
-    /**
-     * Fetch and optionally load the manifest.
-     */
-    public async fetch() {
-        const data = await $.getJSON(this._URL);
-        this._id = data.id;
-        this._name = data.name;
-        this._pdfs = data.pdfs;
-
-        this.registerSettings();
-        this.loadGameSettings();
-    }
-
-    private loadGameSettings() {
-        const loadedValues = this.fetchSettings();
-
-        console.log(`%cFetched settings...`, 'color: green');
-        console.log(loadedValues);
+    public pull() {
+        const loadedValues = game.settings.get(this._module, this.settingsKey);
 
         // First time running...
         if (loadedValues === undefined) {
@@ -151,45 +169,22 @@ export class PdfManifest {
         this._pdfs = mergeObject(this._pdfs, loadedValues._pdfs, { enforceTypes: false });
     }
 
-    private fetchSettings() {
-        return game.settings.get(this._module, this.settingsKey);
-    }
+    /**
+     * Push the manifest, saving it to the world.
+     */
+    public async push() {
+        if (!this.userCanEdit) {
+            ui.notifications.error(`User ${game.user.name} does not have permission to edit PDF locations.`);
+            return;
+        }
 
-    private async registerSettings() {
-        game.settings.register(this._module, this.settingsKey, {
-            _id: this._id,
-            _name: this._name,
-            _module: this._module,
-            _pdfs: this._pdfs,
-
-            scope: PdfManifest.SETTINGS_SCOPE,
-        });
-    }
-
-    public registerMenu() {
-        // @ts-ignore
-        game.settings.registerMenu(module, this.settingsKey, {
-            name: this.name,
-            label: this.name,
-            hint: `Edit the PDF locations for ${this.name}.`,
-            icon: 'fas fa-file-pdf',
-            type: PdfSettingsApp,
-            restricted: true,
-            onChange: (value) => {
-                console.warn('Settings changed');
-                console.log(value);
-            },
-        });
-    }
-
-    public async updateSettings() {
         await game.settings.set(this._module, this.settingsKey, {
             _id: this._id,
             _name: this._name,
             _module: this._module,
             _pdfs: this._pdfs,
 
-            scope: PdfManifest.SETTINGS_SCOPE,
+            scope: PDFManifest.SETTINGS_SCOPE,
         });
     }
 }

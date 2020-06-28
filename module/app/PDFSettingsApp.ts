@@ -1,40 +1,16 @@
-import { PdfManifest } from '../settings/PdfManifest';
-import { PDFSettings, PDFSettingsError } from '../settings';
-import { PdfViewerWeb } from '../viewer/pdf-viewer-web';
+import { PDFManifest } from '../settings/PDFManifest';
+import { PDFViewerWeb } from '../viewer/PDFViewerWeb';
 
 /**
  * Acts as a controller for a PDFManifest
  */
-export class PdfSettingsApp extends FormApplication {
-    private static readonly URL: string = 'url';
-    private static readonly OFFSET: string = 'offset';
+export class PDFSettingsApp extends Application {
+    private readonly _manifest: PDFManifest;
 
-    private static _manifest: PdfManifest;
-    private static _module: string;
-    private static _open: boolean;
+    constructor(manifest: PDFManifest, options?: ApplicationOptions) {
+        super(options);
 
-    public static set manifest(value: PdfManifest) {
-        if (this._open) {
-            throw new PDFSettingsError('Cannot set manifest while editor is open.');
-        }
-
-        PdfSettingsApp._manifest = value;
-    }
-    public static set module(value: string) {
-        if (this._open) {
-            throw new PDFSettingsError('Cannot set module while editor is open.');
-        }
-
-        PdfSettingsApp._module = value;
-    }
-
-    /**
-     * Get a settings key
-     * @param book
-     * @param name
-     */
-    private static getSettingKey(book: string, name: string) {
-        return `${PDFSettings.ROOT_MODULE_NAME}/${book}/${name}`;
+        this._manifest = manifest;
     }
 
     static get defaultOptions() {
@@ -42,20 +18,20 @@ export class PdfSettingsApp extends FormApplication {
         options.id = 'pdf-settings-app';
         options.classes = [];
         options.title = 'Edit PDF Locations';
+        //TODO: Dynamic link this up.
         options.template = 'modules/pdfoundry/templates/settings/pdf-settings.html';
         options.width = 800;
         options.height = 'auto';
+        options.resizable = true;
         return options;
     }
 
     async getData(options?: any): Promise<any> {
-        const manifest = PdfSettingsApp._manifest;
-
-        console.info('Trying to get data from manifest...');
-        console.info(manifest);
+        const manifest = this._manifest;
 
         if (!manifest.isInitialized) {
-            await manifest.fetch();
+            await manifest.register();
+            manifest.pull();
         }
 
         let { pdfs, name } = manifest;
@@ -64,23 +40,19 @@ export class PdfSettingsApp extends FormApplication {
             return a.name.localeCompare(b.name);
         });
 
-        return {
-            name,
-            pdfs,
-        };
+        return { name, pdfs };
     }
 
     protected activateListeners(html: JQuery<HTMLElement>): void {
         super.activateListeners(html);
 
-        //TODO: Settings is loading localhost urls for some reason...
-        const buttons = html.parents().find('div.pdf-settings-flexrow button');
+        const buttons = html.parents().find('button');
         buttons.on('click', function (event) {
             event.preventDefault();
 
             const row = $(this).parent().parent();
-            const urlInput = row.find('span.pdf-url input');
-            const offsetInput = row.find('span.pdf-offset input');
+            const urlInput = row.find('input.pdf-url');
+            const offsetInput = row.find('input.pdf-offset');
 
             let urlValue = urlInput.val();
             let offsetValue = offsetInput.val();
@@ -91,23 +63,26 @@ export class PdfSettingsApp extends FormApplication {
             urlValue = encodeURIComponent(urlValue.toString());
             urlValue = `${window.location.origin}/${urlValue}`;
 
+            if (offsetValue.toString().trim() === '') {
+                offsetValue = 0;
+            }
             offsetValue = parseInt(offsetValue as string);
 
-            new PdfViewerWeb(urlValue, 5 + offsetValue).render(true);
+            new PDFViewerWeb(urlValue, 5 + offsetValue).render(true);
         });
     }
 
     async close(): Promise<void> {
-        const rows = $(this.element).find('.pdf-settings-flexwrap div.pdf-settings-flexrow');
+        const rows = $(this.element).find('div.row');
 
-        const manifest = PdfSettingsApp._manifest;
+        const manifest = this._manifest;
 
         for (let i = 0; i < rows.length; i++) {
             const row = $(rows[i]);
 
             const bookCode = row.find('span.pdf-code').html();
-            const urlInput = row.find('span.pdf-url input');
-            const offsetInput = row.find('span.pdf-offset input');
+            const urlInput = row.find('input.pdf-url');
+            const offsetInput = row.find('input.pdf-offset');
 
             const book = manifest.findByCode(bookCode);
             if (book === undefined) {
@@ -128,17 +103,13 @@ export class PdfSettingsApp extends FormApplication {
             }
             offsetValue = parseInt(offsetValue as string);
 
-            manifest.updatePDF(bookCode, {
+            manifest.update(bookCode, {
                 url: urlValue,
                 offset: offsetValue,
             });
         }
-        await manifest.updateSettings();
+        await manifest.push();
 
-        console.log('%cClosing settings app...', 'color: red');
-        console.log(manifest);
-
-        PdfSettingsApp._open = false;
         return super.close();
     }
 }

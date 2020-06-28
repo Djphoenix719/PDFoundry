@@ -1,12 +1,5 @@
-export class PdfViewerBase extends Application {
+export class PDFViewerBase extends Application {
     protected m_Frame: HTMLIFrameElement;
-
-    protected get pdfJS() {
-        if (this.m_Frame && this.m_Frame.contentWindow) {
-            // @ts-ignore
-            return this.m_Frame.contentWindow.PDFViewerApplication;
-        }
-    }
 
     static get defaultOptions() {
         const options = super.defaultOptions;
@@ -25,6 +18,7 @@ export class PdfViewerBase extends Application {
         this.m_Frame = html.parents().find('iframe.pdfViewer').first().get(0) as HTMLIFrameElement;
     }
 
+    //TODO: Cleanup PDFjs
     close(): Promise<any> {
         return super.close();
     }
