@@ -8,10 +8,10 @@
 	"compatibleCoreVersion": "0.6.2",
 	"minimumCoreVersion": "0.6.2",
 	"esmodules": [
-		"dist/bundle.js"
+		"pdfoundry-dist/bundle.js"
 	],
 	"styles": [
-		"dist/bundle.css"
+		"pdfoundry-dist/bundle.css"
 	],
 	"manifest": "https://raw.githubusercontent.com/Djphoenix719/PDFoundry/master/module.json",
 	"download": "https://github.com/Djphoenix719/PDFoundry/archive/master.zip",

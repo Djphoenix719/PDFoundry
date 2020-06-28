@@ -1,1 +1,1 @@
-browserify -v -t babelify -p tsify module/main.ts -o dist/bundle.js
+browserify -v -t babelify -p tsify module/main.ts -o pdfoundry-dist/bundle.js
