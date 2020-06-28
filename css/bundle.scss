@@ -23,7 +23,7 @@ form.pdf-settings {
     div.row-body {
       input.pdf-url {
         float: left;
-        width: 75%;
+        width: 65%;
       }
       input.pdf-offset {
         width: 15%;
@@ -37,6 +37,15 @@ form.pdf-settings {
         width: 5%;
         padding: 0;
         margin: 0 0 0 4px;
+      }
+      button.pdf-browse {
+        float: left;
+        border: 0;
+
+        line-height: 24px;
+        width: 10%;
+        padding: 0;
+        margin: 0 4px 0 0;
       }
     }
   }

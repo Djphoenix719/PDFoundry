@@ -8,9 +8,10 @@
                 <span class="pdf-name" title="{{pdf.name}}">{{pdf.name}}</span>
             </div>
             <div class="row-body clearfix">
-                <input type="text" placeholder="File URL" class="pdf-url" value="{{ pdf.url }}">
-                <button class="pdf-test" value="" title="Open this PDF to page 5">Test</button>
-                <input type="number" placeholder="Page Offset" class="pdf-offset" value="{{ pdf.offset }}">
+                <button class="pdf-browse" title="Browse">Browse</button>
+                <input type="text" placeholder="File URL" title="File URL" class="pdf-url" value="{{ pdf.url }}">
+                <button class="pdf-test" title="Open this PDF to page 5">Test</button>
+                <input type="number" placeholder="Page Offset" title="Page Offset" class="pdf-offset" value="{{ pdf.offset }}">
             </div>
         </div>
         {{/each}}

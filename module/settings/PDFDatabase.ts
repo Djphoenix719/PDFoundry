@@ -1,4 +1,5 @@
 import { PDFDef, PDFManifest } from './PDFManifest';
+import { PDFSettings } from './PDFSettings';
 
 /**
  * An error thrown during PDF lookup or registration.
@@ -12,6 +13,10 @@ export class PDFDatabaseError extends Error {
 export class PDFDatabase {
     public static MANIFESTS: PDFManifest[] = [];
 
+    /**
+     * Register a manifest with the database for later lookup
+     * @param manifest
+     */
     public static register(manifest: PDFManifest) {
         if (!manifest.isInitialized) {
             throw new PDFDatabaseError('Cannot register uninitialized manifest.');
@@ -33,6 +38,7 @@ export class PDFDatabase {
         }
 
         PDFDatabase.MANIFESTS.push(manifest);
+        PDFSettings.addManifestButton(manifest);
     }
 
     /**

@@ -1,10 +1,10 @@
-import { PDFViewerWeb } from './viewer/PDFViewerWeb';
-import { PDFManifest } from './settings/PDFManifest';
-import { PDFDatabase, PDFDatabaseError } from './settings/PDFDatabase';
-
 /**
  * An error that is thrown by the PDFoundry API
  */
+import { PDFDatabase, PDFDatabaseError } from '../settings/PDFDatabase';
+import { PDFManifest } from '../settings/PDFManifest';
+import { PDFViewerWeb } from '../viewer/PDFViewerWeb';
+
 export class PDFoundryAPIError extends Error {
     constructor(message?: string) {
         super(message);
@@ -53,7 +53,10 @@ export class PDFoundry {
             throw new UnlinkedPDFError(`PDF with code "${code}" has no specified URL.`);
         }
 
-        this.openURL(pdf.url, page);
+        page = parseInt(page.toString());
+        page = pdf.offset ? page + pdf.offset : page;
+
+        this.openURL(`${window.origin}/${pdf.url}`, page);
     }
 
     /**

@@ -46,8 +46,8 @@ export class PDFSettingsApp extends Application {
     protected activateListeners(html: JQuery<HTMLElement>): void {
         super.activateListeners(html);
 
-        const buttons = html.parents().find('button');
-        buttons.on('click', function (event) {
+        const testButtons = html.parents().find('button.pdf-test');
+        testButtons.on('click', function (event) {
             event.preventDefault();
 
             const row = $(this).parent().parent();
@@ -69,6 +69,28 @@ export class PDFSettingsApp extends Application {
             offsetValue = parseInt(offsetValue as string);
 
             new PDFViewerWeb(urlValue, 5 + offsetValue).render(true);
+        });
+
+        const browseButtons = html.parents().find('button.pdf-browse');
+        browseButtons.on('click', async function (event) {
+            event.preventDefault();
+
+            const row = $(event.target.parentElement as HTMLElement);
+            const urlInput = row.find('input.pdf-url').first();
+
+            const fp = new FilePicker({});
+            // @ts-ignore TODO: foundry-pc-types
+            fp.extensions = ['.pdf'];
+            fp.field = urlInput[0];
+
+            let urlValue = urlInput.val();
+            if (urlValue !== undefined) {
+                await fp.browse(urlValue.toString().trim());
+            }
+
+            fp.render(true);
+
+            console.log(event);
         });
     }
 
