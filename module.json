@@ -1,18 +1,12 @@
 {
 	"name": "pdfoundry",
 	"title": "PDFoundry",
-	"description": "A PDF Viewer Module w/ Hotlinking for FoundryVTT",
-	"version": "0.0.1",
+	"description": "A PDF Viewer Module w/ Hot-linking for FoundryVTT",
+	"version": "0.1.0",
 	"author": "Andrew Cuccinello [DJ#1982]",
 	"packs": [],
 	"compatibleCoreVersion": "0.6.2",
 	"minimumCoreVersion": "0.6.2",
-	"esmodules": [
-		"pdfoundry-dist/bundle.js"
-	],
-	"styles": [
-		"pdfoundry-dist/bundle.css"
-	],
 	"manifest": "https://raw.githubusercontent.com/Djphoenix719/PDFoundry/master/module.json",
 	"download": "https://github.com/Djphoenix719/PDFoundry/archive/master.zip",
 	"url": "https://github.com/Djphoenix719/PDFoundry"

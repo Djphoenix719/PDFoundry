@@ -2,9 +2,13 @@ import { PDFSettingsApp } from '../app/PDFSettingsApp';
 import { PDFManifest } from './PDFManifest';
 import { PDFDatabase } from './PDFDatabase';
 
+/**
+ * Internal settings and helper methods for PDFoundry.
+ */
 export class PDFSettings {
     private static CONTAINERS: JQuery[] = [];
     private static readonly CONTAINER_ID = 'pdfoundry-config';
+    public static SYSTEM_NAME: string = 'shadowrun5e';
 
     /**
      * Create the container for the settings buttons

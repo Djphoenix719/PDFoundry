@@ -10,13 +10,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PDFoundry = exports.UnlinkedPDFError = exports.PDFoundryAPIError = void 0;
+exports.PDFoundryAPI = exports.UnlinkedPDFError = exports.PDFoundryAPIError = void 0;
 /**
  * An error that is thrown by the PDFoundry API
  */
 const PDFDatabase_1 = require("../settings/PDFDatabase");
 const PDFManifest_1 = require("../settings/PDFManifest");
 const PDFViewerWeb_1 = require("../viewer/PDFViewerWeb");
+const PDFSettings_1 = require("../settings/PDFSettings");
 class PDFoundryAPIError extends Error {
     constructor(message) {
         super(message);
@@ -32,7 +33,7 @@ class UnlinkedPDFError extends PDFoundryAPIError {
     }
 }
 exports.UnlinkedPDFError = UnlinkedPDFError;
-class PDFoundry {
+class PDFoundryAPI {
     /**
      * Register a manifest from the specified URL
      * @param module The module YOU are calling this from.
@@ -40,6 +41,7 @@ class PDFoundry {
      */
     static register(module, url) {
         return __awaiter(this, void 0, void 0, function* () {
+            PDFSettings_1.PDFSettings.SYSTEM_NAME = module;
             const data = yield $.getJSON(url);
             const { id, name, pdfs } = data;
             const manifest = new PDFManifest_1.PDFManifest(module, id, name, pdfs);
@@ -81,9 +83,9 @@ class PDFoundry {
         new PDFViewerWeb_1.PDFViewerWeb(url, page).render(true);
     }
 }
-exports.PDFoundry = PDFoundry;
+exports.PDFoundryAPI = PDFoundryAPI;
 
-},{"../settings/PDFDatabase":4,"../settings/PDFManifest":5,"../viewer/PDFViewerWeb":8}],2:[function(require,module,exports){
+},{"../settings/PDFDatabase":4,"../settings/PDFManifest":5,"../settings/PDFSettings":6,"../viewer/PDFViewerWeb":8}],2:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -145,7 +147,6 @@ class PDFSettingsApp extends Application {
                 return;
             if (offsetValue === null || offsetValue === undefined)
                 return;
-            urlValue = encodeURIComponent(urlValue.toString());
             urlValue = `${window.location.origin}/${urlValue}`;
             if (offsetValue.toString().trim() === '') {
                 offsetValue = 0;
@@ -216,15 +217,15 @@ exports.PDFSettingsApp = PDFSettingsApp;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 // Register UI accessor
-const PDFoundry_1 = require("./api/PDFoundry");
+const PDFoundryAPI_1 = require("./api/PDFoundryAPI");
 const PDFSettings_1 = require("./settings/PDFSettings");
 Hooks.on('init', function () {
     // @ts-ignore
-    ui.PDFoundry = PDFoundry_1.PDFoundry;
+    ui.PDFoundry = PDFoundryAPI_1.PDFoundryAPI;
 });
 Hooks.on('renderSettings', PDFSettings_1.PDFSettings.initializeContainer);
 
-},{"./api/PDFoundry":1,"./settings/PDFSettings":6}],4:[function(require,module,exports){
+},{"./api/PDFoundryAPI":1,"./settings/PDFSettings":6}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFDatabase = exports.PDFDatabaseError = void 0;
@@ -449,6 +450,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFSettings = void 0;
 const PDFSettingsApp_1 = require("../app/PDFSettingsApp");
 const PDFDatabase_1 = require("./PDFDatabase");
+/**
+ * Internal settings and helper methods for PDFoundry.
+ */
 class PDFSettings {
     /**
      * Create the container for the settings buttons
@@ -504,6 +508,7 @@ class PDFSettings {
 exports.PDFSettings = PDFSettings;
 PDFSettings.CONTAINERS = [];
 PDFSettings.CONTAINER_ID = 'pdfoundry-config';
+PDFSettings.SYSTEM_NAME = "shadowrun5e";
 
 },{"../app/PDFSettingsApp":2,"./PDFDatabase":4}],7:[function(require,module,exports){
 "use strict";
@@ -550,24 +555,26 @@ exports.PDFViewerBase = PDFViewerBase;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFViewerWeb = void 0;
 const PDFViewerBase_1 = require("./PDFViewerBase");
+const PDFSettings_1 = require("../settings/PDFSettings");
 class PDFViewerWeb extends PDFViewerBase_1.PDFViewerBase {
     constructor(file, page) {
         super();
-        this.m_FilePath = file;
+        this.m_FilePath = encodeURIComponent(file);
         this.m_Page = page;
     }
     static get defaultOptions() {
         const options = super.defaultOptions;
-        options.template = 'modules/pdfoundry/templates/web-viewer-app.html';
+        options.template = `systems/${PDFSettings_1.PDFSettings.SYSTEM_NAME}/pdfoundry-dist/templates/web-viewer-app.html`;
         return options;
     }
     getData(options) {
         const data = super.getData(options);
         data.page = this.m_Page;
         data.filePath = this.m_FilePath;
+        data.systemName = PDFSettings_1.PDFSettings.SYSTEM_NAME;
         return data;
     }
 }
 exports.PDFViewerWeb = PDFViewerWeb;
 
-},{"./PDFViewerBase":7}]},{},[3]);
+},{"../settings/PDFSettings":6,"./PDFViewerBase":7}]},{},[3]);

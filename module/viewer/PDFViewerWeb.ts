@@ -1,4 +1,5 @@
 import { PDFViewerBase } from './PDFViewerBase';
+import { PDFSettings } from '../settings/PDFSettings';
 
 export class PDFViewerWeb extends PDFViewerBase {
     private m_Page: number;
@@ -6,14 +7,14 @@ export class PDFViewerWeb extends PDFViewerBase {
 
     static get defaultOptions() {
         const options = super.defaultOptions;
-        options.template = 'modules/pdfoundry/templates/web-viewer-app.html';
+        options.template = `systems/${PDFSettings.SYSTEM_NAME}/pdfoundry-dist/templates/web-viewer-app.html`;
         return options;
     }
 
     constructor(file: string, page: number) {
         super();
 
-        this.m_FilePath = file;
+        this.m_FilePath = encodeURIComponent(file);
         this.m_Page = page;
     }
 
@@ -21,6 +22,7 @@ export class PDFViewerWeb extends PDFViewerBase {
         const data = super.getData(options);
         data.page = this.m_Page;
         data.filePath = this.m_FilePath;
+        data.systemName = PDFSettings.SYSTEM_NAME;
         return data;
     }
 }

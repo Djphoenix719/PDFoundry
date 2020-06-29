@@ -60,7 +60,6 @@ export class PDFSettingsApp extends Application {
             if (urlValue === null || urlValue === undefined) return;
             if (offsetValue === null || offsetValue === undefined) return;
 
-            urlValue = encodeURIComponent(urlValue.toString());
             urlValue = `${window.location.origin}/${urlValue}`;
 
             if (offsetValue.toString().trim() === '') {

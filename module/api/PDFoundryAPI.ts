@@ -4,6 +4,7 @@
 import { PDFDatabase, PDFDatabaseError } from '../settings/PDFDatabase';
 import { PDFManifest } from '../settings/PDFManifest';
 import { PDFViewerWeb } from '../viewer/PDFViewerWeb';
+import { PDFSettings } from '../settings/PDFSettings';
 
 export class PDFoundryAPIError extends Error {
     constructor(message?: string) {
@@ -20,13 +21,15 @@ export class UnlinkedPDFError extends PDFoundryAPIError {
     }
 }
 
-export class PDFoundry {
+export class PDFoundryAPI {
     /**
      * Register a manifest from the specified URL
      * @param module The module YOU are calling this from.
      * @param url The URL (local or absolute) to fetch from.
      */
     public static async register(module: string, url: string) {
+        PDFSettings.SYSTEM_NAME = module;
+
         const data = await $.getJSON(url);
         const { id, name, pdfs } = data;
 
