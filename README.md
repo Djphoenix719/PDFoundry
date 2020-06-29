@@ -7,7 +7,7 @@ A PDF viewer module for Foundry VTT, made for developers to integrate with their
 - **It does not contain any user-facing features yet (you require a system that supports it).**
 
 ### Integration
-- See the [wiki](https://github.com/Djphoenix719/PDFoundry/wiki/Integration)
+- See [Setup & System Integration](https://github.com/Djphoenix719/PDFoundry/wiki/Setup-&-System-Integration) on the wiki.
 
 ## Roadmap
 See the [development board](https://github.com/Djphoenix719/PDFoundry/projects/1#card-40833364)
