@@ -1,10 +1,5 @@
-/**
- * An error that is thrown by the PDFoundry API
- */
-import { PDFDatabase, PDFDatabaseError } from '../settings/PDFDatabase';
-import { PDFManifest } from '../settings/PDFManifest';
-import { PDFViewerWeb } from '../viewer/PDFViewerWeb';
 import { PDFSettings } from '../settings/PDFSettings';
+import { PDFViewerWeb } from '../viewer/PDFViewerWeb';
 
 export class PDFoundryAPIError extends Error {
     constructor(message?: string) {
@@ -13,33 +8,42 @@ export class PDFoundryAPIError extends Error {
 }
 
 /**
- * An error thrown when a PDF has not been linked by the user.
+ * All the properties of a PDF that can be specified by a user
  */
-export class UnlinkedPDFError extends PDFoundryAPIError {
-    constructor(message?: string) {
-        super(message);
-    }
-}
+export type PDFData = {
+    code: string;
+    url: string;
+    offset: number;
+    cache: boolean;
+};
 
 export class PDFoundryAPI {
     /**
-     * Register a manifest from the specified URL
-     * @param module The module YOU are calling this from.
-     * @param url The URL (local or absolute) to fetch from.
+     * Register your system with the API.
+     * @param system The module YOU are calling this from.
      */
-    public static async register(module: string, url: string) {
-        PDFSettings.SYSTEM_NAME = module;
+    public static async registerSystem(system: string) {
+        PDFSettings.EXTERNAL_SYSTEM_NAME = system;
+    }
 
-        const data = await $.getJSON(url);
-        const { id, name, pdfs } = data;
+    /**
+     * Get an object containing the user specified PDF data for a specific PDF code.
+     * @param code
+     */
+    public static getPDFData(code: string): null | PDFData {
+        const entity = game.items.find((item) => {
+            return item.data.type === PDFSettings.PDF_ENTITY_TYPE && item.data.data.code === code;
+        });
+        if (entity === undefined || entity === null) {
+            return null;
+        }
 
-        const manifest = new PDFManifest(module, id, name, pdfs);
-        await manifest.register();
-        manifest.pull();
-
-        PDFDatabase.register(manifest);
-
-        return manifest;
+        const data = entity.data.data;
+        if (data.offset === '') {
+            data.offset = 0;
+        }
+        data.offset = parseInt(data.offset);
+        return data;
     }
 
     /**
@@ -48,18 +52,16 @@ export class PDFoundryAPI {
      * @param page
      */
     public static open(code: string, page: number = 1) {
-        const pdf = PDFDatabase.getPDF(code);
-        if (pdf === undefined) {
-            throw new PDFDatabaseError(`Unable to find a PDF with code "${code}".`);
-        }
-        if (pdf.url === undefined) {
-            throw new UnlinkedPDFError(`PDF with code "${code}" has no specified URL.`);
+        const pdf = this.getPDFData(code);
+        if (pdf === null) {
+            throw new PDFoundryAPIError(`Unable to find a PDF with the code "${code}. Did the user declare it?`);
         }
 
-        page = parseInt(page.toString());
-        page = pdf.offset ? page + pdf.offset : page;
+        const { url, offset } = pdf;
+        // coerce to number; safety first
+        page = offset + parseInt(page.toString());
 
-        this.openURL(`${window.origin}/${pdf.url}`, page);
+        this.openURL(`${window.origin}/${url}`, page);
     }
 
     /**
@@ -72,8 +74,10 @@ export class PDFoundryAPI {
             throw new PDFoundryAPIError('Unable to open PDF; "url" must be defined');
         }
 
-        if (page <= 0) {
-            throw new PDFoundryAPIError(`Invalid page: "${page}"`);
+        // coerce to number; safety first
+        page = parseInt(page.toString());
+        if (isNaN(page) || page <= 0) {
+            throw new PDFoundryAPIError(`Page must be > 0 but ${page} was given.`);
         }
 
         new PDFViewerWeb(url, page).render(true);

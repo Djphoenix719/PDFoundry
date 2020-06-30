@@ -1,0 +1,27 @@
+<form class="{{ cssClass }} pdf-sheet" autocomplete="off" onsubmit="event.preventDefault()">
+    <div class="field" title="What is the long readable name for this PDF?">
+        <input type="text" id="name" name="name" value="{{ item.name }}" placeholder="The Guide to Loot!" autocomplete="off">
+        <label for="name">PDF Name</label>
+    </div>
+    <div class="field" title="What is the short code that will be used to open this PDF?">
+        <input type="text" id="data.code" name="data.code" value="{{ data.code }}" placeholder="TGTL" autocomplete="off">
+        <label for="data.code">PDF Code</label>
+    </div>
+    <div class="field" title="Which PDF file should be opened?">
+        <input type="text" id="data.url" name="data.url" value="{{ data.url }}" placeholder="A relative path from your data directory..." autocomplete="off">
+        <label for="data.url">PDF URL</label>
+    </div>
+    <div class="field" title="When you ask the system to open a page, how much should the page be offset by so the page opens correctly?">
+        <input type="number" id="data.offset" name="data.offset" value="{{ data.offset }}" placeholder="0, 3, -5, ..." autocomplete="off">
+        <label for="data.offset">Page Offset</label>
+    </div>
+    <div class="row" title="Should this PDF be cached?">
+        <input type="checkbox" id="data.cache" name="data.cache" {{#if data.cache}}checked{{/if}}>
+        <label for="data.cache">Caching (WIP)</label>
+    </div>
+    <hr>
+    <div class="row">
+        <button id="pdf-test">Test Settings</button>
+        <p class="test-desc">When you click this button, your PDF should <b>open to page 5</b>. If it doesn't, close the page and <b>adjust the page offset until it does</b>.</p>
+    </div>
+</form>

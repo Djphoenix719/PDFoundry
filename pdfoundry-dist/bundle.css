@@ -1,47 +1,4 @@
-form.pdf-settings div.wrap {
-  overflow-y: scroll;
-  overflow-x: hidden;
-  max-height: 600px;
-}
-form.pdf-settings div.row {
-  margin-top: 4px;
-}
-form.pdf-settings div.row div.row-header {
-  border-bottom: 1px solid #782e22;
-}
-form.pdf-settings div.row div.row-header span.pdf-name {
-  padding-left: 1em;
-  float: left;
-}
-form.pdf-settings div.row div.row-header span.pdf-code {
-  padding-right: 1em;
-  float: right;
-}
-form.pdf-settings div.row div.row-body input.pdf-url {
-  float: left;
-  width: 65%;
-}
-form.pdf-settings div.row div.row-body input.pdf-offset {
-  width: 15%;
-  float: right;
-}
-form.pdf-settings div.row div.row-body button.pdf-test {
-  float: right;
-  border: 0;
-  line-height: 24px;
-  width: 5%;
-  padding: 0;
-  margin: 0 0 0 4px;
-}
-form.pdf-settings div.row div.row-body button.pdf-browse {
-  float: left;
-  border: 0;
-  line-height: 24px;
-  width: 10%;
-  padding: 0;
-  margin: 0 4px 0 0;
-}
-form.pdf-settings input[type=number] {
+form.pdf-sheet input[type=number] {
   min-width: 20px;
   height: 24px;
   background: rgba(0, 0, 0, 0.05);
@@ -59,10 +16,75 @@ form.pdf-settings input[type=number] {
   -ms-user-select: text;
   user-select: text;
 }
-form.pdf-settings .clearfix::after {
-  content: "";
-  clear: both;
-  display: table;
+
+form.pdf-sheet > div.field {
+  display: flex;
+  flex-flow: column-reverse;
+}
+form.pdf-sheet > div.field label, form.pdf-sheet > div.field input {
+  transition: transform 0.2s;
+  touch-action: manipulation;
+}
+form.pdf-sheet > div.field input[type=text], form.pdf-sheet > div.field input[type=number] {
+  font-size: 1.5em;
+  border: 0;
+  border-bottom: 1px solid #ccc;
+  font-family: inherit;
+  -webkit-appearance: none;
+  border-radius: 0;
+  padding: 0;
+  cursor: text;
+}
+form.pdf-sheet > div.field input:focus {
+  outline: 0;
+  border-bottom: 1px solid #666;
+}
+form.pdf-sheet > div.field label {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+form.pdf-sheet > div.field input:placeholder-shown + label {
+  cursor: text;
+  max-width: 66.66%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transform-origin: left bottom;
+  transform: translate(0, 1.75em) scale(1.5);
+}
+form.pdf-sheet > div.field ::-webkit-input-placeholder {
+  opacity: 0;
+  transition: inherit;
+}
+form.pdf-sheet > div.field input:focus::-webkit-input-placeholder {
+  opacity: 1;
+}
+form.pdf-sheet > div.field input:not(:placeholder-shown) + label, form.pdf-sheet > div.field input:focus + label {
+  transform: translate(0, 0) scale(1);
+  cursor: pointer;
+}
+
+form.pdf-sheet > div.row {
+  display: flex;
+  flex-flow: row-reverse;
+  justify-content: space-between;
+}
+form.pdf-sheet > div.row label {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 1.5em;
+  flex-grow: 1;
+}
+form.pdf-sheet > div.row input {
+  flex-shrink: 1;
+}
+
+form.pdf-sheet .test-desc {
+  margin: 0 1em 0 0;
+  padding: 0 1em 0 calc(1em - 8px);
+  border-right: 1px solid #b5b3a4;
+  font-style: italic;
+  text-align: justify;
 }
 
 /*# sourceMappingURL=bundle.css.map */

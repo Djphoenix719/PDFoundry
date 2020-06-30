@@ -1,55 +1,4 @@
-form.pdf-settings {
-  div.wrap {
-    overflow-y: scroll;
-    overflow-x: hidden;
-    max-height: 600px;
-  }
-
-  div.row {
-    margin-top: 4px;
-
-    div.row-header {
-      border-bottom: 1px solid #782e22;
-
-      span.pdf-name {
-        padding-left: 1em;
-        float: left;
-      }
-      span.pdf-code {
-        padding-right: 1em;
-        float: right;
-      }
-    }
-    div.row-body {
-      input.pdf-url {
-        float: left;
-        width: 65%;
-      }
-      input.pdf-offset {
-        width: 15%;
-        float: right;
-      }
-      button.pdf-test {
-        float: right;
-        border: 0;
-
-        line-height: 24px;
-        width: 5%;
-        padding: 0;
-        margin: 0 0 0 4px;
-      }
-      button.pdf-browse {
-        float: left;
-        border: 0;
-
-        line-height: 24px;
-        width: 10%;
-        padding: 0;
-        margin: 0 4px 0 0;
-      }
-    }
-  }
-
+form.pdf-sheet {
   input[type=number] {
     min-width: 20px;
     height: 24px;
@@ -68,10 +17,83 @@ form.pdf-settings {
     -ms-user-select: text;
     user-select: text;
   }
+}
+form.pdf-sheet > div.field {
+  display: flex;
+  flex-flow: column-reverse;
 
-  .clearfix::after {
-    content: "";
-    clear: both;
-    display: table;
+  label, input {
+    transition: transform 0.2s;
+    touch-action: manipulation;
   }
+
+  input[type=text], input[type=number] {
+    font-size: 1.5em;
+    border: 0;
+    border-bottom: 1px solid #ccc;
+    font-family: inherit;
+    -webkit-appearance: none;
+    border-radius: 0;
+    padding: 0;
+    cursor: text;
+  }
+
+  input:focus {
+    outline: 0;
+    border-bottom: 1px solid #666;
+  }
+
+  label {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  input:placeholder-shown + label {
+    cursor: text;
+    max-width: 66.66%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transform-origin: left bottom;
+    transform: translate(0, 1.75em) scale(1.5);
+  }
+
+  ::-webkit-input-placeholder {
+    opacity: 0;
+    transition: inherit;
+  }
+
+  input:focus::-webkit-input-placeholder {
+    opacity: 1;
+  }
+
+  input:not(:placeholder-shown) + label, input:focus + label {
+    transform: translate(0, 0) scale(1);
+    cursor: pointer;
+  }
+}
+form.pdf-sheet > div.row {
+  display: flex;
+  flex-flow: row-reverse;
+  justify-content: space-between;
+
+  label {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 1.5em;
+    flex-grow: 1;
+  }
+  input {
+    flex-shrink: 1;
+  }
+}
+
+form.pdf-sheet .test-desc {
+  margin: 0 1em 0 0;
+  padding: 0 1em 0 calc(1em - 8px);
+
+  border-right: 1px solid #b5b3a4;
+
+  font-style: italic;
+  text-align: justify;
 }
