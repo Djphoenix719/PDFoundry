@@ -83,6 +83,15 @@ exports.PDFoundryAPI = PDFoundryAPI;
 
 },{"../settings/PDFSettings":4,"../viewer/PDFViewerWeb":6}],2:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFSourceSheet = void 0;
 const PDFSettings_1 = require("../settings/PDFSettings");
@@ -101,19 +110,31 @@ class PDFSourceSheet extends ItemSheet {
     get template() {
         return `systems/${PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings_1.PDFSettings.DIST_FOLDER}/templates/pdf-sheet.html`;
     }
+    /**
+     * Helper method to get a id in the html form
+     * html ids are prepended with the id of the item to preserve uniqueness
+     *  which is mandatory to allow multiple forms to be open
+     * @param html
+     * @param id
+     */
+    getByID(html, id) {
+        return html.parent().parent().find(`#${this.item._id}-${id}`);
+    }
     activateListeners(html) {
         super.activateListeners(html);
         this.addGithubLink(html);
+        const urlInput = this.getByID(html, 'data\\.url');
+        const offsetInput = this.getByID(html, 'data\\.offset');
         // Block enter from displaying the PDF
         html.find('input').on('keypress', function (event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
             }
         });
-        html.find('#pdf-test').on('click', function (event) {
+        console.log(this.getByID(html, 'pdf-test'));
+        // Test button
+        this.getByID(html, 'pdf-test').on('click', function (event) {
             event.preventDefault();
-            const urlInput = html.find('input#data\\.url');
-            const offsetInput = html.find('input#data\\.offset');
             let urlValue = urlInput.val();
             let offsetValue = offsetInput.val();
             if (urlValue === null || urlValue === undefined)
@@ -127,9 +148,24 @@ class PDFSourceSheet extends ItemSheet {
             offsetValue = parseInt(offsetValue);
             PDFoundryAPI_1.PDFoundryAPI.openURL(urlValue, 5 + offsetValue);
         });
+        // Browse button
+        this.getByID(html, 'pdf-browse').on('click', function (event) {
+            return __awaiter(this, void 0, void 0, function* () {
+                event.preventDefault();
+                const fp = new FilePicker({});
+                // @ts-ignore TODO: foundry-pc-types
+                fp.extensions = ['.pdf'];
+                fp.field = urlInput[0];
+                let urlValue = urlInput.val();
+                if (urlValue !== undefined) {
+                    const result = yield fp.browse(urlValue.toString().trim());
+                }
+                fp.render(true);
+            });
+        });
     }
     addGithubLink(html) {
-        const h4 = html.parents().find('header.window-header h4');
+        const h4 = html.parent().parent().find('header.window-header h4.window-title');
         const next = h4.next()[0].childNodes[1].textContent;
         if (next && next.trim() === 'PDFoundry') {
             return;
@@ -151,7 +187,6 @@ const PDFoundryAPI_1 = require("./api/PDFoundryAPI");
 const PDFSettings_1 = require("./settings/PDFSettings");
 CONFIG.debug.hooks = true;
 Hooks.on('init', function () {
-    console.warn('PDFoundry... calling init');
     // @ts-ignore
     ui.PDFoundry = PDFoundryAPI_1.PDFoundryAPI;
 });
@@ -219,7 +254,7 @@ exports.PDFSettings = PDFSettings;
 PDFSettings.DIST_FOLDER = 'pdfoundry-dist';
 PDFSettings.EXTERNAL_SYSTEM_NAME = '../modules/pdfoundry';
 PDFSettings.INTERNAL_MODULE_NAME = 'PDFoundry';
-PDFSettings.PDF_ENTITY_TYPE = 'PDF';
+PDFSettings.PDF_ENTITY_TYPE = 'PDFoundry_PDF';
 
 },{"../app/PDFItemSheet":2}],5:[function(require,module,exports){
 "use strict";

@@ -7,7 +7,7 @@ export class PDFSettings {
     public static DIST_FOLDER: string = 'pdfoundry-dist';
     public static EXTERNAL_SYSTEM_NAME: string = '../modules/pdfoundry';
     public static INTERNAL_MODULE_NAME: string = 'PDFoundry';
-    public static PDF_ENTITY_TYPE: string = 'PDF';
+    public static PDF_ENTITY_TYPE: string = 'PDFoundry_PDF';
 
     /**
      * Register the PDF sheet and unregister invalid sheet types from it.

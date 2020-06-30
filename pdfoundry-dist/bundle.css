@@ -1,3 +1,8 @@
+form.pdf-sheet input, form.pdf-sheet label {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
 form.pdf-sheet input[type=number] {
   min-width: 20px;
   height: 24px;
@@ -9,82 +14,71 @@ form.pdf-sheet input[type=number] {
   font-size: inherit;
   text-align: inherit;
   line-height: inherit;
-  border: 1px solid #7a7971;
-  border-radius: 3px;
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
   user-select: text;
 }
 
-form.pdf-sheet > div.field {
+form.pdf-sheet div.field-row, form.pdf-sheet div.button-row {
+  position: relative;
   display: flex;
-  flex-flow: column-reverse;
+  height: 2rem;
+  border-bottom: 1px solid black;
 }
-form.pdf-sheet > div.field label, form.pdf-sheet > div.field input {
-  transition: transform 0.2s;
-  touch-action: manipulation;
+form.pdf-sheet div.field-row input, form.pdf-sheet div.field-row label, form.pdf-sheet div.field-row button, form.pdf-sheet div.button-row input, form.pdf-sheet div.button-row label, form.pdf-sheet div.button-row button {
+  height: 100%;
+  line-height: 2rem;
 }
-form.pdf-sheet > div.field input[type=text], form.pdf-sheet > div.field input[type=number] {
-  font-size: 1.5em;
-  border: 0;
-  border-bottom: 1px solid #ccc;
-  font-family: inherit;
-  -webkit-appearance: none;
-  border-radius: 0;
-  padding: 0;
-  cursor: text;
+form.pdf-sheet div.field-row input[type=checkbox], form.pdf-sheet div.button-row input[type=checkbox] {
+  height: 1.5rem;
+  line-height: 1.5rem;
+  margin: 0.25rem;
+  text-align: right;
 }
-form.pdf-sheet > div.field input:focus {
-  outline: 0;
-  border-bottom: 1px solid #666;
-}
-form.pdf-sheet > div.field label {
+form.pdf-sheet div.field-row label, form.pdf-sheet div.button-row label {
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-weight: bold;
 }
-form.pdf-sheet > div.field input:placeholder-shown + label {
-  cursor: text;
-  max-width: 66.66%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transform-origin: left bottom;
-  transform: translate(0, 1.75em) scale(1.5);
+form.pdf-sheet div.field-row button, form.pdf-sheet div.button-row button {
+  border: 0;
 }
-form.pdf-sheet > div.field ::-webkit-input-placeholder {
-  opacity: 0;
-  transition: inherit;
+form.pdf-sheet div.field-row input, form.pdf-sheet div.button-row input {
+  padding: 0 4px;
 }
-form.pdf-sheet > div.field input:focus::-webkit-input-placeholder {
-  opacity: 1;
-}
-form.pdf-sheet > div.field input:not(:placeholder-shown) + label, form.pdf-sheet > div.field input:focus + label {
-  transform: translate(0, 0) scale(1);
-  cursor: pointer;
-}
-
-form.pdf-sheet > div.row {
-  display: flex;
-  flex-flow: row-reverse;
+form.pdf-sheet div.field-row.expand, form.pdf-sheet div.button-row.expand {
   justify-content: space-between;
 }
-form.pdf-sheet > div.row label {
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 1.5em;
+form.pdf-sheet div.field-row.expand input, form.pdf-sheet div.button-row.expand input {
+  flex-shrink: 1;
+  flex-grow: unset;
+}
+form.pdf-sheet div.field-row.expand label, form.pdf-sheet div.button-row.expand label {
+  flex-shrink: unset;
   flex-grow: 1;
 }
-form.pdf-sheet > div.row input {
+form.pdf-sheet div.field-row label {
   flex-shrink: 1;
+  white-space: nowrap;
+  padding-right: 4px;
 }
-
-form.pdf-sheet .test-desc {
-  margin: 0 1em 0 0;
-  padding: 0 1em 0 calc(1em - 8px);
-  border-right: 1px solid #b5b3a4;
-  font-style: italic;
+form.pdf-sheet div.field-row input {
+  flex-grow: 1;
+}
+form.pdf-sheet div.button-row div.field-row {
+  flex-grow: 1;
+}
+form.pdf-sheet div.button-row button {
+  flex-shrink: 1;
+  width: auto;
+  white-space: nowrap;
+}
+form.pdf-sheet div.button-row p {
+  margin: 4px;
   text-align: justify;
+}
+form.pdf-sheet div.button-row.taller {
+  height: 3rem;
 }
 
 /*# sourceMappingURL=bundle.css.map */

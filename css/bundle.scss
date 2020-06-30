@@ -1,4 +1,10 @@
 form.pdf-sheet {
+  input, label {
+    border: 0;
+    padding: 0;
+    margin: 0;
+  }
+
   input[type=number] {
     min-width: 20px;
     height: 24px;
@@ -10,90 +16,84 @@ form.pdf-sheet {
     font-size: inherit;
     text-align: inherit;
     line-height: inherit;
-    border: 1px solid #7a7971;
-    border-radius: 3px;
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
     user-select: text;
   }
 }
-form.pdf-sheet > div.field {
-  display: flex;
-  flex-flow: column-reverse;
 
-  label, input {
-    transition: transform 0.2s;
-    touch-action: manipulation;
+$row-height: 2rem;
+
+form.pdf-sheet {
+  div.field-row, div.button-row {
+    position: relative;
+    display: flex;
+    height: $row-height;
+
+    border-bottom: 1px solid black;
+
+    input, label, button {
+      height: 100%;
+      line-height: $row-height;
+    }
+    input[type=checkbox] {
+      height: $row-height - 0.5rem;
+      line-height: $row-height - 0.5rem;
+      margin: 0.25rem;
+      text-align: right;
+    }
+    label {
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+    button {
+      border: 0;
+    }
+    input {
+      padding: 0 4px;
+    }
   }
 
-  input[type=text], input[type=number] {
-    font-size: 1.5em;
-    border: 0;
-    border-bottom: 1px solid #ccc;
-    font-family: inherit;
-    -webkit-appearance: none;
-    border-radius: 0;
-    padding: 0;
-    cursor: text;
+  div.field-row.expand, div.button-row.expand {
+    justify-content: space-between;
+
+    input {
+      flex-shrink: 1;
+      flex-grow: unset;
+    }
+    label {
+      flex-shrink: unset;
+      flex-grow: 1;
+    }
   }
 
-  input:focus {
-    outline: 0;
-    border-bottom: 1px solid #666;
+  div.field-row {
+    label {
+      flex-shrink: 1;
+      white-space: nowrap;
+      padding-right: 4px;
+    }
+    input {
+      flex-grow: 1;
+    }
   }
 
-  label {
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+  div.button-row {
+    div.field-row {
+      flex-grow: 1;
+    }
+    button {
+      flex-shrink: 1;
+      width: auto;
+      white-space: nowrap;
+    }
+    p {
+      margin: 4px;
+      text-align: justify;
+    }
   }
-
-  input:placeholder-shown + label {
-    cursor: text;
-    max-width: 66.66%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    transform-origin: left bottom;
-    transform: translate(0, 1.75em) scale(1.5);
+  div.button-row.taller {
+    height: $row-height*1.5;
   }
-
-  ::-webkit-input-placeholder {
-    opacity: 0;
-    transition: inherit;
-  }
-
-  input:focus::-webkit-input-placeholder {
-    opacity: 1;
-  }
-
-  input:not(:placeholder-shown) + label, input:focus + label {
-    transform: translate(0, 0) scale(1);
-    cursor: pointer;
-  }
-}
-form.pdf-sheet > div.row {
-  display: flex;
-  flex-flow: row-reverse;
-  justify-content: space-between;
-
-  label {
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: 1.5em;
-    flex-grow: 1;
-  }
-  input {
-    flex-shrink: 1;
-  }
-}
-
-form.pdf-sheet .test-desc {
-  margin: 0 1em 0 0;
-  padding: 0 1em 0 calc(1em - 8px);
-
-  border-right: 1px solid #b5b3a4;
-
-  font-style: italic;
-  text-align: justify;
 }

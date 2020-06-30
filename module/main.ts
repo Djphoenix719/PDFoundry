@@ -5,7 +5,6 @@ import { PDFSourceSheet } from './app/PDFItemSheet';
 CONFIG.debug.hooks = true;
 
 Hooks.on('init', function () {
-    console.warn('PDFoundry... calling init');
     // @ts-ignore
     ui.PDFoundry = PDFoundryAPI;
 });
