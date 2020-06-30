@@ -1,4 +1,5 @@
 import { PDFSourceSheet } from '../app/PDFItemSheet';
+import { PDFoundryAPI } from '../api/PDFoundryAPI';
 
 /**
  * Internal settings and helper methods for PDFoundry.
@@ -51,5 +52,36 @@ export class PDFSettings {
             },
             { enforceTypes: true },
         );
+    }
+
+    private static getItemFromContext(html: JQuery<HTMLElement>): Item {
+        const id = html.data('entity-id');
+        return game.items.get(id);
+    }
+
+    /**
+     * Get additional context menu icons for PDF items
+     * @param html
+     * @param options
+     */
+    public static getItemContextOptions(html, options: any[]) {
+        options.splice(0, 0, {
+            name: 'Open PDF',
+            icon: '<i class="far fa-file-pdf"></i>',
+            condition: (entityHtml: JQuery<HTMLElement>) => {
+                const item = PDFSettings.getItemFromContext(entityHtml);
+                if (item.type !== PDFSettings.PDF_ENTITY_TYPE) {
+                    return false;
+                }
+
+                const { code, url } = item.data.data;
+                return code !== '' && url !== '';
+            },
+            callback: (entityHtml: JQuery<HTMLElement>) => {
+                const item = PDFSettings.getItemFromContext(entityHtml);
+                const { code } = item.data.data;
+                PDFoundryAPI.open(code);
+            },
+        });
     }
 }

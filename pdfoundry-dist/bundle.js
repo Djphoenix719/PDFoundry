@@ -182,16 +182,17 @@ exports.PDFSourceSheet = PDFSourceSheet;
 },{"../api/PDFoundryAPI":1,"../settings/PDFSettings":4}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-// Register UI accessor
 const PDFoundryAPI_1 = require("./api/PDFoundryAPI");
 const PDFSettings_1 = require("./settings/PDFSettings");
 CONFIG.debug.hooks = true;
+// Register UI accessor
 Hooks.on('init', function () {
     // @ts-ignore
     ui.PDFoundry = PDFoundryAPI_1.PDFoundryAPI;
 });
 Hooks.once('ready', PDFSettings_1.PDFSettings.registerPDFSheet);
 Hooks.on('createItem', PDFSettings_1.PDFSettings.onCreateItem);
+Hooks.on('getItemDirectoryEntryContext', PDFSettings_1.PDFSettings.getItemContextOptions);
 
 },{"./api/PDFoundryAPI":1,"./settings/PDFSettings":4}],4:[function(require,module,exports){
 "use strict";
@@ -207,6 +208,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFSettings = void 0;
 const PDFItemSheet_1 = require("../app/PDFItemSheet");
+const PDFoundryAPI_1 = require("../api/PDFoundryAPI");
 /**
  * Internal settings and helper methods for PDFoundry.
  */
@@ -249,6 +251,34 @@ class PDFSettings {
             }, { enforceTypes: true });
         });
     }
+    static getItemFromContext(html) {
+        const id = html.data('entity-id');
+        return game.items.get(id);
+    }
+    /**
+     * Get additional context menu icons for PDF items
+     * @param html
+     * @param options
+     */
+    static getItemContextOptions(html, options) {
+        options.splice(0, 0, {
+            name: 'Open PDF',
+            icon: '<i class="far fa-file-pdf"></i>',
+            condition: (entityHtml) => {
+                const item = PDFSettings.getItemFromContext(entityHtml);
+                if (item.type !== PDFSettings.PDF_ENTITY_TYPE) {
+                    return false;
+                }
+                const { code, url } = item.data.data;
+                return code !== '' && url !== '';
+            },
+            callback: (entityHtml) => {
+                const item = PDFSettings.getItemFromContext(entityHtml);
+                const { code } = item.data.data;
+                PDFoundryAPI_1.PDFoundryAPI.open(code);
+            },
+        });
+    }
 }
 exports.PDFSettings = PDFSettings;
 PDFSettings.DIST_FOLDER = 'pdfoundry-dist';
@@ -256,7 +286,7 @@ PDFSettings.EXTERNAL_SYSTEM_NAME = '../modules/pdfoundry';
 PDFSettings.INTERNAL_MODULE_NAME = 'PDFoundry';
 PDFSettings.PDF_ENTITY_TYPE = 'PDFoundry_PDF';
 
-},{"../app/PDFItemSheet":2}],5:[function(require,module,exports){
+},{"../api/PDFoundryAPI":1,"../app/PDFItemSheet":2}],5:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
