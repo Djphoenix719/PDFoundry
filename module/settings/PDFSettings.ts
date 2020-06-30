@@ -41,19 +41,22 @@ export class PDFSettings {
         }
     }
 
-    public static async onCreateItem(item: Item, ...args) {
-        if (item.data.type !== PDFSettings.PDF_ENTITY_TYPE) {
+    /**
+     * Setup default values for pdf entities
+     * @param entity
+     * @param args ignored args
+     */
+    public static async preCreateItem(entity, ...args) {
+        if (entity.type !== PDFSettings.PDF_ENTITY_TYPE) {
             return;
         }
-
-        await item.update(
-            {
-                img: `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/pdf_icon.svg`,
-            },
-            { enforceTypes: true },
-        );
+        entity.img = `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/pdf_icon.svg`;
     }
 
+    /**
+     * Helper method to grab the id from the html object and return an item
+     * @param html
+     */
     private static getItemFromContext(html: JQuery<HTMLElement>): Item {
         const id = html.data('entity-id');
         return game.items.get(id);

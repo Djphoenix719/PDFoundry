@@ -191,7 +191,7 @@ Hooks.on('init', function () {
     ui.PDFoundry = PDFoundryAPI_1.PDFoundryAPI;
 });
 Hooks.once('ready', PDFSettings_1.PDFSettings.registerPDFSheet);
-Hooks.on('createItem', PDFSettings_1.PDFSettings.onCreateItem);
+Hooks.on('preCreateItem', PDFSettings_1.PDFSettings.preCreateItem);
 Hooks.on('getItemDirectoryEntryContext', PDFSettings_1.PDFSettings.getItemContextOptions);
 
 },{"./api/PDFoundryAPI":1,"./settings/PDFSettings":4}],4:[function(require,module,exports){
@@ -241,16 +241,23 @@ class PDFSettings {
             });
         }
     }
-    static onCreateItem(item, ...args) {
+    /**
+     * Setup default values for pdf entities
+     * @param entity
+     * @param args ignored args
+     */
+    static preCreateItem(entity, ...args) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (item.data.type !== PDFSettings.PDF_ENTITY_TYPE) {
+            if (entity.type !== PDFSettings.PDF_ENTITY_TYPE) {
                 return;
             }
-            yield item.update({
-                img: `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/pdf_icon.svg`,
-            }, { enforceTypes: true });
+            entity.img = `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/pdf_icon.svg`;
         });
     }
+    /**
+     * Helper method to grab the id from the html object and return an item
+     * @param html
+     */
     static getItemFromContext(html) {
         const id = html.data('entity-id');
         return game.items.get(id);

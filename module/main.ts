@@ -8,5 +8,5 @@ Hooks.on('init', function () {
     ui.PDFoundry = PDFoundryAPI;
 });
 Hooks.once('ready', PDFSettings.registerPDFSheet);
-Hooks.on('createItem', PDFSettings.onCreateItem);
+Hooks.on('preCreateItem', PDFSettings.preCreateItem);
 Hooks.on('getItemDirectoryEntryContext', PDFSettings.getItemContextOptions);
