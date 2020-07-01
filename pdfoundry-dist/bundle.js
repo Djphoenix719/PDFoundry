@@ -1,5 +1,19 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
+/* Copyright 2020 Andrew Cuccinello
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -80,9 +94,22 @@ class PDFoundryAPI {
     }
 }
 exports.PDFoundryAPI = PDFoundryAPI;
-
 },{"../settings/PDFSettings":4,"../viewer/PDFViewerWeb":6}],2:[function(require,module,exports){
 "use strict";
+/* Copyright 2020 Andrew Cuccinello
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -178,9 +205,22 @@ class PDFSourceSheet extends ItemSheet {
     }
 }
 exports.PDFSourceSheet = PDFSourceSheet;
-
 },{"../api/PDFoundryAPI":1,"../settings/PDFSettings":4}],3:[function(require,module,exports){
 "use strict";
+/* Copyright 2020 Andrew Cuccinello
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 Object.defineProperty(exports, "__esModule", { value: true });
 const PDFoundryAPI_1 = require("./api/PDFoundryAPI");
 const PDFSettings_1 = require("./settings/PDFSettings");
@@ -193,9 +233,22 @@ Hooks.on('init', function () {
 Hooks.once('ready', PDFSettings_1.PDFSettings.registerPDFSheet);
 Hooks.on('preCreateItem', PDFSettings_1.PDFSettings.preCreateItem);
 Hooks.on('getItemDirectoryEntryContext', PDFSettings_1.PDFSettings.getItemContextOptions);
-
 },{"./api/PDFoundryAPI":1,"./settings/PDFSettings":4}],4:[function(require,module,exports){
 "use strict";
+/* Copyright 2020 Andrew Cuccinello
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -292,9 +345,22 @@ PDFSettings.DIST_FOLDER = 'pdfoundry-dist';
 PDFSettings.EXTERNAL_SYSTEM_NAME = '../modules/pdfoundry';
 PDFSettings.INTERNAL_MODULE_NAME = 'PDFoundry';
 PDFSettings.PDF_ENTITY_TYPE = 'PDFoundry_PDF';
-
 },{"../api/PDFoundryAPI":1,"../app/PDFItemSheet":2}],5:[function(require,module,exports){
 "use strict";
+/* Copyright 2020 Andrew Cuccinello
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -335,9 +401,22 @@ class PDFViewerBase extends Application {
     }
 }
 exports.PDFViewerBase = PDFViewerBase;
-
 },{}],6:[function(require,module,exports){
 "use strict";
+/* Copyright 2020 Andrew Cuccinello
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFViewerWeb = void 0;
 const PDFViewerBase_1 = require("./PDFViewerBase");
@@ -362,5 +441,6 @@ class PDFViewerWeb extends PDFViewerBase_1.PDFViewerBase {
     }
 }
 exports.PDFViewerWeb = PDFViewerWeb;
+},{"../settings/PDFSettings":4,"./PDFViewerBase":5}]},{},[3])
 
-},{"../settings/PDFSettings":4,"./PDFViewerBase":5}]},{},[3]);
+//# sourceMappingURL=bundle.js.map
