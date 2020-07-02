@@ -90,7 +90,7 @@ export class PDFSourceSheet extends ItemSheet {
 
             let urlValue = urlInput.val();
             if (urlValue !== undefined) {
-                const result = await fp.browse(urlValue.toString().trim());
+                await fp.browse(urlValue.toString().trim());
             }
 
             fp.render(true);

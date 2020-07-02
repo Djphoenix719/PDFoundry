@@ -84,7 +84,7 @@ export class PDFSettings {
      */
     public static getItemContextOptions(html, options: any[]) {
         options.splice(0, 0, {
-            name: 'Open PDF',
+            name: game.i18n.localize('PDFOUNDRY.CONTEXT.OpenPDF'),
             icon: '<i class="far fa-file-pdf"></i>',
             condition: (entityHtml: JQuery<HTMLElement>) => {
                 const item = PDFSettings.getItemFromContext(entityHtml);
