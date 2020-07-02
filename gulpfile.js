@@ -99,22 +99,28 @@ gulp.task('build', async () => {
     gulp.watch("templates/**/*.html").on('change', () => copy_dir('templates'));
     gulp.watch("locale/**/*.json").on('change', () => copy_dir('locale', false));
     gulp.watch("assets/**/*").on('change', () => copy_dir('assets', false));
-    gulp.watch("css/**/*.scss").on('change', () => gulp.start('sass'));
+    gulp.watch("css/**/*.scss").on('change', () => build_sass());
 
     await copy_dir('templates', true);
     await copy_dir('locale');
     await copy_dir('assets');
     await copy_dir('pdfjs');
+    await copy_file('LICENSE');
+    await build_sass();
     await bundle();
 });
 
 gulp.task('sass', async() => {
+    await build_sass();
+});
+
+async function build_sass() {
     gulp.src('./src/css/bundle.scss')
         .pipe(sass().on('error', sass.logError))
         .pipe(sourcemaps.init({loadMaps: true}))
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(dest));
-});
+}
 
 async function bundle() {
     return b.bundle()
@@ -158,4 +164,15 @@ async function copy_dir(name, src = false) {
     log(`Copying ${name.blue} (${size(path)})`);
     await del(`${dest}/${name}`, {force: true});
     await gulp.src([`${path}/**/*`]).pipe(gulp.dest(`./${dest}/${name}`));
+}
+
+async function copy_file(name, src = false) {
+    let path = name;
+    if (src) {
+        path = `./src/${name}`
+    }
+
+    log(`Copying ${name.blue} (${size(path)})`);
+    await del(`${dest}/${name}`, {force: true});
+    await gulp.src([`${path}`]).pipe(gulp.dest(`./${dest}`));
 }
