@@ -24,18 +24,26 @@ export class PDFLocalization {
      */
     public static async init() {
         const lang = game.i18n.lang;
-        const path = `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/locale/${lang}/config.json`;
+        // user's language path
+        const u_path = `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/locale/${lang}/config.json`;
+        // english fallback path
+        const f_path = `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/locale/en/config.json`;
 
         let json;
         try {
-            json = await $.getJSON(path);
+            json = await $.getJSON(u_path);
         } catch (error) {
-            // if no translation exits for the users locale load english
-            json = await $.getJSON(`systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/locale/en/config.json`);
+            // if no translation exits for the users locale the fallback
+            json = await $.getJSON(f_path;
         }
 
         for (const key of Object.keys(json)) {
             game.i18n.translations[key] = json[key];
+        }
+
+        // setup the fallback as english so partial translations do not display keys
+        let fb_json = await $.getJSON(f_path);
+        for (const key of Object.keys(json)) {
             // @ts-ignore
             game.i18n._fallback[key] = json[key];
         }
