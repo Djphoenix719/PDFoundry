@@ -434,9 +434,6 @@ class PDFSettings {
         });
     }
     static onRenderSettings(settings, html, data) {
-        console.warn(settings);
-        console.warn(html);
-        console.warn(data);
         const icon = '<i class="far fa-file-pdf"></i>';
         const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
         button.on('click', PDFSettings.showHelp);
@@ -503,11 +500,18 @@ class PDFViewerBase extends Application {
             this.m_Frame = html.parents().find('iframe.pdfViewer').first().get(0);
         });
     }
+    /**
+     * Attempt to safely cleanup PDFjs to avoid memory leaks.
+     */
+    cleanup() {
+        if (this.m_Frame && this.m_Frame.contentWindow) {
+            const window = this.m_Frame.contentWindow;
+            // @ts-ignore
+            window.PDFViewerApplication.cleanup();
+        }
+    }
     close() {
-        // @ts-ignore
-        const pva = this.m_Frame.contentWindow.PDFViewerApplication;
-        console.log(pva);
-        pva.cleanup();
+        this.cleanup();
         return super.close();
     }
 }

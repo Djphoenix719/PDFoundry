@@ -33,12 +33,19 @@ export class PDFViewerBase extends Application {
         this.m_Frame = html.parents().find('iframe.pdfViewer').first().get(0) as HTMLIFrameElement;
     }
 
-    close(): Promise<any> {
-        // @ts-ignore
-        const pva = this.m_Frame.contentWindow.PDFViewerApplication;
-        console.log(pva);
+    /**
+     * Attempt to safely cleanup PDFjs to avoid memory leaks.
+     */
+    protected cleanup(): void {
+        if (this.m_Frame && this.m_Frame.contentWindow) {
+            const window = this.m_Frame.contentWindow;
+            // @ts-ignore
+            window.PDFViewerApplication.cleanup();
+        }
+    }
 
-        pva.cleanup();
+    close(): Promise<any> {
+        this.cleanup();
         return super.close();
     }
 }

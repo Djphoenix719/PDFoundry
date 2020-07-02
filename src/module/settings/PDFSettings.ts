@@ -118,10 +118,6 @@ export class PDFSettings {
     }
 
     public static onRenderSettings(settings: any, html: JQuery<HTMLElement>, data: any) {
-        console.warn(settings);
-        console.warn(html);
-        console.warn(data);
-
         const icon = '<i class="far fa-file-pdf"></i>';
         const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
         button.on('click', PDFSettings.showHelp);
