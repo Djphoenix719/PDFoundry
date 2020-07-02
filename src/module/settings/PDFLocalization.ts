@@ -34,7 +34,7 @@ export class PDFLocalization {
             json = await $.getJSON(u_path);
         } catch (error) {
             // if no translation exits for the users locale the fallback
-            json = await $.getJSON(f_path;
+            json = await $.getJSON(f_path);
         }
 
         for (const key of Object.keys(json)) {
@@ -43,7 +43,7 @@ export class PDFLocalization {
 
         // setup the fallback as english so partial translations do not display keys
         let fb_json = await $.getJSON(f_path);
-        for (const key of Object.keys(json)) {
+        for (const key of Object.keys(fb_json)) {
             // @ts-ignore
             game.i18n._fallback[key] = json[key];
         }
