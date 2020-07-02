@@ -30,6 +30,9 @@
         "TestSettings": "Test Settings",
         "Browse": "Browse"
       }
+    },
+    "SETTINGS": {
+      "OpenHelp": "Open PDFoundry Manual"
     }
   }
 }

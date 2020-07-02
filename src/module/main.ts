@@ -22,10 +22,26 @@ Hooks.once('init', function () {
     // @ts-ignore
     ui.PDFoundry = PDFoundryAPI;
 });
-Hooks.once('setup', async function () {
+Hooks.once('init', PDFSettings.registerSettings);
+
+Hooks.once('ready', async function () {
     await PDFLocalization.init();
 });
-
 Hooks.once('ready', PDFSettings.registerPDFSheet);
+Hooks.once('ready', PDFSettings.injectCSS);
+
+Hooks.once('ready', () => {
+    let viewed = false;
+    try {
+        const help = game.settings.get(PDFSettings.INTERNAL_MODULE_NAME, 'help');
+        viewed = help.viewed;
+    } catch (error) {}
+
+    if (!viewed) {
+        PDFSettings.showHelp();
+    }
+});
+
 Hooks.on('preCreateItem', PDFSettings.preCreateItem);
 Hooks.on('getItemDirectoryEntryContext', PDFSettings.getItemContextOptions);
+Hooks.on('renderSettings', PDFSettings.onRenderSettings);

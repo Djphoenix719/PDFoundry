@@ -1,3 +1,18 @@
+/* Copyright 2020 Andrew Cuccinello
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 'use strict';
 const colors = require('colors');
 const fs = require('fs');
@@ -86,9 +101,10 @@ gulp.task('build', async () => {
     gulp.watch("assets/**/*").on('change', () => copy_dir('assets', false));
     gulp.watch("css/**/*.scss").on('change', () => gulp.start('sass'));
 
-    await copy_dir('templates');
-    await copy_dir('locale', false);
-    await copy_dir('assets', false);
+    await copy_dir('templates', true);
+    await copy_dir('locale');
+    await copy_dir('assets');
+    await copy_dir('pdfjs');
     await bundle();
 });
 
@@ -133,7 +149,7 @@ function log(message) {
     console.log(`[${timestamp}] ${message}`);
 }
 
-async function copy_dir(name, src = true) {
+async function copy_dir(name, src = false) {
     let path = name;
     if (src) {
         path = `./src/${name}`

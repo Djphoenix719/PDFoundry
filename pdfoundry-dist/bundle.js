@@ -239,14 +239,28 @@ Hooks.once('init', function () {
     // @ts-ignore
     ui.PDFoundry = PDFoundryAPI_1.PDFoundryAPI;
 });
-Hooks.once('setup', function () {
+Hooks.once('init', PDFSettings_1.PDFSettings.registerSettings);
+Hooks.once('ready', function () {
     return __awaiter(this, void 0, void 0, function* () {
         yield PDFLocalization_1.PDFLocalization.init();
     });
 });
 Hooks.once('ready', PDFSettings_1.PDFSettings.registerPDFSheet);
+Hooks.once('ready', PDFSettings_1.PDFSettings.injectCSS);
+Hooks.once('ready', () => {
+    let viewed = false;
+    try {
+        const help = game.settings.get(PDFSettings_1.PDFSettings.INTERNAL_MODULE_NAME, 'help');
+        viewed = help.viewed;
+    }
+    catch (error) { }
+    if (!viewed) {
+        PDFSettings_1.PDFSettings.showHelp();
+    }
+});
 Hooks.on('preCreateItem', PDFSettings_1.PDFSettings.preCreateItem);
 Hooks.on('getItemDirectoryEntryContext', PDFSettings_1.PDFSettings.getItemContextOptions);
+Hooks.on('renderSettings', PDFSettings_1.PDFSettings.onRenderSettings);
 },{"./api/PDFoundryAPI":1,"./settings/PDFLocalization":4,"./settings/PDFSettings":5}],4:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
@@ -407,6 +421,33 @@ class PDFSettings {
                 const { code } = item.data.data;
                 PDFoundryAPI_1.PDFoundryAPI.open(code);
             },
+        });
+    }
+    static injectCSS() {
+        $('head').append($(`<link href="systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/bundle.css" rel="stylesheet" type="text/css" media="all">`));
+    }
+    static registerSettings() {
+        // Has an individual user viewed the manual yet?
+        game.settings.register(PDFSettings.INTERNAL_MODULE_NAME, 'help', {
+            viewed: false,
+            scope: 'user',
+        });
+    }
+    static onRenderSettings(settings, html, data) {
+        console.warn(settings);
+        console.warn(html);
+        console.warn(data);
+        const icon = '<i class="far fa-file-pdf"></i>';
+        const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
+        button.on('click', PDFSettings.showHelp);
+        html.find('h2').last().before(button);
+    }
+    static showHelp() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield game.settings.set(PDFSettings.INTERNAL_MODULE_NAME, 'help', {
+                viewed: true,
+            });
+            PDFoundryAPI_1.PDFoundryAPI.openURL(`${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/PDFoundry Manual.pdf`);
         });
     }
 }

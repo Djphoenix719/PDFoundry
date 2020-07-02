@@ -102,4 +102,38 @@ export class PDFSettings {
             },
         });
     }
+
+    public static injectCSS() {
+        $('head').append(
+            $(`<link href="systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/bundle.css" rel="stylesheet" type="text/css" media="all">`),
+        );
+    }
+
+    public static registerSettings() {
+        // Has an individual user viewed the manual yet?
+        game.settings.register(PDFSettings.INTERNAL_MODULE_NAME, 'help', {
+            viewed: false,
+            scope: 'user',
+        });
+    }
+
+    public static onRenderSettings(settings: any, html: JQuery<HTMLElement>, data: any) {
+        console.warn(settings);
+        console.warn(html);
+        console.warn(data);
+
+        const icon = '<i class="far fa-file-pdf"></i>';
+        const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
+        button.on('click', PDFSettings.showHelp);
+
+        html.find('h2').last().before(button);
+    }
+
+    public static async showHelp() {
+        await game.settings.set(PDFSettings.INTERNAL_MODULE_NAME, 'help', {
+            viewed: true,
+        });
+
+        PDFoundryAPI.openURL(`${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/PDFoundry Manual.pdf`);
+    }
 }
