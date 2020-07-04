@@ -15,6 +15,7 @@
 
 import { PDFSourceSheet } from '../app/PDFItemSheet';
 import { PDFoundryAPI } from '../api/PDFoundryAPI';
+import { PDFLog } from '../log/PDFLog';
 
 /**
  * Internal settings and helper methods for PDFoundry.

@@ -13,8 +13,15 @@
  * limitations under the License.
  */
 
+import { PDFCache } from '../cache/PDFCache';
+
 export class PDFViewerBase extends Application {
-    protected m_Frame: HTMLIFrameElement;
+    protected _frame: HTMLIFrameElement;
+
+    public get app() {
+        // @ts-ignore
+        return this._frame.contentWindow.PDFViewerApplication;
+    }
 
     static get defaultOptions() {
         const options = super.defaultOptions;
@@ -30,15 +37,18 @@ export class PDFViewerBase extends Application {
     protected async activateListeners(html: JQuery<HTMLElement>): Promise<void> {
         super.activateListeners(html);
 
-        this.m_Frame = html.parents().find('iframe.pdfViewer').first().get(0) as HTMLIFrameElement;
+        this._frame = html.parents().find('iframe.pdfViewer').first().get(0) as HTMLIFrameElement;
+
+        // @ts-ignore
+        window.viewer = this;
     }
 
     /**
      * Attempt to safely cleanup PDFjs to avoid memory leaks.
      */
     protected cleanup(): void {
-        if (this.m_Frame && this.m_Frame.contentWindow) {
-            const window = this.m_Frame.contentWindow;
+        if (this._frame && this._frame.contentWindow) {
+            const window = this._frame.contentWindow;
             // @ts-ignore
             window.PDFViewerApplication.cleanup();
         }

@@ -96,10 +96,10 @@ b.on('log', logger.info); // output build logs to terminal
 b.on('update', bundle);
 
 gulp.task('build', async () => {
-    gulp.watch("templates/**/*.html").on('change', () => copy_dir('templates'));
+    gulp.watch("src/templates/**/*.html").on('change', () => copy_dir('templates'));
     gulp.watch("locale/**/*.json").on('change', () => copy_dir('locale', false));
     gulp.watch("assets/**/*").on('change', () => copy_dir('assets', false));
-    gulp.watch("css/**/*.scss").on('change', () => build_sass());
+    gulp.watch("src/css/**/*.scss").on('change', () => build_sass());
 
     await copy_dir('templates', true);
     await copy_dir('locale');

@@ -16,7 +16,7 @@
 import { PDFoundryAPI } from './api/PDFoundryAPI';
 import { PDFSettings } from './settings/PDFSettings';
 import { PDFLocalization } from './settings/PDFLocalization';
-CONFIG.debug.hooks = true;
+import { PDFCache } from './cache/PDFCache';
 
 Hooks.once('init', function () {
     // @ts-ignore
@@ -45,3 +45,6 @@ Hooks.once('ready', () => {
 Hooks.on('preCreateItem', PDFSettings.preCreateItem);
 Hooks.on('getItemDirectoryEntryContext', PDFSettings.getItemContextOptions);
 Hooks.on('renderSettings', PDFSettings.onRenderSettings);
+
+// Initialize PDF cache
+Hooks.once('setup', PDFCache.initialize);

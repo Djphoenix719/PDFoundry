@@ -5,6 +5,9 @@
 	"version": "0.1.0",
 	"author": "Andrew Cuccinello [DJ#1982]",
 	"packs": [],
+	"esmodules": [
+		"pdfoundry-dist/bundle.js"
+	],
 	"compatibleCoreVersion": "0.6.2",
 	"minimumCoreVersion": "0.6.2",
 	"manifest": "https://raw.githubusercontent.com/Djphoenix719/PDFoundry/master/module.json",
