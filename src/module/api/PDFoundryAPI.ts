@@ -28,6 +28,7 @@ export class PDFoundryAPIError extends Error {
  * All the properties of a PDF that can be specified by a user
  */
 export type PDFData = {
+    name: string;
     code: string;
     url: string;
     offset: number;
@@ -60,6 +61,7 @@ export class PDFoundryAPI {
             data.offset = 0;
         }
         data.offset = parseInt(data.offset);
+        data.name = entity.name;
         return data;
     }
 
@@ -77,7 +79,7 @@ export class PDFoundryAPI {
      * @param code
      * @param page
      */
-    public static async open(code: string, page: number = 1) {
+    public static async open(code: string, page: number = 1): Promise<PDFViewer> {
         PDFLog.warn(`Opening ${code} at page ${page}.`);
         const pdf = this.getPDFData(code);
         if (pdf === null) {
@@ -97,7 +99,7 @@ export class PDFoundryAPI {
      * @param page The page to open to
      * @param useCache If caching should be used
      */
-    public static async openURL(url: string, page: number = 1, useCache: boolean = true) {
+    public static async openURL(url: string, page: number = 1, useCache: boolean = true): Promise<PDFViewer> {
         if (url === undefined) {
             throw new PDFoundryAPIError('Unable to open PDF; "url" must be defined');
         }
@@ -128,5 +130,6 @@ export class PDFoundryAPI {
         } else {
             await viewer.open(url, page);
         }
+        return viewer;
     }
 }

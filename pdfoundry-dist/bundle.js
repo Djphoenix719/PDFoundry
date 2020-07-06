@@ -61,6 +61,7 @@ class PDFoundryAPI {
             data.offset = 0;
         }
         data.offset = parseInt(data.offset);
+        data.name = entity.name;
         return data;
     }
     /**
@@ -126,11 +127,12 @@ class PDFoundryAPI {
             else {
                 yield viewer.open(url, page);
             }
+            return viewer;
         });
     }
 }
 exports.PDFoundryAPI = PDFoundryAPI;
-},{"../cache/PDFCache":3,"../log/PDFLog":4,"../settings/PDFSettings":7,"../viewer/PDFViewer":8}],2:[function(require,module,exports){
+},{"../cache/PDFCache":3,"../log/PDFLog":4,"../settings/PDFSettings":7,"../viewer/PDFViewer":9}],2:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
  *
@@ -666,35 +668,43 @@ const PDFoundryAPI_1 = require("./api/PDFoundryAPI");
 const PDFSettings_1 = require("./settings/PDFSettings");
 const PDFLocalization_1 = require("./settings/PDFLocalization");
 const PDFCache_1 = require("./cache/PDFCache");
-Hooks.once('init', function () {
-    // @ts-ignore
-    ui.PDFoundry = PDFoundryAPI_1.PDFoundryAPI;
-});
+const PDFLog_1 = require("./log/PDFLog");
+const PDFSetup_1 = require("./setup/PDFSetup");
+// <editor-fold desc="Init Hooks">
+// Register the API on the ui object
+Hooks.once('init', PDFSetup_1.PDFSetup.registerAPI);
+// Initialize the settings
 Hooks.once('init', PDFSettings_1.PDFSettings.registerSettings);
-Hooks.once('ready', function () {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield PDFLocalization_1.PDFLocalization.init();
-    });
-});
-Hooks.once('ready', PDFSettings_1.PDFSettings.registerPDFSheet);
-Hooks.once('ready', PDFSettings_1.PDFSettings.injectCSS);
-Hooks.once('ready', () => {
-    let viewed = false;
-    try {
-        const help = game.settings.get(PDFSettings_1.PDFSettings.INTERNAL_MODULE_NAME, 'help');
-        viewed = help.viewed;
-    }
-    catch (error) { }
-    if (!viewed) {
-        PDFSettings_1.PDFSettings.showHelp();
-    }
-});
-Hooks.on('preCreateItem', PDFSettings_1.PDFSettings.preCreateItem);
-Hooks.on('getItemDirectoryEntryContext', PDFSettings_1.PDFSettings.getItemContextOptions);
-Hooks.on('renderSettings', PDFSettings_1.PDFSettings.onRenderSettings);
-// Initialize PDF cache
+// Inject the css into the page
+Hooks.once('init', PDFSetup_1.PDFSetup.injectCSS);
+// </editor-fold>
+// <editor-fold desc="Setup Hooks">
+// Initialize the cache system, creating the DB
 Hooks.once('setup', PDFCache_1.PDFCache.initialize);
-},{"./api/PDFoundryAPI":1,"./cache/PDFCache":3,"./settings/PDFLocalization":6,"./settings/PDFSettings":7}],6:[function(require,module,exports){
+// </editor-fold>
+// <editor-fold desc="Ready Hooks">
+// Register the PDF sheet with the class picker, unregister others
+Hooks.once('ready', PDFSetup_1.PDFSetup.registerPDFSheet);
+// Load the relevant localization file. Can't auto load with module setup
+Hooks.once('ready', PDFLocalization_1.PDFLocalization.init);
+// </editor-fold>
+// <editor-fold desc="Persistent Hooks">
+// preCreateItem - Setup default values for a new PDFoundry_PDF
+Hooks.on('preCreateItem', PDFSettings_1.PDFSettings.preCreateItem);
+// getItemDirectoryEntryContext - Setup context menu for 'Open PDF' links
+Hooks.on('getItemDirectoryEntryContext', PDFSettings_1.PDFSettings.getItemContextOptions);
+// renderSettings - Inject a 'Open Manual' button into help section
+Hooks.on('renderSettings', PDFSettings_1.PDFSettings.onRenderSettings);
+// </editor-fold>
+Hooks.once('ready', () => __awaiter(void 0, void 0, void 0, function* () {
+    PDFLog_1.PDFLog.verbose('Loading PDF.');
+    const pdf = PDFoundryAPI_1.PDFoundryAPI.getPDFData('SR5');
+    if (pdf === null)
+        return;
+    const { code, name } = pdf;
+    const viewer = yield PDFoundryAPI_1.PDFoundryAPI.open(code, 69);
+}));
+},{"./api/PDFoundryAPI":1,"./cache/PDFCache":3,"./log/PDFLog":4,"./settings/PDFLocalization":6,"./settings/PDFSettings":7,"./setup/PDFSetup":8}],6:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
  *
@@ -784,37 +794,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFSettings = void 0;
-const PDFItemSheet_1 = require("../app/PDFItemSheet");
 const PDFoundryAPI_1 = require("../api/PDFoundryAPI");
 const PDFLog_1 = require("../log/PDFLog");
 /**
  * Internal settings and helper methods for PDFoundry.
  */
 class PDFSettings {
-    /**
-     * Register the PDF sheet and unregister invalid sheet types from it.
-     */
-    static registerPDFSheet() {
-        Items.registerSheet(PDFSettings.INTERNAL_MODULE_NAME, PDFItemSheet_1.PDFSourceSheet, {
-            types: [PDFSettings.PDF_ENTITY_TYPE],
-            makeDefault: true,
-        });
-        // Unregister all other item sheets for the PDF entity
-        const pdfoundryKey = `${PDFSettings.INTERNAL_MODULE_NAME}.${PDFItemSheet_1.PDFSourceSheet.name}`;
-        const sheets = CONFIG.Item.sheetClasses[PDFSettings.PDF_ENTITY_TYPE];
-        for (const key of Object.keys(sheets)) {
-            const sheet = sheets[key];
-            // keep the PDFoundry sheet
-            if (sheet.id === pdfoundryKey) {
-                continue;
-            }
-            // id is MODULE.CLASS_NAME
-            const [module] = sheet.id.split('.');
-            Items.unregisterSheet(module, sheet.cls, {
-                types: [PDFSettings.PDF_ENTITY_TYPE],
-            });
-        }
-    }
     /**
      * Setup default values for pdf entities
      * @param entity
@@ -862,9 +847,6 @@ class PDFSettings {
             },
         });
     }
-    static injectCSS() {
-        $('head').append($(`<link href="systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/bundle.css" rel="stylesheet" type="text/css" media="all">`));
-    }
     static registerSettings() {
         // Has an individual user viewed the manual yet?
         game.settings.register(PDFSettings.INTERNAL_MODULE_NAME, 'help', {
@@ -893,7 +875,56 @@ PDFSettings.DIST_FOLDER = 'pdfoundry-dist';
 PDFSettings.EXTERNAL_SYSTEM_NAME = '../modules/pdfoundry';
 PDFSettings.INTERNAL_MODULE_NAME = 'PDFoundry';
 PDFSettings.PDF_ENTITY_TYPE = 'PDFoundry_PDF';
-},{"../api/PDFoundryAPI":1,"../app/PDFItemSheet":2,"../log/PDFLog":4}],8:[function(require,module,exports){
+},{"../api/PDFoundryAPI":1,"../log/PDFLog":4}],8:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PDFSetup = void 0;
+const PDFSettings_1 = require("../settings/PDFSettings");
+const PDFItemSheet_1 = require("../app/PDFItemSheet");
+const PDFoundryAPI_1 = require("../api/PDFoundryAPI");
+/**
+ * A collection of methods used for setting up the API & system state.
+ */
+class PDFSetup {
+    /**
+     * Register the PDFoundry APi on the UI
+     */
+    static registerAPI() {
+        ui['PDFoundry'] = PDFoundryAPI_1.PDFoundryAPI;
+    }
+    /**
+     * Inject the CSS file into the header, so it doesn't have to be referenced in the system.json
+     */
+    static injectCSS() {
+        $('head').append($(`<link href="systems/${PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings_1.PDFSettings.DIST_FOLDER}/bundle.css" rel="stylesheet" type="text/css" media="all">`));
+    }
+    /**
+     * Register the PDF sheet and unregister invalid sheet types from it.
+     */
+    static registerPDFSheet() {
+        Items.registerSheet(PDFSettings_1.PDFSettings.INTERNAL_MODULE_NAME, PDFItemSheet_1.PDFSourceSheet, {
+            types: [PDFSettings_1.PDFSettings.PDF_ENTITY_TYPE],
+            makeDefault: true,
+        });
+        // Unregister all other item sheets for the PDF entity
+        const pdfoundryKey = `${PDFSettings_1.PDFSettings.INTERNAL_MODULE_NAME}.${PDFItemSheet_1.PDFSourceSheet.name}`;
+        const sheets = CONFIG.Item.sheetClasses[PDFSettings_1.PDFSettings.PDF_ENTITY_TYPE];
+        for (const key of Object.keys(sheets)) {
+            const sheet = sheets[key];
+            // keep the PDFoundry sheet
+            if (sheet.id === pdfoundryKey) {
+                continue;
+            }
+            // id is MODULE.CLASS_NAME
+            const [module] = sheet.id.split('.');
+            Items.unregisterSheet(module, sheet.cls, {
+                types: [PDFSettings_1.PDFSettings.PDF_ENTITY_TYPE],
+            });
+        }
+    }
+}
+exports.PDFSetup = PDFSetup;
+},{"../api/PDFoundryAPI":1,"../app/PDFItemSheet":2,"../settings/PDFSettings":7}],9:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
  *
@@ -922,12 +953,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFViewer = void 0;
 const PDFSettings_1 = require("../settings/PDFSettings");
 class PDFViewer extends Application {
+    constructor(pdfData, options) {
+        super(options);
+        this._pdfData = pdfData;
+    }
     static get defaultOptions() {
         const options = super.defaultOptions;
-        options.id = 'pdf-viewer';
         options.classes = ['app', 'window-app'];
         options.template = `systems/${PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME}/pdfoundry-dist/templates/app/pdf-viewer.html`;
-        options.title = 'View PDF';
+        options.title = game.i18n.localize('PDFOUNDRY.VIEWER.ViewPDF');
         options.width = 8.5 * 100 + 64;
         options.height = 11 * 100 + 64;
         options.resizable = true;
@@ -940,15 +974,19 @@ class PDFViewer extends Application {
     //TODO: I lean towards yes for now - having to await *every* method call will be annoying.
     getPage() {
         return __awaiter(this, void 0, void 0, function* () {
-            const viewer = yield this.getViewer();
-            return viewer.page;
+            throw new Error();
         });
     }
     setPage(value) {
         return __awaiter(this, void 0, void 0, function* () {
-            const viewer = yield this.getViewer();
-            viewer.page = value;
+            throw new Error();
         });
+    }
+    setTitle() {
+        const header = $(this.element).find('header > h4.window-title');
+        if (this._pdfData) {
+            header.text(this._pdfData.name);
+        }
     }
     /**
      * Get the internal PDFjs viewer. Will resolve with the viewer
@@ -993,12 +1031,16 @@ class PDFViewer extends Application {
         });
         return __awaiter(this, void 0, void 0, function* () {
             _super.activateListeners.call(this, html);
+            this.setTitle();
             this._frame = html.parent().find('iframe.pdfViewer').get(0);
             this.getViewer().then((viewer) => {
                 this._viewer = viewer;
             });
         });
     }
+    /**
+     * Finish the download and return the byte array for the file.
+     */
     download() {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             const viewer = yield this.getViewer();
@@ -1034,6 +1076,7 @@ class PDFViewer extends Application {
     }
     /**
      * Attempt to safely cleanup PDFjs to avoid memory leaks.
+     * PDFjs is pretty good with memory already.
      */
     cleanup() {
         return __awaiter(this, void 0, void 0, function* () {

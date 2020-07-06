@@ -15,18 +15,16 @@
 
 import { PDFSettings } from '../settings/PDFSettings';
 import { PDFjsViewer } from '../api/PDFjsViewer';
-import { PDFCache } from '../cache/PDFCache';
-import { PDFLog } from '../log/PDFLog';
+import { PDFData } from '../api/PDFoundryAPI';
 
 export type PDFDownloadFinishedHandler = (bytes: Uint8Array) => void;
 
 export class PDFViewer extends Application {
     static get defaultOptions() {
         const options = super.defaultOptions;
-        options.id = 'pdf-viewer';
         options.classes = ['app', 'window-app'];
         options.template = `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/pdfoundry-dist/templates/app/pdf-viewer.html`;
-        options.title = 'View PDF';
+        options.title = game.i18n.localize('PDFOUNDRY.VIEWER.ViewPDF');
         options.width = 8.5 * 100 + 64;
         options.height = 11 * 100 + 64;
         options.resizable = true;
@@ -35,6 +33,13 @@ export class PDFViewer extends Application {
 
     protected _frame: HTMLIFrameElement;
     protected _viewer: PDFjsViewer;
+    protected _pdfData: PDFData | undefined;
+
+    constructor(pdfData?: PDFData, options?: ApplicationOptions) {
+        super(options);
+
+        this._pdfData = pdfData;
+    }
 
     public get ready() {
         return this._viewer !== undefined;
@@ -43,13 +48,19 @@ export class PDFViewer extends Application {
     //TODO: How should this be structured? Is it easier to throw if state is not good?
     //TODO: I lean towards yes for now - having to await *every* method call will be annoying.
     public async getPage(): Promise<number> {
-        const viewer = await this.getViewer();
-        return viewer.page;
+        throw new Error();
     }
 
     public async setPage(value: number): Promise<void> {
-        const viewer = await this.getViewer();
-        viewer.page = value;
+        throw new Error();
+    }
+
+    private setTitle() {
+        const header = $(this.element).find('header > h4.window-title');
+
+        if (this._pdfData) {
+            header.text(this._pdfData.name);
+        }
     }
 
     /**
@@ -96,12 +107,17 @@ export class PDFViewer extends Application {
     protected async activateListeners(html: JQuery<HTMLElement>): Promise<void> {
         super.activateListeners(html);
 
+        this.setTitle();
+
         this._frame = html.parent().find('iframe.pdfViewer').get(0) as HTMLIFrameElement;
         this.getViewer().then((viewer) => {
             this._viewer = viewer;
         });
     }
 
+    /**
+     * Finish the download and return the byte array for the file.
+     */
     public download(): Promise<Uint8Array> {
         return new Promise<Uint8Array>(async (resolve, reject) => {
             const viewer = await this.getViewer();
@@ -139,6 +155,7 @@ export class PDFViewer extends Application {
 
     /**
      * Attempt to safely cleanup PDFjs to avoid memory leaks.
+     * PDFjs is pretty good with memory already.
      */
     protected async cleanup(): Promise<void> {
         if (this._frame && this._frame.contentWindow) {

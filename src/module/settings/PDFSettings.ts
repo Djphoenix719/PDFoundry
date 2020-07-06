@@ -27,33 +27,6 @@ export class PDFSettings {
     public static PDF_ENTITY_TYPE: string = 'PDFoundry_PDF';
 
     /**
-     * Register the PDF sheet and unregister invalid sheet types from it.
-     */
-    public static registerPDFSheet() {
-        Items.registerSheet(PDFSettings.INTERNAL_MODULE_NAME, PDFSourceSheet, {
-            types: [PDFSettings.PDF_ENTITY_TYPE],
-            makeDefault: true,
-        });
-
-        // Unregister all other item sheets for the PDF entity
-        const pdfoundryKey = `${PDFSettings.INTERNAL_MODULE_NAME}.${PDFSourceSheet.name}`;
-        const sheets = CONFIG.Item.sheetClasses[PDFSettings.PDF_ENTITY_TYPE];
-        for (const key of Object.keys(sheets)) {
-            const sheet = sheets[key];
-            // keep the PDFoundry sheet
-            if (sheet.id === pdfoundryKey) {
-                continue;
-            }
-
-            // id is MODULE.CLASS_NAME
-            const [module] = sheet.id.split('.');
-            Items.unregisterSheet(module, sheet.cls, {
-                types: [PDFSettings.PDF_ENTITY_TYPE],
-            });
-        }
-    }
-
-    /**
      * Setup default values for pdf entities
      * @param entity
      * @param args ignored args
@@ -100,12 +73,6 @@ export class PDFSettings {
                 PDFoundryAPI.openURL(PDFoundryAPI.getAbsoluteURL(url), 1, cache);
             },
         });
-    }
-
-    public static injectCSS() {
-        $('head').append(
-            $(`<link href="systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/bundle.css" rel="stylesheet" type="text/css" media="all">`),
-        );
     }
 
     public static registerSettings() {

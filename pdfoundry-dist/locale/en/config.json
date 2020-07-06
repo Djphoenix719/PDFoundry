@@ -31,6 +31,9 @@
         "Browse": "Browse"
       }
     },
+    "VIEWER": {
+      "ViewPDF": "View PDF"
+    },
     "SETTINGS": {
       "OpenHelp": "Open PDFoundry Manual"
     }

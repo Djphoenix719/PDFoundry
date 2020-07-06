@@ -17,34 +17,54 @@ import { PDFoundryAPI } from './api/PDFoundryAPI';
 import { PDFSettings } from './settings/PDFSettings';
 import { PDFLocalization } from './settings/PDFLocalization';
 import { PDFCache } from './cache/PDFCache';
+import { PDFLog } from './log/PDFLog';
+import { PDFSetup } from './setup/PDFSetup';
 
-Hooks.once('init', function () {
-    // @ts-ignore
-    ui.PDFoundry = PDFoundryAPI;
-});
+// <editor-fold desc="Init Hooks">
+
+// Register the API on the ui object
+Hooks.once('init', PDFSetup.registerAPI);
+// Initialize the settings
 Hooks.once('init', PDFSettings.registerSettings);
+// Inject the css into the page
+Hooks.once('init', PDFSetup.injectCSS);
 
-Hooks.once('ready', async function () {
-    await PDFLocalization.init();
-});
-Hooks.once('ready', PDFSettings.registerPDFSheet);
-Hooks.once('ready', PDFSettings.injectCSS);
+// </editor-fold>
 
-Hooks.once('ready', () => {
-    let viewed = false;
-    try {
-        const help = game.settings.get(PDFSettings.INTERNAL_MODULE_NAME, 'help');
-        viewed = help.viewed;
-    } catch (error) {}
+// <editor-fold desc="Setup Hooks">
 
-    if (!viewed) {
-        PDFSettings.showHelp();
-    }
-});
+// Initialize the cache system, creating the DB
+Hooks.once('setup', PDFCache.initialize);
 
+// </editor-fold>
+
+// <editor-fold desc="Ready Hooks">
+
+// Register the PDF sheet with the class picker, unregister others
+Hooks.once('ready', PDFSetup.registerPDFSheet);
+// Load the relevant localization file. Can't auto load with module setup
+Hooks.once('ready', PDFLocalization.init);
+
+// </editor-fold>
+
+// <editor-fold desc="Persistent Hooks">
+
+// preCreateItem - Setup default values for a new PDFoundry_PDF
 Hooks.on('preCreateItem', PDFSettings.preCreateItem);
+// getItemDirectoryEntryContext - Setup context menu for 'Open PDF' links
 Hooks.on('getItemDirectoryEntryContext', PDFSettings.getItemContextOptions);
+// renderSettings - Inject a 'Open Manual' button into help section
 Hooks.on('renderSettings', PDFSettings.onRenderSettings);
 
-// Initialize PDF cache
-Hooks.once('setup', PDFCache.initialize);
+// </editor-fold>
+
+Hooks.once('ready', async () => {
+    PDFLog.verbose('Loading PDF.');
+
+    const pdf = PDFoundryAPI.getPDFData('SR5');
+    if (pdf === null) return;
+
+    const { code, name } = pdf;
+
+    const viewer = await PDFoundryAPI.open(code, 69);
+});
