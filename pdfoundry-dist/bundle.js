@@ -26,7 +26,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFoundryAPI = exports.PDFoundryAPIError = void 0;
 const PDFSettings_1 = require("../settings/PDFSettings");
-const PDFViewerWeb_1 = require("../viewer/PDFViewerWeb");
+const PDFViewer_1 = require("../viewer/PDFViewer");
+const PDFLog_1 = require("../log/PDFLog");
+const PDFCache_1 = require("../cache/PDFCache");
 class PDFoundryAPIError extends Error {
     constructor(message) {
         super(message);
@@ -62,39 +64,73 @@ class PDFoundryAPI {
         return data;
     }
     /**
+     * Helper method. Convert a relative URL to a absolute URL
+     *  by prepending the window origin to the relative URL.
+     * @param url
+     */
+    static getAbsoluteURL(url) {
+        return `${window.origin}/${url}`;
+    }
+    /**
      * Open a PDF by code to the specified page.
      * @param code
      * @param page
      */
     static open(code, page = 1) {
-        const pdf = this.getPDFData(code);
-        if (pdf === null) {
-            throw new PDFoundryAPIError(`Unable to find a PDF with the code "${code}. Did the user declare it?`);
-        }
-        const { url, offset } = pdf;
-        // coerce to number; safety first
-        page = offset + parseInt(page.toString());
-        this.openURL(`${window.origin}/${url}`, page);
+        return __awaiter(this, void 0, void 0, function* () {
+            PDFLog_1.PDFLog.warn(`Opening ${code} at page ${page}.`);
+            const pdf = this.getPDFData(code);
+            if (pdf === null) {
+                throw new PDFoundryAPIError(`Unable to find a PDF with the code "${code}. Did the user declare it?`);
+            }
+            const { url, offset, cache } = pdf;
+            // coerce to number; safety first
+            page = offset + parseInt(page.toString());
+            return this.openURL(this.getAbsoluteURL(url), page, cache);
+        });
     }
     /**
      * Open a PDF by URL to the specified page.
-     * @param url
-     * @param page
+     * @param url The url to open
+     * @param page The page to open to
+     * @param useCache If caching should be used
      */
-    static openURL(url, page = 1) {
-        if (url === undefined) {
-            throw new PDFoundryAPIError('Unable to open PDF; "url" must be defined');
-        }
-        // coerce to number; safety first
-        page = parseInt(page.toString());
-        if (isNaN(page) || page <= 0) {
-            throw new PDFoundryAPIError(`Page must be > 0 but ${page} was given.`);
-        }
-        new PDFViewerWeb_1.PDFViewerWeb(url, page).render(true);
+    static openURL(url, page = 1, useCache = true) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (url === undefined) {
+                throw new PDFoundryAPIError('Unable to open PDF; "url" must be defined');
+            }
+            // coerce to number; safety first
+            page = parseInt(page.toString());
+            if (isNaN(page) || page <= 0) {
+                throw new PDFoundryAPIError(`Page must be > 0, but ${page} was given.`);
+            }
+            // Open the viewer
+            const viewer = new PDFViewer_1.PDFViewer();
+            viewer.render(true);
+            if (useCache) {
+                const cache = yield PDFCache_1.PDFCache.getCache(url);
+                // If we have a cache hit open the cached data
+                if (cache) {
+                    yield viewer.open(cache, page);
+                }
+                else {
+                    // Otherwise we should open it by url
+                    yield viewer.open(url, page);
+                    // And when the download is complete set the cache
+                    viewer.download().then((bytes) => {
+                        PDFCache_1.PDFCache.setCache(url, bytes);
+                    });
+                }
+            }
+            else {
+                yield viewer.open(url, page);
+            }
+        });
     }
 }
 exports.PDFoundryAPI = PDFoundryAPI;
-},{"../settings/PDFSettings":6,"../viewer/PDFViewerWeb":8}],2:[function(require,module,exports){
+},{"../cache/PDFCache":3,"../log/PDFLog":4,"../settings/PDFSettings":7,"../viewer/PDFViewer":8}],2:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
  *
@@ -135,7 +171,7 @@ class PDFSourceSheet extends ItemSheet {
         return options;
     }
     get template() {
-        return `systems/${PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings_1.PDFSettings.DIST_FOLDER}/templates/pdf-sheet.html`;
+        return `systems/${PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings_1.PDFSettings.DIST_FOLDER}/templates/sheet/pdf-sheet.html`;
     }
     /**
      * Helper method to get a id in the html form
@@ -144,23 +180,38 @@ class PDFSourceSheet extends ItemSheet {
      * @param html
      * @param id
      */
-    getByID(html, id) {
+    _getByID(html, id) {
         return html.parent().parent().find(`#${this.item._id}-${id}`);
+    }
+    _getHeaderButtons() {
+        const buttons = super._getHeaderButtons();
+        buttons.unshift({
+            class: 'pdf-sheet-manual',
+            icon: 'fas fa-question-circle',
+            label: 'Help',
+            onclick: () => PDFSettings_1.PDFSettings.showHelp(),
+        });
+        //TODO: Standardize this to function w/ the Viewer one
+        buttons.unshift({
+            class: 'pdf-sheet-github',
+            icon: 'fas fa-external-link-alt',
+            label: 'PDFoundry',
+            onclick: () => window.open('https://github.com/Djphoenix719/PDFoundry', '_blank'),
+        });
+        return buttons;
     }
     activateListeners(html) {
         super.activateListeners(html);
-        this.addGithubLink(html);
-        const urlInput = this.getByID(html, 'data\\.url');
-        const offsetInput = this.getByID(html, 'data\\.offset');
+        const urlInput = this._getByID(html, 'data\\.url');
+        const offsetInput = this._getByID(html, 'data\\.offset');
         // Block enter from displaying the PDF
         html.find('input').on('keypress', function (event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
             }
         });
-        console.log(this.getByID(html, 'pdf-test'));
         // Test button
-        this.getByID(html, 'pdf-test').on('click', function (event) {
+        this._getByID(html, 'pdf-test').on('click', function (event) {
             event.preventDefault();
             let urlValue = urlInput.val();
             let offsetValue = offsetInput.val();
@@ -173,10 +224,10 @@ class PDFSourceSheet extends ItemSheet {
                 offsetValue = 0;
             }
             offsetValue = parseInt(offsetValue);
-            PDFoundryAPI_1.PDFoundryAPI.openURL(urlValue, 5 + offsetValue);
+            PDFoundryAPI_1.PDFoundryAPI.openURL(urlValue, 5 + offsetValue, false);
         });
         // Browse button
-        this.getByID(html, 'pdf-browse').on('click', function (event) {
+        this._getByID(html, 'pdf-browse').on('click', function (event) {
             return __awaiter(this, void 0, void 0, function* () {
                 event.preventDefault();
                 const fp = new FilePicker({});
@@ -191,21 +242,9 @@ class PDFSourceSheet extends ItemSheet {
             });
         });
     }
-    addGithubLink(html) {
-        const h4 = html.parent().parent().find('header.window-header h4.window-title');
-        const next = h4.next()[0].childNodes[1].textContent;
-        if (next && next.trim() === 'PDFoundry') {
-            return;
-        }
-        const url = 'https://github.com/Djphoenix719/PDFoundry';
-        const style = 'text-decoration: none';
-        const icon = '<i class="fas fa-external-link-alt"></i>';
-        const link = $(`<a style="${style}" href="${url}">${icon} PDFoundry</a>`);
-        h4.after(link);
-    }
 }
 exports.PDFSourceSheet = PDFSourceSheet;
-},{"../api/PDFoundryAPI":1,"../settings/PDFSettings":6}],3:[function(require,module,exports){
+},{"../api/PDFoundryAPI":1,"../settings/PDFSettings":7}],3:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -217,110 +256,133 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PDFCache = exports.PDFCacheError = void 0;
+exports.PDFCache = exports.IDBHelperError = void 0;
 const PDFSettings_1 = require("../settings/PDFSettings");
+const PDFLog_1 = require("../log/PDFLog");
 /**
- * An error thrown when a caching operation fails.
+ * Error that occurs during IDB operations
  */
-class PDFCacheError extends Error {
-    constructor(message) {
-        super(message);
+class IDBHelperError extends Error {
+    constructor(index, store, message) {
+        super(`Error in ${index}>${store}: ${message}`);
     }
 }
-exports.PDFCacheError = PDFCacheError;
+exports.IDBHelperError = IDBHelperError;
 /**
- * Handles caching for PDFs
+ * Class that deals with getting/setting from an indexed db
+ * Mostly exists to separate logic for the PDFCache from logic
+ *  dealing with the database
  */
-class PDFCache {
-    // </editor-fold>
-    // <editor-fold desc="'Shims'">
-    /**
-     * Helper to standardize IndexDB...
-     * https://xkcd.com/927/
-     */
-    static get IDBFactory() {
-        // @ts-ignore
-        return window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
+class IDBHelper {
+    constructor(indexName, storeName, version) {
+        this._indexName = `${indexName}/${storeName}`;
+        this._storeName = storeName;
+        this._version = version;
     }
-    /**
-     * Helper to standardize idbTransaction...
-     * https://xkcd.com/927/
-     */
-    static get IDBTransaction() {
-        // @ts-ignore
-        return window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction;
-    }
-    // </editor-fold>
-    /**
-     * Helper to get a new transaction
-     */
-    static getTransaction() {
-        return this._idb.transaction(PDFCache.IDB_STORE_NAME, 'readwrite');
-    }
-    /**
-     * Helper to get the store for a transaction, reduces boilerplate.
-     * @param transaction The transaction to fetch the store for
-     */
-    static getStore(transaction) {
-        return transaction.objectStore(PDFCache.IDB_STORE_NAME);
-    }
-    /**
-     * Commit the value to a specified key in the indexed db
-     * @param key The key to use as an index
-     * @param data The data to insert
-     * @param force If true, will delete an existing object at the specified key,
-     *  if one exists. Defaults to false.
-     */
-    static commit(key, data, force = false) {
+    static createAndOpen(indexName, storeName, version) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (this._idb) {
-                let transaction = this.getTransaction();
+            const helper = new IDBHelper(indexName, storeName, version);
+            yield helper.open();
+            return helper;
+        });
+    }
+    get ready() {
+        return this._db !== undefined;
+    }
+    newTransaction() {
+        const transaction = this._db.transaction(this._storeName, 'readwrite');
+        const store = transaction.objectStore(this._storeName);
+        return { transaction, store };
+    }
+    open() {
+        const that = this;
+        return new Promise(function (resolve, reject) {
+            const request = indexedDB.open(that._indexName, that._version);
+            request.onsuccess = function (event) {
+                that._db = this.result;
+                resolve();
+            };
+            request.onupgradeneeded = function (event) {
+                that._db = this.result;
+                try {
+                    // Create object store if it doesn't exist
+                    that._db.createObjectStore(that._storeName, {});
+                }
+                catch (error) {
+                    // Otherwise pass
+                }
+                resolve();
+            };
+            request.onerror = function (event) {
+                // @ts-ignore
+                reject(event.target.error);
+            };
+        });
+    }
+    set(key, value, force = false) {
+        return new Promise((resolve, reject) => {
+            if (!this._db) {
+                throw new IDBHelperError(this._indexName, this._storeName, 'Database is not initialized.');
+            }
+            else {
+                const that = this;
+                let { transaction, store } = this.newTransaction();
                 // Propagate errors upwards, otherwise they fail silently
                 transaction.onerror = function (event) {
                     // @ts-ignore
-                    throw event.target.error;
+                    reject(event.target.error);
                 };
-                let store = this.getStore(transaction);
                 const keyRequest = store.getKey(key);
                 keyRequest.onsuccess = function (event) {
-                    // if key exists in the store
+                    // key already exists in the store
                     if (keyRequest.result) {
                         // should we force the new value by deleting the old?
                         if (force) {
-                            PDFCache.delete(key).then(() => {
-                                // Deleting something will end our transaction
-                                // So we reacquire a new transaction
-                                transaction = PDFCache.getTransaction();
-                                store = PDFCache.getStore(transaction);
-                                store.add(data, key);
+                            that.del(key).then(() => {
+                                ({ transaction, store } = that.newTransaction());
+                                store.add(value, key);
+                                resolve();
                             });
                         }
                         else {
-                            throw new PDFCacheError(`Error in commit, ${key} already exists`);
+                            throw new IDBHelperError(that._indexName, that._storeName, `Key ${key} already exists.`);
                         }
                     }
                     else {
-                        store.add(data, key);
+                        store.add(value, key);
+                        resolve();
                     }
                 };
             }
+        });
+    }
+    get(key) {
+        return new Promise((resolve, reject) => {
+            if (!this._db) {
+                throw new IDBHelperError(this._indexName, this._storeName, 'Database is not initialized.');
+            }
             else {
-                throw new PDFCacheError('Error in commit, IDB not initialized');
+                let { transaction, store } = this.newTransaction();
+                // Propagate errors upwards, otherwise they fail silently
+                transaction.onerror = function (event) {
+                    // @ts-ignore
+                    reject(event.target.error);
+                };
+                const getRequest = store.get(key);
+                getRequest.onsuccess = function (event) {
+                    resolve(this.result);
+                };
+                getRequest.onerror = function (event) {
+                    // @ts-ignore
+                    reject(event.target.error);
+                };
             }
         });
     }
-    /**
-     * Delete an object stored in the indexed db at the specified location
-     * @param key
-     */
-    static delete(key) {
-        // This *should* be an async method because I use async everywhere else
-        // But I find this type of logic easier to interpret with a promise pattern
-        //   since the resolve/rejects happen inside callbacks
+    del(key) {
         return new Promise((resolve, reject) => {
             try {
-                const transaction = this.getTransaction();
-                const store = this.getStore(transaction);
+                const { transaction, store } = this.newTransaction();
                 transaction.onerror = function (event) {
                     // @ts-ignore
                     reject(event.target.error);
@@ -335,19 +397,15 @@ class PDFCache {
             }
         });
     }
-    /**
-     * Clear all cached files.
-     */
-    static clear() {
+    clr() {
         return new Promise((resolve, reject) => {
             try {
-                const transaction = this.getTransaction();
-                const store = this.getStore(transaction);
+                const { store } = this.newTransaction();
                 const keys = store.getAllKeys();
                 keys.onsuccess = (result) => {
                     const promises = [];
                     for (const key of keys.result) {
-                        promises.push(PDFCache.delete(key));
+                        promises.push(this.del(key));
                     }
                     Promise.all(promises).then(() => {
                         resolve();
@@ -359,50 +417,80 @@ class PDFCache {
             }
         });
     }
+}
+/**
+ * Handles caching for PDFs
+ */
+class PDFCache {
+    // </editor-fold>
     static initialize() {
         return __awaiter(this, void 0, void 0, function* () {
-            //TODO: Handle errors
-            const request = PDFCache.IDBFactory.open(PDFCache.IDB_NAME, PDFCache.IDB_VERSION);
-            request.onsuccess = function (event) {
-                PDFCache._idb = this.result;
-                PDFCache.cache('modules/djs-data/sr5-books/Shadowrun - Assassins Primer.pdf');
-                PDFCache.cache('modules/djs-data/sr5-books/Shadowrun - Core Rulebook.pdf');
-                PDFCache.cache('modules/djs-data/sr5-books/Shadowrun - Run Faster.pdf');
-            };
-            request.onupgradeneeded = function (event) {
-                PDFCache._idb = this.result;
-                try {
-                    // Create object store if it doesn't exist
-                    PDFCache._idb.createObjectStore(PDFCache.IDB_STORE_NAME, {});
-                }
-                catch (error) {
-                    // Otherwise pass
-                }
-            };
+            PDFLog_1.PDFLog.verbose('Initializing.');
+            PDFCache._metaHelper = yield IDBHelper.createAndOpen(PDFCache.IDB_NAME, PDFCache.IDBSTORE_META_NAME, PDFCache.IDB_VERSION);
+            PDFCache._cacheHelper = yield IDBHelper.createAndOpen(PDFCache.IDB_NAME, PDFCache.IDBSTORE_CACHE_NAME, PDFCache.IDB_VERSION);
         });
     }
-    static cache(source) {
+    static getMeta(key) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (typeof source === 'string') {
-                return this._cacheURI(source);
+            try {
+                return yield PDFCache._metaHelper.get(key);
+            }
+            catch (error) {
+                return null;
+            }
+        });
+    }
+    static setMeta(key, meta) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield PDFCache._metaHelper.set(key, meta, true);
+        });
+    }
+    static getCache(key) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const bytes = yield PDFCache._cacheHelper.get(key);
+                const meta = {
+                    dateAccessed: new Date().toISOString(),
+                    size: bytes.length,
+                };
+                yield PDFCache.setMeta(key, meta);
+                return bytes;
+            }
+            catch (error) {
+                return null;
+            }
+        });
+    }
+    static setCache(key, bytes) {
+        return __awaiter(this, void 0, void 0, function* () {
+            PDFLog_1.PDFLog.warn(`Cached data for ${key}`);
+            yield PDFCache._cacheHelper.set(key, bytes, true);
+            //TODO: Check for + handle 'cache full'
+        });
+    }
+    static getOrFetch(key) {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            const cachedBytes = yield PDFCache.getCache(key);
+            if (cachedBytes !== null && cachedBytes.byteLength > 0) {
+                resolve(cachedBytes);
+                return;
+            }
+            const response = yield fetch(key);
+            if (response.ok) {
+                const fetchedBytes = new Uint8Array(yield response.arrayBuffer());
+                if (fetchedBytes.byteLength > 0) {
+                    yield PDFCache.setCache(key, fetchedBytes);
+                    resolve(fetchedBytes);
+                    return;
+                }
+                else {
+                    reject('Cache & fetch both failed.');
+                }
             }
             else {
-                return this._cacheViewer(source);
+                reject('Cache & fetch both failed.');
             }
-        });
-    }
-    static _cacheURI(uri) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetch(uri);
-            const data = new Uint8Array(yield response.arrayBuffer());
-            yield PDFCache.commit(uri, data, true);
-            return true;
-        });
-    }
-    static _cacheViewer(viewer) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return Promise.reject();
-        });
+        }));
     }
 }
 exports.PDFCache = PDFCache;
@@ -413,8 +501,142 @@ exports.PDFCache = PDFCache;
 PDFCache.MAX_BYTES = 256 * Math.pow(2, 20);
 PDFCache.IDB_NAME = PDFSettings_1.PDFSettings.INTERNAL_MODULE_NAME;
 PDFCache.IDB_VERSION = 1;
-PDFCache.IDB_STORE_NAME = `Cache`;
-},{"../settings/PDFSettings":6}],4:[function(require,module,exports){
+PDFCache.IDBSTORE_CACHE_NAME = `Cache`;
+PDFCache.IDBSTORE_META_NAME = `Meta`;
+},{"../log/PDFLog":4,"../settings/PDFSettings":7}],4:[function(require,module,exports){
+"use strict";
+/* Copyright 2020 Andrew Cuccinello
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PDFLog = void 0;
+/**
+ * A console logging wrapper that includes some additional information
+ *  with output to help filter messages easier.
+ */
+class PDFLog {
+    static format(message) {
+        const time = new Date();
+        const pad = (n) => {
+            return n >= 10 ? n : `0${n}`;
+        };
+        const pad_ms = (n) => {
+            const s = n.toString();
+            return '0000'.substring(0, 4 - s.length) + s;
+        };
+        const hh = pad(time.getHours());
+        const mm = pad(time.getMinutes());
+        const ss = pad(time.getSeconds());
+        const ms = pad_ms(time.getMilliseconds());
+        return `[${PDFLog.PREFIX}@${hh}:${mm}:${ss}.${ms}] ${message}`;
+    }
+    /**
+     * Snapshot an object to preserve it's CURRENT state in console
+     * Otherwise consoles 'lazy load' objects, and it is very hard
+     *  to inspect their values when they were printed (sans breakpoints)
+     * @param value The object to snapshot
+     * @param level What logging level should be used
+     */
+    static snapshot(value, level = 'log') {
+        const snap = JSON.parse(JSON.stringify(value));
+        let fn;
+        switch (level) {
+            case 'log':
+                fn = console.log;
+                break;
+            case 'warn':
+                fn = console.warn;
+                break;
+            case 'error':
+                fn = console.error;
+                break;
+            case 'verbose':
+                fn = console.debug;
+                break;
+        }
+        fn(PDFLog.format(':: Frozen Object ::'));
+        fn(snap);
+    }
+    /**
+     * Print a log level message to console.
+     * @param message The message to print.
+     */
+    static log(message) {
+        if (typeof message === 'string' || typeof message === 'number') {
+            console.log(PDFLog.format(message));
+        }
+        else {
+            console.log(PDFLog.format(':: Live Object ::'));
+            console.log(message);
+        }
+    }
+    /**
+     * Print an info level message to console.
+     * @param message The message to print.
+     */
+    static info(message) {
+        if (typeof message === 'string' || typeof message === 'number') {
+            console.info(PDFLog.format(message));
+        }
+        else {
+            console.info(PDFLog.format(':: Live Object ::'));
+            console.info(message);
+        }
+    }
+    /**
+     * Print a verbose level message to console.
+     * @param message The message to print.
+     */
+    static verbose(message) {
+        if (typeof message === 'string' || typeof message === 'number') {
+            console.debug(PDFLog.format(message));
+        }
+        else {
+            console.debug(PDFLog.format(':: Live Object ::'));
+            console.debug(message);
+        }
+    }
+    /**
+     * Print a warning level message to console.
+     * @param message The message to print.
+     */
+    static warn(message) {
+        if (typeof message === 'string' || typeof message === 'number') {
+            console.warn(PDFLog.format(message));
+        }
+        else {
+            console.warn(PDFLog.format(':: Live Object ::'));
+            console.warn(message);
+        }
+    }
+    /**
+     * Print a error level message to console.
+     * @param message The message to print.
+     */
+    static error(message) {
+        if (typeof message === 'string' || typeof message === 'number') {
+            console.error(PDFLog.format(message));
+        }
+        else {
+            console.error(PDFLog.format(':: Live Object ::'));
+            console.error(message);
+        }
+    }
+}
+exports.PDFLog = PDFLog;
+PDFLog.PREFIX = 'PDFoundry';
+},{}],5:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
  *
@@ -472,7 +694,7 @@ Hooks.on('getItemDirectoryEntryContext', PDFSettings_1.PDFSettings.getItemContex
 Hooks.on('renderSettings', PDFSettings_1.PDFSettings.onRenderSettings);
 // Initialize PDF cache
 Hooks.once('setup', PDFCache_1.PDFCache.initialize);
-},{"./api/PDFoundryAPI":1,"./cache/PDFCache":3,"./settings/PDFLocalization":5,"./settings/PDFSettings":6}],5:[function(require,module,exports){
+},{"./api/PDFoundryAPI":1,"./cache/PDFCache":3,"./settings/PDFLocalization":6,"./settings/PDFSettings":7}],6:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
  *
@@ -535,7 +757,7 @@ class PDFLocalization {
     }
 }
 exports.PDFLocalization = PDFLocalization;
-},{"./PDFSettings":6}],6:[function(require,module,exports){
+},{"./PDFSettings":7}],7:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
  *
@@ -564,6 +786,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFSettings = void 0;
 const PDFItemSheet_1 = require("../app/PDFItemSheet");
 const PDFoundryAPI_1 = require("../api/PDFoundryAPI");
+const PDFLog_1 = require("../log/PDFLog");
 /**
  * Internal settings and helper methods for PDFoundry.
  */
@@ -572,10 +795,6 @@ class PDFSettings {
      * Register the PDF sheet and unregister invalid sheet types from it.
      */
     static registerPDFSheet() {
-        //  static unregisterSheet(scope, sheetClass, {types=[]}={}) {
-        Items.unregisterSheet(PDFSettings.INTERNAL_MODULE_NAME, 'SR5ItemSheet', {
-            types: [PDFSettings.PDF_ENTITY_TYPE],
-        });
         Items.registerSheet(PDFSettings.INTERNAL_MODULE_NAME, PDFItemSheet_1.PDFSourceSheet, {
             types: [PDFSettings.PDF_ENTITY_TYPE],
             makeDefault: true,
@@ -603,6 +822,7 @@ class PDFSettings {
      */
     static preCreateItem(entity, ...args) {
         return __awaiter(this, void 0, void 0, function* () {
+            PDFLog_1.PDFLog.verbose('Pre-create item.');
             if (entity.type !== PDFSettings.PDF_ENTITY_TYPE) {
                 return;
             }
@@ -623,6 +843,7 @@ class PDFSettings {
      * @param options
      */
     static getItemContextOptions(html, options) {
+        PDFLog_1.PDFLog.verbose('Getting context options.');
         options.splice(0, 0, {
             name: game.i18n.localize('PDFOUNDRY.CONTEXT.OpenPDF'),
             icon: '<i class="far fa-file-pdf"></i>',
@@ -631,13 +852,13 @@ class PDFSettings {
                 if (item.type !== PDFSettings.PDF_ENTITY_TYPE) {
                     return false;
                 }
-                const { code, url } = item.data.data;
-                return code !== '' && url !== '';
+                const { url } = item.data.data;
+                return url !== '';
             },
             callback: (entityHtml) => {
                 const item = PDFSettings.getItemFromContext(entityHtml);
-                const { code } = item.data.data;
-                PDFoundryAPI_1.PDFoundryAPI.open(code);
+                const { url, cache } = item.data.data;
+                PDFoundryAPI_1.PDFoundryAPI.openURL(PDFoundryAPI_1.PDFoundryAPI.getAbsoluteURL(url), 1, cache);
             },
         });
     }
@@ -652,6 +873,7 @@ class PDFSettings {
         });
     }
     static onRenderSettings(settings, html, data) {
+        PDFLog_1.PDFLog.verbose('Rendering settings.');
         const icon = '<i class="far fa-file-pdf"></i>';
         const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
         button.on('click', PDFSettings.showHelp);
@@ -662,7 +884,7 @@ class PDFSettings {
             yield game.settings.set(PDFSettings.INTERNAL_MODULE_NAME, 'help', {
                 viewed: true,
             });
-            PDFoundryAPI_1.PDFoundryAPI.openURL(`${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/PDFoundry Manual.pdf`);
+            return PDFoundryAPI_1.PDFoundryAPI.openURL(`${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/PDFoundry Manual.pdf`);
         });
     }
 }
@@ -671,7 +893,7 @@ PDFSettings.DIST_FOLDER = 'pdfoundry-dist';
 PDFSettings.EXTERNAL_SYSTEM_NAME = '../modules/pdfoundry';
 PDFSettings.INTERNAL_MODULE_NAME = 'PDFoundry';
 PDFSettings.PDF_ENTITY_TYPE = 'PDFoundry_PDF';
-},{"../api/PDFoundryAPI":1,"../app/PDFItemSheet":2}],7:[function(require,module,exports){
+},{"../api/PDFoundryAPI":1,"../app/PDFItemSheet":2,"../log/PDFLog":4}],8:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
  *
@@ -697,21 +919,73 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PDFViewerBase = void 0;
-class PDFViewerBase extends Application {
-    get app() {
-        // @ts-ignore
-        return this._frame.contentWindow.PDFViewerApplication;
-    }
+exports.PDFViewer = void 0;
+const PDFSettings_1 = require("../settings/PDFSettings");
+class PDFViewer extends Application {
     static get defaultOptions() {
         const options = super.defaultOptions;
         options.id = 'pdf-viewer';
         options.classes = ['app', 'window-app'];
+        options.template = `systems/${PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME}/pdfoundry-dist/templates/app/pdf-viewer.html`;
         options.title = 'View PDF';
         options.width = 8.5 * 100 + 64;
         options.height = 11 * 100 + 64;
         options.resizable = true;
         return options;
+    }
+    get ready() {
+        return this._viewer !== undefined;
+    }
+    //TODO: How should this be structured? Is it easier to throw if state is not good?
+    //TODO: I lean towards yes for now - having to await *every* method call will be annoying.
+    getPage() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const viewer = yield this.getViewer();
+            return viewer.page;
+        });
+    }
+    setPage(value) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const viewer = yield this.getViewer();
+            viewer.page = value;
+        });
+    }
+    /**
+     * Get the internal PDFjs viewer. Will resolve with the viewer
+     *  object once PDFjs is done loading and is usable.
+     */
+    getViewer() {
+        if (this._viewer) {
+            return Promise.resolve(this._viewer);
+        }
+        return new Promise((resolve, reject) => {
+            let timeout;
+            const returnOrWait = () => {
+                // If our window has finished initializing...
+                if (this._frame) {
+                    // If PDFjs has finished initializing...
+                    if (this._frame.contentWindow && this._frame.contentWindow['PDFViewerApplication']) {
+                        const viewer = this._frame.contentWindow['PDFViewerApplication'];
+                        resolve(viewer);
+                        return;
+                    }
+                }
+                // If any ifs fall through, try again in a few ms
+                timeout = setTimeout(returnOrWait, 5);
+            };
+            returnOrWait();
+        });
+    }
+    _getHeaderButtons() {
+        const buttons = super._getHeaderButtons();
+        //TODO: Standardize this to function w/ the Item sheet one
+        buttons.unshift({
+            class: 'pdf-sheet-github',
+            icon: 'fas fa-external-link-alt',
+            label: 'PDFoundry',
+            onclick: () => window.open('https://github.com/Djphoenix719/PDFoundry', '_blank'),
+        });
+        return buttons;
     }
     activateListeners(html) {
         const _super = Object.create(null, {
@@ -719,67 +993,67 @@ class PDFViewerBase extends Application {
         });
         return __awaiter(this, void 0, void 0, function* () {
             _super.activateListeners.call(this, html);
-            this._frame = html.parents().find('iframe.pdfViewer').first().get(0);
-            // @ts-ignore
-            window.viewer = this;
+            this._frame = html.parent().find('iframe.pdfViewer').get(0);
+            this.getViewer().then((viewer) => {
+                this._viewer = viewer;
+            });
+        });
+    }
+    download() {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            const viewer = yield this.getViewer();
+            let timeout;
+            const returnOrWait = () => {
+                if (viewer.downloadComplete) {
+                    resolve(viewer.pdfDocument.getData());
+                    return;
+                }
+                timeout = setTimeout(returnOrWait, 50);
+            };
+            returnOrWait();
+        }));
+    }
+    getData(options) {
+        const data = super.getData(options);
+        data.systemName = PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME;
+        return data;
+    }
+    open(pdfSource, page) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const viewer = yield this.getViewer();
+            if (page) {
+                viewer.initialBookmark = `page=${page}`;
+            }
+            if (typeof pdfSource === 'string') {
+                yield viewer.open(pdfSource);
+            }
+            else {
+                yield viewer.open(pdfSource);
+            }
         });
     }
     /**
      * Attempt to safely cleanup PDFjs to avoid memory leaks.
      */
     cleanup() {
-        if (this._frame && this._frame.contentWindow) {
-            const window = this._frame.contentWindow;
-            // @ts-ignore
-            window.PDFViewerApplication.cleanup();
-        }
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this._frame && this._frame.contentWindow) {
+                this._viewer.cleanup();
+            }
+        });
     }
     close() {
-        this.cleanup();
-        return super.close();
+        const _super = Object.create(null, {
+            close: { get: () => super.close }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            //TODO: Wait for render before cleanup
+            yield this.cleanup();
+            return _super.close.call(this);
+        });
     }
 }
-exports.PDFViewerBase = PDFViewerBase;
-},{}],8:[function(require,module,exports){
-"use strict";
-/* Copyright 2020 Andrew Cuccinello
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.PDFViewerWeb = void 0;
-const PDFViewerBase_1 = require("./PDFViewerBase");
-const PDFSettings_1 = require("../settings/PDFSettings");
-class PDFViewerWeb extends PDFViewerBase_1.PDFViewerBase {
-    constructor(file, page) {
-        super();
-        this.m_FilePath = encodeURIComponent(file);
-        this.m_Page = page;
-    }
-    static get defaultOptions() {
-        const options = super.defaultOptions;
-        options.template = `systems/${PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME}/pdfoundry-dist/templates/web-viewer-app.html`;
-        return options;
-    }
-    getData(options) {
-        const data = super.getData(options);
-        data.page = this.m_Page;
-        data.filePath = this.m_FilePath;
-        data.systemName = PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME;
-        return data;
-    }
-}
-exports.PDFViewerWeb = PDFViewerWeb;
-},{"../settings/PDFSettings":6,"./PDFViewerBase":7}]},{},[4])
+exports.PDFViewer = PDFViewer;
+},{"../settings/PDFSettings":7}]},{},[5])
 
 //# sourceMappingURL=bundle.js.map

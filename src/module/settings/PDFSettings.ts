@@ -30,10 +30,6 @@ export class PDFSettings {
      * Register the PDF sheet and unregister invalid sheet types from it.
      */
     public static registerPDFSheet() {
-        //  static unregisterSheet(scope, sheetClass, {types=[]}={}) {
-        Items.unregisterSheet(PDFSettings.INTERNAL_MODULE_NAME, 'SR5ItemSheet', {
-            types: [PDFSettings.PDF_ENTITY_TYPE],
-        });
         Items.registerSheet(PDFSettings.INTERNAL_MODULE_NAME, PDFSourceSheet, {
             types: [PDFSettings.PDF_ENTITY_TYPE],
             makeDefault: true,
@@ -63,6 +59,7 @@ export class PDFSettings {
      * @param args ignored args
      */
     public static async preCreateItem(entity, ...args) {
+        PDFLog.verbose('Pre-create item.');
         if (entity.type !== PDFSettings.PDF_ENTITY_TYPE) {
             return;
         }
@@ -84,6 +81,7 @@ export class PDFSettings {
      * @param options
      */
     public static getItemContextOptions(html, options: any[]) {
+        PDFLog.verbose('Getting context options.');
         options.splice(0, 0, {
             name: game.i18n.localize('PDFOUNDRY.CONTEXT.OpenPDF'),
             icon: '<i class="far fa-file-pdf"></i>',
@@ -93,13 +91,13 @@ export class PDFSettings {
                     return false;
                 }
 
-                const { code, url } = item.data.data;
-                return code !== '' && url !== '';
+                const { url } = item.data.data;
+                return url !== '';
             },
             callback: (entityHtml: JQuery<HTMLElement>) => {
                 const item = PDFSettings.getItemFromContext(entityHtml);
-                const { code } = item.data.data;
-                PDFoundryAPI.open(code);
+                const { url, cache } = item.data.data;
+                PDFoundryAPI.openURL(PDFoundryAPI.getAbsoluteURL(url), 1, cache);
             },
         });
     }
@@ -119,6 +117,7 @@ export class PDFSettings {
     }
 
     public static onRenderSettings(settings: any, html: JQuery<HTMLElement>, data: any) {
+        PDFLog.verbose('Rendering settings.');
         const icon = '<i class="far fa-file-pdf"></i>';
         const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
         button.on('click', PDFSettings.showHelp);
@@ -131,6 +130,6 @@ export class PDFSettings {
             viewed: true,
         });
 
-        PDFoundryAPI.openURL(`${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/PDFoundry Manual.pdf`);
+        return PDFoundryAPI.openURL(`${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/PDFoundry Manual.pdf`);
     }
 }

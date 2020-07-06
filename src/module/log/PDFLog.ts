@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-type ConsoleMessage = object | string;
+type ConsoleMessage = object | string | number;
 type LogType = 'log' | 'warn' | 'error' | 'verbose';
 
 /**
@@ -77,7 +77,7 @@ export class PDFLog {
      * @param message The message to print.
      */
     public static log(message: ConsoleMessage) {
-        if (typeof message === 'string') {
+        if (typeof message === 'string' || typeof message === 'number') {
             console.log(PDFLog.format(message));
         } else {
             console.log(PDFLog.format(':: Live Object ::'));
@@ -90,7 +90,7 @@ export class PDFLog {
      * @param message The message to print.
      */
     public static info(message: ConsoleMessage) {
-        if (typeof message === 'string') {
+        if (typeof message === 'string' || typeof message === 'number') {
             console.info(PDFLog.format(message));
         } else {
             console.info(PDFLog.format(':: Live Object ::'));
@@ -103,7 +103,7 @@ export class PDFLog {
      * @param message The message to print.
      */
     public static verbose(message: ConsoleMessage) {
-        if (typeof message === 'string') {
+        if (typeof message === 'string' || typeof message === 'number') {
             console.debug(PDFLog.format(message));
         } else {
             console.debug(PDFLog.format(':: Live Object ::'));
@@ -116,7 +116,7 @@ export class PDFLog {
      * @param message The message to print.
      */
     public static warn(message: ConsoleMessage) {
-        if (typeof message === 'string') {
+        if (typeof message === 'string' || typeof message === 'number') {
             console.warn(PDFLog.format(message));
         } else {
             console.warn(PDFLog.format(':: Live Object ::'));
@@ -129,7 +129,7 @@ export class PDFLog {
      * @param message The message to print.
      */
     public static error(message: ConsoleMessage) {
-        if (typeof message === 'string') {
+        if (typeof message === 'string' || typeof message === 'number') {
             console.error(PDFLog.format(message));
         } else {
             console.error(PDFLog.format(':: Live Object ::'));

@@ -14,7 +14,9 @@
  */
 
 import { PDFSettings } from '../settings/PDFSettings';
-import { PDFViewerWeb } from '../viewer/PDFViewerWeb';
+import { PDFViewer } from '../viewer/PDFViewer';
+import { PDFLog } from '../log/PDFLog';
+import { PDFCache } from '../cache/PDFCache';
 
 export class PDFoundryAPIError extends Error {
     constructor(message?: string) {
@@ -62,29 +64,40 @@ export class PDFoundryAPI {
     }
 
     /**
+     * Helper method. Convert a relative URL to a absolute URL
+     *  by prepending the window origin to the relative URL.
+     * @param url
+     */
+    public static getAbsoluteURL(url: string): string {
+        return `${window.origin}/${url}`;
+    }
+
+    /**
      * Open a PDF by code to the specified page.
      * @param code
      * @param page
      */
-    public static open(code: string, page: number = 1) {
+    public static async open(code: string, page: number = 1) {
+        PDFLog.warn(`Opening ${code} at page ${page}.`);
         const pdf = this.getPDFData(code);
         if (pdf === null) {
             throw new PDFoundryAPIError(`Unable to find a PDF with the code "${code}. Did the user declare it?`);
         }
 
-        const { url, offset } = pdf;
+        const { url, offset, cache } = pdf;
         // coerce to number; safety first
         page = offset + parseInt(page.toString());
 
-        this.openURL(`${window.origin}/${url}`, page);
+        return this.openURL(this.getAbsoluteURL(url), page, cache);
     }
 
     /**
      * Open a PDF by URL to the specified page.
-     * @param url
-     * @param page
+     * @param url The url to open
+     * @param page The page to open to
+     * @param useCache If caching should be used
      */
-    public static openURL(url: string, page: number = 1) {
+    public static async openURL(url: string, page: number = 1, useCache: boolean = true) {
         if (url === undefined) {
             throw new PDFoundryAPIError('Unable to open PDF; "url" must be defined');
         }
@@ -92,9 +105,28 @@ export class PDFoundryAPI {
         // coerce to number; safety first
         page = parseInt(page.toString());
         if (isNaN(page) || page <= 0) {
-            throw new PDFoundryAPIError(`Page must be > 0 but ${page} was given.`);
+            throw new PDFoundryAPIError(`Page must be > 0, but ${page} was given.`);
         }
 
-        new PDFViewerWeb(url, page).render(true);
+        // Open the viewer
+        const viewer = new PDFViewer();
+        viewer.render(true);
+
+        if (useCache) {
+            const cache = await PDFCache.getCache(url);
+            // If we have a cache hit open the cached data
+            if (cache) {
+                await viewer.open(cache, page);
+            } else {
+                // Otherwise we should open it by url
+                await viewer.open(url, page);
+                // And when the download is complete set the cache
+                viewer.download().then((bytes) => {
+                    PDFCache.setCache(url, bytes);
+                });
+            }
+        } else {
+            await viewer.open(url, page);
+        }
     }
 }
