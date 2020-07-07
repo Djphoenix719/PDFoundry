@@ -101,11 +101,13 @@ gulp.task('build', async () => {
     gulp.watch("locale/**/*.json").on('change', () => copy_dir('locale'));
     gulp.watch("assets/**/*").on('change', () => copy_dir('assets'));
     gulp.watch("src/css/**/*.scss").on('change', () => build_sass());
+    gulp.watch("scripts/**/*.js").on('change', () => copy_dir('scripts'));
 
     await copy_dir('templates', true);
     await copy_dir('locale');
     await copy_dir('assets');
     await copy_dir('pdfjs');
+    await copy_dir('scripts');
     await copy_file('LICENSE');
     await build_sass();
     await bundle();
