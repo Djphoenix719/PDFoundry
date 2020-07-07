@@ -18,7 +18,7 @@ import { PDFViewer } from '../viewer/PDFViewer';
 import { PDFCache } from '../cache/PDFCache';
 import { PDFEvents } from '../events/PDFEvents';
 import { PDFUtil } from './PDFUtil';
-import { PDFData } from './PDFData';
+import { PDFData } from '../types/PDFData';
 
 type ItemComparer = (item: Item) => boolean;
 

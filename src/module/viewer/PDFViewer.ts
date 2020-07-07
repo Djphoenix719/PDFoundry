@@ -14,9 +14,9 @@
  */
 
 import { PDFSettings } from '../settings/PDFSettings';
-import { PDFjsViewer } from '../api/PDFjsViewer';
-import { PDFData } from '../api/PDFData';
 import { PDFEvents } from '../events/PDFEvents';
+import { PDFData } from '../types/PDFData';
+import { PDFjsViewer } from '../types/PDFjsViewer';
 
 export class PDFViewer extends Application {
     static get defaultOptions() {
