@@ -373,6 +373,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFCache = exports.IDBHelperError = void 0;
+const PDFSettings_1 = require("../settings/PDFSettings");
 const PDFLog_1 = require("../log/PDFLog");
 /**
  * Error that occurs during IDB operations
@@ -538,6 +539,13 @@ class IDBHelper {
  * Handles caching for PDFs
  */
 class PDFCache {
+    // <editor-fold desc="Static Properties">
+    /**
+     * Max size of the cache, defaults to 256 MB.
+     */
+    static get MAX_BYTES() {
+        return game.settings.get(PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME, 'CacheSize');
+    }
     // </editor-fold>
     static initialize() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -607,18 +615,23 @@ class PDFCache {
             }
         }));
     }
+    static registerSettings() {
+        game.settings.register(PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME, 'CacheSize', {
+            name: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeName'),
+            scope: 'user',
+            type: Number,
+            hint: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeHint'),
+            default: 256 * Math.pow(2, 20),
+            config: true,
+        });
+    }
 }
 exports.PDFCache = PDFCache;
-// <editor-fold desc="Static Properties">
-/**
- * Max size of the cache, defaults to 256 MB.
- */
-PDFCache.MAX_BYTES = 256 * Math.pow(2, 20);
 PDFCache.IDB_NAME = 'PDFoundry';
 PDFCache.IDB_VERSION = 1;
 PDFCache.IDBSTORE_CACHE_NAME = `Cache`;
 PDFCache.IDBSTORE_META_NAME = `Meta`;
-},{"../log/PDFLog":6}],5:[function(require,module,exports){
+},{"../log/PDFLog":6,"../settings/PDFSettings":9}],5:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
  *
@@ -973,6 +986,7 @@ const ready = () => __awaiter(void 0, void 0, void 0, function* () {
     PDFSetup_1.PDFSetup.registerPDFSheet();
     // Initialize the settings
     yield PDFSettings_1.PDFSettings.registerSettings();
+    PDFSetup_1.PDFSetup.userLogin();
     PDFEvents_1.PDFEvents.fire('ready');
 });
 Hooks.once('init', init);
@@ -1134,22 +1148,7 @@ class PDFSettings {
         });
     }
     static registerSettings() {
-        // Has an individual user viewed the manual yet?
-        game.settings.register(PDFSettings.INTERNAL_MODULE_NAME, 'help', {
-            viewed: false,
-            scope: 'user',
-        });
-        game.settings.register(PDFSettings.EXTERNAL_SYSTEM_NAME, 'Cacheing', {
-            name: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeName'),
-            scope: 'user',
-            type: Number,
-            hint: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeHint'),
-            default: PDFCache_1.PDFCache.MAX_BYTES,
-            config: true,
-            onChange: (setting) => {
-                PDFLog_1.PDFLog.warn(setting);
-            },
-        });
+        PDFCache_1.PDFCache.registerSettings();
     }
     static onRenderSettings(settings, html, data) {
         PDFLog_1.PDFLog.verbose('Rendering settings.');
@@ -1160,9 +1159,7 @@ class PDFSettings {
     }
     static showHelp() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield game.settings.set(PDFSettings.INTERNAL_MODULE_NAME, 'help', {
-                viewed: true,
-            });
+            yield game.user.setFlag(PDFSettings.INTERNAL_MODULE_NAME, PDFSettings.HELP_SEEN_KEY, true);
             return PDFoundryAPI_1.PDFoundryAPI.openURL(`${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/PDFoundry Manual.pdf`, 1, false);
         });
     }
@@ -1175,8 +1172,9 @@ exports.PDFSettings = PDFSettings;
 PDFSettings.NOTIFICATIONS = true;
 PDFSettings.DIST_FOLDER = 'pdfoundry-dist';
 PDFSettings.EXTERNAL_SYSTEM_NAME = '../modules/pdfoundry';
-PDFSettings.INTERNAL_MODULE_NAME = 'PDFoundry';
+PDFSettings.INTERNAL_MODULE_NAME = 'pdfoundry';
 PDFSettings.PDF_ENTITY_TYPE = 'PDFoundry_PDF';
+PDFSettings.HELP_SEEN_KEY = 'HelpSeen';
 },{"../api/PDFUtil":1,"../api/PDFoundryAPI":2,"../cache/PDFCache":4,"../log/PDFLog":6}],10:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
@@ -1257,6 +1255,19 @@ class PDFSetup {
             });
         }
     }
+    static userLogin() {
+        let viewed;
+        try {
+            viewed = game.user.getFlag(PDFSettings_1.PDFSettings.INTERNAL_MODULE_NAME, PDFSettings_1.PDFSettings.HELP_SEEN_KEY);
+        }
+        catch (error) {
+            viewed = false;
+        }
+        if (viewed) {
+            return;
+        }
+        PDFSettings_1.PDFSettings.showHelp();
+    }
 }
 exports.PDFSetup = PDFSetup;
 },{"../api/PDFoundryAPI":2,"../app/PDFItemSheet":3,"../log/PDFLog":6,"../settings/PDFSettings":9}],11:[function(require,module,exports){
@@ -1329,6 +1340,23 @@ class PDFViewer extends Application {
             label: 'PDFoundry',
             onclick: () => window.open('https://github.com/Djphoenix719/PDFoundry', '_blank'),
         });
+        if (game.user.isGM) {
+            //TODO: Show to individual players.
+            buttons.unshift({
+                class: 'pdf-sheet-show-players',
+                icon: 'fas fa-eye',
+                label: 'Show to Players',
+                onclick: () => this.showToPlayers(),
+            });
+        }
+        else {
+            buttons.unshift({
+                class: 'pdf-sheet-show-gm',
+                icon: 'fas fa-eye',
+                label: 'Show to GM',
+                onclick: () => this.showToGM(),
+            });
+        }
         return buttons;
     }
     getData(options) {
@@ -1360,6 +1388,8 @@ class PDFViewer extends Application {
         });
     }
     // </editor-fold>
+    showToGM() { }
+    showToPlayers() { }
     /**
      * Wait for the internal PDFjs viewer to be ready and usable.
      */

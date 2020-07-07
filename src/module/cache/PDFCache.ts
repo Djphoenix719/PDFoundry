@@ -206,7 +206,9 @@ export class PDFCache {
     /**
      * Max size of the cache, defaults to 256 MB.
      */
-    public static MAX_BYTES: number = 256 * 2 ** 20;
+    public static get MAX_BYTES() {
+        return game.settings.get(PDFSettings.EXTERNAL_SYSTEM_NAME, 'CacheSize');
+    }
 
     private static readonly IDB_NAME: string = 'PDFoundry';
     private static readonly IDB_VERSION: number = 1;
@@ -275,6 +277,17 @@ export class PDFCache {
             } else {
                 reject('Cache & fetch both failed.');
             }
+        });
+    }
+
+    public static registerSettings() {
+        game.settings.register(PDFSettings.EXTERNAL_SYSTEM_NAME, 'CacheSize', {
+            name: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeName'),
+            scope: 'user',
+            type: Number,
+            hint: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeHint'),
+            default: 256 * 2 ** 20, // 256 MB
+            config: true,
         });
     }
 }

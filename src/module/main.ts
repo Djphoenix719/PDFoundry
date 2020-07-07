@@ -47,6 +47,8 @@ const ready = async () => {
     // Initialize the settings
     await PDFSettings.registerSettings();
 
+    PDFSetup.userLogin();
+
     PDFEvents.fire('ready');
 };
 

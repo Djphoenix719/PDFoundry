@@ -65,10 +65,11 @@ async function main() {
     }
 
     const properties = [
-        ['url',     ''],
-        ['code',    ''],
-        ['offset',  0],
-        ['cache',   false],
+        ['url',         ''],
+        ['code',        ''],
+        ['offset',      0],
+        ['cache',       false],
+        ['preload',     false],
     ];
 
     for (const [key, value] of properties) {

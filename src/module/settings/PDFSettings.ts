@@ -31,8 +31,10 @@ export class PDFSettings {
 
     public static DIST_FOLDER: string = 'pdfoundry-dist';
     public static EXTERNAL_SYSTEM_NAME: string = '../modules/pdfoundry';
-    public static INTERNAL_MODULE_NAME: string = 'PDFoundry';
+    public static INTERNAL_MODULE_NAME: string = 'pdfoundry';
     public static PDF_ENTITY_TYPE: string = 'PDFoundry_PDF';
+
+    public static HELP_SEEN_KEY: string = 'HelpSeen';
 
     /**
      * Setup default values for pdf entities
@@ -90,23 +92,7 @@ export class PDFSettings {
     }
 
     public static registerSettings() {
-        // Has an individual user viewed the manual yet?
-        game.settings.register(PDFSettings.INTERNAL_MODULE_NAME, 'help', {
-            viewed: false,
-            scope: 'user',
-        });
-
-        game.settings.register(PDFSettings.EXTERNAL_SYSTEM_NAME, 'Cacheing', {
-            name: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeName'),
-            scope: 'user',
-            type: Number,
-            hint: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeHint'),
-            default: PDFCache.MAX_BYTES,
-            config: true,
-            onChange: (setting) => {
-                PDFLog.warn(setting);
-            },
-        });
+        PDFCache.registerSettings();
     }
 
     public static onRenderSettings(settings: any, html: JQuery<HTMLElement>, data: any) {
@@ -119,9 +105,7 @@ export class PDFSettings {
     }
 
     public static async showHelp() {
-        await game.settings.set(PDFSettings.INTERNAL_MODULE_NAME, 'help', {
-            viewed: true,
-        });
+        await game.user.setFlag(PDFSettings.INTERNAL_MODULE_NAME, PDFSettings.HELP_SEEN_KEY, true);
 
         return PDFoundryAPI.openURL(
             `${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/PDFoundry Manual.pdf`,

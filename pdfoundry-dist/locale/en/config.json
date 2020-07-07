@@ -40,7 +40,7 @@
     },
     "SETTINGS": {
       "OpenHelp": "Open PDFoundry Manual",
-      "CacheSizeName": "Cache Size",
+      "CacheSizeName": "PDF Cache Size",
       "CacheSizeHint": "How many bytes of hard drive space should be allowed to be taken up by the PDF cache?"
     }
   }
