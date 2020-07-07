@@ -20,7 +20,7 @@ import { PDFLog } from '../log/PDFLog';
 /**
  * Extends the base ItemSheet for linked PDF viewing.
  */
-export class PDFSourceSheet extends ItemSheet {
+export class PDFItemSheet extends ItemSheet {
     static get defaultOptions() {
         const options = super.defaultOptions;
         options.classes = ['sheet', 'item'];

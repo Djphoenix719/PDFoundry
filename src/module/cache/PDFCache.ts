@@ -25,6 +25,7 @@ export class IDBHelperError extends Error {
     }
 }
 
+//TODO: Want multiple stores in 1 db
 /**
  * Class that deals with getting/setting from an indexed db
  * Mostly exists to separate logic for the PDFCache from logic
@@ -207,7 +208,7 @@ export class PDFCache {
      */
     public static MAX_BYTES: number = 256 * 2 ** 20;
 
-    private static readonly IDB_NAME: string = PDFSettings.INTERNAL_MODULE_NAME;
+    private static readonly IDB_NAME: string = 'PDFoundry';
     private static readonly IDB_VERSION: number = 1;
     private static readonly IDBSTORE_CACHE_NAME: string = `Cache`;
     private static readonly IDBSTORE_META_NAME: string = `Meta`;
@@ -217,7 +218,6 @@ export class PDFCache {
     // </editor-fold>
 
     public static async initialize() {
-        PDFLog.verbose('Initializing.');
         PDFCache._metaHelper = await IDBHelper.createAndOpen(PDFCache.IDB_NAME, PDFCache.IDBSTORE_META_NAME, PDFCache.IDB_VERSION);
         PDFCache._cacheHelper = await IDBHelper.createAndOpen(PDFCache.IDB_NAME, PDFCache.IDBSTORE_CACHE_NAME, PDFCache.IDB_VERSION);
     }

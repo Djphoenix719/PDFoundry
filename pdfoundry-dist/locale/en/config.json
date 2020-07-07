@@ -34,8 +34,14 @@
     "VIEWER": {
       "ViewPDF": "View PDF"
     },
+    "ERROR": {
+      "NoPDFWithCode": "Unable to find PDF with specified code.",
+      "NoPDFWithName": "Unable to find PDF with specified name."
+    },
     "SETTINGS": {
-      "OpenHelp": "Open PDFoundry Manual"
+      "OpenHelp": "Open PDFoundry Manual",
+      "CacheSizeName": "Cache Size",
+      "CacheSizeHint": "How many bytes of hard drive space should be allowed to be taken up by the PDF cache?"
     }
   }
 }

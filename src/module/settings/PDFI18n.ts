@@ -18,11 +18,11 @@ import { PDFSettings } from './PDFSettings';
 /**
  * Localization helper
  */
-export class PDFLocalization {
+export class PDFI18n {
     /**
      * Load the localization file for the user's language.
      */
-    public static async init() {
+    public static async initialize() {
         const lang = game.i18n.lang;
         // user's language path
         const u_path = `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/locale/${lang}/config.json`;

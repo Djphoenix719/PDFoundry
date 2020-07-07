@@ -13,14 +13,22 @@
  * limitations under the License.
  */
 
-import { PDFSourceSheet } from '../app/PDFItemSheet';
+import { PDFItemSheet } from '../app/PDFItemSheet';
 import { PDFoundryAPI } from '../api/PDFoundryAPI';
 import { PDFLog } from '../log/PDFLog';
+import { PDFCache } from '../cache/PDFCache';
+import { PDFUtil } from '../api/PDFUtil';
 
 /**
  * Internal settings and helper methods for PDFoundry.
  */
 export class PDFSettings {
+    /**
+     * Are feedback notifications enabled? Disable if you wish
+     *  to handle them yourself.
+     */
+    public static NOTIFICATIONS: boolean = true;
+
     public static DIST_FOLDER: string = 'pdfoundry-dist';
     public static EXTERNAL_SYSTEM_NAME: string = '../modules/pdfoundry';
     public static INTERNAL_MODULE_NAME: string = 'PDFoundry';
@@ -55,7 +63,7 @@ export class PDFSettings {
      */
     public static getItemContextOptions(html, options: any[]) {
         PDFLog.verbose('Getting context options.');
-        options.splice(0, 0, {
+        options.unshift({
             name: game.i18n.localize('PDFOUNDRY.CONTEXT.OpenPDF'),
             icon: '<i class="far fa-file-pdf"></i>',
             condition: (entityHtml: JQuery<HTMLElement>) => {
@@ -69,8 +77,14 @@ export class PDFSettings {
             },
             callback: (entityHtml: JQuery<HTMLElement>) => {
                 const item = PDFSettings.getItemFromContext(entityHtml);
-                const { url, cache } = item.data.data;
-                PDFoundryAPI.openURL(PDFoundryAPI.getAbsoluteURL(url), 1, cache);
+                const pdf = PDFUtil.getPDFDataFromItem(item);
+
+                if (pdf === null) {
+                    //TODO: Error handling
+                    return;
+                }
+
+                PDFoundryAPI.openPDF(pdf, 1);
             },
         });
     }
@@ -80,6 +94,18 @@ export class PDFSettings {
         game.settings.register(PDFSettings.INTERNAL_MODULE_NAME, 'help', {
             viewed: false,
             scope: 'user',
+        });
+
+        game.settings.register(PDFSettings.EXTERNAL_SYSTEM_NAME, 'Cacheing', {
+            name: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeName'),
+            scope: 'user',
+            type: Number,
+            hint: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeHint'),
+            default: PDFCache.MAX_BYTES,
+            config: true,
+            onChange: (setting) => {
+                PDFLog.warn(setting);
+            },
         });
     }
 
@@ -97,6 +123,10 @@ export class PDFSettings {
             viewed: true,
         });
 
-        return PDFoundryAPI.openURL(`${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/PDFoundry Manual.pdf`);
+        return PDFoundryAPI.openURL(
+            `${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/PDFoundry Manual.pdf`,
+            1,
+            false,
+        );
     }
 }

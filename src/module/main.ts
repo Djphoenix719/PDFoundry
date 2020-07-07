@@ -13,39 +13,44 @@
  * limitations under the License.
  */
 
-import { PDFoundryAPI } from './api/PDFoundryAPI';
-import { PDFSettings } from './settings/PDFSettings';
-import { PDFLocalization } from './settings/PDFLocalization';
-import { PDFCache } from './cache/PDFCache';
-import { PDFLog } from './log/PDFLog';
 import { PDFSetup } from './setup/PDFSetup';
+import { PDFCache } from './cache/PDFCache';
+import { PDFEvents } from './events/PDFEvents';
+import { PDFI18n } from './settings/PDFI18n';
+import { PDFSettings } from './settings/PDFSettings';
 
-// <editor-fold desc="Init Hooks">
+PDFSetup.registerSystem();
 
-// Register the API on the ui object
-Hooks.once('init', PDFSetup.registerAPI);
-// Initialize the settings
-Hooks.once('init', PDFSettings.registerSettings);
-// Inject the css into the page
-Hooks.once('init', PDFSetup.injectCSS);
+const init = async () => {
+    // Register the API on the ui object
+    PDFSetup.registerAPI();
+    // Inject the css into the page
+    PDFSetup.registerCSS();
 
-// </editor-fold>
+    PDFEvents.fire('init');
 
-// <editor-fold desc="Setup Hooks">
+    await setup();
+};
+const setup = async () => {
+    // Initialize the cache system, creating the DB
+    await PDFCache.initialize();
+    // Load the relevant internationalization file.
+    await PDFI18n.initialize();
 
-// Initialize the cache system, creating the DB
-Hooks.once('setup', PDFCache.initialize);
+    PDFEvents.fire('setup');
 
-// </editor-fold>
+    await ready();
+};
+const ready = async () => {
+    // Register the PDF sheet with the class picker, unregister others
+    PDFSetup.registerPDFSheet();
+    // Initialize the settings
+    await PDFSettings.registerSettings();
 
-// <editor-fold desc="Ready Hooks">
+    PDFEvents.fire('ready');
+};
 
-// Register the PDF sheet with the class picker, unregister others
-Hooks.once('ready', PDFSetup.registerPDFSheet);
-// Load the relevant localization file. Can't auto load with module setup
-Hooks.once('ready', PDFLocalization.init);
-
-// </editor-fold>
+Hooks.once('init', init);
 
 // <editor-fold desc="Persistent Hooks">
 
@@ -57,14 +62,3 @@ Hooks.on('getItemDirectoryEntryContext', PDFSettings.getItemContextOptions);
 Hooks.on('renderSettings', PDFSettings.onRenderSettings);
 
 // </editor-fold>
-
-Hooks.once('ready', async () => {
-    PDFLog.verbose('Loading PDF.');
-
-    const pdf = PDFoundryAPI.getPDFData('SR5');
-    if (pdf === null) return;
-
-    const { code, name } = pdf;
-
-    const viewer = await PDFoundryAPI.open(code, 69);
-});

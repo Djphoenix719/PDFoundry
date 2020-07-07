@@ -32,6 +32,7 @@ const del = require('del');
 const logger = require('gulplog');
 const sourcemaps = require('gulp-sourcemaps');
 const assign = require('lodash.assign');
+const typedoc = require('gulp-typedoc');
 
 // add custom browserify options here
 const customOpts = {
@@ -113,6 +114,22 @@ gulp.task('build', async () => {
 gulp.task('sass', async() => {
     await build_sass();
 });
+
+gulp.task('docs', function() {
+    return gulp
+        .src([
+            'src/module/api/PDFoundryAPI.ts',
+        ])
+        .pipe(typedoc({
+            name: "PDFoundry",
+            target: "es6",
+            out: "docs/",
+            excludePrivate: true,
+            excludeProtected: true,
+            version: true
+        }));
+});
+
 
 async function build_sass() {
     gulp.src('./src/css/bundle.scss')

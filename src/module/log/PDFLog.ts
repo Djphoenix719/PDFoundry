@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-type ConsoleMessage = object | string | number;
+type ConsoleMessage = object | string | number | null;
 type LogType = 'log' | 'warn' | 'error' | 'verbose';
 
 /**

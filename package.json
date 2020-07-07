@@ -16,17 +16,20 @@
         "gulp": "^4.0.2",
         "gulp-sass": "^4.1.0",
         "gulp-sourcemaps": "^2.6.5",
+        "gulp-typedoc": "^2.2.5",
         "gulplog": "^1.0.0",
         "lodash.assign": "^4.2.0",
         "node-sass": "^4.14.1",
         "pdfjs-dist": "^2.4.456",
         "tsify": "^4.0.2",
-        "typescript": "^3.9.5",
+        "typedoc": "^0.17.0-3",
+        "typescript": "^3.9.6",
         "vinyl-buffer": "^1.0.1",
         "vinyl-source-stream": "^2.0.0",
         "watchify": "^3.11.1"
     },
     "repository": "https://github.com/smilligan93/SR5-Compendiums-FoundryVTT",
     "license": "https://github.com/smilligan93/SR5-Compendiums-FoundryVTT/blob/master/LICENSE",
-    "dependencies": {}
+    "dependencies": {},
+    "version": "v0.3.0"
 }

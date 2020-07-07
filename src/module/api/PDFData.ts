@@ -13,11 +13,13 @@
  * limitations under the License.
  */
 
-//TODO: Build out this type
-
 /**
- * The PDFjs viewer. Has some additional methods.
+ * All the properties of a PDF that can be specified by a user
  */
-export type PDFjsViewer = {
-    [key: string]: any;
+export type PDFData = {
+    name: string;
+    code: string;
+    url: string;
+    offset: number | string;
+    cache: boolean;
 };

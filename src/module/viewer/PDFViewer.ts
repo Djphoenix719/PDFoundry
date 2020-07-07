@@ -15,14 +15,13 @@
 
 import { PDFSettings } from '../settings/PDFSettings';
 import { PDFjsViewer } from '../api/PDFjsViewer';
-import { PDFData } from '../api/PDFoundryAPI';
-
-export type PDFDownloadFinishedHandler = (bytes: Uint8Array) => void;
+import { PDFData } from '../api/PDFData';
+import { PDFEvents } from '../events/PDFEvents';
 
 export class PDFViewer extends Application {
     static get defaultOptions() {
         const options = super.defaultOptions;
-        options.classes = ['app', 'window-app'];
+        options.classes = ['app', 'window-app', 'pdfoundry-viewer'];
         options.template = `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/pdfoundry-dist/templates/app/pdf-viewer.html`;
         options.title = game.i18n.localize('PDFOUNDRY.VIEWER.ViewPDF');
         options.width = 8.5 * 100 + 64;
@@ -33,39 +32,72 @@ export class PDFViewer extends Application {
 
     protected _frame: HTMLIFrameElement;
     protected _viewer: PDFjsViewer;
-    protected _pdfData: PDFData | undefined;
+    protected _pdfData: PDFData;
 
     constructor(pdfData?: PDFData, options?: ApplicationOptions) {
         super(options);
 
+        if (pdfData === undefined) {
+            pdfData = {
+                name: game.i18n.localize('PDFOUNDRY.VIEWER.ViewPDF'),
+                code: '',
+                offset: 0,
+                url: '',
+                cache: false,
+            };
+        }
+
         this._pdfData = pdfData;
     }
 
-    public get ready() {
-        return this._viewer !== undefined;
-    }
+    // <editor-fold desc="Foundry Overrides">
 
-    //TODO: How should this be structured? Is it easier to throw if state is not good?
-    //TODO: I lean towards yes for now - having to await *every* method call will be annoying.
-    public async getPage(): Promise<number> {
-        throw new Error();
-    }
-
-    public async setPage(value: number): Promise<void> {
-        throw new Error();
-    }
-
-    private setTitle() {
-        const header = $(this.element).find('header > h4.window-title');
-
-        if (this._pdfData) {
-            header.text(this._pdfData.name);
+    get title(): string {
+        let title = this._pdfData.name;
+        if (this._pdfData.code !== '') {
+            title = `${title} (${this._pdfData.code})`;
         }
+        return title;
     }
+
+    protected _getHeaderButtons(): any[] {
+        const buttons = super._getHeaderButtons();
+        //TODO: Standardize this to function w/ the Item sheet one
+        buttons.unshift({
+            class: 'pdf-sheet-github',
+            icon: 'fas fa-external-link-alt',
+            label: 'PDFoundry',
+            onclick: () => window.open('https://github.com/Djphoenix719/PDFoundry', '_blank'),
+        });
+        return buttons;
+    }
+
+    getData(options?: any): any | Promise<any> {
+        const data = super.getData(options);
+        data.systemName = PDFSettings.EXTERNAL_SYSTEM_NAME;
+        return data;
+    }
+
+    protected async activateListeners(html: JQuery<HTMLElement>): Promise<void> {
+        super.activateListeners(html);
+
+        this._frame = html.parent().find('iframe.pdfViewer').get(0) as HTMLIFrameElement;
+        this.getViewer().then((viewer) => {
+            this._viewer = viewer;
+            // Fire the viewerReady event so the viewer may be used externally
+            PDFEvents.fire('viewerReady', this);
+        });
+    }
+
+    async close(): Promise<any> {
+        PDFEvents.fire('viewerClose', this);
+        return super.close();
+    }
+
+    // </editor-fold>
 
     /**
-     * Get the internal PDFjs viewer. Will resolve with the viewer
-     *  object once PDFjs is done loading and is usable.
+     * Wait for the internal PDFjs viewer to be ready and usable.
      */
     private getViewer(): Promise<any> {
         if (this._viewer) {
@@ -92,29 +124,6 @@ export class PDFViewer extends Application {
         });
     }
 
-    protected _getHeaderButtons(): any[] {
-        const buttons = super._getHeaderButtons();
-        //TODO: Standardize this to function w/ the Item sheet one
-        buttons.unshift({
-            class: 'pdf-sheet-github',
-            icon: 'fas fa-external-link-alt',
-            label: 'PDFoundry',
-            onclick: () => window.open('https://github.com/Djphoenix719/PDFoundry', '_blank'),
-        });
-        return buttons;
-    }
-
-    protected async activateListeners(html: JQuery<HTMLElement>): Promise<void> {
-        super.activateListeners(html);
-
-        this.setTitle();
-
-        this._frame = html.parent().find('iframe.pdfViewer').get(0) as HTMLIFrameElement;
-        this.getViewer().then((viewer) => {
-            this._viewer = viewer;
-        });
-    }
-
     /**
      * Finish the download and return the byte array for the file.
      */
@@ -134,38 +143,13 @@ export class PDFViewer extends Application {
         });
     }
 
-    getData(options?: any): any | Promise<any> {
-        const data = super.getData(options);
-        data.systemName = PDFSettings.EXTERNAL_SYSTEM_NAME;
-        return data;
-    }
-
     public async open(pdfSource: string | Uint8Array, page?: number) {
-        const viewer = await this.getViewer();
+        const pdfjsViewer = await this.getViewer();
+
         if (page) {
-            viewer.initialBookmark = `page=${page}`;
+            pdfjsViewer.initialBookmark = `page=${page}`;
         }
 
-        if (typeof pdfSource === 'string') {
-            await viewer.open(pdfSource);
-        } else {
-            await viewer.open(pdfSource);
-        }
-    }
-
-    /**
-     * Attempt to safely cleanup PDFjs to avoid memory leaks.
-     * PDFjs is pretty good with memory already.
-     */
-    protected async cleanup(): Promise<void> {
-        if (this._frame && this._frame.contentWindow) {
-            this._viewer.cleanup();
-        }
-    }
-
-    async close(): Promise<any> {
-        //TODO: Wait for render before cleanup
-        await this.cleanup();
-        return super.close();
+        await pdfjsViewer.open(pdfSource);
     }
 }

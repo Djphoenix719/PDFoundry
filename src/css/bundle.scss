@@ -18,6 +18,16 @@ a.pdf-sheet-manual {
   color: orangered;
 }
 
+div.pdfoundry-viewer {
+  section.window-content {
+    padding: 0;
+  }
+
+  iframe {
+    border: 0;
+  }
+}
+
 form.pdf-sheet {
   input, label {
     border: 0;
