@@ -1669,12 +1669,12 @@ class PDFViewer extends Application {
                 this._viewer = viewer;
                 this.getEventBus().then((eventBus) => {
                     this._eventBus = eventBus;
-                    const listeners = eventBus._listeners;
-                    for (const eventName of Object.keys(listeners)) {
-                        eventBus.on(eventName, (...args) => {
-                            this.logEvent(eventName, args);
-                        });
-                    }
+                    // const listeners = eventBus._listeners;
+                    // for (const eventName of Object.keys(listeners)) {
+                    //     eventBus.on(eventName, (...args) => {
+                    //         this.logEvent(eventName, args);
+                    //     });
+                    // }
                     // Fire the viewerReady event so the viewer may be used externally
                     PDFEvents_1.PDFEvents.fire('viewerReady', this);
                 });
