@@ -18,6 +18,11 @@ import { PDFCache } from './cache/PDFCache';
 import { PDFEvents } from './events/PDFEvents';
 import { PDFI18n } from './settings/PDFI18n';
 import { PDFSettings } from './settings/PDFSettings';
+import { PDFLog } from './log/PDFLog';
+import { PDFSetViewEvent } from './socket/events/PDFSetViewEvent';
+import { PDFSocketHandler } from './socket/PDFSocketHandler';
+
+CONFIG.debug.hooks = true;
 
 PDFSetup.registerSystem();
 
@@ -48,6 +53,8 @@ const ready = async () => {
     await PDFSettings.registerSettings();
 
     PDFSetup.userLogin();
+
+    PDFSocketHandler.registerHandlers();
 
     PDFEvents.fire('ready');
 };

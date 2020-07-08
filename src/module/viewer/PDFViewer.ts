@@ -17,6 +17,10 @@ import { PDFSettings } from '../settings/PDFSettings';
 import { PDFEvents } from '../events/PDFEvents';
 import { PDFData } from '../types/PDFData';
 import { PDFjsViewer } from '../types/PDFjsViewer';
+import { PDFLog } from '../log/PDFLog';
+import { PDFSetViewEvent } from '../socket/events/PDFSetViewEvent';
+import { PDFUtil } from '../api/PDFUtil';
+import { PDFjsEventBus } from '../types/PDFjsEventBus';
 
 export class PDFViewer extends Application {
     static get defaultOptions() {
@@ -32,6 +36,7 @@ export class PDFViewer extends Application {
 
     protected _frame: HTMLIFrameElement;
     protected _viewer: PDFjsViewer;
+    protected _eventBus: PDFjsEventBus;
     protected _pdfData: PDFData;
 
     constructor(pdfData?: PDFData, options?: ApplicationOptions) {
@@ -49,6 +54,26 @@ export class PDFViewer extends Application {
 
         this._pdfData = pdfData;
     }
+
+    // <editor-fold desc="Getters & Setters">
+
+    /**
+     * Returns a copy of the PDFData this viewer is using.
+     * Changes to this data will not reflect in the viewer.
+     */
+    public get pdfData() {
+        return duplicate(this._pdfData);
+    }
+
+    public get page() {
+        return this._viewer.page;
+    }
+
+    public set page(value: number) {
+        this._viewer.page = value;
+    }
+
+    // </editor-fold>
 
     // <editor-fold desc="Foundry Overrides">
 
@@ -69,6 +94,24 @@ export class PDFViewer extends Application {
             label: 'PDFoundry',
             onclick: () => window.open('https://github.com/Djphoenix719/PDFoundry', '_blank'),
         });
+
+        if (game.user.isGM) {
+            //TODO: Show to individual players.
+            buttons.unshift({
+                class: 'pdf-sheet-show-players',
+                icon: 'fas fa-eye',
+                label: 'Show to Players',
+                onclick: () => this.showToPlayers(),
+            });
+        } else {
+            buttons.unshift({
+                class: 'pdf-sheet-show-gm',
+                icon: 'fas fa-eye',
+                label: 'Show to GM',
+                onclick: () => this.showToGM(),
+            });
+        }
+
         return buttons;
     }
 
@@ -82,11 +125,28 @@ export class PDFViewer extends Application {
         super.activateListeners(html);
 
         this._frame = html.parent().find('iframe.pdfViewer').get(0) as HTMLIFrameElement;
-        this.getViewer().then((viewer) => {
+        this.getViewer().then(async (viewer) => {
             this._viewer = viewer;
-            // Fire the viewerReady event so the viewer may be used externally
-            PDFEvents.fire('viewerReady', this);
+
+            this.getEventBus().then((eventBus) => {
+                this._eventBus = eventBus;
+
+                const listeners = eventBus._listeners;
+                for (const eventName of Object.keys(listeners)) {
+                    eventBus.on(eventName, (...args) => {
+                        this.logEvent(eventName, args);
+                    });
+                }
+
+                // Fire the viewerReady event so the viewer may be used externally
+                PDFEvents.fire('viewerReady', this);
+            });
         });
+    }
+
+    private logEvent(key: string, ...args) {
+        PDFLog.log(key);
+        PDFLog.log(args);
     }
 
     async close(): Promise<any> {
@@ -97,9 +157,39 @@ export class PDFViewer extends Application {
     // </editor-fold>
 
     /**
+     * Show the current page to GMs.
+     */
+    private showToGM() {
+        const pdfData = this.pdfData;
+        pdfData.offset = 0;
+
+        // @ts-ignore
+        const ids = PDFUtil.getUserIdsOfRole(USER_ROLES.GAMEMASTER);
+        const page = this.page;
+
+        const event = new PDFSetViewEvent(ids, pdfData, page);
+        event.emit();
+    }
+
+    /**
+     * Show the current page to players.
+     */
+    private showToPlayers() {
+        const pdfData = this.pdfData;
+        pdfData.offset = 0;
+
+        // @ts-ignore
+        const ids = PDFUtil.getUserIdsAtMostRole(USER_ROLES.ASSISTANT);
+        const page = this.page;
+
+        const event = new PDFSetViewEvent(ids, pdfData, page);
+        event.emit();
+    }
+
+    /**
      * Wait for the internal PDFjs viewer to be ready and usable.
      */
-    private getViewer(): Promise<any> {
+    private getViewer(): Promise<PDFjsViewer> {
         if (this._viewer) {
             return Promise.resolve(this._viewer);
         }
@@ -121,6 +211,29 @@ export class PDFViewer extends Application {
                 timeout = setTimeout(returnOrWait, 5);
             };
             returnOrWait();
+        });
+    }
+
+    /**
+     * Wait for the internal PDFjs eventBus to be ready and usable.
+     */
+    private getEventBus(): Promise<PDFjsEventBus> {
+        if (this._eventBus) {
+            return Promise.resolve(this._eventBus);
+        }
+
+        return new Promise<any>((resolve, reject) => {
+            this.getViewer().then((viewer) => {
+                let timeout;
+                const returnOrWait = () => {
+                    if (viewer.eventBus) {
+                        resolve(viewer.eventBus);
+                        return;
+                    }
+                    timeout = setTimeout(returnOrWait, 5);
+                };
+                returnOrWait();
+            });
         });
     }
 

@@ -14,6 +14,7 @@
  */
 
 import { PDFData } from '../types/PDFData';
+import { PDFLog } from '../log/PDFLog';
 
 /**
  * Contains various utility functions for common operations.
@@ -55,5 +56,29 @@ export class PDFUtil {
      */
     public static validateAbsoluteURL(dataUrl: string): boolean {
         return dataUrl.startsWith(window.origin);
+    }
+
+    public static getUserIdsOfRole(role: number) {
+        return game.users
+            .filter((user) => {
+                return user.role === role;
+            })
+            .map((user) => user.id);
+    }
+
+    public static getUserIdsAtLeastRole(role: number) {
+        return game.users
+            .filter((user) => {
+                return user.role >= role;
+            })
+            .map((user) => user.id);
+    }
+
+    public static getUserIdsAtMostRole(role: number) {
+        return game.users
+            .filter((user) => {
+                return user.role <= role;
+            })
+            .map((user) => user.id);
     }
 }
