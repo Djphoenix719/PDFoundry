@@ -405,21 +405,20 @@ class IDBHelperError extends Error {
     }
 }
 exports.IDBHelperError = IDBHelperError;
-//TODO: Want multiple stores in 1 db
 /**
  * Class that deals with getting/setting from an indexed db
  * Mostly exists to separate logic for the PDFCache from logic
  *  dealing with the database
  */
 class IDBHelper {
-    constructor(indexName, storeName, version) {
-        this._indexName = `${indexName}/${storeName}`;
-        this._storeName = storeName;
+    constructor(indexName, storeNames, version) {
+        this._indexName = `${indexName}`;
+        this._storeNames = storeNames;
         this._version = version;
     }
-    static createAndOpen(indexName, storeName, version) {
+    static createAndOpen(indexName, storeNames, version) {
         return __awaiter(this, void 0, void 0, function* () {
-            const helper = new IDBHelper(indexName, storeName, version);
+            const helper = new IDBHelper(indexName, storeNames, version);
             yield helper.open();
             return helper;
         });
@@ -427,9 +426,9 @@ class IDBHelper {
     get ready() {
         return this._db !== undefined;
     }
-    newTransaction() {
-        const transaction = this._db.transaction(this._storeName, 'readwrite');
-        const store = transaction.objectStore(this._storeName);
+    newTransaction(storeName) {
+        const transaction = this._db.transaction(storeName, 'readwrite');
+        const store = transaction.objectStore(storeName);
         return { transaction, store };
     }
     open() {
@@ -442,12 +441,14 @@ class IDBHelper {
             };
             request.onupgradeneeded = function (event) {
                 that._db = this.result;
-                try {
-                    // Create object store if it doesn't exist
-                    that._db.createObjectStore(that._storeName, {});
-                }
-                catch (error) {
-                    // Otherwise pass
+                for (let i = 0; i < that._storeNames.length; i++) {
+                    try {
+                        // Create object store if it doesn't exist
+                        that._db.createObjectStore(that._storeNames[i], {});
+                    }
+                    catch (error) {
+                        // Otherwise pass
+                    }
                 }
                 resolve();
             };
@@ -457,14 +458,14 @@ class IDBHelper {
             };
         });
     }
-    set(key, value, force = false) {
+    set(key, value, storeName, force = false) {
         return new Promise((resolve, reject) => {
             if (!this._db) {
-                throw new IDBHelperError(this._indexName, this._storeName, 'Database is not initialized.');
+                throw new IDBHelperError(this._indexName, storeName, 'Database is not initialized.');
             }
             else {
                 const that = this;
-                let { transaction, store } = this.newTransaction();
+                let { transaction, store } = this.newTransaction(storeName);
                 // Propagate errors upwards, otherwise they fail silently
                 transaction.onerror = function (event) {
                     // @ts-ignore
@@ -476,14 +477,14 @@ class IDBHelper {
                     if (keyRequest.result) {
                         // should we force the new value by deleting the old?
                         if (force) {
-                            that.del(key).then(() => {
-                                ({ transaction, store } = that.newTransaction());
+                            that.del(key, storeName).then(() => {
+                                ({ transaction, store } = that.newTransaction(storeName));
                                 store.add(value, key);
                                 resolve();
                             });
                         }
                         else {
-                            throw new IDBHelperError(that._indexName, that._storeName, `Key ${key} already exists.`);
+                            throw new IDBHelperError(that._indexName, storeName, `Key ${key} already exists.`);
                         }
                     }
                     else {
@@ -494,13 +495,13 @@ class IDBHelper {
             }
         });
     }
-    get(key) {
+    get(key, storeName) {
         return new Promise((resolve, reject) => {
             if (!this._db) {
-                throw new IDBHelperError(this._indexName, this._storeName, 'Database is not initialized.');
+                throw new IDBHelperError(this._indexName, storeName, 'Database is not initialized.');
             }
             else {
-                let { transaction, store } = this.newTransaction();
+                let { transaction, store } = this.newTransaction(storeName);
                 // Propagate errors upwards, otherwise they fail silently
                 transaction.onerror = function (event) {
                     // @ts-ignore
@@ -517,10 +518,10 @@ class IDBHelper {
             }
         });
     }
-    del(key) {
+    del(key, storeName) {
         return new Promise((resolve, reject) => {
             try {
-                const { transaction, store } = this.newTransaction();
+                const { transaction, store } = this.newTransaction(storeName);
                 transaction.onerror = function (event) {
                     // @ts-ignore
                     reject(event.target.error);
@@ -535,15 +536,34 @@ class IDBHelper {
             }
         });
     }
-    clr() {
+    keys(storeName) {
         return new Promise((resolve, reject) => {
             try {
-                const { store } = this.newTransaction();
+                const { transaction, store } = this.newTransaction(storeName);
+                const keysRequest = store.getAllKeys();
+                keysRequest.onsuccess = function () {
+                    resolve(keysRequest.result);
+                };
+                keysRequest.onerror = function (event) {
+                    // @ts-ignore
+                    reject(event.target.error);
+                };
+                return;
+            }
+            catch (error) {
+                reject(error);
+            }
+        });
+    }
+    clr(storeName) {
+        return new Promise((resolve, reject) => {
+            try {
+                const { store } = this.newTransaction(storeName);
                 const keys = store.getAllKeys();
                 keys.onsuccess = (result) => {
                     const promises = [];
                     for (const key of keys.result) {
-                        promises.push(this.del(key));
+                        promises.push(this.del(key, storeName));
                     }
                     Promise.all(promises).then(() => {
                         resolve();
@@ -570,14 +590,13 @@ class PDFCache {
     // </editor-fold>
     static initialize() {
         return __awaiter(this, void 0, void 0, function* () {
-            PDFCache._metaHelper = yield IDBHelper.createAndOpen(PDFCache.IDB_NAME, PDFCache.IDBSTORE_META_NAME, PDFCache.IDB_VERSION);
-            PDFCache._cacheHelper = yield IDBHelper.createAndOpen(PDFCache.IDB_NAME, PDFCache.IDBSTORE_CACHE_NAME, PDFCache.IDB_VERSION);
+            PDFCache._cacheHelper = yield IDBHelper.createAndOpen(PDFCache.IDB_NAME, [PDFCache.CACHE, PDFCache.META], PDFCache.IDB_VERSION);
         });
     }
     static getMeta(key) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield PDFCache._metaHelper.get(key);
+                return yield PDFCache._cacheHelper.get(key, PDFCache.META);
             }
             catch (error) {
                 return null;
@@ -586,13 +605,13 @@ class PDFCache {
     }
     static setMeta(key, meta) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield PDFCache._metaHelper.set(key, meta, true);
+            yield PDFCache._cacheHelper.set(key, meta, PDFCache.META, true);
         });
     }
     static getCache(key) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const bytes = yield PDFCache._cacheHelper.get(key);
+                const bytes = yield PDFCache._cacheHelper.get(key, PDFCache.CACHE);
                 const meta = {
                     dateAccessed: new Date().toISOString(),
                     size: bytes.length,
@@ -608,33 +627,44 @@ class PDFCache {
     static setCache(key, bytes) {
         return __awaiter(this, void 0, void 0, function* () {
             PDFLog_1.PDFLog.warn(`Cached data for ${key}`);
-            yield PDFCache._cacheHelper.set(key, bytes, true);
-            //TODO: Check for + handle 'cache full'
+            const meta = {
+                dateAccessed: new Date().toISOString(),
+                size: bytes.length,
+            };
+            yield PDFCache._cacheHelper.set(key, bytes, PDFCache.CACHE, true);
+            yield PDFCache.setMeta(key, meta);
+            yield this.prune();
         });
     }
-    static getOrFetch(key) {
-        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            const cachedBytes = yield PDFCache.getCache(key);
-            if (cachedBytes !== null && cachedBytes.byteLength > 0) {
-                resolve(cachedBytes);
-                return;
+    static prune() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const keys = yield this._cacheHelper.keys(PDFCache.META);
+            let totalBytes = 0;
+            let metas = [];
+            for (const key of keys) {
+                const meta = yield this._cacheHelper.get(key, PDFCache.META);
+                meta.dateAccessed = Date.parse(meta.dateAccessed);
+                meta.size = parseInt(meta.size);
+                totalBytes += meta.size;
+                metas.push({
+                    key,
+                    meta,
+                });
             }
-            const response = yield fetch(key);
-            if (response.ok) {
-                const fetchedBytes = new Uint8Array(yield response.arrayBuffer());
-                if (fetchedBytes.byteLength > 0) {
-                    yield PDFCache.setCache(key, fetchedBytes);
-                    resolve(fetchedBytes);
-                    return;
+            metas = metas.sort((a, b) => {
+                return a.meta.dateAccessed - b.meta.dateAccessed;
+            });
+            for (let i = 0; i < metas.length; i++) {
+                if (totalBytes < PDFCache.MAX_BYTES) {
+                    break;
                 }
-                else {
-                    reject('Cache & fetch both failed.');
-                }
+                const next = metas[i];
+                yield this._cacheHelper.del(next.key, PDFCache.META);
+                yield this._cacheHelper.del(next.key, PDFCache.CACHE);
+                totalBytes -= next.meta.size;
+                PDFLog_1.PDFLog.warn(`Pruned ${next.meta.size} bytes by deleting ${next.key}`);
             }
-            else {
-                reject('Cache & fetch both failed.');
-            }
-        }));
+        });
     }
     static registerSettings() {
         game.settings.register(PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME, 'CacheSize', {
@@ -650,8 +680,31 @@ class PDFCache {
 exports.PDFCache = PDFCache;
 PDFCache.IDB_NAME = 'PDFoundry';
 PDFCache.IDB_VERSION = 1;
-PDFCache.IDBSTORE_CACHE_NAME = `Cache`;
-PDFCache.IDBSTORE_META_NAME = `Meta`;
+PDFCache.CACHE = `Cache`;
+PDFCache.META = `Meta`;
+// public static getOrFetch(key: string): Promise<Uint8Array | null> {
+//     return new Promise<Uint8Array>(async (resolve, reject) => {
+//         const cachedBytes = await PDFCache.getCache(key);
+//         if (cachedBytes !== null && cachedBytes.byteLength > 0) {
+//             resolve(cachedBytes);
+//             return;
+//         }
+//
+//         const response = await fetch(key);
+//         if (response.ok) {
+//             const fetchedBytes = new Uint8Array(await response.arrayBuffer());
+//             if (fetchedBytes.byteLength > 0) {
+//                 await PDFCache.setCache(key, fetchedBytes);
+//                 resolve(fetchedBytes);
+//                 return;
+//             } else {
+//                 reject('Cache & fetch both failed.');
+//             }
+//         } else {
+//             reject('Cache & fetch both failed.');
+//         }
+//     });
+// }
 },{"../log/PDFLog":6,"../settings/PDFSettings":9}],5:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
@@ -1436,7 +1489,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFViewer = void 0;
 const PDFSettings_1 = require("../settings/PDFSettings");
 const PDFEvents_1 = require("../events/PDFEvents");
-const PDFLog_1 = require("../log/PDFLog");
 const PDFSetViewEvent_1 = require("../socket/events/PDFSetViewEvent");
 const PDFUtil_1 = require("../api/PDFUtil");
 class PDFViewer extends Application {
@@ -1543,8 +1595,8 @@ class PDFViewer extends Application {
         });
     }
     logEvent(key, ...args) {
-        PDFLog_1.PDFLog.log(key);
-        PDFLog_1.PDFLog.log(args);
+        console.debug(key);
+        console.debug(args);
     }
     close() {
         const _super = Object.create(null, {
@@ -1569,7 +1621,7 @@ class PDFViewer extends Application {
         event.emit();
     }
     /**
-     * Show the current page to players
+     * Show the current page to players.
      */
     showToPlayers() {
         const pdfData = this.pdfData;
@@ -1654,6 +1706,6 @@ class PDFViewer extends Application {
     }
 }
 exports.PDFViewer = PDFViewer;
-},{"../api/PDFUtil":1,"../events/PDFEvents":5,"../log/PDFLog":6,"../settings/PDFSettings":9,"../socket/events/PDFSetViewEvent":12}]},{},[7])
+},{"../api/PDFUtil":1,"../events/PDFEvents":5,"../settings/PDFSettings":9,"../socket/events/PDFSetViewEvent":12}]},{},[7])
 
 //# sourceMappingURL=bundle.js.map

@@ -145,8 +145,8 @@ export class PDFViewer extends Application {
     }
 
     private logEvent(key: string, ...args) {
-        PDFLog.log(key);
-        PDFLog.log(args);
+        console.debug(key);
+        console.debug(args);
     }
 
     async close(): Promise<any> {
