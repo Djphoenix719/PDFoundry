@@ -54,7 +54,6 @@ export class PDFSetup {
             PDFSettings.EXTERNAL_SYSTEM_NAME = folders[distIdx - 1];
             break;
         }
-        PDFLog.info(`Using ${PDFSettings.EXTERNAL_SYSTEM_NAME} as 'EXTERNAL_SYSTEM_NAME'`);
     }
 
     /**

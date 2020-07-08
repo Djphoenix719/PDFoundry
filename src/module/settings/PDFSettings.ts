@@ -18,6 +18,7 @@ import { PDFoundryAPI } from '../api/PDFoundryAPI';
 import { PDFLog } from '../log/PDFLog';
 import { PDFCache } from '../cache/PDFCache';
 import { PDFUtil } from '../api/PDFUtil';
+import { PDFPreloadEvent } from '../socket/events/PDFPreloadEvent';
 
 /**
  * Internal settings and helper methods for PDFoundry.
@@ -35,6 +36,10 @@ export class PDFSettings {
     public static PDF_ENTITY_TYPE: string = 'PDFoundry_PDF';
 
     public static HELP_SEEN_KEY: string = 'HelpSeen';
+
+    public static get SOCKET_NAME() {
+        return `system.${PDFSettings.EXTERNAL_SYSTEM_NAME}`;
+    }
 
     /**
      * Setup default values for pdf entities
@@ -58,6 +63,7 @@ export class PDFSettings {
         return game.items.get(id);
     }
 
+    //TODO: This shouldn't be in settings.
     /**
      * Get additional context menu icons for PDF items
      * @param html
@@ -65,6 +71,38 @@ export class PDFSettings {
      */
     public static getItemContextOptions(html, options: any[]) {
         PDFLog.verbose('Getting context options.');
+
+        if (game.user.isGM) {
+            options.unshift({
+                name: game.i18n.localize('PDFOUNDRY.CONTEXT.PreloadPDF'),
+                icon: '<i class="fas fa-download fa-fw"></i>',
+                condition: (entityHtml: JQuery<HTMLElement>) => {
+                    const item = PDFSettings.getItemFromContext(entityHtml);
+                    if (item.type !== PDFSettings.PDF_ENTITY_TYPE) {
+                        return false;
+                    }
+
+                    const { url } = item.data.data;
+                    return url !== '';
+                },
+                callback: (entityHtml: JQuery<HTMLElement>) => {
+                    const item = PDFSettings.getItemFromContext(entityHtml);
+                    const pdf = PDFUtil.getPDFDataFromItem(item);
+
+                    if (pdf === null) {
+                        //TODO: Error handling
+                        return;
+                    }
+
+                    const { url } = pdf;
+                    const event = new PDFPreloadEvent(null, PDFUtil.getAbsoluteURL(url));
+                    event.emit();
+
+                    PDFCache.preload(url);
+                },
+            });
+        }
+
         options.unshift({
             name: game.i18n.localize('PDFOUNDRY.CONTEXT.OpenPDF'),
             icon: '<i class="far fa-file-pdf"></i>',

@@ -1,17 +1,14 @@
 import { PDFLog } from '../log/PDFLog';
-import { PDFSocketEvent } from './events/PDFSocketEvent';
 import { PDFSettings } from '../settings/PDFSettings';
 import { PDFSetViewEvent } from './events/PDFSetViewEvent';
 import { PDFoundryAPI } from '../api/PDFoundryAPI';
+import { PDFPreloadEvent } from './events/PDFPreloadEvent';
+import { PDFCache } from '../cache/PDFCache';
 
 export class PDFSocketHandler {
-    public static get SOCKET_NAME() {
-        return `system.${PDFSettings.EXTERNAL_SYSTEM_NAME}`;
-    }
-
     public static registerHandlers() {
         // @ts-ignore
-        game.socket.on(PDFSocketHandler.SOCKET_NAME, (event) => {
+        game.socket.on(PDFSettings.SOCKET_NAME, (event) => {
             PDFLog.warn(`Incoming Event: ${event.type}`);
             PDFLog.warn(event);
 
@@ -23,11 +20,24 @@ export class PDFSocketHandler {
 
             if (type === PDFSetViewEvent.EVENT_TYPE) {
                 PDFSocketHandler.handleSetView(payload);
+                return;
+            } else if (type === PDFPreloadEvent.EVENT_TYPE) {
+                PDFSocketHandler.handlePreloadPDF(payload);
+                return;
+            } else {
+                if (type.includes('PDFOUNDRY')) {
+                    PDFLog.error(`Event of type ${type} has no handler.`);
+                    return;
+                }
             }
         });
     }
 
     public static handleSetView(data: any) {
         PDFoundryAPI.openPDF(data.pdfData, data.page);
+    }
+
+    public static handlePreloadPDF(data: any) {
+        PDFCache.preload(data.url);
     }
 }

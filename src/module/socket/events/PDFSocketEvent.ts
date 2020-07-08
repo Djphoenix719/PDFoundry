@@ -14,13 +14,19 @@
  */
 
 import { PDFSettings } from '../../settings/PDFSettings';
-import { PDFSocketHandler } from '../PDFSocketHandler';
-import { PDFLog } from '../../log/PDFLog';
 
 export abstract class PDFSocketEvent {
+    /**
+     * The type of this event.
+     */
     public static get EVENT_TYPE() {
         return 'PDFOUNDRY';
     }
+
+    /**
+     * The type of this event.
+     */
+    public abstract get type();
 
     /**
      * The user ids that should handle this event.
@@ -32,11 +38,6 @@ export abstract class PDFSocketEvent {
     }
 
     /**
-     * The type of this event.
-     */
-    public abstract get type();
-
-    /**
      * Get any data that will be sent with the event.
      */
     protected getPayload(): any {
@@ -45,7 +46,7 @@ export abstract class PDFSocketEvent {
 
     public emit() {
         // @ts-ignore
-        game.socket.emit(PDFSocketHandler.SOCKET_NAME, {
+        game.socket.emit(PDFSettings.SOCKET_NAME, {
             type: this.type,
             userIds: this.userIds,
             payload: this.getPayload(),

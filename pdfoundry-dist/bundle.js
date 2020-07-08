@@ -267,7 +267,7 @@ class PDFoundryAPI {
     }
 }
 exports.PDFoundryAPI = PDFoundryAPI;
-},{"../cache/PDFCache":4,"../events/PDFEvents":5,"../settings/PDFSettings":9,"../viewer/PDFViewer":14,"./PDFUtil":1}],3:[function(require,module,exports){
+},{"../cache/PDFCache":4,"../events/PDFEvents":5,"../settings/PDFSettings":9,"../viewer/PDFViewer":15,"./PDFUtil":1}],3:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
  *
@@ -585,7 +585,7 @@ class PDFCache {
      * Max size of the cache, defaults to 256 MB.
      */
     static get MAX_BYTES() {
-        return game.settings.get(PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME, 'CacheSize');
+        return game.settings.get(PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME, 'CacheSize') * Math.pow(2, 20);
     }
     // </editor-fold>
     static initialize() {
@@ -626,7 +626,6 @@ class PDFCache {
     }
     static setCache(key, bytes) {
         return __awaiter(this, void 0, void 0, function* () {
-            PDFLog_1.PDFLog.warn(`Cached data for ${key}`);
             const meta = {
                 dateAccessed: new Date().toISOString(),
                 size: bytes.length,
@@ -635,6 +634,30 @@ class PDFCache {
             yield PDFCache.setMeta(key, meta);
             yield this.prune();
         });
+    }
+    static preload(key) {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            const cachedBytes = yield PDFCache.getCache(key);
+            if (cachedBytes !== null && cachedBytes.byteLength > 0) {
+                resolve();
+                return;
+            }
+            const response = yield fetch(key);
+            if (response.ok) {
+                const fetchedBytes = new Uint8Array(yield response.arrayBuffer());
+                if (fetchedBytes.byteLength > 0) {
+                    yield PDFCache.setCache(key, fetchedBytes);
+                    resolve();
+                    return;
+                }
+                else {
+                    reject('Fetch failed.');
+                }
+            }
+            else {
+                reject('Fetch failed.');
+            }
+        }));
     }
     static prune() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -672,8 +695,14 @@ class PDFCache {
             scope: 'user',
             type: Number,
             hint: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeHint'),
-            default: 256 * Math.pow(2, 20),
+            default: 256,
             config: true,
+            onChange: (mb) => __awaiter(this, void 0, void 0, function* () {
+                mb = Math.round(mb);
+                mb = Math.max(mb, 64);
+                mb = Math.min(mb, 1024);
+                yield game.settings.set(PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME, 'CacheSize', mb);
+            }),
         });
     }
 }
@@ -682,29 +711,6 @@ PDFCache.IDB_NAME = 'PDFoundry';
 PDFCache.IDB_VERSION = 1;
 PDFCache.CACHE = `Cache`;
 PDFCache.META = `Meta`;
-// public static getOrFetch(key: string): Promise<Uint8Array | null> {
-//     return new Promise<Uint8Array>(async (resolve, reject) => {
-//         const cachedBytes = await PDFCache.getCache(key);
-//         if (cachedBytes !== null && cachedBytes.byteLength > 0) {
-//             resolve(cachedBytes);
-//             return;
-//         }
-//
-//         const response = await fetch(key);
-//         if (response.ok) {
-//             const fetchedBytes = new Uint8Array(await response.arrayBuffer());
-//             if (fetchedBytes.byteLength > 0) {
-//                 await PDFCache.setCache(key, fetchedBytes);
-//                 resolve(fetchedBytes);
-//                 return;
-//             } else {
-//                 reject('Cache & fetch both failed.');
-//             }
-//         } else {
-//             reject('Cache & fetch both failed.');
-//         }
-//     });
-// }
 },{"../log/PDFLog":6,"../settings/PDFSettings":9}],5:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
@@ -1041,9 +1047,8 @@ const PDFSettings_1 = require("./settings/PDFSettings");
 const PDFSocketHandler_1 = require("./socket/PDFSocketHandler");
 CONFIG.debug.hooks = true;
 PDFSetup_1.PDFSetup.registerSystem();
+PDFSetup_1.PDFSetup.registerAPI();
 const init = () => __awaiter(void 0, void 0, void 0, function* () {
-    // Register the API on the ui object
-    PDFSetup_1.PDFSetup.registerAPI();
     // Inject the css into the page
     PDFSetup_1.PDFSetup.registerCSS();
     PDFEvents_1.PDFEvents.fire('init');
@@ -1066,7 +1071,7 @@ const ready = () => __awaiter(void 0, void 0, void 0, function* () {
     PDFSocketHandler_1.PDFSocketHandler.registerHandlers();
     PDFEvents_1.PDFEvents.fire('ready');
 });
-Hooks.once('init', init);
+Hooks.once('setup', init);
 // <editor-fold desc="Persistent Hooks">
 // preCreateItem - Setup default values for a new PDFoundry_PDF
 Hooks.on('preCreateItem', PDFSettings_1.PDFSettings.preCreateItem);
@@ -1169,10 +1174,14 @@ const PDFoundryAPI_1 = require("../api/PDFoundryAPI");
 const PDFLog_1 = require("../log/PDFLog");
 const PDFCache_1 = require("../cache/PDFCache");
 const PDFUtil_1 = require("../api/PDFUtil");
+const PDFPreloadEvent_1 = require("../socket/events/PDFPreloadEvent");
 /**
  * Internal settings and helper methods for PDFoundry.
  */
 class PDFSettings {
+    static get SOCKET_NAME() {
+        return `system.${PDFSettings.EXTERNAL_SYSTEM_NAME}`;
+    }
     /**
      * Setup default values for pdf entities
      * @param entity
@@ -1195,6 +1204,7 @@ class PDFSettings {
         const id = html.data('entity-id');
         return game.items.get(id);
     }
+    //TODO: This shouldn't be in settings.
     /**
      * Get additional context menu icons for PDF items
      * @param html
@@ -1202,6 +1212,32 @@ class PDFSettings {
      */
     static getItemContextOptions(html, options) {
         PDFLog_1.PDFLog.verbose('Getting context options.');
+        if (game.user.isGM) {
+            options.unshift({
+                name: game.i18n.localize('PDFOUNDRY.CONTEXT.PreloadPDF'),
+                icon: '<i class="fas fa-download fa-fw"></i>',
+                condition: (entityHtml) => {
+                    const item = PDFSettings.getItemFromContext(entityHtml);
+                    if (item.type !== PDFSettings.PDF_ENTITY_TYPE) {
+                        return false;
+                    }
+                    const { url } = item.data.data;
+                    return url !== '';
+                },
+                callback: (entityHtml) => {
+                    const item = PDFSettings.getItemFromContext(entityHtml);
+                    const pdf = PDFUtil_1.PDFUtil.getPDFDataFromItem(item);
+                    if (pdf === null) {
+                        //TODO: Error handling
+                        return;
+                    }
+                    const { url } = pdf;
+                    const event = new PDFPreloadEvent_1.PDFPreloadEvent(null, PDFUtil_1.PDFUtil.getAbsoluteURL(url));
+                    event.emit();
+                    PDFCache_1.PDFCache.preload(url);
+                },
+            });
+        }
         options.unshift({
             name: game.i18n.localize('PDFOUNDRY.CONTEXT.OpenPDF'),
             icon: '<i class="far fa-file-pdf"></i>',
@@ -1252,7 +1288,7 @@ PDFSettings.EXTERNAL_SYSTEM_NAME = '../modules/pdfoundry';
 PDFSettings.INTERNAL_MODULE_NAME = 'pdfoundry';
 PDFSettings.PDF_ENTITY_TYPE = 'PDFoundry_PDF';
 PDFSettings.HELP_SEEN_KEY = 'HelpSeen';
-},{"../api/PDFUtil":1,"../api/PDFoundryAPI":2,"../cache/PDFCache":4,"../log/PDFLog":6}],10:[function(require,module,exports){
+},{"../api/PDFUtil":1,"../api/PDFoundryAPI":2,"../cache/PDFCache":4,"../log/PDFLog":6,"../socket/events/PDFPreloadEvent":12}],10:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
  *
@@ -1273,7 +1309,6 @@ exports.PDFSetup = void 0;
 const PDFSettings_1 = require("../settings/PDFSettings");
 const PDFItemSheet_1 = require("../app/PDFItemSheet");
 const PDFoundryAPI_1 = require("../api/PDFoundryAPI");
-const PDFLog_1 = require("../log/PDFLog");
 /**
  * A collection of methods used for setting up the API & system state.
  */
@@ -1306,7 +1341,6 @@ class PDFSetup {
             PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME = folders[distIdx - 1];
             break;
         }
-        PDFLog_1.PDFLog.info(`Using ${PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME} as 'EXTERNAL_SYSTEM_NAME'`);
     }
     /**
      * Register the PDF sheet and unregister invalid sheet types from it.
@@ -1347,7 +1381,7 @@ class PDFSetup {
     }
 }
 exports.PDFSetup = PDFSetup;
-},{"../api/PDFoundryAPI":2,"../app/PDFItemSheet":3,"../log/PDFLog":6,"../settings/PDFSettings":9}],11:[function(require,module,exports){
+},{"../api/PDFoundryAPI":2,"../app/PDFItemSheet":3,"../settings/PDFSettings":9}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFSocketHandler = void 0;
@@ -1355,13 +1389,12 @@ const PDFLog_1 = require("../log/PDFLog");
 const PDFSettings_1 = require("../settings/PDFSettings");
 const PDFSetViewEvent_1 = require("./events/PDFSetViewEvent");
 const PDFoundryAPI_1 = require("../api/PDFoundryAPI");
+const PDFPreloadEvent_1 = require("./events/PDFPreloadEvent");
+const PDFCache_1 = require("../cache/PDFCache");
 class PDFSocketHandler {
-    static get SOCKET_NAME() {
-        return `system.${PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME}`;
-    }
     static registerHandlers() {
         // @ts-ignore
-        game.socket.on(PDFSocketHandler.SOCKET_NAME, (event) => {
+        game.socket.on(PDFSettings_1.PDFSettings.SOCKET_NAME, (event) => {
             PDFLog_1.PDFLog.warn(`Incoming Event: ${event.type}`);
             PDFLog_1.PDFLog.warn(event);
             const { userIds, type, payload } = event;
@@ -1371,15 +1404,66 @@ class PDFSocketHandler {
             }
             if (type === PDFSetViewEvent_1.PDFSetViewEvent.EVENT_TYPE) {
                 PDFSocketHandler.handleSetView(payload);
+                return;
+            }
+            else if (type === PDFPreloadEvent_1.PDFPreloadEvent.EVENT_TYPE) {
+                PDFSocketHandler.handlePreloadPDF(payload);
+                return;
+            }
+            else {
+                if (type.includes('PDFOUNDRY')) {
+                    PDFLog_1.PDFLog.error(`Event of type ${type} has no handler.`);
+                    return;
+                }
             }
         });
     }
     static handleSetView(data) {
         PDFoundryAPI_1.PDFoundryAPI.openPDF(data.pdfData, data.page);
     }
+    static handlePreloadPDF(data) {
+        PDFCache_1.PDFCache.preload(data.url);
+    }
 }
 exports.PDFSocketHandler = PDFSocketHandler;
-},{"../api/PDFoundryAPI":2,"../log/PDFLog":6,"../settings/PDFSettings":9,"./events/PDFSetViewEvent":12}],12:[function(require,module,exports){
+},{"../api/PDFoundryAPI":2,"../cache/PDFCache":4,"../log/PDFLog":6,"../settings/PDFSettings":9,"./events/PDFPreloadEvent":12,"./events/PDFSetViewEvent":13}],12:[function(require,module,exports){
+"use strict";
+/* Copyright 2020 Andrew Cuccinello
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PDFPreloadEvent = void 0;
+const PDFSocketEvent_1 = require("./PDFSocketEvent");
+class PDFPreloadEvent extends PDFSocketEvent_1.PDFSocketEvent {
+    constructor(userIds, url) {
+        super(userIds);
+        this.url = url;
+    }
+    static get EVENT_TYPE() {
+        return `${super.EVENT_TYPE}/PRELOAD_PDF`;
+    }
+    get type() {
+        return PDFPreloadEvent.EVENT_TYPE;
+    }
+    getPayload() {
+        const payload = super.getPayload();
+        payload.url = this.url;
+        return payload;
+    }
+}
+exports.PDFPreloadEvent = PDFPreloadEvent;
+},{"./PDFSocketEvent":14}],13:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
  *
@@ -1418,7 +1502,7 @@ class PDFSetViewEvent extends PDFSocketEvent_1.PDFSocketEvent {
     }
 }
 exports.PDFSetViewEvent = PDFSetViewEvent;
-},{"./PDFSocketEvent":13}],13:[function(require,module,exports){
+},{"./PDFSocketEvent":14}],14:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
  *
@@ -1436,11 +1520,14 @@ exports.PDFSetViewEvent = PDFSetViewEvent;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFSocketEvent = void 0;
-const PDFSocketHandler_1 = require("../PDFSocketHandler");
+const PDFSettings_1 = require("../../settings/PDFSettings");
 class PDFSocketEvent {
     constructor(userIds) {
         this.userIds = userIds;
     }
+    /**
+     * The type of this event.
+     */
     static get EVENT_TYPE() {
         return 'PDFOUNDRY';
     }
@@ -1452,7 +1539,7 @@ class PDFSocketEvent {
     }
     emit() {
         // @ts-ignore
-        game.socket.emit(PDFSocketHandler_1.PDFSocketHandler.SOCKET_NAME, {
+        game.socket.emit(PDFSettings_1.PDFSettings.SOCKET_NAME, {
             type: this.type,
             userIds: this.userIds,
             payload: this.getPayload(),
@@ -1460,7 +1547,7 @@ class PDFSocketEvent {
     }
 }
 exports.PDFSocketEvent = PDFSocketEvent;
-},{"../PDFSocketHandler":11}],14:[function(require,module,exports){
+},{"../../settings/PDFSettings":9}],15:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
  *
@@ -1706,6 +1793,6 @@ class PDFViewer extends Application {
     }
 }
 exports.PDFViewer = PDFViewer;
-},{"../api/PDFUtil":1,"../events/PDFEvents":5,"../settings/PDFSettings":9,"../socket/events/PDFSetViewEvent":12}]},{},[7])
+},{"../api/PDFUtil":1,"../events/PDFEvents":5,"../settings/PDFSettings":9,"../socket/events/PDFSetViewEvent":13}]},{},[7])
 
 //# sourceMappingURL=bundle.js.map

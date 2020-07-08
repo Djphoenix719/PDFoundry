@@ -14,31 +14,27 @@
  */
 
 import { PDFSocketEvent } from './PDFSocketEvent';
-import { PDFData } from '../../types/PDFData';
 
-export class PDFSetViewEvent extends PDFSocketEvent {
+export class PDFPreloadEvent extends PDFSocketEvent {
     public static get EVENT_TYPE() {
-        return `${super.EVENT_TYPE}/SET_VIEW`;
+        return `${super.EVENT_TYPE}/PRELOAD_PDF`;
     }
 
     get type() {
-        return PDFSetViewEvent.EVENT_TYPE;
+        return PDFPreloadEvent.EVENT_TYPE;
     }
 
-    public page: number;
-    public pdfData: PDFData;
+    public url: string;
 
-    constructor(userIds: string[] | null, pdfData: PDFData, page: number) {
+    constructor(userIds: string[] | null, url: string) {
         super(userIds);
 
-        this.pdfData = pdfData;
-        this.page = page;
+        this.url = url;
     }
 
-    protected getPayload() {
+    protected getPayload(): any {
         const payload = super.getPayload();
-        payload.pdfData = this.pdfData;
-        payload.page = this.page;
+        payload.url = this.url;
         return payload;
     }
 }

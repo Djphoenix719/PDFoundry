@@ -229,7 +229,7 @@ export class PDFCache {
      * Max size of the cache, defaults to 256 MB.
      */
     public static get MAX_BYTES() {
-        return game.settings.get(PDFSettings.EXTERNAL_SYSTEM_NAME, 'CacheSize');
+        return game.settings.get(PDFSettings.EXTERNAL_SYSTEM_NAME, 'CacheSize') * 2 ** 20;
     }
 
     private static readonly IDB_NAME: string = 'PDFoundry';
@@ -273,7 +273,6 @@ export class PDFCache {
     }
 
     public static async setCache(key: string, bytes: Uint8Array) {
-        PDFLog.warn(`Cached data for ${key}`);
         const meta: CacheMeta = {
             dateAccessed: new Date().toISOString(),
             size: bytes.length,
@@ -282,6 +281,30 @@ export class PDFCache {
         await PDFCache._cacheHelper.set(key, bytes, PDFCache.CACHE, true);
         await PDFCache.setMeta(key, meta);
         await this.prune();
+    }
+
+    public static preload(key: string): Promise<void> {
+        return new Promise<void>(async (resolve, reject) => {
+            const cachedBytes = await PDFCache.getCache(key);
+            if (cachedBytes !== null && cachedBytes.byteLength > 0) {
+                resolve();
+                return;
+            }
+
+            const response = await fetch(key);
+            if (response.ok) {
+                const fetchedBytes = new Uint8Array(await response.arrayBuffer());
+                if (fetchedBytes.byteLength > 0) {
+                    await PDFCache.setCache(key, fetchedBytes);
+                    resolve();
+                    return;
+                } else {
+                    reject('Fetch failed.');
+                }
+            } else {
+                reject('Fetch failed.');
+            }
+        });
     }
 
     private static async prune() {
@@ -328,32 +351,14 @@ export class PDFCache {
             scope: 'user',
             type: Number,
             hint: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeHint'),
-            default: 256 * 2 ** 20, // 256 MB
+            default: 256,
             config: true,
+            onChange: async (mb) => {
+                mb = Math.round(mb);
+                mb = Math.max(mb, 64);
+                mb = Math.min(mb, 1024);
+                await game.settings.set(PDFSettings.EXTERNAL_SYSTEM_NAME, 'CacheSize', mb);
+            },
         });
     }
 }
-
-// public static getOrFetch(key: string): Promise<Uint8Array | null> {
-//     return new Promise<Uint8Array>(async (resolve, reject) => {
-//         const cachedBytes = await PDFCache.getCache(key);
-//         if (cachedBytes !== null && cachedBytes.byteLength > 0) {
-//             resolve(cachedBytes);
-//             return;
-//         }
-//
-//         const response = await fetch(key);
-//         if (response.ok) {
-//             const fetchedBytes = new Uint8Array(await response.arrayBuffer());
-//             if (fetchedBytes.byteLength > 0) {
-//                 await PDFCache.setCache(key, fetchedBytes);
-//                 resolve(fetchedBytes);
-//                 return;
-//             } else {
-//                 reject('Cache & fetch both failed.');
-//             }
-//         } else {
-//             reject('Cache & fetch both failed.');
-//         }
-//     });
-// }

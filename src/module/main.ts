@@ -25,10 +25,9 @@ import { PDFSocketHandler } from './socket/PDFSocketHandler';
 CONFIG.debug.hooks = true;
 
 PDFSetup.registerSystem();
+PDFSetup.registerAPI();
 
 const init = async () => {
-    // Register the API on the ui object
-    PDFSetup.registerAPI();
     // Inject the css into the page
     PDFSetup.registerCSS();
 
@@ -59,7 +58,7 @@ const ready = async () => {
     PDFEvents.fire('ready');
 };
 
-Hooks.once('init', init);
+Hooks.once('setup', init);
 
 // <editor-fold desc="Persistent Hooks">
 

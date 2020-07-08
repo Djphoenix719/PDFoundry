@@ -41,7 +41,7 @@
     "SETTINGS": {
       "OpenHelp": "Open PDFoundry Manual",
       "CacheSizeName": "PDF Cache Size",
-      "CacheSizeHint": "How many bytes of hard drive space should be allowed to be taken up by the PDF cache?"
+      "CacheSizeHint": "How many MB of hard drive space should be allowed to be taken up by the PDF cache? Must be between 64 and 1024 inclusive."
     }
   }
 }
