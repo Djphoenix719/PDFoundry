@@ -120,15 +120,24 @@ gulp.task('sass', async() => {
 gulp.task('docs', function() {
     return gulp
         .src([
-            'src/module/api/PDFoundryAPI.ts',
+            'src/module/api/**/*',
+            'src/module/app/**/*',
+            'src/module/cache/**/*',
+            'src/module/events/**/*',
+            'src/module/types/**/*',
+            'src/module/viewer/**/*',
         ])
         .pipe(typedoc({
             name: "PDFoundry",
             target: "es6",
             out: "docs/",
+            mode: 'file',
             excludePrivate: true,
             excludeProtected: true,
-            version: true
+            version: true,
+            plugins: [
+                'typedoc-plugin-external-module-name'
+            ]
         }));
 });
 
