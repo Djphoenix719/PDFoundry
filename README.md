@@ -10,6 +10,7 @@ The goal of this library is to provide system developers with a easy to use and 
 
 ### Integration
 - See [Setup & System Integration](https://github.com/Djphoenix719/PDFoundry/wiki/Setup-&-System-Integration) on the wiki.
+- Also see [the documentation](https://djphoenix719.github.io/PDFoundry/classes/pdfoundryapi.html).
 
 ## Roadmap
 See the [development board](https://github.com/Djphoenix719/PDFoundry/projects/1#column-9772243)
