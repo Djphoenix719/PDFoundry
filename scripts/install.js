@@ -69,7 +69,6 @@ async function main() {
         ['code',        ''],
         ['offset',      0],
         ['cache',       false],
-        ['preload',     false],
     ];
 
     for (const [key, value] of properties) {
