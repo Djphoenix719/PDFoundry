@@ -36,8 +36,11 @@ class PDFUtil {
         if (item === undefined || item === null) {
             return null;
         }
-        const { code, url, offset, cache } = item.data.data;
-        const name = item.name;
+        let { code, url, offset, cache } = item.data.data;
+        let name = item.name;
+        if (typeof offset === 'string') {
+            offset = parseInt(offset);
+        }
         return {
             name,
             code,
@@ -871,7 +874,7 @@ exports.PDFEvents = PDFEvents;
 /**
  * Should every event call's event name and arguments be logged?
  */
-PDFEvents.DEBUG = true;
+PDFEvents.DEBUG = false;
 PDFEvents._EVENTS = {
     init: new EventStore('init'),
     setup: new EventStore('setup'),
@@ -1045,7 +1048,6 @@ const PDFEvents_1 = require("./events/PDFEvents");
 const PDFI18n_1 = require("./settings/PDFI18n");
 const PDFSettings_1 = require("./settings/PDFSettings");
 const PDFSocketHandler_1 = require("./socket/PDFSocketHandler");
-CONFIG.debug.hooks = true;
 PDFSetup_1.PDFSetup.registerSystem();
 PDFSetup_1.PDFSetup.registerAPI();
 const init = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -1060,7 +1062,6 @@ const setup = () => __awaiter(void 0, void 0, void 0, function* () {
     // Load the relevant internationalization file.
     yield PDFI18n_1.PDFI18n.initialize();
     PDFEvents_1.PDFEvents.fire('setup');
-    yield ready();
 });
 const ready = () => __awaiter(void 0, void 0, void 0, function* () {
     // Register the PDF sheet with the class picker, unregister others
@@ -1072,6 +1073,7 @@ const ready = () => __awaiter(void 0, void 0, void 0, function* () {
     PDFEvents_1.PDFEvents.fire('ready');
 });
 Hooks.once('setup', init);
+Hooks.once('ready', ready);
 // <editor-fold desc="Persistent Hooks">
 // preCreateItem - Setup default values for a new PDFoundry_PDF
 Hooks.on('preCreateItem', PDFSettings_1.PDFSettings.preCreateItem);

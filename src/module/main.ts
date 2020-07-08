@@ -22,8 +22,6 @@ import { PDFLog } from './log/PDFLog';
 import { PDFSetViewEvent } from './socket/events/PDFSetViewEvent';
 import { PDFSocketHandler } from './socket/PDFSocketHandler';
 
-CONFIG.debug.hooks = true;
-
 PDFSetup.registerSystem();
 PDFSetup.registerAPI();
 
@@ -42,8 +40,6 @@ const setup = async () => {
     await PDFI18n.initialize();
 
     PDFEvents.fire('setup');
-
-    await ready();
 };
 const ready = async () => {
     // Register the PDF sheet with the class picker, unregister others
@@ -59,6 +55,7 @@ const ready = async () => {
 };
 
 Hooks.once('setup', init);
+Hooks.once('ready', ready);
 
 // <editor-fold desc="Persistent Hooks">
 

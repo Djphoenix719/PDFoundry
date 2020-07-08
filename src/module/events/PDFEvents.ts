@@ -89,7 +89,7 @@ export class PDFEvents {
     /**
      * Should every event call's event name and arguments be logged?
      */
-    public static DEBUG: boolean = true;
+    public static DEBUG: boolean = false;
 
     private static _EVENTS = {
         init: new EventStore('init'),

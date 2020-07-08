@@ -38,8 +38,12 @@ export class PDFUtil {
             return null;
         }
 
-        const { code, url, offset, cache } = item.data.data;
-        const name = item.name;
+        let { code, url, offset, cache } = item.data.data;
+        let name = item.name;
+
+        if (typeof offset === 'string') {
+            offset = parseInt(offset);
+        }
 
         return {
             name,
