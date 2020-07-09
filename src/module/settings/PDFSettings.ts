@@ -147,11 +147,19 @@ export class PDFSettings {
     public static async showHelp() {
         await game.user.setFlag(PDFSettings.INTERNAL_MODULE_NAME, PDFSettings.HELP_SEEN_KEY, true);
 
+        const lang = game.i18n.lang;
+        let manualPath = `${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/manual/${lang}/manual.pdf`;
+        const manualExists = await PDFUtil.fileExists(manualPath);
+
+        if (!manualExists) {
+            manualPath = `${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/manual/en/manual.pdf`;
+        }
+
         const pdfData: PDFData = {
             name: game.i18n.localize('PDFOUNDRY.MANUAL.Name'),
             code: '',
             offset: 0,
-            url: `${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/PDFoundry Manual.pdf`,
+            url: manualPath,
             cache: false,
         };
 

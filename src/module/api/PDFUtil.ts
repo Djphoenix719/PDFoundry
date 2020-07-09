@@ -85,4 +85,19 @@ export class PDFUtil {
             })
             .map((user) => user.id);
     }
+
+    public static fileExists(path: string): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            $.ajax({
+                url: 'http://www.example.com/somefile.ext',
+                type: 'HEAD',
+                success: function () {
+                    resolve(true);
+                },
+                error: function () {
+                    resolve(false);
+                },
+            });
+        });
+    }
 }
