@@ -80,7 +80,7 @@ class PDFUtil {
     static fileExists(path) {
         return new Promise((resolve, reject) => {
             $.ajax({
-                url: 'http://www.example.com/somefile.ext',
+                url: path,
                 type: 'HEAD',
                 success: function () {
                     resolve(true);

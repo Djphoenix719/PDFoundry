@@ -103,14 +103,15 @@ gulp.task('build', async () => {
     gulp.watch("src/css/**/*.scss").on('change', () => build_sass());
     gulp.watch("scripts/**/*.js").on('change', () => copy_dir('scripts'));
 
-    gulp.src(["manual/**/*.pdf"]).pipe(gulp.dest(`${dest}/assets/manual`));
-
     await copy_dir('templates', true);
     await copy_dir('locale');
     await copy_dir('assets');
     await copy_dir('pdfjs');
     await copy_dir('scripts');
     await copy_file('LICENSE');
+
+    gulp.src("manual/**/*.pdf").pipe(gulp.dest(`${dest}assets/manual/`));
+
     await build_sass();
     await bundle();
 });
