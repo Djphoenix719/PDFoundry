@@ -19,6 +19,7 @@ import { PDFLog } from '../log/PDFLog';
 import { PDFCache } from '../cache/PDFCache';
 import { PDFUtil } from '../api/PDFUtil';
 import { PDFPreloadEvent } from '../socket/events/PDFPreloadEvent';
+import { PDFData } from '../types/PDFData';
 
 /**
  * Internal settings and helper methods for PDFoundry.
@@ -142,13 +143,18 @@ export class PDFSettings {
         html.find('h2').last().before(button);
     }
 
+    //TODO: Move out of help
     public static async showHelp() {
         await game.user.setFlag(PDFSettings.INTERNAL_MODULE_NAME, PDFSettings.HELP_SEEN_KEY, true);
 
-        return PDFoundryAPI.openURL(
-            `${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/PDFoundry Manual.pdf`,
-            1,
-            false,
-        );
+        const pdfData: PDFData = {
+            name: game.i18n.localize('PDFOUNDRY.MANUAL.Name'),
+            code: '',
+            offset: 0,
+            url: `${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/PDFoundry Manual.pdf`,
+            cache: false,
+        };
+
+        return PDFoundryAPI.openPDF(pdfData);
     }
 }

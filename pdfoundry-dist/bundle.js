@@ -1272,10 +1272,18 @@ class PDFSettings {
         button.on('click', PDFSettings.showHelp);
         html.find('h2').last().before(button);
     }
+    //TODO: Move out of help
     static showHelp() {
         return __awaiter(this, void 0, void 0, function* () {
             yield game.user.setFlag(PDFSettings.INTERNAL_MODULE_NAME, PDFSettings.HELP_SEEN_KEY, true);
-            return PDFoundryAPI_1.PDFoundryAPI.openURL(`${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/PDFoundry Manual.pdf`, 1, false);
+            const pdfData = {
+                name: game.i18n.localize('PDFOUNDRY.MANUAL.Name'),
+                code: '',
+                offset: 0,
+                url: `${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/PDFoundry Manual.pdf`,
+                cache: false,
+            };
+            return PDFoundryAPI_1.PDFoundryAPI.openPDF(pdfData);
         });
     }
 }
