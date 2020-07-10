@@ -1286,7 +1286,7 @@ class PDFSettings {
         button.on('click', PDFSettings.showHelp);
         html.find('h2').last().before(button);
     }
-    //TODO: Move out of help
+    //TODO: Move out of settings
     static showHelp() {
         return __awaiter(this, void 0, void 0, function* () {
             yield game.user.setFlag(PDFSettings.INTERNAL_MODULE_NAME, PDFSettings.HELP_SEEN_KEY, true);

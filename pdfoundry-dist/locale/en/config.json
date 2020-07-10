@@ -35,7 +35,7 @@
       "ViewPDF": "View PDF"
     },
     "MANUAL": {
-      "name": "PDFoundry User Manual"
+      "Name": "PDFoundry User Manual"
     },
     "ERROR": {
       "NoPDFWithCode": "Unable to find PDF with specified code.",
