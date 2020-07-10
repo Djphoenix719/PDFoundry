@@ -143,7 +143,7 @@ export class PDFSettings {
         html.find('h2').last().before(button);
     }
 
-    //TODO: Move out of help
+    //TODO: Move out of settings
     public static async showHelp() {
         await game.user.setFlag(PDFSettings.INTERNAL_MODULE_NAME, PDFSettings.HELP_SEEN_KEY, true);
 
