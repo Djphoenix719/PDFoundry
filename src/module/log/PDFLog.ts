@@ -13,12 +13,18 @@
  * limitations under the License.
  */
 
+/**
+ * @private
+ */
 type ConsoleMessage = object | string | number | null;
+/**
+ * @private
+ */
 type LogType = 'log' | 'warn' | 'error' | 'verbose';
 
 /**
- * A console logging wrapper that includes some additional information
- *  with output to help filter messages easier.
+ * A console logging wrapper that includes some additional information with output to help filter messages easier.
+ * @private
  */
 export class PDFLog {
     public static readonly PREFIX: string = 'PDFoundry';

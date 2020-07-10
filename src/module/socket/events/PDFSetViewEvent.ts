@@ -16,6 +16,9 @@
 import { PDFSocketEvent } from './PDFSocketEvent';
 import { PDFData } from '../../types/PDFData';
 
+/**
+ * @private
+ */
 export class PDFSetViewEvent extends PDFSocketEvent {
     public static get EVENT_TYPE() {
         return `${super.EVENT_TYPE}/SET_VIEW`;

@@ -70,16 +70,9 @@
 						<section class="tsd-index-section ">
 							<h3>Classes</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-class"><a href="classes/idbhelper.html" class="tsd-kind-icon">IDBHelper</a></li>
-								<li class="tsd-kind-class"><a href="classes/idbhelpererror.html" class="tsd-kind-icon">IDBHelper<wbr>Error</a></li>
+								<li class="tsd-kind-class"><a href="classes/cacheerror.html" class="tsd-kind-icon">Cache<wbr>Error</a></li>
 								<li class="tsd-kind-class"><a href="classes/pdfcache.html" class="tsd-kind-icon">PDFCache</a></li>
 								<li class="tsd-kind-class"><a href="classes/pdfevents.html" class="tsd-kind-icon">PDFEvents</a></li>
-								<li class="tsd-kind-class"><a href="classes/pdfitemsheet.html" class="tsd-kind-icon">PDFItem<wbr>Sheet</a></li>
-								<li class="tsd-kind-class tsd-is-external"><a href="classes/pdflog.html" class="tsd-kind-icon">PDFLog</a></li>
-								<li class="tsd-kind-class tsd-is-external"><a href="classes/pdfpreloadevent.html" class="tsd-kind-icon">PDFPreload<wbr>Event</a></li>
-								<li class="tsd-kind-class tsd-is-external"><a href="classes/pdfsetviewevent.html" class="tsd-kind-icon">PDFSet<wbr>View<wbr>Event</a></li>
-								<li class="tsd-kind-class tsd-is-external"><a href="classes/pdfsettings.html" class="tsd-kind-icon">PDFSettings</a></li>
-								<li class="tsd-kind-class tsd-is-external"><a href="classes/pdfsocketevent.html" class="tsd-kind-icon">PDFSocket<wbr>Event</a></li>
 								<li class="tsd-kind-class"><a href="classes/pdfutil.html" class="tsd-kind-icon">PDFUtil</a></li>
 								<li class="tsd-kind-class"><a href="classes/pdfviewer.html" class="tsd-kind-icon">PDFViewer</a></li>
 								<li class="tsd-kind-class"><a href="classes/pdfoundryapi.html" class="tsd-kind-icon">PDFoundryAPI</a></li>
@@ -89,14 +82,15 @@
 							<h3>Type aliases</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-type-alias"><a href="globals.html#cachemeta" class="tsd-kind-icon">Cache<wbr>Meta</a></li>
-								<li class="tsd-kind-type-alias tsd-is-external"><a href="globals.html#consolemessage" class="tsd-kind-icon">Console<wbr>Message</a></li>
+								<li class="tsd-kind-type-alias"><a href="globals.html#callbackpagechanging" class="tsd-kind-icon">Callback<wbr>Page<wbr>Changing</a></li>
+								<li class="tsd-kind-type-alias"><a href="globals.html#callbackpagerendered" class="tsd-kind-icon">Callback<wbr>Page<wbr>Rendered</a></li>
+								<li class="tsd-kind-type-alias"><a href="globals.html#callbacksetup" class="tsd-kind-icon">Callback<wbr>Setup</a></li>
+								<li class="tsd-kind-type-alias"><a href="globals.html#callbackviewer" class="tsd-kind-icon">Callback<wbr>Viewer</a></li>
 								<li class="tsd-kind-type-alias"><a href="globals.html#itemcomparer" class="tsd-kind-icon">Item<wbr>Comparer</a></li>
-								<li class="tsd-kind-type-alias tsd-is-external"><a href="globals.html#logtype" class="tsd-kind-icon">Log<wbr>Type</a></li>
 								<li class="tsd-kind-type-alias"><a href="globals.html#pdfdata" class="tsd-kind-icon">PDFData</a></li>
 								<li class="tsd-kind-type-alias"><a href="globals.html#pdfevent" class="tsd-kind-icon">PDFEvent</a></li>
 								<li class="tsd-kind-type-alias"><a href="globals.html#pdfsetupevent" class="tsd-kind-icon">PDFSetup<wbr>Event</a></li>
 								<li class="tsd-kind-type-alias"><a href="globals.html#pdfviewerevent" class="tsd-kind-icon">PDFViewer<wbr>Event</a></li>
-								<li class="tsd-kind-type-alias"><a href="globals.html#pdfjseventbus" class="tsd-kind-icon">PDFjs<wbr>Event<wbr>Bus</a></li>
 								<li class="tsd-kind-type-alias"><a href="globals.html#pdfjsviewer" class="tsd-kind-icon">PDFjs<wbr>Viewer</a></li>
 							</ul>
 						</section>
@@ -111,7 +105,7 @@
 					<div class="tsd-signature tsd-kind-icon">Cache<wbr>Meta<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>dateAccessed<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>size<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/933e5ce/src/module/cache/PDFCache.ts#L218">src/module/cache/PDFCache.ts:218</a></li>
+							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d334d7f/src/module/cache/PDFCache.ts#L219">src/module/cache/PDFCache.ts:219</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -124,22 +118,160 @@
 						<ul class="tsd-parameters">
 							<li class="tsd-parameter">
 								<h5>date<wbr>Accessed<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>The date the cache was last accessed, represented by a ISO string.</p>
+									</div>
+								</div>
 							</li>
 							<li class="tsd-parameter">
 								<h5>size<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>The size in bytes this cache entry takes up.</p>
+									</div>
+								</div>
 							</li>
 						</ul>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-is-external">
-					<a name="consolemessage" class="tsd-anchor"></a>
-					<h3>Console<wbr>Message</h3>
-					<div class="tsd-signature tsd-kind-icon">Console<wbr>Message<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="callbackpagechanging" class="tsd-anchor"></a>
+					<h3>Callback<wbr>Page<wbr>Changing</h3>
+					<div class="tsd-signature tsd-kind-icon">Callback<wbr>Page<wbr>Changing<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>viewer<span class="tsd-signature-symbol">: </span><a href="classes/pdfviewer.html" class="tsd-signature-type">PDFViewer</a>, pageNumber<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, pageLabel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/933e5ce/src/module/log/PDFLog.ts#L16">src/module/log/PDFLog.ts:16</a></li>
+							<li>Defined in src/module/api/types/EventHooks.ts:18</li>
 						</ul>
 					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-type-alias">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>viewer<span class="tsd-signature-symbol">: </span><a href="classes/pdfviewer.html" class="tsd-signature-type">PDFViewer</a>, pageNumber<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, pageLabel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>viewer: <a href="classes/pdfviewer.html" class="tsd-signature-type">PDFViewer</a></h5>
+											</li>
+											<li>
+												<h5>pageNumber: <span class="tsd-signature-type">number</span></h5>
+											</li>
+											<li>
+												<h5>pageLabel: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="callbackpagerendered" class="tsd-anchor"></a>
+					<h3>Callback<wbr>Page<wbr>Rendered</h3>
+					<div class="tsd-signature tsd-kind-icon">Callback<wbr>Page<wbr>Rendered<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>viewer<span class="tsd-signature-symbol">: </span><a href="classes/pdfviewer.html" class="tsd-signature-type">PDFViewer</a>, page<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLDivElement</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in src/module/api/types/EventHooks.ts:17</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-type-alias">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>viewer<span class="tsd-signature-symbol">: </span><a href="classes/pdfviewer.html" class="tsd-signature-type">PDFViewer</a>, page<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLDivElement</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>viewer: <a href="classes/pdfviewer.html" class="tsd-signature-type">PDFViewer</a></h5>
+											</li>
+											<li>
+												<h5>page: <span class="tsd-signature-type">HTMLDivElement</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="callbacksetup" class="tsd-anchor"></a>
+					<h3>Callback<wbr>Setup</h3>
+					<div class="tsd-signature tsd-kind-icon">Callback<wbr>Setup<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>api<span class="tsd-signature-symbol">: </span><a href="classes/pdfoundryapi.html" class="tsd-signature-type">PDFoundryAPI</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in src/module/api/types/EventHooks.ts:13</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>An event the fires during Init, Setup, and Ready as PDfoundry performs it&#39;s startup tasks.</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-type-alias">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>api<span class="tsd-signature-symbol">: </span><a href="classes/pdfoundryapi.html" class="tsd-signature-type">PDFoundryAPI</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>api: <a href="classes/pdfoundryapi.html" class="tsd-signature-type">PDFoundryAPI</a></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="callbackviewer" class="tsd-anchor"></a>
+					<h3>Callback<wbr>Viewer</h3>
+					<div class="tsd-signature tsd-kind-icon">Callback<wbr>Viewer<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>viewer<span class="tsd-signature-symbol">: </span><a href="classes/pdfviewer.html" class="tsd-signature-type">PDFViewer</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in src/module/api/types/EventHooks.ts:15</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-type-alias">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>viewer<span class="tsd-signature-symbol">: </span><a href="classes/pdfviewer.html" class="tsd-signature-type">PDFViewer</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>viewer: <a href="classes/pdfviewer.html" class="tsd-signature-type">PDFViewer</a></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-type-alias">
 					<a name="itemcomparer" class="tsd-anchor"></a>
@@ -147,7 +279,7 @@
 					<div class="tsd-signature tsd-kind-icon">Item<wbr>Comparer<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>item<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Item</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/933e5ce/src/module/api/PDFoundryAPI.ts#L23">src/module/api/PDFoundryAPI.ts:23</a></li>
+							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d334d7f/src/module/api/PDFoundryAPI.ts#L23">src/module/api/PDFoundryAPI.ts:23</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
@@ -172,23 +304,13 @@
 						</ul>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-is-external">
-					<a name="logtype" class="tsd-anchor"></a>
-					<h3>Log<wbr>Type</h3>
-					<div class="tsd-signature tsd-kind-icon">Log<wbr>Type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"log"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"warn"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"error"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"verbose"</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/933e5ce/src/module/log/PDFLog.ts#L17">src/module/log/PDFLog.ts:17</a></li>
-						</ul>
-					</aside>
-				</section>
 				<section class="tsd-panel tsd-member tsd-kind-type-alias">
 					<a name="pdfdata" class="tsd-anchor"></a>
 					<h3>PDFData</h3>
 					<div class="tsd-signature tsd-kind-icon">PDFData<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>cache<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>code<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>offset<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>url<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/933e5ce/src/module/types/PDFData.ts#L19">src/module/types/PDFData.ts:19</a></li>
+							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d334d7f/src/module/types/PDFData.ts#L19">src/module/types/PDFData.ts:19</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -223,7 +345,7 @@
 					<div class="tsd-signature tsd-kind-icon">PDFEvent<span class="tsd-signature-symbol">:</span> <a href="globals.html#pdfsetupevent" class="tsd-signature-type">PDFSetupEvent</a><span class="tsd-signature-symbol"> | </span><a href="globals.html#pdfviewerevent" class="tsd-signature-type">PDFViewerEvent</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/933e5ce/src/module/events/PDFEvents.ts#L22">src/module/events/PDFEvents.ts:22</a></li>
+							<li>Defined in src/module/api/types/EventHooks.ts:8</li>
 						</ul>
 					</aside>
 				</section>
@@ -233,42 +355,19 @@
 					<div class="tsd-signature tsd-kind-icon">PDFSetup<wbr>Event<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"init"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"setup"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"ready"</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/933e5ce/src/module/events/PDFEvents.ts#L18">src/module/events/PDFEvents.ts:18</a></li>
+							<li>Defined in src/module/api/types/EventHooks.ts:4</li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-type-alias">
 					<a name="pdfviewerevent" class="tsd-anchor"></a>
 					<h3>PDFViewer<wbr>Event</h3>
-					<div class="tsd-signature tsd-kind-icon">PDFViewer<wbr>Event<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"viewerOpen"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"viewerClose"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"viewerReady"</span></div>
+					<div class="tsd-signature tsd-kind-icon">PDFViewer<wbr>Event<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"viewerOpen"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"viewerClose"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"viewerReady"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"viewerPageRendered"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"viewerPageChanging"</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/933e5ce/src/module/events/PDFEvents.ts#L20">src/module/events/PDFEvents.ts:20</a></li>
+							<li>Defined in src/module/api/types/EventHooks.ts:6</li>
 						</ul>
 					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-type-alias">
-					<a name="pdfjseventbus" class="tsd-anchor"></a>
-					<h3>PDFjs<wbr>Event<wbr>Bus</h3>
-					<div class="tsd-signature tsd-kind-icon">PDFjs<wbr>Event<wbr>Bus<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/933e5ce/src/module/types/PDFjsEventBus.ts#L21">src/module/types/PDFjsEventBus.ts:21</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The PDFjs eventBus.</p>
-						</div>
-					</div>
-					<div class="tsd-type-declaration">
-						<h4>Type declaration</h4>
-						<ul class="tsd-parameters">
-							<li class="tsd-parameter-index-signature">
-								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">any</span></h5>
-							</li>
-						</ul>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-type-alias">
 					<a name="pdfjsviewer" class="tsd-anchor"></a>
@@ -276,7 +375,7 @@
 					<div class="tsd-signature tsd-kind-icon">PDFjs<wbr>Viewer<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/933e5ce/src/module/types/PDFjsViewer.ts#L21">src/module/types/PDFjsViewer.ts:21</a></li>
+							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d334d7f/src/module/types/PDFjsViewer.ts#L21">src/module/types/PDFjsViewer.ts:21</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -306,34 +405,13 @@
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 					<li class=" tsd-kind-class">
-						<a href="classes/idbhelper.html" class="tsd-kind-icon">IDBHelper</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="classes/idbhelpererror.html" class="tsd-kind-icon">IDBHelper<wbr>Error</a>
+						<a href="classes/cacheerror.html" class="tsd-kind-icon">Cache<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/pdfcache.html" class="tsd-kind-icon">PDFCache</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/pdfevents.html" class="tsd-kind-icon">PDFEvents</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="classes/pdfitemsheet.html" class="tsd-kind-icon">PDFItem<wbr>Sheet</a>
-					</li>
-					<li class=" tsd-kind-class tsd-is-external">
-						<a href="classes/pdflog.html" class="tsd-kind-icon">PDFLog</a>
-					</li>
-					<li class=" tsd-kind-class tsd-is-external">
-						<a href="classes/pdfpreloadevent.html" class="tsd-kind-icon">PDFPreload<wbr>Event</a>
-					</li>
-					<li class=" tsd-kind-class tsd-is-external">
-						<a href="classes/pdfsetviewevent.html" class="tsd-kind-icon">PDFSet<wbr>View<wbr>Event</a>
-					</li>
-					<li class=" tsd-kind-class tsd-is-external">
-						<a href="classes/pdfsettings.html" class="tsd-kind-icon">PDFSettings</a>
-					</li>
-					<li class=" tsd-kind-class tsd-is-external">
-						<a href="classes/pdfsocketevent.html" class="tsd-kind-icon">PDFSocket<wbr>Event</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/pdfutil.html" class="tsd-kind-icon">PDFUtil</a>
@@ -347,14 +425,20 @@
 					<li class=" tsd-kind-type-alias">
 						<a href="globals.html#cachemeta" class="tsd-kind-icon">Cache<wbr>Meta</a>
 					</li>
-					<li class=" tsd-kind-type-alias tsd-is-external">
-						<a href="globals.html#consolemessage" class="tsd-kind-icon">Console<wbr>Message</a>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#callbackpagechanging" class="tsd-kind-icon">Callback<wbr>Page<wbr>Changing</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#callbackpagerendered" class="tsd-kind-icon">Callback<wbr>Page<wbr>Rendered</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#callbacksetup" class="tsd-kind-icon">Callback<wbr>Setup</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#callbackviewer" class="tsd-kind-icon">Callback<wbr>Viewer</a>
 					</li>
 					<li class=" tsd-kind-type-alias">
 						<a href="globals.html#itemcomparer" class="tsd-kind-icon">Item<wbr>Comparer</a>
-					</li>
-					<li class=" tsd-kind-type-alias tsd-is-external">
-						<a href="globals.html#logtype" class="tsd-kind-icon">Log<wbr>Type</a>
 					</li>
 					<li class=" tsd-kind-type-alias">
 						<a href="globals.html#pdfdata" class="tsd-kind-icon">PDFData</a>
@@ -367,9 +451,6 @@
 					</li>
 					<li class=" tsd-kind-type-alias">
 						<a href="globals.html#pdfviewerevent" class="tsd-kind-icon">PDFViewer<wbr>Event</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="globals.html#pdfjseventbus" class="tsd-kind-icon">PDFjs<wbr>Event<wbr>Bus</a>
 					</li>
 					<li class=" tsd-kind-type-alias">
 						<a href="globals.html#pdfjsviewer" class="tsd-kind-icon">PDFjs<wbr>Viewer</a>
@@ -389,7 +470,6 @@
 				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
 				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
 			</ul>

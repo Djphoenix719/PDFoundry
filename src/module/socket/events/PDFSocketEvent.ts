@@ -15,6 +15,9 @@
 
 import { PDFSettings } from '../../settings/PDFSettings';
 
+/**
+ * @private
+ */
 export abstract class PDFSocketEvent {
     /**
      * The type of this event.

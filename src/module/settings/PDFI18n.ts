@@ -17,6 +17,7 @@ import { PDFSettings } from './PDFSettings';
 
 /**
  * Localization helper
+ * @private
  */
 export class PDFI18n {
     /**

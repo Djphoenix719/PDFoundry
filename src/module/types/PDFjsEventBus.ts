@@ -17,6 +17,7 @@
 
 /**
  * The PDFjs eventBus.
+ * @private
  */
 export type PDFjsEventBus = {
     [key: string]: any;

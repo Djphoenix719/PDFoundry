@@ -15,6 +15,9 @@
 
 import { PDFSocketEvent } from './PDFSocketEvent';
 
+/**
+ * @private
+ */
 export class PDFPreloadEvent extends PDFSocketEvent {
     public static get EVENT_TYPE() {
         return `${super.EVENT_TYPE}/PRELOAD_PDF`;

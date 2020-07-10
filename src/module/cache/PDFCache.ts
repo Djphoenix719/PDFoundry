@@ -17,9 +17,9 @@ import { PDFSettings } from '../settings/PDFSettings';
 import { PDFLog } from '../log/PDFLog';
 
 /**
- * Error that occurs during IDB operations
+ * An error that occurs during cache operations
  */
-export class IDBHelperError extends Error {
+export class CacheError extends Error {
     constructor(index: string, store: string, message?: string) {
         super(`Error in ${index}>${store}: ${message}`);
     }
@@ -28,7 +28,8 @@ export class IDBHelperError extends Error {
 /**
  * Class that deals with getting/setting from an indexed db
  * Mostly exists to separate logic for the PDFCache from logic
- *  dealing with the database
+ * dealing with the database
+ * @private
  */
 class IDBHelper {
     private _version: number;
@@ -90,7 +91,7 @@ class IDBHelper {
     public set(key: IDBValidKey, value: any, storeName: string, force: boolean = false): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             if (!this._db) {
-                throw new IDBHelperError(this._indexName, storeName, 'Database is not initialized.');
+                throw new CacheError(this._indexName, storeName, 'Database is not initialized.');
             } else {
                 const that = this;
                 let { transaction, store } = this.newTransaction(storeName);
@@ -113,7 +114,7 @@ class IDBHelper {
                                 resolve();
                             });
                         } else {
-                            throw new IDBHelperError(that._indexName, storeName, `Key ${key} already exists.`);
+                            throw new CacheError(that._indexName, storeName, `Key ${key} already exists.`);
                         }
                     } else {
                         store.add(value, key);
@@ -127,7 +128,7 @@ class IDBHelper {
     public get(key: IDBValidKey, storeName: string): Promise<any> {
         return new Promise<void>((resolve, reject) => {
             if (!this._db) {
-                throw new IDBHelperError(this._indexName, storeName, 'Database is not initialized.');
+                throw new CacheError(this._indexName, storeName, 'Database is not initialized.');
             } else {
                 let { transaction, store } = this.newTransaction(storeName);
 
@@ -216,7 +217,13 @@ class IDBHelper {
  * Meta information about a cache entry
  */
 type CacheMeta = {
+    /**
+     * The size in bytes this cache entry takes up.
+     */
     size: number;
+    /**
+     * The date the cache was last accessed, represented by a ISO string.
+     */
     dateAccessed: string;
 };
 
@@ -226,7 +233,7 @@ type CacheMeta = {
 export class PDFCache {
     // <editor-fold desc="Static Properties">
     /**
-     * Max size of the cache, defaults to 256 MB.
+     * Max size of the cache for the active user, defaults to 256 MB.
      */
     public static get MAX_BYTES() {
         return game.settings.get(PDFSettings.EXTERNAL_SYSTEM_NAME, 'CacheSize') * 2 ** 20;
@@ -245,6 +252,10 @@ export class PDFCache {
         PDFCache._cacheHelper = await IDBHelper.createAndOpen(PDFCache.IDB_NAME, [PDFCache.CACHE, PDFCache.META], PDFCache.IDB_VERSION);
     }
 
+    /**
+     * Get meta information about a provided key (url).
+     * @param key
+     */
     public static async getMeta(key: string): Promise<CacheMeta | null> {
         try {
             return await PDFCache._cacheHelper.get(key, PDFCache.META);
@@ -253,10 +264,19 @@ export class PDFCache {
         }
     }
 
+    /**
+     * Set meta information about a provided key (url). See {@link CacheMeta}.
+     * @param key
+     * @param meta
+     */
     public static async setMeta(key: string, meta: CacheMeta): Promise<void> {
         await PDFCache._cacheHelper.set(key, meta, PDFCache.META, true);
     }
 
+    /**
+     * Get the byte array representing the key (url) from the user's cache.
+     * @param key
+     */
     public static async getCache(key: string): Promise<Uint8Array | null> {
         try {
             const bytes = await PDFCache._cacheHelper.get(key, PDFCache.CACHE);
@@ -272,6 +292,11 @@ export class PDFCache {
         }
     }
 
+    /**
+     * Set the value of the cache for the specific key (url) to the provided byte array.
+     * @param key
+     * @param bytes
+     */
     public static async setCache(key: string, bytes: Uint8Array) {
         const meta: CacheMeta = {
             dateAccessed: new Date().toISOString(),
@@ -283,6 +308,10 @@ export class PDFCache {
         await this.prune();
     }
 
+    /**
+     * Preload the PDF at the specified key (url), caching it immediately.
+     * @param key
+     */
     public static preload(key: string): Promise<void> {
         return new Promise<void>(async (resolve, reject) => {
             const cachedBytes = await PDFCache.getCache(key);
@@ -307,7 +336,10 @@ export class PDFCache {
         });
     }
 
-    private static async prune() {
+    /**
+     * Prune the active user's cache until it is below the user's cache size limit.
+     */
+    public static async prune() {
         const keys = await this._cacheHelper.keys(PDFCache.META);
 
         let totalBytes = 0;

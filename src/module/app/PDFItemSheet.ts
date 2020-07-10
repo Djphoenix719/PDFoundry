@@ -19,6 +19,7 @@ import { PDFLog } from '../log/PDFLog';
 
 /**
  * Extends the base ItemSheet for linked PDF viewing.
+ * @private
  */
 export class PDFItemSheet extends ItemSheet {
     static get defaultOptions() {

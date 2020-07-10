@@ -15,32 +15,40 @@
 
 import { PDFSetup } from './setup/PDFSetup';
 import { PDFCache } from './cache/PDFCache';
-import { PDFEvents } from './events/PDFEvents';
+import { PDFEvents } from './api/PDFEvents';
 import { PDFI18n } from './settings/PDFI18n';
 import { PDFSettings } from './settings/PDFSettings';
-import { PDFLog } from './log/PDFLog';
-import { PDFSetViewEvent } from './socket/events/PDFSetViewEvent';
 import { PDFSocketHandler } from './socket/PDFSocketHandler';
+import { PDFoundryAPI } from './api/PDFoundryAPI';
 
 PDFSetup.registerSystem();
 PDFSetup.registerAPI();
 
+/**
+ * @private
+ */
 const init = async () => {
     // Inject the css into the page
     PDFSetup.registerCSS();
 
-    PDFEvents.fire('init');
+    PDFEvents.fire('init', PDFoundryAPI);
 
     await setup();
 };
+/**
+ * @private
+ */
 const setup = async () => {
     // Initialize the cache system, creating the DB
     await PDFCache.initialize();
     // Load the relevant internationalization file.
     await PDFI18n.initialize();
 
-    PDFEvents.fire('setup');
+    PDFEvents.fire('setup', PDFoundryAPI);
 };
+/**
+ * @private
+ */
 const ready = async () => {
     // Register the PDF sheet with the class picker, unregister others
     PDFSetup.registerPDFSheet();
@@ -51,7 +59,7 @@ const ready = async () => {
 
     PDFSocketHandler.registerHandlers();
 
-    PDFEvents.fire('ready');
+    PDFEvents.fire('ready', PDFoundryAPI);
 };
 
 Hooks.once('setup', init);

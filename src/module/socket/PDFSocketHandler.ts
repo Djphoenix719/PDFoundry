@@ -5,6 +5,9 @@ import { PDFoundryAPI } from '../api/PDFoundryAPI';
 import { PDFPreloadEvent } from './events/PDFPreloadEvent';
 import { PDFCache } from '../cache/PDFCache';
 
+/**
+ * @private
+ */
 export class PDFSocketHandler {
     public static registerHandlers() {
         // @ts-ignore

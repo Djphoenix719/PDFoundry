@@ -20,6 +20,7 @@ import { PDFLog } from '../log/PDFLog';
 
 /**
  * A collection of methods used for setting up the API & system state.
+ * @private
  */
 export class PDFSetup {
     /**

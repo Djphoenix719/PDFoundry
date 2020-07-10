@@ -16,7 +16,7 @@
 import { PDFSettings } from '../settings/PDFSettings';
 import { PDFViewer } from '../viewer/PDFViewer';
 import { PDFCache } from '../cache/PDFCache';
-import { PDFEvents } from '../events/PDFEvents';
+import { PDFEvents } from './PDFEvents';
 import { PDFUtil } from './PDFUtil';
 import { PDFData } from '../types/PDFData';
 
@@ -24,8 +24,9 @@ type ItemComparer = (item: Item) => boolean;
 
 /**
  * The PDFoundry API <br>
- * You can access the API with `ui.PDFoundry`
- * @module API
+ *
+ * You can access the API with `ui.PDFoundry`. Note the primary way to observe behavior of the PDF viewer is to use
+ * the provided {@link PDFEvents} class.
  */
 export class PDFoundryAPI {
     /**

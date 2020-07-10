@@ -14,12 +14,7 @@
  */
 
 import { PDFLog } from '../log/PDFLog';
-
-type PDFSetupEvent = 'init' | 'setup' | 'ready';
-
-type PDFViewerEvent = 'viewerOpen' | 'viewerClose' | 'viewerReady';
-
-export type PDFEvent = PDFSetupEvent | PDFViewerEvent;
+import { PDFEvent, CallbackSetup, CallbackViewer, CallbackPageRendered, CallbackPageChanging } from './types/EventHooks';
 
 /**
  * @private
@@ -82,12 +77,13 @@ class EventStore {
 }
 
 /**
- * Tracks and publishes events for PDF related occurrences.
- * This class is callable through `ui.PDFoundry.events`
+ * Tracks and publishes events for PDF related occurrences. This class is callable through `ui.PDFoundry.events`.
+ * All event properties of this class are accessible with the `on` method or via helper methods which contain additional
+ * type hinting.
  */
 export class PDFEvents {
     /**
-     * Should every event call's event name and arguments be logged?
+     * If set to true, every event call will be logged. Functions much in the same manner that `CONFIG.debug.hooks` does.
      */
     public static DEBUG: boolean = false;
 
@@ -99,32 +95,34 @@ export class PDFEvents {
         viewerOpen: new EventStore('viewerOpen'),
         viewerClose: new EventStore('viewerClose'),
         viewerReady: new EventStore('viewerReady'),
+
+        viewerPageRendered: new EventStore('viewerPageRendered'),
     };
 
     // <editor-fold desc="Setup & Initialization Events">
 
     /**
-     * Helper method version of {@link PDFEvents.on}
-     * Called when all PDFoundry init stage events are done.
+     * Called when all PDFoundry init stage tasks are done.
+     * @param cb
      */
-    public static get init() {
-        return PDFEvents._EVENTS['init'].on;
+    public static init(cb: CallbackSetup) {
+        return PDFEvents._EVENTS['init'].on(cb);
     }
 
     /**
-     * Helper method version of {@link PDFEvents.on}
-     * Called when all PDFoundry setup stage events are done.
+     * Called when all PDFoundry setup stage tasks are done.
+     * @param cb
      */
-    public static get setup() {
-        return PDFEvents._EVENTS['setup'].on;
+    public static setup(cb: CallbackSetup) {
+        return PDFEvents._EVENTS['setup'].on(cb);
     }
 
     /**
-     * Helper method version of {@link PDFEvents.on}
-     * Called when all PDFoundry ready stage events are done.
+     * Called when all PDFoundry ready stage tasks are done.
+     * @param cb
      */
-    public static get ready() {
-        return PDFEvents._EVENTS['ready'].on;
+    public static ready(cb: CallbackSetup) {
+        return PDFEvents._EVENTS['ready'].on(cb);
     }
 
     // </editor-fold>
@@ -132,33 +130,51 @@ export class PDFEvents {
     // <editor-fold desc="Viewer Events">
 
     /**
-     * Helper method version of {@link PDFEvents.on}
      * Called when a PDF viewer begins opening
+     * @param cb
      */
-    public static get viewerOpen() {
-        return PDFEvents._EVENTS['viewerOpen'].on;
+    public static viewerOpen(cb: CallbackViewer) {
+        return PDFEvents._EVENTS['viewerOpen'].on(cb);
     }
 
     /**
-     * Helper method version of {@link PDFEvents.on}
      * Called when a PDF viewer begins closing
+     * @param cb
      */
-    public static get viewerClose() {
-        return PDFEvents._EVENTS['viewerClose'].on;
+    public static viewerClose(cb: CallbackViewer) {
+        return PDFEvents._EVENTS['viewerClose'].on(cb);
     }
 
     /**
-     * Helper method version of {@link PDFEvents.on}
      * Called when a PDF viewer is ready to use
+     * @param cb
      */
-    public static get viewerReady() {
-        return PDFEvents._EVENTS['viewerReady'].on;
+    public static viewerReady(cb: CallbackViewer) {
+        return PDFEvents._EVENTS['viewerReady'].on(cb);
+    }
+
+    /**
+     * Called when a new page has finished rendering. The inner HTML of the div provided by this event will
+     * be replaced if the user scrolls the page out of view.
+     * @param cb
+     */
+    public static viewerPageRendered(cb: CallbackPageRendered) {
+        return PDFEvents._EVENTS['viewerPageRendered'].on(cb);
+    }
+
+    /**
+     * Called when the page is changed.
+     * @param cb
+     */
+    public static viewerPageChanging(cb: CallbackPageChanging) {
+        return PDFEvents._EVENTS['viewerPageChanging'].on(cb);
     }
 
     // </editor-fold>
 
     /**
-     * Like @see {@link PDFEvents.on} but fires the event only once, then calls off.
+     * Like {@link PDFEvents.on} but fires the event only once, then calls off. See individual events for callback
+     * function parameters.
      * @param event
      * @param callback
      */

@@ -23,6 +23,7 @@ import { PDFData } from '../types/PDFData';
 
 /**
  * Internal settings and helper methods for PDFoundry.
+ * @private
  */
 export class PDFSettings {
     /**

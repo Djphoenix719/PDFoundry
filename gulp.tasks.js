@@ -60,8 +60,7 @@ function getBabelConfig() {
 
 /**
  * LINK
- * Setups up a system by creating a symlink of the
- *  dist folder and running the install script
+ * Setups up a system by creating a symlink of the dist folder and running the install script
  */
 async function link() {
     if (process.argv.length < 5) {
@@ -188,6 +187,11 @@ async function watch() {
     }
 
     watcher.on('update', bundle);
+    if (process.argv.includes('--docs')) {
+        watcher.on('update', docs);
+        await docs();
+    }
+
     bundle();
 }
 
@@ -208,14 +212,11 @@ async function buildSass() {
  */
 async function docs() {
     return gulp
-        .src([
-            'src/module/api/**/*',
-            'src/module/app/**/*',
-            'src/module/cache/**/*',
-            'src/module/events/**/*',
-            'src/module/types/**/*',
-            'src/module/viewer/**/*',
-        ])
+        .src(['src/module/**/*'])
+        .on('error', function (error) {
+            logger.error(error);
+            this.emit('end');
+        })
         .pipe(
             typedoc({
                 name: 'PDFoundry',
