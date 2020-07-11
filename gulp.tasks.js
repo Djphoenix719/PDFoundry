@@ -38,7 +38,6 @@ const buffer = require('vinyl-buffer');
 const logger = require('gulplog');
 const sourcemaps = require('gulp-sourcemaps');
 const typedoc = require('gulp-typedoc');
-const size = require('get-folder-size');
 
 // Config
 const distName = 'pdfoundry-dist';
