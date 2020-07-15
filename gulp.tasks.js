@@ -246,3 +246,4 @@ exports.docs = docs;
 exports.build = gulp.series(copyAssets, buildSass, buildJS);
 exports.watch = gulp.series(exports.build, watch);
 exports.rebuild = gulp.series(cleanDist, exports.build);
+exports.rewatch = gulp.series(cleanDist, exports.watch);

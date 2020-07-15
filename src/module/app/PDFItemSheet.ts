@@ -27,11 +27,8 @@ export class PDFItemSheet extends ItemSheet {
         options.classes = ['sheet', 'item'];
         options.width = 650;
         options.height = 'auto';
+        options.template = `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/templates/sheet/pdf-sheet.html`;
         return options;
-    }
-
-    get template() {
-        return `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/templates/sheet/pdf-sheet.html`;
     }
 
     /**

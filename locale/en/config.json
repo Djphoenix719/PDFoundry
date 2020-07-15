@@ -32,7 +32,13 @@
       }
     },
     "VIEWER": {
-      "ViewPDF": "View PDF"
+      "ViewPDF": "View PDF",
+
+      "ShowToPlayersText": "Show to …",
+      "ShowToPlayersTitle": "Press SHIFT to show to ALL players except yourself.",
+
+      "SelectPlayers": "Select Players",
+      "SelectPlayersConfirm": "Make it so!"
     },
     "MANUAL": {
       "Name": "PDFoundry User Manual"

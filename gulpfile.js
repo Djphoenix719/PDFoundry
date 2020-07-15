@@ -19,6 +19,7 @@ const tasks = require('./gulp.tasks');
 
 gulp.task('build', tasks.build);
 gulp.task('rebuild', tasks.rebuild);
+gulp.task('rewatch', tasks.rewatch);
 gulp.task('watch', tasks.watch);
 gulp.task('assets', tasks.assets);
 gulp.task('clean', tasks.clean);

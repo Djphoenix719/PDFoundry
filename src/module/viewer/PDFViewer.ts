@@ -21,6 +21,7 @@ import { PDFLog } from '../log/PDFLog';
 import { PDFSetViewEvent } from '../socket/events/PDFSetViewEvent';
 import { PDFUtil } from '../api/PDFUtil';
 import { PDFjsEventBus } from '../types/PDFjsEventBus';
+import { PDFPlayerSelect } from '../app/PDFPlayerSelect';
 
 export class PDFViewer extends Application {
     static get defaultOptions() {
@@ -44,7 +45,7 @@ export class PDFViewer extends Application {
 
         if (pdfData === undefined) {
             pdfData = {
-                name: game.i18n.localize('PDFOUNDRY.VIEWER.ViewPDF'),
+                name: game.i18n.localize('PDFOUNDRY.VIEWER.Title'),
                 code: '',
                 offset: 0,
                 url: '',
@@ -95,22 +96,12 @@ export class PDFViewer extends Application {
             onclick: () => window.open('https://github.com/Djphoenix719/PDFoundry', '_blank'),
         });
 
-        if (game.user.isGM) {
-            //TODO: Show to individual players.
-            buttons.unshift({
-                class: 'pdf-sheet-show-players',
-                icon: 'fas fa-eye',
-                label: 'Show to Players',
-                onclick: () => this.showToPlayers(),
-            });
-        } else {
-            buttons.unshift({
-                class: 'pdf-sheet-show-gm',
-                icon: 'fas fa-eye',
-                label: 'Show to GM',
-                onclick: () => this.showToGM(),
-            });
-        }
+        buttons.unshift({
+            class: 'pdf-sheet-show-players',
+            icon: 'fas fa-eye',
+            label: game.i18n.localize('PDFOUNDRY.VIEWER.ShowToPlayersText'),
+            onclick: (event) => this.showTo(event),
+        });
 
         return buttons;
     }
@@ -142,12 +133,15 @@ export class PDFViewer extends Application {
                 PDFEvents.fire('viewerReady', this);
             });
         });
+
+        // _getHeaderButtons does not permit titles...
+        $(html).parents().parents().find('.pdf-sheet-show-players').prop('title', game.i18n.localize('PDFOUNDRY.VIEWER.ShowToPlayersTitle'));
     }
 
-    private logEvent(key: string, ...args) {
-        console.debug(key);
-        console.debug(args);
-    }
+    // private logEvent(key: string, ...args) {
+    //     console.debug(key);
+    //     console.debug(args);
+    // }
 
     async close(): Promise<any> {
         PDFEvents.fire('viewerClose', this);
@@ -159,31 +153,19 @@ export class PDFViewer extends Application {
     /**
      * Show the current page to GMs.
      */
-    private showToGM() {
+    private showTo(event: MouseEvent) {
         const pdfData = this.pdfData;
         pdfData.offset = 0;
 
         // @ts-ignore
-        const ids = PDFUtil.getUserIdsOfRole(USER_ROLES.GAMEMASTER);
-        const page = this.page;
-
-        const event = new PDFSetViewEvent(ids, pdfData, page);
-        event.emit();
-    }
-
-    /**
-     * Show the current page to players.
-     */
-    private showToPlayers() {
-        const pdfData = this.pdfData;
-        pdfData.offset = 0;
-
-        // @ts-ignore
-        const ids = PDFUtil.getUserIdsAtMostRole(USER_ROLES.ASSISTANT);
-        const page = this.page;
-
-        const event = new PDFSetViewEvent(ids, pdfData, page);
-        event.emit();
+        const ids = PDFUtil.getUserIdsExceptMe();
+        if (event.shiftKey) {
+            new PDFSetViewEvent(ids, pdfData, this.page).emit();
+        } else {
+            new PDFPlayerSelect(ids, (filteredIds) => {
+                new PDFSetViewEvent(filteredIds, pdfData, this.page).emit();
+            }).render(true);
+        }
     }
 
     /**

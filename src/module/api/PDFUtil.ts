@@ -62,6 +62,34 @@ export class PDFUtil {
         return dataUrl.startsWith(window.origin);
     }
 
+    /**
+     * Return all users ids except the active user
+     */
+    public static getUserIdsExceptMe() {
+        return game.users
+            .filter((user) => {
+                return user.id !== game.userId;
+            })
+            .map((user) => user.id);
+    }
+
+    /**
+     * Gets users with a role number between the provided lower inclusive and upper inclusive bounds.
+     * @param lower
+     * @param upper
+     */
+    public static getUserIdsBetweenRoles(lower: number, upper: number) {
+        return game.users
+            .filter((user) => {
+                return user.role >= lower && user.role <= upper;
+            })
+            .map((user) => user.id);
+    }
+
+    /**
+     * Gets users with a role number exactly matching the one provided.
+     * @param role
+     */
     public static getUserIdsOfRole(role: number) {
         return game.users
             .filter((user) => {
@@ -70,6 +98,10 @@ export class PDFUtil {
             .map((user) => user.id);
     }
 
+    /**
+     * Gets users with a role number at least the one provided.
+     * @param role
+     */
     public static getUserIdsAtLeastRole(role: number) {
         return game.users
             .filter((user) => {
@@ -78,6 +110,10 @@ export class PDFUtil {
             .map((user) => user.id);
     }
 
+    /**
+     * Gets users with a role number at most the one provided.
+     * @param role
+     */
     public static getUserIdsAtMostRole(role: number) {
         return game.users
             .filter((user) => {
@@ -86,6 +122,11 @@ export class PDFUtil {
             .map((user) => user.id);
     }
 
+    /**
+     * Checks if a remote file exists at the specified path. That is, if the URL is valid. This does not guarantee a
+     * valid file exists at that location. For example, an HTML file will result in true but not be a valid PDF.
+     * @param path
+     */
     public static fileExists(path: string): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             $.ajax({
