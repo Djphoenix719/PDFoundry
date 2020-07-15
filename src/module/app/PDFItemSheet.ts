@@ -15,7 +15,6 @@
 
 import { PDFSettings } from '../settings/PDFSettings';
 import { PDFoundryAPI } from '../api/PDFoundryAPI';
-import { PDFLog } from '../log/PDFLog';
 
 /**
  * Extends the base ItemSheet for linked PDF viewing.

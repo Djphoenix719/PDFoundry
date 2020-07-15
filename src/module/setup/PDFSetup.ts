@@ -16,7 +16,6 @@
 import { PDFSettings } from '../settings/PDFSettings';
 import { PDFItemSheet } from '../app/PDFItemSheet';
 import { PDFoundryAPI } from '../api/PDFoundryAPI';
-import { PDFLog } from '../log/PDFLog';
 
 /**
  * A collection of methods used for setting up the API & system state.

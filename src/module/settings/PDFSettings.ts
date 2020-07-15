@@ -15,7 +15,6 @@
 
 import { PDFItemSheet } from '../app/PDFItemSheet';
 import { PDFoundryAPI } from '../api/PDFoundryAPI';
-import { PDFLog } from '../log/PDFLog';
 import { PDFCache } from '../cache/PDFCache';
 import { PDFUtil } from '../api/PDFUtil';
 import { PDFPreloadEvent } from '../socket/events/PDFPreloadEvent';
@@ -49,20 +48,10 @@ export class PDFSettings {
      * @param args ignored args
      */
     public static async preCreateItem(entity, ...args) {
-        PDFLog.verbose('Pre-create item.');
         if (entity.type !== PDFSettings.PDF_ENTITY_TYPE) {
             return;
         }
         entity.img = `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/pdf_icon.svg`;
-    }
-
-    /**
-     * Helper method to grab the id from the html object and return an item
-     * @param html
-     */
-    private static getItemFromContext(html: JQuery<HTMLElement>): Item {
-        const id = html.data('entity-id');
-        return game.items.get(id);
     }
 
     //TODO: This shouldn't be in settings.
@@ -72,14 +61,17 @@ export class PDFSettings {
      * @param options
      */
     public static getItemContextOptions(html, options: any[]) {
-        PDFLog.verbose('Getting context options.');
+        const getItemFromContext = (html: JQuery<HTMLElement>): Item => {
+            const id = html.data('entity-id');
+            return game.items.get(id);
+        };
 
         if (game.user.isGM) {
             options.unshift({
                 name: game.i18n.localize('PDFOUNDRY.CONTEXT.PreloadPDF'),
                 icon: '<i class="fas fa-download fa-fw"></i>',
                 condition: (entityHtml: JQuery<HTMLElement>) => {
-                    const item = PDFSettings.getItemFromContext(entityHtml);
+                    const item = getItemFromContext(entityHtml);
                     if (item.type !== PDFSettings.PDF_ENTITY_TYPE) {
                         return false;
                     }
@@ -88,7 +80,7 @@ export class PDFSettings {
                     return url !== '';
                 },
                 callback: (entityHtml: JQuery<HTMLElement>) => {
-                    const item = PDFSettings.getItemFromContext(entityHtml);
+                    const item = getItemFromContext(entityHtml);
                     const pdf = PDFUtil.getPDFDataFromItem(item);
 
                     if (pdf === null) {
@@ -109,7 +101,7 @@ export class PDFSettings {
             name: game.i18n.localize('PDFOUNDRY.CONTEXT.OpenPDF'),
             icon: '<i class="far fa-file-pdf"></i>',
             condition: (entityHtml: JQuery<HTMLElement>) => {
-                const item = PDFSettings.getItemFromContext(entityHtml);
+                const item = getItemFromContext(entityHtml);
                 if (item.type !== PDFSettings.PDF_ENTITY_TYPE) {
                     return false;
                 }
@@ -118,7 +110,7 @@ export class PDFSettings {
                 return url !== '';
             },
             callback: (entityHtml: JQuery<HTMLElement>) => {
-                const item = PDFSettings.getItemFromContext(entityHtml);
+                const item = getItemFromContext(entityHtml);
                 const pdf = PDFUtil.getPDFDataFromItem(item);
 
                 if (pdf === null) {
@@ -136,7 +128,6 @@ export class PDFSettings {
     }
 
     public static onRenderSettings(settings: any, html: JQuery<HTMLElement>, data: any) {
-        PDFLog.verbose('Rendering settings.');
         const icon = '<i class="far fa-file-pdf"></i>';
         const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
         button.on('click', PDFSettings.showHelp);

@@ -14,7 +14,6 @@
  */
 import { PDFViewer } from '../viewer/PDFViewer';
 import { PDFSettings } from '../settings/PDFSettings';
-import { PDFLog } from '../log/PDFLog';
 
 /**
  * An error that occurs during cache operations
@@ -372,8 +371,6 @@ export class PDFCache {
             await this._cacheHelper.del(next.key, PDFCache.CACHE);
 
             totalBytes -= next.meta.size;
-
-            PDFLog.warn(`Pruned ${next.meta.size} bytes by deleting ${next.key}`);
         }
     }
 

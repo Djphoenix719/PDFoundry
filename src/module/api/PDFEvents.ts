@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { PDFLog } from '../log/PDFLog';
 import { PDFEvent, CallbackSetup, CallbackViewer, CallbackPageRendered, CallbackPageChanging } from './types/EventHooks';
 
 /**
@@ -66,8 +65,8 @@ class EventStore {
      */
     public fire(...args) {
         if (PDFEvents.DEBUG) {
-            PDFLog.log(`<${this._name}>`);
-            console.log(args);
+            console.debug(`<${this._name}>`);
+            console.debug(args);
         }
 
         for (const cb of this._callbacks) {
@@ -206,7 +205,7 @@ export class PDFEvents {
 
     public static fire(event: PDFEvent, ...args) {
         if (PDFEvents.DEBUG) {
-            PDFLog.verbose(`Firing Event: ${event}`);
+            console.debug(`Firing Event: ${event}`);
             console.debug(args);
         }
         PDFEvents._EVENTS[event].fire(args);

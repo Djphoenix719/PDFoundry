@@ -14,7 +14,6 @@
  */
 
 import { PDFData } from '../types/PDFData';
-import { PDFLog } from '../log/PDFLog';
 
 /**
  * Contains various utility functions for common operations.

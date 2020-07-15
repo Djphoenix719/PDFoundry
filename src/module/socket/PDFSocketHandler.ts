@@ -1,4 +1,3 @@
-import { PDFLog } from '../log/PDFLog';
 import { PDFSettings } from '../settings/PDFSettings';
 import { PDFSetViewEvent } from './events/PDFSetViewEvent';
 import { PDFoundryAPI } from '../api/PDFoundryAPI';
@@ -12,9 +11,6 @@ export class PDFSocketHandler {
     public static registerHandlers() {
         // @ts-ignore
         game.socket.on(PDFSettings.SOCKET_NAME, (event) => {
-            PDFLog.warn(`Incoming Event: ${event.type}`);
-            PDFLog.warn(event);
-
             const { userIds, type, payload } = event;
             // null = all users, otherwise check if this event effects us
             if (userIds !== null && !userIds.includes(game.userId)) {
@@ -29,7 +25,7 @@ export class PDFSocketHandler {
                 return;
             } else {
                 if (type.includes('PDFOUNDRY')) {
-                    PDFLog.error(`Event of type ${type} has no handler.`);
+                    console.error(`Event of type ${type} has no handler.`);
                     return;
                 }
             }
