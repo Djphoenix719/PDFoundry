@@ -63,7 +63,7 @@ export class PDFSetup {
     /**
      * Register the PDF sheet and unregister invalid sheet types from it.
      */
-    public static registerPDFSheet() {
+    public static foundryConfig() {
         Items.registerSheet(PDFSettings.INTERNAL_MODULE_NAME, PDFItemSheet, {
             types: [PDFSettings.PDF_ENTITY_TYPE],
             makeDefault: true,
@@ -166,5 +166,20 @@ export class PDFSetup {
                 PDFoundryAPI.showHelp();
             }
         }
+    }
+
+    public static async preCreateItem(entity, ...args) {
+        if (entity.type !== PDFSettings.PDF_ENTITY_TYPE) {
+            return;
+        }
+        entity.img = `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/pdf_icon.svg`;
+    }
+
+    public static onRenderSettings(settings: any, html: JQuery<HTMLElement>, data: any) {
+        const icon = '<i class="far fa-file-pdf"></i>';
+        const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
+        button.on('click', PDFoundryAPI.showHelp);
+
+        html.find('h2').last().before(button);
     }
 }

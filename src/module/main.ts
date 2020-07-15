@@ -51,7 +51,7 @@ const setup = async () => {
  */
 const ready = async () => {
     // Register the PDF sheet with the class picker, unregister others
-    PDFSetup.registerPDFSheet();
+    PDFSetup.foundryConfig();
     // Initialize the settings
     await PDFSettings.registerSettings();
 
@@ -68,10 +68,10 @@ Hooks.once('ready', ready);
 // <editor-fold desc="Persistent Hooks">
 
 // preCreateItem - Setup default values for a new PDFoundry_PDF
-Hooks.on('preCreateItem', PDFSettings.preCreateItem);
+Hooks.on('preCreateItem', PDFSetup.preCreateItem);
 // getItemDirectoryEntryContext - Setup context menu for 'Open PDF' links
 Hooks.on('getItemDirectoryEntryContext', PDFSetup.getItemContextOptions);
 // renderSettings - Inject a 'Open Manual' button into help section
-Hooks.on('renderSettings', PDFSettings.onRenderSettings);
+Hooks.on('renderSettings', PDFSetup.onRenderSettings);
 
 // </editor-fold>

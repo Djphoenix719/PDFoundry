@@ -26,3 +26,4 @@ gulp.task('clean', tasks.clean);
 gulp.task('sass', tasks.sass);
 gulp.task('link', tasks.link);
 gulp.task('docs', tasks.docs);
+exports.default = tasks.build;

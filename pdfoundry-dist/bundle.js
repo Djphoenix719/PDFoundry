@@ -1096,7 +1096,7 @@ const setup = () => __awaiter(void 0, void 0, void 0, function* () {
  */
 const ready = () => __awaiter(void 0, void 0, void 0, function* () {
     // Register the PDF sheet with the class picker, unregister others
-    PDFSetup_1.PDFSetup.registerPDFSheet();
+    PDFSetup_1.PDFSetup.foundryConfig();
     // Initialize the settings
     yield PDFSettings_1.PDFSettings.registerSettings();
     PDFSetup_1.PDFSetup.userLogin();
@@ -1107,11 +1107,11 @@ Hooks.once('setup', init);
 Hooks.once('ready', ready);
 // <editor-fold desc="Persistent Hooks">
 // preCreateItem - Setup default values for a new PDFoundry_PDF
-Hooks.on('preCreateItem', PDFSettings_1.PDFSettings.preCreateItem);
+Hooks.on('preCreateItem', PDFSetup_1.PDFSetup.preCreateItem);
 // getItemDirectoryEntryContext - Setup context menu for 'Open PDF' links
 Hooks.on('getItemDirectoryEntryContext', PDFSetup_1.PDFSetup.getItemContextOptions);
 // renderSettings - Inject a 'Open Manual' button into help section
-Hooks.on('renderSettings', PDFSettings_1.PDFSettings.onRenderSettings);
+Hooks.on('renderSettings', PDFSetup_1.PDFSetup.onRenderSettings);
 // </editor-fold>
 },{"./api/PDFEvents":1,"./api/PDFoundryAPI":3,"./cache/PDFCache":6,"./settings/PDFI18n":8,"./settings/PDFSettings":9,"./setup/PDFSetup":10,"./socket/PDFSocketHandler":11}],8:[function(require,module,exports){
 "use strict";
@@ -1204,7 +1204,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFSettings = void 0;
-const PDFoundryAPI_1 = require("../api/PDFoundryAPI");
 /**
  * Internal settings and helper methods for PDFoundry.
  * @private
@@ -1262,25 +1261,6 @@ class PDFSettings {
             return game.settings.set(PDFSettings.EXTERNAL_SYSTEM_NAME, key, value);
         });
     }
-    /**
-     * Setup default values for pdf entities
-     * @param entity
-     * @param args ignored args
-     */
-    static preCreateItem(entity, ...args) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (entity.type !== PDFSettings.PDF_ENTITY_TYPE) {
-                return;
-            }
-            entity.img = `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/pdf_icon.svg`;
-        });
-    }
-    static onRenderSettings(settings, html, data) {
-        const icon = '<i class="far fa-file-pdf"></i>';
-        const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
-        button.on('click', PDFoundryAPI_1.PDFoundryAPI.showHelp);
-        html.find('h2').last().before(button);
-    }
 }
 exports.PDFSettings = PDFSettings;
 /**
@@ -1295,7 +1275,7 @@ PDFSettings.PDF_ENTITY_TYPE = 'PDFoundry_PDF';
 PDFSettings.SETTING_EXISTING_VIEWER = 'ShowInExistingViewer';
 PDFSettings.SETTING_CACHE_SIZE = 'CacheSize';
 PDFSettings.HELP_SEEN_KEY = 'PDFoundry_HelpSeen';
-},{"../api/PDFoundryAPI":3}],10:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
  *
@@ -1311,6 +1291,15 @@ PDFSettings.HELP_SEEN_KEY = 'PDFoundry_HelpSeen';
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFSetup = void 0;
 const PDFSettings_1 = require("../settings/PDFSettings");
@@ -1357,7 +1346,7 @@ class PDFSetup {
     /**
      * Register the PDF sheet and unregister invalid sheet types from it.
      */
-    static registerPDFSheet() {
+    static foundryConfig() {
         Items.registerSheet(PDFSettings_1.PDFSettings.INTERNAL_MODULE_NAME, PDFItemSheet_1.PDFItemSheet, {
             types: [PDFSettings_1.PDFSettings.PDF_ENTITY_TYPE],
             makeDefault: true,
@@ -1449,6 +1438,20 @@ class PDFSetup {
                 PDFoundryAPI_1.PDFoundryAPI.showHelp();
             }
         }
+    }
+    static preCreateItem(entity, ...args) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (entity.type !== PDFSettings_1.PDFSettings.PDF_ENTITY_TYPE) {
+                return;
+            }
+            entity.img = `systems/${PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings_1.PDFSettings.DIST_FOLDER}/assets/pdf_icon.svg`;
+        });
+    }
+    static onRenderSettings(settings, html, data) {
+        const icon = '<i class="far fa-file-pdf"></i>';
+        const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
+        button.on('click', PDFoundryAPI_1.PDFoundryAPI.showHelp);
+        html.find('h2').last().before(button);
     }
 }
 exports.PDFSetup = PDFSetup;

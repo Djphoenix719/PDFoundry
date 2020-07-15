@@ -94,24 +94,4 @@ export class PDFSettings {
     public static async set(key: string, value: any) {
         return game.settings.set(PDFSettings.EXTERNAL_SYSTEM_NAME, key, value);
     }
-
-    /**
-     * Setup default values for pdf entities
-     * @param entity
-     * @param args ignored args
-     */
-    public static async preCreateItem(entity, ...args) {
-        if (entity.type !== PDFSettings.PDF_ENTITY_TYPE) {
-            return;
-        }
-        entity.img = `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/pdf_icon.svg`;
-    }
-
-    public static onRenderSettings(settings: any, html: JQuery<HTMLElement>, data: any) {
-        const icon = '<i class="far fa-file-pdf"></i>';
-        const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
-        button.on('click', PDFoundryAPI.showHelp);
-
-        html.find('h2').last().before(button);
-    }
 }
