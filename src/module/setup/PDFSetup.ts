@@ -16,7 +16,11 @@
 import { PDFSettings } from '../settings/PDFSettings';
 import { PDFItemSheet } from '../app/PDFItemSheet';
 import { PDFoundryAPI } from '../api/PDFoundryAPI';
+import { PDFUtil } from '../api/PDFUtil';
+import { PDFPreloadEvent } from '../socket/events/PDFPreloadEvent';
+import { PDFCache } from '../cache/PDFCache';
 
+// TODO: Utilities for get/set user flags
 /**
  * A collection of methods used for setting up the API & system state.
  * @private
@@ -83,18 +87,84 @@ export class PDFSetup {
         }
     }
 
+    /**
+     * Get additional context menu icons for PDF items
+     * @param html
+     * @param options
+     */
+    public static getItemContextOptions(html, options: any[]) {
+        const getItemFromContext = (html: JQuery<HTMLElement>): Item => {
+            const id = html.data('entity-id');
+            return game.items.get(id);
+        };
+
+        if (game.user.isGM) {
+            options.unshift({
+                name: game.i18n.localize('PDFOUNDRY.CONTEXT.PreloadPDF'),
+                icon: '<i class="fas fa-download fa-fw"></i>',
+                condition: (entityHtml: JQuery<HTMLElement>) => {
+                    const item = getItemFromContext(entityHtml);
+                    if (item.type !== PDFSettings.PDF_ENTITY_TYPE) {
+                        return false;
+                    }
+
+                    const { url } = item.data.data;
+                    return url !== '';
+                },
+                callback: (entityHtml: JQuery<HTMLElement>) => {
+                    const item = getItemFromContext(entityHtml);
+                    const pdf = PDFUtil.getPDFDataFromItem(item);
+
+                    if (pdf === null) {
+                        //TODO: Error handling
+                        return;
+                    }
+
+                    const { url } = pdf;
+                    const event = new PDFPreloadEvent(null, PDFUtil.getAbsoluteURL(url));
+                    event.emit();
+
+                    PDFCache.preload(url);
+                },
+            });
+        }
+
+        options.unshift({
+            name: game.i18n.localize('PDFOUNDRY.CONTEXT.OpenPDF'),
+            icon: '<i class="far fa-file-pdf"></i>',
+            condition: (entityHtml: JQuery<HTMLElement>) => {
+                const item = getItemFromContext(entityHtml);
+                if (item.type !== PDFSettings.PDF_ENTITY_TYPE) {
+                    return false;
+                }
+
+                const { url } = item.data.data;
+                return url !== '';
+            },
+            callback: (entityHtml: JQuery<HTMLElement>) => {
+                const item = getItemFromContext(entityHtml);
+                const pdf = PDFUtil.getPDFDataFromItem(item);
+
+                if (pdf === null) {
+                    //TODO: Error handling
+                    return;
+                }
+
+                PDFoundryAPI.openPDF(pdf, 1);
+            },
+        });
+    }
+
     public static userLogin() {
         let viewed;
         try {
             viewed = game.user.getFlag(PDFSettings.EXTERNAL_SYSTEM_NAME, PDFSettings.HELP_SEEN_KEY);
         } catch (error) {
             viewed = false;
+        } finally {
+            if (!viewed) {
+                PDFoundryAPI.showHelp();
+            }
         }
-
-        if (viewed) {
-            return;
-        }
-
-        PDFSettings.showHelp();
     }
 }

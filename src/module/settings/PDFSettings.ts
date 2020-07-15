@@ -13,12 +13,10 @@
  * limitations under the License.
  */
 
-import { PDFItemSheet } from '../app/PDFItemSheet';
 import { PDFoundryAPI } from '../api/PDFoundryAPI';
 import { PDFCache } from '../cache/PDFCache';
 import { PDFUtil } from '../api/PDFUtil';
 import { PDFPreloadEvent } from '../socket/events/PDFPreloadEvent';
-import { PDFData } from '../types/PDFData';
 
 /**
  * Internal settings and helper methods for PDFoundry.
@@ -36,10 +34,65 @@ export class PDFSettings {
     public static INTERNAL_MODULE_NAME: string = 'pdfoundry';
     public static PDF_ENTITY_TYPE: string = 'PDFoundry_PDF';
 
+    public static SETTING_EXISTING_VIEWER = 'ShowInExistingViewer';
+    public static SETTING_CACHE_SIZE = 'CacheSize';
+
     public static HELP_SEEN_KEY: string = 'PDFoundry_HelpSeen';
 
     public static get SOCKET_NAME() {
         return `system.${PDFSettings.EXTERNAL_SYSTEM_NAME}`;
+    }
+
+    public static registerSettings() {
+        PDFSettings.register(PDFSettings.SETTING_CACHE_SIZE, {
+            name: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeName'),
+            scope: 'user',
+            type: Number,
+            hint: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeHint'),
+            default: 256,
+            config: true,
+            onChange: async (mb) => {
+                mb = Math.round(mb);
+                mb = Math.max(mb, 64);
+                mb = Math.min(mb, 1024);
+                await PDFSettings.set(PDFSettings.SETTING_CACHE_SIZE, mb);
+            },
+        });
+
+        PDFSettings.register(PDFSettings.SETTING_EXISTING_VIEWER, {
+            name: game.i18n.localize('PDFOUNDRY.SETTINGS.ShowInExistingViewerName'),
+            scope: 'user',
+            type: Boolean,
+            hint: game.i18n.localize('PDFOUNDRY.SETTINGS.ShowInExistingViewerHint'),
+            default: true,
+            config: true,
+        });
+    }
+
+    /**
+     * Wrapper around game.settings.register. Ensures scope is correct.
+     * @param key
+     * @param data
+     */
+    public static register(key: string, data: any) {
+        game.settings.register(PDFSettings.EXTERNAL_SYSTEM_NAME, key, data);
+    }
+
+    /**
+     * Wrapper around game.settings.get. Ensures scope is correct.
+     * @param key
+     */
+    public static get(key: string) {
+        return game.settings.get(PDFSettings.EXTERNAL_SYSTEM_NAME, key);
+    }
+
+    /**
+     * Wrapper around game.settings.set. Ensures scope is correct.
+     * @param key
+     * @param value
+     */
+    public static async set(key: string, value: any) {
+        return game.settings.set(PDFSettings.EXTERNAL_SYSTEM_NAME, key, value);
     }
 
     /**
@@ -54,107 +107,11 @@ export class PDFSettings {
         entity.img = `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/pdf_icon.svg`;
     }
 
-    //TODO: This shouldn't be in settings.
-    /**
-     * Get additional context menu icons for PDF items
-     * @param html
-     * @param options
-     */
-    public static getItemContextOptions(html, options: any[]) {
-        const getItemFromContext = (html: JQuery<HTMLElement>): Item => {
-            const id = html.data('entity-id');
-            return game.items.get(id);
-        };
-
-        if (game.user.isGM) {
-            options.unshift({
-                name: game.i18n.localize('PDFOUNDRY.CONTEXT.PreloadPDF'),
-                icon: '<i class="fas fa-download fa-fw"></i>',
-                condition: (entityHtml: JQuery<HTMLElement>) => {
-                    const item = getItemFromContext(entityHtml);
-                    if (item.type !== PDFSettings.PDF_ENTITY_TYPE) {
-                        return false;
-                    }
-
-                    const { url } = item.data.data;
-                    return url !== '';
-                },
-                callback: (entityHtml: JQuery<HTMLElement>) => {
-                    const item = getItemFromContext(entityHtml);
-                    const pdf = PDFUtil.getPDFDataFromItem(item);
-
-                    if (pdf === null) {
-                        //TODO: Error handling
-                        return;
-                    }
-
-                    const { url } = pdf;
-                    const event = new PDFPreloadEvent(null, PDFUtil.getAbsoluteURL(url));
-                    event.emit();
-
-                    PDFCache.preload(url);
-                },
-            });
-        }
-
-        options.unshift({
-            name: game.i18n.localize('PDFOUNDRY.CONTEXT.OpenPDF'),
-            icon: '<i class="far fa-file-pdf"></i>',
-            condition: (entityHtml: JQuery<HTMLElement>) => {
-                const item = getItemFromContext(entityHtml);
-                if (item.type !== PDFSettings.PDF_ENTITY_TYPE) {
-                    return false;
-                }
-
-                const { url } = item.data.data;
-                return url !== '';
-            },
-            callback: (entityHtml: JQuery<HTMLElement>) => {
-                const item = getItemFromContext(entityHtml);
-                const pdf = PDFUtil.getPDFDataFromItem(item);
-
-                if (pdf === null) {
-                    //TODO: Error handling
-                    return;
-                }
-
-                PDFoundryAPI.openPDF(pdf, 1);
-            },
-        });
-    }
-
-    public static registerSettings() {
-        PDFCache.registerSettings();
-    }
-
     public static onRenderSettings(settings: any, html: JQuery<HTMLElement>, data: any) {
         const icon = '<i class="far fa-file-pdf"></i>';
         const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
-        button.on('click', PDFSettings.showHelp);
+        button.on('click', PDFoundryAPI.showHelp);
 
         html.find('h2').last().before(button);
-    }
-
-    //TODO: Move out of settings
-    public static async showHelp() {
-        await game.user.setFlag(PDFSettings.EXTERNAL_SYSTEM_NAME, PDFSettings.HELP_SEEN_KEY, true);
-
-        const lang = game.i18n.lang;
-        let manualPath = `${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/manual/${lang}/manual.pdf`;
-        const manualExists = await PDFUtil.fileExists(manualPath);
-
-        if (!manualExists) {
-            manualPath = `${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/manual/en/manual.pdf`;
-        }
-
-        const pdfData: PDFData = {
-            name: game.i18n.localize('PDFOUNDRY.MANUAL.Name'),
-            code: '',
-            offset: 0,
-            url: manualPath,
-            cache: false,
-        };
-
-        return PDFoundryAPI.openPDF(pdfData);
     }
 }

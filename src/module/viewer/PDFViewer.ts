@@ -15,7 +15,7 @@
 
 import { PDFSettings } from '../settings/PDFSettings';
 import { PDFEvents } from '../api/PDFEvents';
-import { PDFData } from '../types/PDFData';
+import { PDFData } from '../api/types/PDFData';
 import { PDFjsViewer } from '../types/PDFjsViewer';
 import { PDFSetViewEvent } from '../socket/events/PDFSetViewEvent';
 import { PDFUtil } from '../api/PDFUtil';

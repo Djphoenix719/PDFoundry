@@ -14,7 +14,7 @@
  */
 
 import { PDFSocketEvent } from './PDFSocketEvent';
-import { PDFData } from '../../types/PDFData';
+import { PDFData } from '../../api/types/PDFData';
 
 /**
  * @private

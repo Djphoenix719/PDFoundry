@@ -70,7 +70,7 @@ Hooks.once('ready', ready);
 // preCreateItem - Setup default values for a new PDFoundry_PDF
 Hooks.on('preCreateItem', PDFSettings.preCreateItem);
 // getItemDirectoryEntryContext - Setup context menu for 'Open PDF' links
-Hooks.on('getItemDirectoryEntryContext', PDFSettings.getItemContextOptions);
+Hooks.on('getItemDirectoryEntryContext', PDFSetup.getItemContextOptions);
 // renderSettings - Inject a 'Open Manual' button into help section
 Hooks.on('renderSettings', PDFSettings.onRenderSettings);
 

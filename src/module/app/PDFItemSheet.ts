@@ -47,7 +47,7 @@ export class PDFItemSheet extends ItemSheet {
             class: 'pdf-sheet-manual',
             icon: 'fas fa-question-circle',
             label: 'Help',
-            onclick: () => PDFSettings.showHelp(),
+            onclick: () => PDFoundryAPI.showHelp(),
         });
         //TODO: Standardize this to function w/ the Viewer one
         buttons.unshift({

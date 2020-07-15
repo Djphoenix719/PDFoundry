@@ -3,6 +3,8 @@ import { PDFSetViewEvent } from './events/PDFSetViewEvent';
 import { PDFoundryAPI } from '../api/PDFoundryAPI';
 import { PDFPreloadEvent } from './events/PDFPreloadEvent';
 import { PDFCache } from '../cache/PDFCache';
+import { PDFData } from '../api/types/PDFData';
+import { PDFViewer } from '../viewer/PDFViewer';
 
 /**
  * @private
@@ -33,6 +35,24 @@ export class PDFSocketHandler {
     }
 
     public static handleSetView(data: any) {
+        if (PDFSettings.get(PDFSettings.SETTING_EXISTING_VIEWER)) {
+            function appIsViewer(app: Application): app is PDFViewer {
+                return app['pdfData'] !== undefined;
+            }
+
+            for (const app of Object.values(ui.windows)) {
+                if (!appIsViewer(app)) {
+                    continue;
+                }
+
+                const pdfData = app.pdfData;
+                if (data.pdfData.url === pdfData.url) {
+                    app.page = data.page;
+                    return;
+                }
+            }
+            // App not found, fall through.
+        }
         PDFoundryAPI.openPDF(data.pdfData, data.page);
     }
 

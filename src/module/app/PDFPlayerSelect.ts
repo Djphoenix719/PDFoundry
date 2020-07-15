@@ -1,6 +1,6 @@
 import { PDFUtil } from '../api/PDFUtil';
 import { PDFSettings } from '../settings/PDFSettings';
-import { PDFData } from '../types/PDFData';
+import { PDFData } from '../api/types/PDFData';
 
 export type PDFPlayerSelectCallback = (ids: []) => void;
 export class PDFPlayerSelect extends Application {

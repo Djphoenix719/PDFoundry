@@ -350,6 +350,28 @@ const PDFViewer_1 = require("../viewer/PDFViewer");
 const PDFCache_1 = require("../cache/PDFCache");
 const PDFEvents_1 = require("./PDFEvents");
 const PDFUtil_1 = require("./PDFUtil");
+function _handleOpen(viewer, url, page, cache) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (cache) {
+            const cachedBytes = yield PDFCache_1.PDFCache.getCache(url);
+            // If we have a cache hit open the cached data
+            if (cachedBytes) {
+                yield viewer.open(cachedBytes, page);
+            }
+            else {
+                // Otherwise we should open it by url
+                yield viewer.open(url, page);
+                // And when the download is complete set the cache
+                viewer.download().then((bytes) => {
+                    PDFCache_1.PDFCache.setCache(url, bytes);
+                });
+            }
+        }
+        else {
+            yield viewer.open(url, page);
+        }
+    });
+}
 /**
  * The PDFoundry API <br>
  *
@@ -462,7 +484,7 @@ class PDFoundryAPI {
             }
             const viewer = new PDFViewer_1.PDFViewer(pdf);
             viewer.render(true);
-            yield PDFoundryAPI._handleOpen(viewer, url, page + offset, cache);
+            yield _handleOpen(viewer, url, page + offset, cache);
             return viewer;
         });
     }
@@ -482,30 +504,30 @@ class PDFoundryAPI {
             }
             const viewer = new PDFViewer_1.PDFViewer();
             viewer.render(true);
-            yield PDFoundryAPI._handleOpen(viewer, url, page, cache);
+            yield _handleOpen(viewer, url, page, cache);
             return viewer;
         });
     }
-    static _handleOpen(viewer, url, page, cache) {
+    /**
+     * Shows the user manual to the active user.
+     */
+    static showHelp() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (cache) {
-                const cachedBytes = yield PDFCache_1.PDFCache.getCache(url);
-                // If we have a cache hit open the cached data
-                if (cachedBytes) {
-                    yield viewer.open(cachedBytes, page);
-                }
-                else {
-                    // Otherwise we should open it by url
-                    yield viewer.open(url, page);
-                    // And when the download is complete set the cache
-                    viewer.download().then((bytes) => {
-                        PDFCache_1.PDFCache.setCache(url, bytes);
-                    });
-                }
+            yield game.user.setFlag(PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME, PDFSettings_1.PDFSettings.HELP_SEEN_KEY, true);
+            const lang = game.i18n.lang;
+            let manualPath = `${window.origin}/systems/${PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings_1.PDFSettings.DIST_FOLDER}/assets/manual/${lang}/manual.pdf`;
+            const manualExists = yield PDFUtil_1.PDFUtil.fileExists(manualPath);
+            if (!manualExists) {
+                manualPath = `${window.origin}/systems/${PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings_1.PDFSettings.DIST_FOLDER}/assets/manual/en/manual.pdf`;
             }
-            else {
-                yield viewer.open(url, page);
-            }
+            const pdfData = {
+                name: game.i18n.localize('PDFOUNDRY.MANUAL.Name'),
+                code: '',
+                offset: 0,
+                url: manualPath,
+                cache: false,
+            };
+            return PDFoundryAPI.openPDF(pdfData);
         });
     }
 }
@@ -568,7 +590,7 @@ class PDFItemSheet extends ItemSheet {
             class: 'pdf-sheet-manual',
             icon: 'fas fa-question-circle',
             label: 'Help',
-            onclick: () => PDFSettings_1.PDFSettings.showHelp(),
+            onclick: () => PDFoundryAPI_1.PDFoundryAPI.showHelp(),
         });
         //TODO: Standardize this to function w/ the Viewer one
         buttons.unshift({
@@ -1009,22 +1031,6 @@ class PDFCache {
             }
         });
     }
-    static registerSettings() {
-        game.settings.register(PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME, 'CacheSize', {
-            name: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeName'),
-            scope: 'user',
-            type: Number,
-            hint: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeHint'),
-            default: 256,
-            config: true,
-            onChange: (mb) => __awaiter(this, void 0, void 0, function* () {
-                mb = Math.round(mb);
-                mb = Math.max(mb, 64);
-                mb = Math.min(mb, 1024);
-                yield game.settings.set(PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME, 'CacheSize', mb);
-            }),
-        });
-    }
 }
 exports.PDFCache = PDFCache;
 PDFCache.IDB_NAME = 'PDFoundry';
@@ -1103,7 +1109,7 @@ Hooks.once('ready', ready);
 // preCreateItem - Setup default values for a new PDFoundry_PDF
 Hooks.on('preCreateItem', PDFSettings_1.PDFSettings.preCreateItem);
 // getItemDirectoryEntryContext - Setup context menu for 'Open PDF' links
-Hooks.on('getItemDirectoryEntryContext', PDFSettings_1.PDFSettings.getItemContextOptions);
+Hooks.on('getItemDirectoryEntryContext', PDFSetup_1.PDFSetup.getItemContextOptions);
 // renderSettings - Inject a 'Open Manual' button into help section
 Hooks.on('renderSettings', PDFSettings_1.PDFSettings.onRenderSettings);
 // </editor-fold>
@@ -1199,9 +1205,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFSettings = void 0;
 const PDFoundryAPI_1 = require("../api/PDFoundryAPI");
-const PDFCache_1 = require("../cache/PDFCache");
-const PDFUtil_1 = require("../api/PDFUtil");
-const PDFPreloadEvent_1 = require("../socket/events/PDFPreloadEvent");
 /**
  * Internal settings and helper methods for PDFoundry.
  * @private
@@ -1209,6 +1212,55 @@ const PDFPreloadEvent_1 = require("../socket/events/PDFPreloadEvent");
 class PDFSettings {
     static get SOCKET_NAME() {
         return `system.${PDFSettings.EXTERNAL_SYSTEM_NAME}`;
+    }
+    static registerSettings() {
+        PDFSettings.register(PDFSettings.SETTING_CACHE_SIZE, {
+            name: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeName'),
+            scope: 'user',
+            type: Number,
+            hint: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeHint'),
+            default: 256,
+            config: true,
+            onChange: (mb) => __awaiter(this, void 0, void 0, function* () {
+                mb = Math.round(mb);
+                mb = Math.max(mb, 64);
+                mb = Math.min(mb, 1024);
+                yield PDFSettings.set(PDFSettings.SETTING_CACHE_SIZE, mb);
+            }),
+        });
+        PDFSettings.register(PDFSettings.SETTING_EXISTING_VIEWER, {
+            name: game.i18n.localize('PDFOUNDRY.SETTINGS.ShowInExistingViewerName'),
+            scope: 'user',
+            type: Boolean,
+            hint: game.i18n.localize('PDFOUNDRY.SETTINGS.ShowInExistingViewerHint'),
+            default: true,
+            config: true,
+        });
+    }
+    /**
+     * Wrapper around game.settings.register. Ensures scope is correct.
+     * @param key
+     * @param data
+     */
+    static register(key, data) {
+        game.settings.register(PDFSettings.EXTERNAL_SYSTEM_NAME, key, data);
+    }
+    /**
+     * Wrapper around game.settings.get. Ensures scope is correct.
+     * @param key
+     */
+    static get(key) {
+        return game.settings.get(PDFSettings.EXTERNAL_SYSTEM_NAME, key);
+    }
+    /**
+     * Wrapper around game.settings.set. Ensures scope is correct.
+     * @param key
+     * @param value
+     */
+    static set(key, value) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return game.settings.set(PDFSettings.EXTERNAL_SYSTEM_NAME, key, value);
+        });
     }
     /**
      * Setup default values for pdf entities
@@ -1223,93 +1275,11 @@ class PDFSettings {
             entity.img = `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/pdf_icon.svg`;
         });
     }
-    //TODO: This shouldn't be in settings.
-    /**
-     * Get additional context menu icons for PDF items
-     * @param html
-     * @param options
-     */
-    static getItemContextOptions(html, options) {
-        const getItemFromContext = (html) => {
-            const id = html.data('entity-id');
-            return game.items.get(id);
-        };
-        if (game.user.isGM) {
-            options.unshift({
-                name: game.i18n.localize('PDFOUNDRY.CONTEXT.PreloadPDF'),
-                icon: '<i class="fas fa-download fa-fw"></i>',
-                condition: (entityHtml) => {
-                    const item = getItemFromContext(entityHtml);
-                    if (item.type !== PDFSettings.PDF_ENTITY_TYPE) {
-                        return false;
-                    }
-                    const { url } = item.data.data;
-                    return url !== '';
-                },
-                callback: (entityHtml) => {
-                    const item = getItemFromContext(entityHtml);
-                    const pdf = PDFUtil_1.PDFUtil.getPDFDataFromItem(item);
-                    if (pdf === null) {
-                        //TODO: Error handling
-                        return;
-                    }
-                    const { url } = pdf;
-                    const event = new PDFPreloadEvent_1.PDFPreloadEvent(null, PDFUtil_1.PDFUtil.getAbsoluteURL(url));
-                    event.emit();
-                    PDFCache_1.PDFCache.preload(url);
-                },
-            });
-        }
-        options.unshift({
-            name: game.i18n.localize('PDFOUNDRY.CONTEXT.OpenPDF'),
-            icon: '<i class="far fa-file-pdf"></i>',
-            condition: (entityHtml) => {
-                const item = getItemFromContext(entityHtml);
-                if (item.type !== PDFSettings.PDF_ENTITY_TYPE) {
-                    return false;
-                }
-                const { url } = item.data.data;
-                return url !== '';
-            },
-            callback: (entityHtml) => {
-                const item = getItemFromContext(entityHtml);
-                const pdf = PDFUtil_1.PDFUtil.getPDFDataFromItem(item);
-                if (pdf === null) {
-                    //TODO: Error handling
-                    return;
-                }
-                PDFoundryAPI_1.PDFoundryAPI.openPDF(pdf, 1);
-            },
-        });
-    }
-    static registerSettings() {
-        PDFCache_1.PDFCache.registerSettings();
-    }
     static onRenderSettings(settings, html, data) {
         const icon = '<i class="far fa-file-pdf"></i>';
         const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
-        button.on('click', PDFSettings.showHelp);
+        button.on('click', PDFoundryAPI_1.PDFoundryAPI.showHelp);
         html.find('h2').last().before(button);
-    }
-    //TODO: Move out of settings
-    static showHelp() {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield game.user.setFlag(PDFSettings.EXTERNAL_SYSTEM_NAME, PDFSettings.HELP_SEEN_KEY, true);
-            const lang = game.i18n.lang;
-            let manualPath = `${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/manual/${lang}/manual.pdf`;
-            const manualExists = yield PDFUtil_1.PDFUtil.fileExists(manualPath);
-            if (!manualExists) {
-                manualPath = `${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/manual/en/manual.pdf`;
-            }
-            const pdfData = {
-                name: game.i18n.localize('PDFOUNDRY.MANUAL.Name'),
-                code: '',
-                offset: 0,
-                url: manualPath,
-                cache: false,
-            };
-            return PDFoundryAPI_1.PDFoundryAPI.openPDF(pdfData);
-        });
     }
 }
 exports.PDFSettings = PDFSettings;
@@ -1322,8 +1292,10 @@ PDFSettings.DIST_FOLDER = 'pdfoundry-dist';
 PDFSettings.EXTERNAL_SYSTEM_NAME = '../modules/pdfoundry';
 PDFSettings.INTERNAL_MODULE_NAME = 'pdfoundry';
 PDFSettings.PDF_ENTITY_TYPE = 'PDFoundry_PDF';
+PDFSettings.SETTING_EXISTING_VIEWER = 'ShowInExistingViewer';
+PDFSettings.SETTING_CACHE_SIZE = 'CacheSize';
 PDFSettings.HELP_SEEN_KEY = 'PDFoundry_HelpSeen';
-},{"../api/PDFUtil":2,"../api/PDFoundryAPI":3,"../cache/PDFCache":6,"../socket/events/PDFPreloadEvent":12}],10:[function(require,module,exports){
+},{"../api/PDFoundryAPI":3}],10:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
  *
@@ -1344,6 +1316,10 @@ exports.PDFSetup = void 0;
 const PDFSettings_1 = require("../settings/PDFSettings");
 const PDFItemSheet_1 = require("../app/PDFItemSheet");
 const PDFoundryAPI_1 = require("../api/PDFoundryAPI");
+const PDFUtil_1 = require("../api/PDFUtil");
+const PDFPreloadEvent_1 = require("../socket/events/PDFPreloadEvent");
+const PDFCache_1 = require("../cache/PDFCache");
+// TODO: Utilities for get/set user flags
 /**
  * A collection of methods used for setting up the API & system state.
  * @private
@@ -1402,6 +1378,64 @@ class PDFSetup {
             });
         }
     }
+    /**
+     * Get additional context menu icons for PDF items
+     * @param html
+     * @param options
+     */
+    static getItemContextOptions(html, options) {
+        const getItemFromContext = (html) => {
+            const id = html.data('entity-id');
+            return game.items.get(id);
+        };
+        if (game.user.isGM) {
+            options.unshift({
+                name: game.i18n.localize('PDFOUNDRY.CONTEXT.PreloadPDF'),
+                icon: '<i class="fas fa-download fa-fw"></i>',
+                condition: (entityHtml) => {
+                    const item = getItemFromContext(entityHtml);
+                    if (item.type !== PDFSettings_1.PDFSettings.PDF_ENTITY_TYPE) {
+                        return false;
+                    }
+                    const { url } = item.data.data;
+                    return url !== '';
+                },
+                callback: (entityHtml) => {
+                    const item = getItemFromContext(entityHtml);
+                    const pdf = PDFUtil_1.PDFUtil.getPDFDataFromItem(item);
+                    if (pdf === null) {
+                        //TODO: Error handling
+                        return;
+                    }
+                    const { url } = pdf;
+                    const event = new PDFPreloadEvent_1.PDFPreloadEvent(null, PDFUtil_1.PDFUtil.getAbsoluteURL(url));
+                    event.emit();
+                    PDFCache_1.PDFCache.preload(url);
+                },
+            });
+        }
+        options.unshift({
+            name: game.i18n.localize('PDFOUNDRY.CONTEXT.OpenPDF'),
+            icon: '<i class="far fa-file-pdf"></i>',
+            condition: (entityHtml) => {
+                const item = getItemFromContext(entityHtml);
+                if (item.type !== PDFSettings_1.PDFSettings.PDF_ENTITY_TYPE) {
+                    return false;
+                }
+                const { url } = item.data.data;
+                return url !== '';
+            },
+            callback: (entityHtml) => {
+                const item = getItemFromContext(entityHtml);
+                const pdf = PDFUtil_1.PDFUtil.getPDFDataFromItem(item);
+                if (pdf === null) {
+                    //TODO: Error handling
+                    return;
+                }
+                PDFoundryAPI_1.PDFoundryAPI.openPDF(pdf, 1);
+            },
+        });
+    }
     static userLogin() {
         let viewed;
         try {
@@ -1410,14 +1444,15 @@ class PDFSetup {
         catch (error) {
             viewed = false;
         }
-        if (viewed) {
-            return;
+        finally {
+            if (!viewed) {
+                PDFoundryAPI_1.PDFoundryAPI.showHelp();
+            }
         }
-        PDFSettings_1.PDFSettings.showHelp();
     }
 }
 exports.PDFSetup = PDFSetup;
-},{"../api/PDFoundryAPI":3,"../app/PDFItemSheet":4,"../settings/PDFSettings":9}],11:[function(require,module,exports){
+},{"../api/PDFUtil":2,"../api/PDFoundryAPI":3,"../app/PDFItemSheet":4,"../cache/PDFCache":6,"../settings/PDFSettings":9,"../socket/events/PDFPreloadEvent":12}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDFSocketHandler = void 0;
@@ -1455,6 +1490,22 @@ class PDFSocketHandler {
         });
     }
     static handleSetView(data) {
+        if (PDFSettings_1.PDFSettings.get(PDFSettings_1.PDFSettings.SETTING_EXISTING_VIEWER)) {
+            function appIsViewer(app) {
+                return app['pdfData'] !== undefined;
+            }
+            for (const app of Object.values(ui.windows)) {
+                if (!appIsViewer(app)) {
+                    continue;
+                }
+                const pdfData = app.pdfData;
+                if (data.pdfData.url === pdfData.url) {
+                    app.page = data.page;
+                    return;
+                }
+            }
+            // App not found, fall through.
+        }
         PDFoundryAPI_1.PDFoundryAPI.openPDF(data.pdfData, data.page);
     }
     static handlePreloadPDF(data) {

@@ -18,9 +18,28 @@ import { PDFViewer } from '../viewer/PDFViewer';
 import { PDFCache } from '../cache/PDFCache';
 import { PDFEvents } from './PDFEvents';
 import { PDFUtil } from './PDFUtil';
-import { PDFData } from '../types/PDFData';
+import { PDFData } from './types/PDFData';
 
 type ItemComparer = (item: Item) => boolean;
+
+async function _handleOpen(viewer: PDFViewer, url: string, page: number, cache: boolean) {
+    if (cache) {
+        const cachedBytes = await PDFCache.getCache(url);
+        // If we have a cache hit open the cached data
+        if (cachedBytes) {
+            await viewer.open(cachedBytes, page);
+        } else {
+            // Otherwise we should open it by url
+            await viewer.open(url, page);
+            // And when the download is complete set the cache
+            viewer.download().then((bytes) => {
+                PDFCache.setCache(url, bytes);
+            });
+        }
+    } else {
+        await viewer.open(url, page);
+    }
+}
 
 /**
  * The PDFoundry API <br>
@@ -151,7 +170,7 @@ export class PDFoundryAPI {
         const viewer = new PDFViewer(pdf);
         viewer.render(true);
 
-        await PDFoundryAPI._handleOpen(viewer, url, page + offset, cache);
+        await _handleOpen(viewer, url, page + offset, cache);
 
         return viewer;
     }
@@ -174,28 +193,34 @@ export class PDFoundryAPI {
         const viewer = new PDFViewer();
         viewer.render(true);
 
-        await PDFoundryAPI._handleOpen(viewer, url, page, cache);
+        await _handleOpen(viewer, url, page, cache);
 
         return viewer;
     }
 
-    private static async _handleOpen(viewer: PDFViewer, url: string, page: number, cache: boolean) {
-        if (cache) {
-            const cachedBytes = await PDFCache.getCache(url);
-            // If we have a cache hit open the cached data
-            if (cachedBytes) {
-                await viewer.open(cachedBytes, page);
-            } else {
-                // Otherwise we should open it by url
-                await viewer.open(url, page);
-                // And when the download is complete set the cache
-                viewer.download().then((bytes) => {
-                    PDFCache.setCache(url, bytes);
-                });
-            }
-        } else {
-            await viewer.open(url, page);
+    /**
+     * Shows the user manual to the active user.
+     */
+    public static async showHelp() {
+        await game.user.setFlag(PDFSettings.EXTERNAL_SYSTEM_NAME, PDFSettings.HELP_SEEN_KEY, true);
+
+        const lang = game.i18n.lang;
+        let manualPath = `${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/manual/${lang}/manual.pdf`;
+        const manualExists = await PDFUtil.fileExists(manualPath);
+
+        if (!manualExists) {
+            manualPath = `${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/manual/en/manual.pdf`;
         }
+
+        const pdfData: PDFData = {
+            name: game.i18n.localize('PDFOUNDRY.MANUAL.Name'),
+            code: '',
+            offset: 0,
+            url: manualPath,
+            cache: false,
+        };
+
+        return PDFoundryAPI.openPDF(pdfData);
     }
 
     // </editor-fold>

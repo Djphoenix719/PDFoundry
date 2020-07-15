@@ -373,21 +373,4 @@ export class PDFCache {
             totalBytes -= next.meta.size;
         }
     }
-
-    public static registerSettings() {
-        game.settings.register(PDFSettings.EXTERNAL_SYSTEM_NAME, 'CacheSize', {
-            name: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeName'),
-            scope: 'user',
-            type: Number,
-            hint: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeHint'),
-            default: 256,
-            config: true,
-            onChange: async (mb) => {
-                mb = Math.round(mb);
-                mb = Math.max(mb, 64);
-                mb = Math.min(mb, 1024);
-                await game.settings.set(PDFSettings.EXTERNAL_SYSTEM_NAME, 'CacheSize', mb);
-            },
-        });
-    }
 }

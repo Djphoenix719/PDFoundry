@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { PDFData } from '../types/PDFData';
+import { PDFData } from './types/PDFData';
 
 /**
  * Contains various utility functions for common operations.
