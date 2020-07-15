@@ -37,7 +37,7 @@ export class PDFSettings {
     public static INTERNAL_MODULE_NAME: string = 'pdfoundry';
     public static PDF_ENTITY_TYPE: string = 'PDFoundry_PDF';
 
-    public static HELP_SEEN_KEY: string = 'HelpSeen';
+    public static HELP_SEEN_KEY: string = 'PDFoundry_HelpSeen';
 
     public static get SOCKET_NAME() {
         return `system.${PDFSettings.EXTERNAL_SYSTEM_NAME}`;
@@ -146,7 +146,7 @@ export class PDFSettings {
 
     //TODO: Move out of settings
     public static async showHelp() {
-        await game.user.setFlag(PDFSettings.INTERNAL_MODULE_NAME, PDFSettings.HELP_SEEN_KEY, true);
+        await game.user.setFlag(PDFSettings.EXTERNAL_SYSTEM_NAME, PDFSettings.HELP_SEEN_KEY, true);
 
         const lang = game.i18n.lang;
         let manualPath = `${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/manual/${lang}/manual.pdf`;

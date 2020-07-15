@@ -87,7 +87,7 @@ export class PDFSetup {
     public static userLogin() {
         let viewed;
         try {
-            viewed = game.user.getFlag(PDFSettings.INTERNAL_MODULE_NAME, PDFSettings.HELP_SEEN_KEY);
+            viewed = game.user.getFlag(PDFSettings.EXTERNAL_SYSTEM_NAME, PDFSettings.HELP_SEEN_KEY);
         } catch (error) {
             viewed = false;
         }

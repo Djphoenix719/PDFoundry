@@ -1347,7 +1347,7 @@ class PDFSettings {
     //TODO: Move out of settings
     static showHelp() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield game.user.setFlag(PDFSettings.INTERNAL_MODULE_NAME, PDFSettings.HELP_SEEN_KEY, true);
+            yield game.user.setFlag(PDFSettings.EXTERNAL_SYSTEM_NAME, PDFSettings.HELP_SEEN_KEY, true);
             const lang = game.i18n.lang;
             let manualPath = `${window.origin}/systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/manual/${lang}/manual.pdf`;
             const manualExists = yield PDFUtil_1.PDFUtil.fileExists(manualPath);
@@ -1375,7 +1375,7 @@ PDFSettings.DIST_FOLDER = 'pdfoundry-dist';
 PDFSettings.EXTERNAL_SYSTEM_NAME = '../modules/pdfoundry';
 PDFSettings.INTERNAL_MODULE_NAME = 'pdfoundry';
 PDFSettings.PDF_ENTITY_TYPE = 'PDFoundry_PDF';
-PDFSettings.HELP_SEEN_KEY = 'HelpSeen';
+PDFSettings.HELP_SEEN_KEY = 'PDFoundry_HelpSeen';
 },{"../api/PDFUtil":2,"../api/PDFoundryAPI":3,"../cache/PDFCache":5,"../log/PDFLog":6,"../socket/events/PDFPreloadEvent":12}],10:[function(require,module,exports){
 "use strict";
 /* Copyright 2020 Andrew Cuccinello
@@ -1458,7 +1458,7 @@ class PDFSetup {
     static userLogin() {
         let viewed;
         try {
-            viewed = game.user.getFlag(PDFSettings_1.PDFSettings.INTERNAL_MODULE_NAME, PDFSettings_1.PDFSettings.HELP_SEEN_KEY);
+            viewed = game.user.getFlag(PDFSettings_1.PDFSettings.EXTERNAL_SYSTEM_NAME, PDFSettings_1.PDFSettings.HELP_SEEN_KEY);
         }
         catch (error) {
             viewed = false;
