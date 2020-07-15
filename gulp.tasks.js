@@ -86,6 +86,14 @@ async function link() {
         // Link does not exist
     }
 
+    try {
+        if (fs.existsSync(targetPath)) {
+            await del(targetPath, { force: true });
+        }
+    } catch (error) {
+        // Folder does not exist
+    }
+
     // For some reason fs.symlink perm errors, so we'll execute mklink
     // Additional support would be needed for linux based systems here
     exec(`mklink /J ${targetPath} ${destFolder}`, function (error, stdout, stderr) {
