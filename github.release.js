@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 
 module.exports = async ({ context, github, tagName, releaseName, releaseMessage }) => {
     const {
@@ -22,7 +23,7 @@ module.exports = async ({ context, github, tagName, releaseName, releaseMessage 
             repo,
             release_id: release.data.id,
             name: file,
-            data: await fs.readFileSync(`./installers/${file}`),
+            data: fs.readFileSync(path.resolve('installers', file)),
         });
     }
 };
