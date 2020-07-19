@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-module.exports = async ({ context, github, tagName, releaseName, releaseMessage }) => {
+module.exports = async ({ context, github, tagName, releaseName, releaseMessage }, draft = false) => {
     const {
         repo: { owner, repo },
         sha,
@@ -14,6 +14,7 @@ module.exports = async ({ context, github, tagName, releaseName, releaseMessage 
         body: releaseMessage,
         tag_name: tagName,
         target_commitish: sha,
+        draft,
     });
 
     for (let file of fs.readdirSync('installers')) {

@@ -38,7 +38,7 @@ jobs:
             const path = require('path')
 
             const tagName = '${{ github.ref }}'
-            const releaseName = 'Release ${{ github.ref }}'
+            const releaseName = 'Release Draft'
             const releaseMessage = `${fs.readFileSync('body').toString()}`;
 
             const scriptPath = path.resolve('./github.release.js')
