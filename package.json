@@ -14,7 +14,6 @@
         "del": "^5.1.0",
         "es-module-shims": "^0.4.6",
         "extract-zip": "^2.0.1",
-        "filenamify": "^4.1.0",
         "foundry-pc-types": "gitlab:foundry-projects/foundry-pc/foundry-pc-types",
         "gulp": "^4.0.2",
         "gulp-copy": "^4.0.1",
