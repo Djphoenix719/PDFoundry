@@ -247,7 +247,6 @@ function release() {
 
     const archiver = require('archiver');
     const extractZip = require('extract-zip');
-    const filenamify = require('filenamify');
 
     const installersRoot = `installers`;
     let messagePrefix = '-----';
