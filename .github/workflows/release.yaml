@@ -42,4 +42,4 @@ jobs:
             const releaseMessage = `${fs.readFileSync('body').toString()}`;
 
             const scriptPath = path.resolve('./github.release.js')
-            console.log(require(scriptPath)({context, github, releaseName, tagName}))
+            console.log(require(scriptPath)({context, github, tagName, releaseName, releaseMessage}, true))
