@@ -1,0 +1,67 @@
+name: Nightly
+on:
+  schedule:
+    - cron: '00 00 * * *'
+
+jobs:
+  build:
+    name: Nightly
+    runs-on: ubuntu-latest
+    outputs:
+      files: ${{ steps.files.outputs.files }}
+    steps:
+      - name: Delete Previous Releases
+        uses: dev-drprasad/delete-older-releases@v0.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          keep_latest: 3
+
+      - name: Checkout Repository
+        id: checkout
+        uses: actions/checkout@v2.3.1
+
+      - name: Run npm ci
+        id: npm_ci
+        run: npm ci
+
+      - name: Run gulp build
+        id: gulp_build
+        run: gulp build
+
+      - name: Create Release
+        uses: actions/github-script@v2
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const path = require('path')
+
+            const getDate = () => {
+              const date = new Date();
+
+              const yy = date.getFullYear();
+              const MM = date.getMonth().toString().padStart(2, '0');
+              const dd = date.getDate().toString().padStart(2, '0');
+
+              const hh = date.getHours().toString().padStart(2, '0');
+              const mm = date.getMinutes().toString().padStart(2, '0');
+
+              return `${yy}-${MM}-${dd} ${hh}:${mm} GMT`;
+            };
+
+            const getVersion = () => {
+              const date = new Date();
+
+              const yy = date.getFullYear() - 2000; // hacky
+              const MM = date.getMonth().toString().padStart(2, '0');
+              const dd = date.getDate().toString().padStart(2, '0');
+
+              return `${yy}.${MM}.${dd}`;
+            };
+
+            const tagName = `Nightly-v${getVersion()}`;
+            const releaseName = `Nightly ${getDate()}`
+            const releaseMessage = `Nightly Build ${getDate()}\n${fs.readFileSync('body').toString()}`;
+
+            const scriptPath = path.resolve('./github.release.js')
+            console.log(require(scriptPath)({context, github, releaseName, releaseMessage, tagName}))
