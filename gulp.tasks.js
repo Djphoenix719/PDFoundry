@@ -248,7 +248,7 @@ async function buildSass() {
  */
 async function docs() {
     return gulp
-        .src(['src/pdfoundry/**/index.ts'])
+        .src(['src/pdfoundry/**/*.ts'])
         .on('error', function (error) {
             logger.error(error);
             this.emit('end');
@@ -259,8 +259,10 @@ async function docs() {
                 target: 'es6',
                 out: 'docs/',
                 mode: 'file',
+                exclude: './src/pdfoundry/util.ts',
                 excludePrivate: true,
                 excludeProtected: true,
+                disableSources: true,
                 version: true,
             }),
         );

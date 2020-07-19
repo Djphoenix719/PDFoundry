@@ -13,19 +13,35 @@
  * limitations under the License.
  */
 
-import Viewer from '../../viewer/Viewer';
-import Api from '../../api';
+/**
+ * All available PDF Viewer events.
+ */
+export type PDFViewerEvent = PDFViewerWindowEvent | 'pageRendered' | 'pageChanging' | 'viewAreaUpdated' | 'scaleChanging';
 
-export type PDFSetupEvent = 'init' | 'setup' | 'ready';
+/**
+ * Meta events that occur on a PDF Viewer that relate to the state of the application.
+ */
+export type PDFViewerWindowEvent = PDFViewerOpening | PDFViewerOpened | PDFViewerClosed | PDFViewerClosing | PDFViewerReady;
 
-export type PDFViewerEvent = 'viewerOpen' | 'viewerClose' | 'viewerReady' | 'pageRendered' | 'pageChanging';
+/**
+ * Fires when a viewer begins opening.
+ */
+export type PDFViewerOpening = 'viewerOpening';
+/**
+ * Fires when a viewer finishes opening, but is not ready for use. Foundry VTT methods are usable at this point.
+ */
+export type PDFViewerOpened = 'viewerOpened';
+/**
+ * Fires when the viewer begins closing.
+ */
+export type PDFViewerClosing = 'viewerClosing';
+/**
+ * Fires right before the viewer is deleted. This is the last event that will fire.
+ */
+export type PDFViewerClosed = 'viewerClosed';
 
-export type PDFEvent = PDFSetupEvent | PDFViewerEvent;
-
-export type CallbackSetup = (api: Api) => void;
-
-export type CallbackViewer = (viewer: Viewer) => void;
-
-export type CallbackPageRendered = (viewer: Viewer, page: HTMLDivElement) => void;
-
-export type CallbackPageChanging = (viewer: Viewer, pageNumber: number, pageLabel: string | null) => void;
+/**
+ * Fires when the viewer is ready for use.
+ * @param {Viewer} The viewer that is ready
+ */
+export type PDFViewerReady = 'viewerReady';

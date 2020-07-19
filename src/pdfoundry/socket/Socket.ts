@@ -18,7 +18,7 @@ import Viewer from '../viewer/Viewer';
 import Api from '../api';
 import Settings from '../settings/Settings';
 import SetViewEvent from './events/SetViewEvent';
-import FileCache from '../pdf-cache/FileCache';
+import PDFCache from '../cache/PDFCache';
 
 /**
  * @private
@@ -71,6 +71,6 @@ export class Socket {
     }
 
     public static handlePreloadPDF(data: any) {
-        FileCache.preload(data.url);
+        PDFCache.preload(data.url);
     }
 }

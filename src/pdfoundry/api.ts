@@ -17,7 +17,7 @@ import { fileExists, getAbsoluteURL, getPDFDataFromItem, validateAbsoluteURL } f
 import Viewer from './viewer/Viewer';
 import { PDFData } from './common/types/PDFData';
 import Settings from './settings/Settings';
-import FileCache from './pdf-cache/FileCache';
+import PDFCache from './cache/PDFCache';
 
 type ItemComparer = (item: Item) => boolean;
 
@@ -31,7 +31,7 @@ type ItemComparer = (item: Item) => boolean;
  */
 async function _handleOpen(viewer: Viewer, url: string, page: number, cache: boolean) {
     if (cache) {
-        const cachedBytes = await FileCache.getCache(url);
+        const cachedBytes = await PDFCache.getCache(url);
         // If we have a cache hit open the cached data
         if (cachedBytes) {
             await viewer.open(cachedBytes, page);
@@ -40,7 +40,7 @@ async function _handleOpen(viewer: Viewer, url: string, page: number, cache: boo
             await viewer.open(url, page);
             // And when the download is complete set the cache
             viewer.download().then((bytes) => {
-                FileCache.setCache(url, bytes);
+                PDFCache.setCache(url, bytes);
             });
         }
     } else {
@@ -54,6 +54,16 @@ async function _handleOpen(viewer: Viewer, url: string, page: number, cache: boo
  * You can access the API with `ui.PDFoundry`.
  */
 export default class Api {
+    /**
+     * Enable additional debug information for the specified category.
+     */
+    public static DEBUG = {
+        /**
+         * When set to true, enables the logging event names and arguments to console.
+         */
+        EVENTS: true,
+    };
+
     // <editor-fold desc="GetPDFData Methods">
 
     /**

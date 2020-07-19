@@ -121,22 +121,29 @@ export default class Viewer extends Application {
         return data;
     }
 
-    protected async activateListeners(html: JQuery<HTMLElement>): Promise<void> {
+    protected async activateListeners(html: JQuery): Promise<void> {
+        this._eventStore.fire('viewerOpening', this);
         super.activateListeners(html);
 
         this._frame = html.parent().find('iframe.pdfViewer').get(0) as HTMLIFrameElement;
         this.getViewer().then(async (viewer) => {
             this._viewer = viewer;
 
+            this._eventStore.fire('viewerOpened', this);
+
             this.getEventBus().then((eventBus) => {
                 this._eventBus = eventBus;
+                this._eventBus.on('pagerendered', this.onPageRendered.bind(this));
+                this._eventBus.on('pagechanging', this.onPageChanging.bind(this));
+                this._eventBus.on('updateviewarea', this.onViewAreaUpdated.bind(this));
+                this._eventBus.on('scalechanging', this.onScaleChanging.bind(this));
 
-                // const listeners = eventBus._listeners;
-                // for (const eventName of Object.keys(listeners)) {
-                //     eventBus.on(eventName, (...args) => {
-                //         this.logEvent(eventName, args);
-                //     });
-                // }
+                const listeners = eventBus._listeners;
+                for (const eventName of Object.keys(listeners)) {
+                    eventBus.on(eventName, (...args) => {
+                        Viewer.logEvent(eventName, args);
+                    });
+                }
 
                 this._eventStore.fire('viewerReady', this);
             });
@@ -146,17 +153,74 @@ export default class Viewer extends Application {
         $(html).parents().parents().find('.pdf-sheet-show-players').prop('title', game.i18n.localize('PDFOUNDRY.VIEWER.ShowToPlayersTitle'));
     }
 
-    // private logEvent(key: string, ...args) {
-    //     console.debug(key);
-    //     console.debug(args);
-    // }
+    // </editor-fold>
 
-    public async close(): Promise<any> {
-        this._eventStore.fire('viewerClose', this);
-        return super.close();
+    // <editor-fold desc="Events">
+
+    /**
+     * Fired right as the page starts to change.
+     */
+    protected onPageChanging(event) {
+        this._eventStore.fire('pageChanging', this, {
+            pageLabel: event.pageLabel,
+            pageNumber: event.pageNumber,
+        });
+    }
+
+    /**
+     * Fired after the page has finished rendering
+     */
+    protected onPageRendered(event) {
+        this._eventStore.fire('pageRendered', this, {
+            pageNumber: event.pageNumber,
+            pageLabel: event.source.pageLabel,
+            width: event.source.width,
+            height: event.source.height,
+            rotation: event.source.rotation,
+            scale: event.source.scale,
+            canvas: event.source.canvas,
+            div: event.source.div,
+            error: event.source.error,
+        });
+    }
+
+    protected onViewAreaUpdated(event) {
+        this._eventStore.fire('viewAreaUpdated', this, {
+            top: event.location.top,
+            left: event.location.left,
+            pageNumber: event.location.pageNumber,
+            rotation: event.location.rotation,
+            scale: event.location.scale,
+        });
+    }
+
+    protected onScaleChanging(event) {
+        this._eventStore.fire('scaleChanging', this, {
+            presetValue: event.presetValue,
+            scale: event.scale,
+        });
+    }
+
+    /**
+     * Register a callback to occur when an event fires. See individual events for descriptions and {@see Api.}
+     * @param eventName
+     * @param callback
+     */
+    public on(eventName: PDFViewerEvent, callback: Function): void {
+
     }
 
     // </editor-fold>
+
+    private static logEvent(key: string, ...args) {
+        console.warn(key);
+        console.warn(args);
+    }
+
+    public async close(): Promise<any> {
+        this._eventStore.fire('viewerClosed', this);
+        return super.close();
+    }
 
     /**
      * Show the current page to GMs.
@@ -258,7 +322,5 @@ export default class Viewer extends Application {
         }
 
         await pdfjsViewer.open(pdfSource);
-
-        this._eventStore.fire('viewerOpen', this);
     }
 }

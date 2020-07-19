@@ -14,12 +14,27 @@
  */
 
 /**
- * All the properties of a PDF that can be specified by a user
+ * A data objection containing properties of a user-created PDF file. This is the data contained within a PDFoundry_PDF entity.
  */
 export type PDFData = {
+    /**
+     * The name of the PDF
+     */
     name: string;
+    /**
+     * The shorthand code PDF
+     */
     code: string;
+    /**
+     * The location of the PDF on the server.
+     */
     url: string;
+    /**
+     * Page offset for the PDF vs. represented book page
+     */
     offset: number | string;
+    /**
+     * If the user has requested caching for this PDF
+     */
     cache: boolean;
 };

@@ -24,13 +24,6 @@ export default class Settings {
      */
     public static NOTIFICATIONS: boolean = true;
 
-    /**
-     * Enable additional debug information for the specified category.
-     */
-    public static DEBUG = {
-        EVENTS: true,
-    };
-
     public static EXTERNAL_SYSTEM_NAME: string = '../modules/pdfoundry';
     public static INTERNAL_MODULE_NAME: string = 'pdfoundry';
 

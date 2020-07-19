@@ -19,6 +19,7 @@ export type PDFPlayerSelectCallback = (ids: []) => void;
 
 /**
  * An application that allows selection of players.
+ * @private
  */
 export default class PlayerSelect extends Application {
     static get defaultOptions() {

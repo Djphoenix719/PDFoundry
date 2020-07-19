@@ -14,10 +14,11 @@
  */
 
 import Settings from '../settings/Settings';
-import CacheHelper from './cache/CacheHelper';
+import CacheHelper from './CacheHelper';
 
 /**
  * Meta information about a cache entry
+ * @private
  */
 type CacheData = {
     /**
@@ -32,8 +33,9 @@ type CacheData = {
 
 /**
  * Handles caching for PDFs
+ * @private
  */
-export default class FileCache {
+export default class PDFCache {
     // <editor-fold desc="Static Properties">
     /**
      * Max size of the cache for the active user, defaults to 256 MB.
@@ -52,7 +54,7 @@ export default class FileCache {
     // </editor-fold>
 
     public static async initialize() {
-        FileCache._cacheHelper = await CacheHelper.createAndOpen(FileCache.IDB_NAME, [FileCache.CACHE, FileCache.META], FileCache.IDB_VERSION);
+        PDFCache._cacheHelper = await CacheHelper.createAndOpen(PDFCache.IDB_NAME, [PDFCache.CACHE, PDFCache.META], PDFCache.IDB_VERSION);
     }
 
     /**
@@ -61,7 +63,7 @@ export default class FileCache {
      */
     public static async getMeta(key: string): Promise<CacheData | null> {
         try {
-            return await FileCache._cacheHelper.get(key, FileCache.META);
+            return await PDFCache._cacheHelper.get(key, PDFCache.META);
         } catch (error) {
             return null;
         }
@@ -73,7 +75,7 @@ export default class FileCache {
      * @param meta
      */
     public static async setMeta(key: string, meta: CacheData): Promise<void> {
-        await FileCache._cacheHelper.set(key, meta, FileCache.META, true);
+        await PDFCache._cacheHelper.set(key, meta, PDFCache.META, true);
     }
 
     /**
@@ -82,12 +84,12 @@ export default class FileCache {
      */
     public static async getCache(key: string): Promise<Uint8Array | null> {
         try {
-            const bytes = await FileCache._cacheHelper.get(key, FileCache.CACHE);
+            const bytes = await PDFCache._cacheHelper.get(key, PDFCache.CACHE);
             const meta: CacheData = {
                 dateAccessed: new Date().toISOString(),
                 size: bytes.length,
             };
-            await FileCache.setMeta(key, meta);
+            await PDFCache.setMeta(key, meta);
 
             return bytes;
         } catch (error) {
@@ -106,8 +108,8 @@ export default class FileCache {
             size: bytes.length,
         };
 
-        await FileCache._cacheHelper.set(key, bytes, FileCache.CACHE, true);
-        await FileCache.setMeta(key, meta);
+        await PDFCache._cacheHelper.set(key, bytes, PDFCache.CACHE, true);
+        await PDFCache.setMeta(key, meta);
         await this.prune();
     }
 
@@ -117,7 +119,7 @@ export default class FileCache {
      */
     public static preload(key: string): Promise<void> {
         return new Promise<void>(async (resolve, reject) => {
-            const cachedBytes = await FileCache.getCache(key);
+            const cachedBytes = await PDFCache.getCache(key);
             if (cachedBytes !== null && cachedBytes.byteLength > 0) {
                 resolve();
                 return;
@@ -127,7 +129,7 @@ export default class FileCache {
             if (response.ok) {
                 const fetchedBytes = new Uint8Array(await response.arrayBuffer());
                 if (fetchedBytes.byteLength > 0) {
-                    await FileCache.setCache(key, fetchedBytes);
+                    await PDFCache.setCache(key, fetchedBytes);
                     resolve();
                     return;
                 } else {
@@ -143,12 +145,12 @@ export default class FileCache {
      * Prune the active user's cache until it is below the user's cache size limit.
      */
     public static async prune() {
-        const keys = await this._cacheHelper.keys(FileCache.META);
+        const keys = await this._cacheHelper.keys(PDFCache.META);
 
         let totalBytes = 0;
         let metas: any[] = [];
         for (const key of keys) {
-            const meta = await this._cacheHelper.get(key, FileCache.META);
+            const meta = await this._cacheHelper.get(key, PDFCache.META);
             meta.dateAccessed = Date.parse(meta.dateAccessed);
             meta.size = parseInt(meta.size);
 
@@ -165,14 +167,14 @@ export default class FileCache {
         });
 
         for (let i = 0; i < metas.length; i++) {
-            if (totalBytes < FileCache.MAX_BYTES) {
+            if (totalBytes < PDFCache.MAX_BYTES) {
                 break;
             }
 
             const next = metas[i];
 
-            await this._cacheHelper.del(next.key, FileCache.META);
-            await this._cacheHelper.del(next.key, FileCache.CACHE);
+            await this._cacheHelper.del(next.key, PDFCache.META);
+            await this._cacheHelper.del(next.key, PDFCache.CACHE);
 
             totalBytes -= next.meta.size;
         }

@@ -15,6 +15,7 @@
 
 /**
  * An error that occurs during cache operations
+ * @private
  */
 export class CacheError extends Error {
     constructor(index: string, store: string, message?: string) {

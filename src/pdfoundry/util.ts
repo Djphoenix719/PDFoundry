@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+// @private
+
 /**
  * Helper method. Convert a relative URL to a absolute URL
  *  by prepending the window origin to the relative URL.

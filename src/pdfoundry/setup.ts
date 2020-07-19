@@ -18,7 +18,7 @@ import { PDFItemSheet } from './app/PDFItemSheet';
 import PreloadEvent from './socket/events/PreloadEvent';
 import { Socket } from './socket/Socket';
 import Settings from './settings/Settings';
-import FileCache from './pdf-cache/FileCache';
+import PDFCache from './cache/PDFCache';
 import I18n from './settings/I18n';
 import Api from './api';
 
@@ -51,7 +51,7 @@ export default class Setup {
         return new Promise(async () => {
             // Initialize the settings
             await Settings.initialize();
-            await FileCache.initialize();
+            await PDFCache.initialize();
             await I18n.initialize();
 
             // PDFoundry is ready
@@ -151,7 +151,7 @@ export default class Setup {
                     const event = new PreloadEvent(null, getAbsoluteURL(url));
                     event.emit();
 
-                    FileCache.preload(url);
+                    PDFCache.preload(url);
                 },
             });
         }
