@@ -19,6 +19,9 @@ import { PDFData } from './common/types/PDFData';
 import Settings from './settings/Settings';
 import PDFCache from './cache/PDFCache';
 
+/**
+ * A function to passed to getPDFData to find user specified PDF data.
+ */
 type ItemComparer = (item: Item) => boolean;
 
 /**
@@ -49,27 +52,28 @@ async function _handleOpen(viewer: Viewer, url: string, page: number, cache: boo
 }
 
 /**
- * The PDFoundry API <br>
+ * The PDFoundry API
  *
- * You can access the API with `ui.PDFoundry`.
+ * ## You can access the API with `ui.PDFoundry`.
  */
 export default class Api {
     /**
      * Enable additional debug information for the specified category.
+     * @category Debug
      */
     public static DEBUG = {
         /**
          * When set to true, enables the logging event names and arguments to console.
          */
-        EVENTS: true,
+        EVENTS: false,
     };
 
     // <editor-fold desc="GetPDFData Methods">
 
     /**
-     * Helper method. Alias for {@link Api.getPDFData} with a
-     *  comparer that searches by PDF Code.
+     * Helper method. Alias for {@link Api.getPDFData} with a comparer that searches by PDF Code.
      * @param code Which code to search for a PDF with.
+     * @category PDFData
      */
     public static getPDFDataByCode(code: string): PDFData | null {
         return Api.getPDFData((item) => {
@@ -78,10 +82,10 @@ export default class Api {
     }
 
     /**
-     * Helper method. Alias for {@link Api.getPDFData} with a
-     *  comparer that searches by PDF Name.
+     * Helper method. Alias for {@link Api.getPDFData} with a comparer that searches by PDF Name.
      * @param name Which name to search for a PDF with.
      * @param caseInsensitive If a case insensitive search should be done.
+     * @category PDFData
      */
     public static getPDFDataByName(name: string, caseInsensitive: boolean = true): PDFData | null {
         if (caseInsensitive) {
@@ -96,9 +100,9 @@ export default class Api {
     }
 
     /**
-     * Finds a PDF entity created by the user and constructs a
-     *  {@link PDFData} object of the resulting PDF's data.
+     * Finds a PDF entity created by the user and constructs a {@link PDFData} object of the resulting PDF's data.
      * @param comparer A comparison function that will be used.
+     * @category PDFData
      */
     public static getPDFData(comparer: ItemComparer): PDFData | null {
         const pdf: Item = game.items.find((item: Item) => {
@@ -115,6 +119,7 @@ export default class Api {
     /**
      * Open the PDF with the provided code to the specified page.
      * Helper for {@link getPDFDataByCode} then {@link openPDF}.
+     * @category Open
      */
     public static async openPDFByCode(code: string, page: number = 1): Promise<Viewer> {
         const pdf = this.getPDFDataByCode(code);
@@ -135,6 +140,7 @@ export default class Api {
     /**
      * Open the PDF with the provided code to the specified page.
      * Helper for {@link getPDFDataByCode} then {@link openPDF}.
+     * @category Open
      */
     public static async openPDFByName(name: string, page: number = 1): Promise<Viewer> {
         const pdf = this.getPDFDataByName(name);
@@ -157,6 +163,7 @@ export default class Api {
      * Open the provided {@link PDFData} to the specified page.
      * @param pdf The PDF to open. See {@link Api.getPDFData}.
      * @param page The page to open the PDF to.
+     * @category Open
      */
     public static async openPDF(pdf: PDFData, page: number = 1): Promise<Viewer> {
         let { url, offset, cache } = pdf;
@@ -182,6 +189,7 @@ export default class Api {
      * @param url The URL to open (must be absolute).
      * @param page Which page to open to. Must be >= 1.
      * @param cache If URL based caching should be used.
+     * @category Open
      */
     public static async openURL(url: string, page: number = 1, cache: boolean = true): Promise<Viewer> {
         if (isNaN(page) || page <= 0) {
@@ -202,6 +210,7 @@ export default class Api {
 
     /**
      * Shows the user manual to the active user.
+     * @category Utility
      */
     public static async showHelp(): Promise<Viewer> {
         await game.user.setFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.SETTING_KEY.HELP_SEEN, true);

@@ -79,7 +79,6 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-type-alias"><a href="globals.html#itemcomparer" class="tsd-kind-icon">Item<wbr>Comparer</a></li>
 								<li class="tsd-kind-type-alias"><a href="globals.html#pdfdata" class="tsd-kind-icon">PDFData</a></li>
-								<li class="tsd-kind-type-alias"><a href="globals.html#pdfplayerselectcallback" class="tsd-kind-icon">PDFPlayer<wbr>Select<wbr>Callback</a></li>
 								<li class="tsd-kind-type-alias"><a href="globals.html#pdfviewerclosed" class="tsd-kind-icon">PDFViewer<wbr>Closed</a></li>
 								<li class="tsd-kind-type-alias"><a href="globals.html#pdfviewerclosing" class="tsd-kind-icon">PDFViewer<wbr>Closing</a></li>
 								<li class="tsd-kind-type-alias"><a href="globals.html#pdfviewerevent" class="tsd-kind-icon">PDFViewer<wbr>Event</a></li>
@@ -87,7 +86,6 @@
 								<li class="tsd-kind-type-alias"><a href="globals.html#pdfvieweropening" class="tsd-kind-icon">PDFViewer<wbr>Opening</a></li>
 								<li class="tsd-kind-type-alias"><a href="globals.html#pdfviewerready" class="tsd-kind-icon">PDFViewer<wbr>Ready</a></li>
 								<li class="tsd-kind-type-alias"><a href="globals.html#pdfviewerwindowevent" class="tsd-kind-icon">PDFViewer<wbr>Window<wbr>Event</a></li>
-								<li class="tsd-kind-type-alias"><a href="globals.html#pdfjsviewer" class="tsd-kind-icon">PDFjs<wbr>Viewer</a></li>
 							</ul>
 						</section>
 					</div>
@@ -101,6 +99,11 @@
 					<div class="tsd-signature tsd-kind-icon">Item<wbr>Comparer<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>item<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Item</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>A function to passed to getPDFData to find user specified PDF data.</p>
+						</div>
+					</div>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
 						<ul class="tsd-parameters">
@@ -176,34 +179,6 @@
 										<p>The location of the PDF on the server.</p>
 									</div>
 								</div>
-							</li>
-						</ul>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-type-alias">
-					<a name="pdfplayerselectcallback" class="tsd-anchor"></a>
-					<h3>PDFPlayer<wbr>Select<wbr>Callback</h3>
-					<div class="tsd-signature tsd-kind-icon">PDFPlayer<wbr>Select<wbr>Callback<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>ids<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
-					<aside class="tsd-sources">
-					</aside>
-					<div class="tsd-type-declaration">
-						<h4>Type declaration</h4>
-						<ul class="tsd-parameters">
-							<li class="tsd-parameter-signature">
-								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-type-alias">
-									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>ids<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-								</ul>
-								<ul class="tsd-descriptions">
-									<li class="tsd-description">
-										<h4 class="tsd-parameters-title">Parameters</h4>
-										<ul class="tsd-parameters">
-											<li>
-												<h5>ids: <span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span></h5>
-											</li>
-										</ul>
-										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-									</li>
-								</ul>
 							</li>
 						</ul>
 					</div>
@@ -297,26 +272,6 @@
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-type-alias">
-					<a name="pdfjsviewer" class="tsd-anchor"></a>
-					<h3>PDFjs<wbr>Viewer</h3>
-					<div class="tsd-signature tsd-kind-icon">PDFjs<wbr>Viewer<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
-					<aside class="tsd-sources">
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The PDFjs viewer. Has some additional methods.</p>
-						</div>
-					</div>
-					<div class="tsd-type-declaration">
-						<h4>Type declaration</h4>
-						<ul class="tsd-parameters">
-							<li class="tsd-parameter-index-signature">
-								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">any</span></h5>
-							</li>
-						</ul>
-					</div>
-				</section>
 			</section>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -342,9 +297,6 @@
 						<a href="globals.html#pdfdata" class="tsd-kind-icon">PDFData</a>
 					</li>
 					<li class=" tsd-kind-type-alias">
-						<a href="globals.html#pdfplayerselectcallback" class="tsd-kind-icon">PDFPlayer<wbr>Select<wbr>Callback</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
 						<a href="globals.html#pdfviewerclosed" class="tsd-kind-icon">PDFViewer<wbr>Closed</a>
 					</li>
 					<li class=" tsd-kind-type-alias">
@@ -365,9 +317,6 @@
 					<li class=" tsd-kind-type-alias">
 						<a href="globals.html#pdfviewerwindowevent" class="tsd-kind-icon">PDFViewer<wbr>Window<wbr>Event</a>
 					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="globals.html#pdfjsviewer" class="tsd-kind-icon">PDFjs<wbr>Viewer</a>
-					</li>
 				</ul>
 			</nav>
 		</div>
@@ -378,7 +327,6 @@
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
-				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
 				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
 			</ul>

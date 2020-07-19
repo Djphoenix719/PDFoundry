@@ -11,11 +11,20 @@ A PDF viewer module for Foundry VTT, made for developers to integrate with their
 
 The goal of this library is to provide system developers with a easy to use and homogenized source support library to provide high quality source links in-application. I'd like to be able to click "view source" in every system, because finding information in PDFs takes a long time!
 
-## :warning: This module is considered a pre-release! :warning:
+## Setup
+PDFoundry makes use of some features that prevent it from being installed with the normal Foundry VTT installation method.
 
-### Integration
-- See [Setup & System Integration](https://github.com/Djphoenix719/PDFoundry/wiki/Setup-&-System-Integration) on the wiki.
-- Also see [the documentation](https://djphoenix719.github.io/PDFoundry/classes/pdfoundryapi.html).
+Installation is easy, however.
+1. Find and download your system in the [latest release](https://github.com/Djphoenix719/PDFoundry/releases/latest) - the name should match the folder name in your `data\systems\` folder, and you should ensure you have a matching version by checking your installed version in Foundry VTT.
+2. Move the zip file to your `data\systems\{your system}` folder.
+3. Extract the files, overwriting all files.
+
+*That's it!*
+
+## System Developers
+PDFoundry has a bunch of user-focused features, meaning you don't have to do anything if you decide to integrate it with your system for your players to get a bunch of benefit out of it. However, there's a fully featured API with event hooks and an interface to open PDFs you may be interested in.
+
+See the [documentation]() for more details and examples.
 
 ## Roadmap
 See the [development board](https://github.com/Djphoenix719/PDFoundry/projects/1#column-9772243)

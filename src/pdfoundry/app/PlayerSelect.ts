@@ -15,6 +15,10 @@
 
 import Settings from '../settings/Settings';
 
+/**
+ * Callback type for player selection
+ * @private
+ */
 export type PDFPlayerSelectCallback = (ids: []) => void;
 
 /**

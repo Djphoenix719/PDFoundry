@@ -17,6 +17,7 @@
 
 /**
  * The PDFjs viewer. Has some additional methods.
+ * @private
  */
 export type PDFjsViewer = {
     [key: string]: any;

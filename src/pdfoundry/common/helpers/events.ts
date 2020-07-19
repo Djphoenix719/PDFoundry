@@ -43,6 +43,20 @@ export default class EventStore<TKeys extends string = string> {
     }
 
     /**
+     * Like {@see on} but only fires once.
+     * @param eventName
+     * @param callback
+     */
+    public once(eventName: TKeys, callback: Function) {
+        const that = this;
+        const wrapper = function (...args) {
+            callback(args);
+            that.off(eventName, wrapper);
+        };
+        that.on(eventName, wrapper);
+    }
+
+    /**
      * Turn off an event callback for the specified event.
      * @param eventName
      * @param callback

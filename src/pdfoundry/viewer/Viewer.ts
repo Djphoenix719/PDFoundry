@@ -23,6 +23,13 @@ import { PDFjsEventBus } from '../common/types/PDFjsEventBus';
 import SetViewEvent from '../socket/events/SetViewEvent';
 import EventStore from '../common/helpers/events';
 
+/**
+ * The PDFoundry Viewer class provides the core logic opening PDFs and binding their events.
+ * You cannot create a new instance of this class, you must do so with the API.
+ *
+ * See {@link Api.openPDF}, {@link Api.openPDFByCode}, {@link Api.openPDFByName}, {@link Api.openURL} which all return a
+ * promise which resolve with an instance of this class.
+ */
 export default class Viewer extends Application {
     static get defaultOptions() {
         const options = super.defaultOptions;
@@ -41,6 +48,9 @@ export default class Viewer extends Application {
     protected _pdfData: PDFData;
     protected _eventStore: EventStore<PDFViewerEvent>;
 
+    /**
+     * @internal
+     */
     constructor(pdfData?: PDFData, options?: ApplicationOptions) {
         super(options);
 
@@ -138,12 +148,12 @@ export default class Viewer extends Application {
                 this._eventBus.on('updateviewarea', this.onViewAreaUpdated.bind(this));
                 this._eventBus.on('scalechanging', this.onScaleChanging.bind(this));
 
-                const listeners = eventBus._listeners;
-                for (const eventName of Object.keys(listeners)) {
-                    eventBus.on(eventName, (...args) => {
-                        Viewer.logEvent(eventName, args);
-                    });
-                }
+                // const listeners = eventBus._listeners;
+                // for (const eventName of Object.keys(listeners)) {
+                //     eventBus.on(eventName, (...args) => {
+                //         Viewer.logEvent(eventName, args);
+                //     });
+                // }
 
                 this._eventStore.fire('viewerReady', this);
             });
@@ -157,9 +167,6 @@ export default class Viewer extends Application {
 
     // <editor-fold desc="Events">
 
-    /**
-     * Fired right as the page starts to change.
-     */
     protected onPageChanging(event) {
         this._eventStore.fire('pageChanging', this, {
             pageLabel: event.pageLabel,
@@ -167,9 +174,6 @@ export default class Viewer extends Application {
         });
     }
 
-    /**
-     * Fired after the page has finished rendering
-     */
     protected onPageRendered(event) {
         this._eventStore.fire('pageRendered', this, {
             pageNumber: event.pageNumber,
@@ -202,12 +206,30 @@ export default class Viewer extends Application {
     }
 
     /**
-     * Register a callback to occur when an event fires. See individual events for descriptions and {@see Api.}
+     * Register a callback to occur when an event fires. See individual events for descriptions and use {@link Api.DEBUG.EVENTS} to log and analyze events.
      * @param eventName
      * @param callback
      */
     public on(eventName: PDFViewerEvent, callback: Function): void {
+        this._eventStore.on(eventName, callback);
+    }
 
+    /**
+     * Deregister an event that has been registered with {@link on} or {@link once}.
+     * @param eventName
+     * @param callback
+     */
+    public off(eventName: PDFViewerEvent, callback: Function): void {
+        this._eventStore.off(eventName, callback);
+    }
+
+    /**
+     * Like {@link on} but only fires on the next occurrence.
+     * @param eventName
+     * @param callback
+     */
+    public once(eventName: PDFViewerEvent, callback: Function): void {
+        this._eventStore.once(eventName, callback);
     }
 
     // </editor-fold>

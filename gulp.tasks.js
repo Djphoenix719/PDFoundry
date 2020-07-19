@@ -262,6 +262,7 @@ async function docs() {
                 exclude: './src/pdfoundry/util.ts',
                 excludePrivate: true,
                 excludeProtected: true,
+                stripInternal: true,
                 disableSources: true,
                 version: true,
             }),
