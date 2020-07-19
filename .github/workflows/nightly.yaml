@@ -34,6 +34,7 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
+            const fs = require('fs');
             const path = require('path')
 
             const getDate = () => {
