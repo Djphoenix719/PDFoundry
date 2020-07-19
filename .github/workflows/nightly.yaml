@@ -25,9 +25,9 @@ jobs:
         id: npm_ci
         run: npm ci
 
-      - name: Run gulp build
-        id: gulp_build
-        run: gulp build
+      - name: Run gulp release
+        id: gulp_release
+        run: gulp release
 
       - name: Create Release
         uses: actions/github-script@v2
