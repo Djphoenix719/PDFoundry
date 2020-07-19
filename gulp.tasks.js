@@ -238,12 +238,229 @@ async function docs() {
         );
 }
 
+/**
+ * RELEASE
+ */
+function release() {
+    const fetch = require('node-fetch');
+    const JSSoup = require('jssoup').default;
+
+    const archiver = require('archiver');
+    const extractZip = require('extract-zip');
+    const filenamify = require('filenamify');
+
+    const installersRoot = `installers`;
+    let messagePrefix = '-----';
+    const excluded = new Map([]);
+    return new Promise(async (coreResolve, coreReject) => {
+        const cTitle = chalk.green;
+        const cName = chalk.magenta;
+        const cLink = chalk.blue;
+        const cError = chalk.red;
+        if (!fs.existsSync(installersRoot)) {
+            fs.mkdirSync(installersRoot);
+        }
+
+        const findFile = (root, file) => {
+            const queue = [];
+            queue.push(root);
+
+            while (queue.length > 0) {
+                const next = queue.pop();
+
+                if (next[next.length - 1] === file) {
+                    return path.resolve(...next);
+                }
+
+                const nAbs = path.resolve(...next);
+                if (fs.statSync(nAbs).isDirectory()) {
+                    for (const child of fs.readdirSync(nAbs)) {
+                        queue.unshift([...next, child]);
+                    }
+                }
+            }
+            return undefined;
+        };
+
+        const distPath = path.resolve('./', distName);
+
+        // Write object properties
+        const installIntoSystem = (system, template) => {
+            // <editor-fold desc="System">
+            const systemData = JSON.parse(fs.readFileSync(system).toString());
+            if (!systemData.hasOwnProperty('esmodules')) {
+                systemData['esmodules'] = [];
+            }
+
+            if (!systemData.esmodules.includes('pdfoundry-dist/bundle.js')) {
+                systemData.esmodules.push('pdfoundry-dist/bundle.js');
+            }
+            // </editor-fold>
+
+            // <editor-fold desc="Template">
+            const templateData = JSON.parse(fs.readFileSync(template).toString());
+            if (!templateData.hasOwnProperty('Item')) {
+                templateData['Item'] = {};
+            }
+
+            if (!templateData.Item.hasOwnProperty('types')) {
+                templateData.Item['types'] = [];
+            }
+            if (!templateData.Item.types.includes('PDFoundry_PDF')) {
+                templateData.Item.types.push('PDFoundry_PDF');
+            }
+
+            if (!templateData.Item.hasOwnProperty('PDFoundry_PDF')) {
+                templateData.Item['PDFoundry_PDF'] = {};
+            }
+
+            const properties = [
+                ['url', ''],
+                ['code', ''],
+                ['offset', 0],
+                ['cache', false],
+            ];
+
+            for (const [key, value] of properties) {
+                if (!templateData.Item.PDFoundry_PDF.hasOwnProperty(key)) {
+                    templateData.Item.PDFoundry_PDF[key] = value;
+                    continue;
+                }
+
+                if (!templateData.Item.PDFoundry_PDF[key] !== value) {
+                    templateData.Item.PDFoundry_PDF[key] = value;
+                }
+            }
+            // </editor-fold>
+
+            fs.writeFileSync(system, JSON.stringify(systemData, null, 2));
+            fs.writeFileSync(template, JSON.stringify(templateData, null, 2));
+
+            return { systemData, templateData };
+        };
+
+        const processed = new Set();
+        const processManifest = (href) => {
+            return new Promise((resolve, reject) => {
+                fetch(href)
+                    .then((res) => res.text())
+                    .then(async (body) => {
+                        const system = JSON.parse(body);
+                        const { download, name, title, version } = system;
+
+                        if (processed.has(name)) {
+                            logger.info(`${cError('Skipping duplicate')}: ${cTitle(title)}`);
+                            resolve();
+                            return;
+                        }
+                        if (excluded.has(name)) {
+                            logger.info(`${cError('Skipping excluded')}: ${cTitle(title)}`);
+                            resolve();
+                            return;
+                        }
+
+                        if (download && name && title && version) {
+                            logger.info(`${cLink(processed.size + 1)} - Found a system: ${cTitle(title)} (${cName(name)})`);
+
+                            const sourceZipPath = path.resolve(installersRoot, `${name}.zip`);
+                            const sourceZipStream = fs.createWriteStream(sourceZipPath);
+                            const sourceFolderPath = path.resolve(installersRoot, name);
+                            const destZipPath = path.resolve(installersRoot, `${filenamify(title)} [${name} v${version}].zip`);
+                            fetch(download).then((res) => {
+                                res.body.pipe(sourceZipStream).on('finish', async () => {
+                                    await extractZip(sourceZipPath, { dir: sourceFolderPath });
+                                    await del(sourceZipPath);
+
+                                    if (findFile([installersRoot, sourceFolderPath], distName) !== undefined) {
+                                        await del(sourceFolderPath);
+
+                                        logger.info(`${cError('Skipping')} ${cTitle(title)}: PDFoundry is already installed.`);
+                                        excluded.set(name, `${title} [${name}] already includes PDFoundry as part of the system.`);
+                                        resolve();
+                                        return;
+                                    }
+
+                                    const system = findFile([installersRoot, sourceFolderPath], 'system.json');
+                                    const template = findFile([installersRoot, sourceFolderPath], 'template.json');
+                                    logger.info(`${cTitle(title)}'s ${cName('system.json')} is located at ${cLink(system)}`);
+                                    logger.info(`${cTitle(title)}'s ${cName('template.json')} is located at ${cLink(template)}`);
+
+                                    installIntoSystem(system, template);
+                                    logger.info(`Installed into ${cName('system.json')} and ${cName('template.json')}.`);
+
+                                    const destBundleStream = fs.createWriteStream(destZipPath);
+                                    const archive = archiver('zip', {
+                                        zlib: { level: 9 },
+                                    });
+
+                                    await archive.append(fs.createReadStream(system), {
+                                        name: 'system.json',
+                                    });
+                                    logger.info(`Wrote ${cName('system.json')} into archive.`);
+                                    await archive.append(fs.createReadStream(template), {
+                                        name: 'template.json',
+                                    });
+                                    logger.info(`Wrote ${cName('template.json')} into archive.`);
+                                    await archive.directory(distPath, distName);
+                                    logger.info(`Wrote ${cName(distName)} into archive.`);
+
+                                    await archive.pipe(destBundleStream);
+                                    await archive.finalize();
+                                    await del(sourceFolderPath);
+
+                                    logger.info(`Build complete for ${cTitle(title)} (${cName(name)})!`);
+                                    processed.add(name);
+                                    resolve();
+                                });
+                            });
+                        } else {
+                            logger.info(cError(`Invalid system at ${href}`));
+                            resolve();
+                        }
+                    });
+            });
+        };
+
+        fetch('https://foundryvtt.com/packages/systems')
+            .then((res) => res.text())
+            .then(async (body) => {
+                const soup = new JSSoup(body);
+                const anchors = new Set(soup.findAll('a'));
+
+                for (const anchor of anchors) {
+                    const ref = anchor.attrs.href.toLowerCase();
+                    if (ref.indexOf('.json') === -1) {
+                        continue;
+                    }
+
+                    if (ref.indexOf('github') >= 1) {
+                        logger.info(`Processing ${cTitle('GitHub')} repository ${cLink(ref)}`);
+                        logger.info('----------------------------------------');
+                        await processManifest(ref);
+                        logger.info('----------------------------------------');
+                    } else if (ref.includes('gitlab') >= 1) {
+                        logger.info(`Processing ${cTitle('GitLab')} repository ${cLink(ref)}`);
+                        logger.info('----------------------------------------');
+                        await processManifest(ref);
+                        logger.info('----------------------------------------');
+                    }
+                }
+
+                fs.writeFileSync('body', `${messagePrefix}\n${Array.from(excluded.values()).join('\n')}`);
+
+                coreResolve();
+            });
+    });
+}
+
 exports.clean = cleanDist;
 exports.assets = copyAssets;
 exports.sass = buildSass;
 exports.link = link;
 exports.docs = docs;
 exports.build = gulp.series(copyAssets, buildSass, buildJS);
-exports.watch = gulp.series(exports.build, watch);
 exports.rebuild = gulp.series(cleanDist, exports.build);
+exports.release = gulp.series(exports.build, release);
+
+exports.watch = gulp.series(exports.build, watch);
 exports.rewatch = gulp.series(cleanDist, exports.watch);

@@ -14,7 +14,6 @@
  */
 
 const gulp = require('gulp');
-
 const tasks = require('./gulp.tasks');
 
 gulp.task('build', tasks.build);
@@ -26,4 +25,5 @@ gulp.task('clean', tasks.clean);
 gulp.task('sass', tasks.sass);
 gulp.task('link', tasks.link);
 gulp.task('docs', tasks.docs);
+gulp.task('release', tasks.release);
 exports.default = tasks.build;
