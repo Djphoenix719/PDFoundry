@@ -9,6 +9,8 @@
 
 A PDF viewer module for Foundry VTT, made for developers to integrate with their systems.
 
+> **Anyone** can install PDFoundry and make use of a limited set of features - without a system integration you still get a fully fledged PDF viewer! 
+
 The goal of this library is to provide system developers with a easy to use and homogenized source support library to provide high quality source links in-application. I'd like to be able to click "view source" in every system, because finding information in PDFs takes a long time!
 
 ## Setup
