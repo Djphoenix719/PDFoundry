@@ -365,7 +365,7 @@ function release() {
                             const sourceZipPath = path.resolve(installersRoot, `${name}.zip`);
                             const sourceZipStream = fs.createWriteStream(sourceZipPath);
                             const sourceFolderPath = path.resolve(installersRoot, name);
-                            const destZipPath = path.resolve(installersRoot, `${filenamify(title)} [${name} v${version}].zip`);
+                            const destZipPath = path.resolve(installersRoot, `${name}_v${version}.zip`);
                             fetch(download).then((res) => {
                                 res.body.pipe(sourceZipStream).on('finish', async () => {
                                     await extractZip(sourceZipPath, { dir: sourceFolderPath });
