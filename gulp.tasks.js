@@ -19,7 +19,7 @@ const path = require('path');
 const del = require('del');
 const assign = require('lodash.assign');
 const chalk = require('chalk');
-const { exec } = require('child_process');
+const spawn = require('child_process').spawn;
 
 // Browserify
 const browserify = require('browserify');
@@ -45,9 +45,10 @@ const destFolder = path.resolve(process.cwd(), distName);
 const jsBundle = 'bundle.js';
 
 const baseArgs = {
-    entries: ['./src/module/main.ts'],
+    entries: ['./src/pdfoundry/main.ts'],
     sourceType: 'module',
     debug: true,
+    standalone: 'PDFoundry',
 };
 
 /**
@@ -55,6 +56,24 @@ const baseArgs = {
  */
 function getBabelConfig() {
     return JSON.parse(fs.readFileSync('.babelrc').toString());
+}
+
+function gettsConfig() {
+    return JSON.parse(fs.readFileSync('tsconfig.json').toString());
+}
+
+function resolveRequires() {
+    const tsconfig = gettsConfig();
+    const root = tsconfig['compilerOptions']['baseUrl'];
+    const paths = tsconfig['compilerOptions']['paths'];
+
+    const requires = [];
+    for (const [key, relatives] of Object.entries(paths)) {
+        for (const relative of relatives) {
+            requires.push([key, path.resolve(root, relative)]);
+        }
+    }
+    return requires;
 }
 
 /**
@@ -129,7 +148,13 @@ async function buildJS() {
         plugin: tsify,
     });
 
-    return browserify(buildArgs)
+    const b = browserify(buildArgs);
+
+    for (const [expose, path] of resolveRequires()) {
+        b.require(path, { expose });
+    }
+
+    return b
         .bundle()
         .on('log', logger.info)
         .on('error', logger.error)
@@ -179,6 +204,10 @@ async function watch() {
     watcher.transform(babelify);
     watcher.on('log', logger.info);
 
+    for (const [expose, path] of resolveRequires()) {
+        watcher.require(path, { expose });
+    }
+
     function bundle() {
         return (
             watcher
@@ -219,7 +248,7 @@ async function buildSass() {
  */
 async function docs() {
     return gulp
-        .src(['src/module/**/*'])
+        .src(['src/pdfoundry/**/index.ts'])
         .on('error', function (error) {
             logger.error(error);
             this.emit('end');
@@ -233,7 +262,6 @@ async function docs() {
                 excludePrivate: true,
                 excludeProtected: true,
                 version: true,
-                plugins: ['typedoc-plugin-external-module-name'],
             }),
         );
 }

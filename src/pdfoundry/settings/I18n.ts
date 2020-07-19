@@ -13,22 +13,22 @@
  * limitations under the License.
  */
 
-import { PDFSettings } from './PDFSettings';
+import Settings from './Settings';
 
 /**
  * Localization helper
  * @private
  */
-export class PDFI18n {
+export default class I18n {
     /**
      * Load the localization file for the user's language.
      */
     public static async initialize() {
         const lang = game.i18n.lang;
         // user's language path
-        const u_path = `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/locale/${lang}/config.json`;
+        const u_path = `systems/${Settings.DIST_PATH}/locale/${lang}/config.json`;
         // english fallback path
-        const f_path = `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/locale/en/config.json`;
+        const f_path = `systems/${Settings.DIST_PATH}/locale/en/config.json`;
 
         let json;
         try {

@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-import { PDFSettings } from '../../settings/PDFSettings';
+import Settings from '../../settings/Settings';
 
 /**
  * @private
  */
-export abstract class PDFSocketEvent {
+export default abstract class SocketEvent {
     /**
      * The type of this event.
      */
@@ -49,7 +49,7 @@ export abstract class PDFSocketEvent {
 
     public emit() {
         // @ts-ignore
-        game.socket.emit(PDFSettings.SOCKET_NAME, {
+        game.socket.emit(Settings.SOCKET_NAME, {
             type: this.type,
             userIds: this.userIds,
             payload: this.getPayload(),

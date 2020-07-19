@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-import { PDFSettings } from '../settings/PDFSettings';
-import { PDFoundryAPI } from '../api/PDFoundryAPI';
+import Settings from '../settings/Settings';
+import Api from '../api';
 
 /**
  * Extends the base ItemSheet for linked PDF viewing.
@@ -26,7 +26,7 @@ export class PDFItemSheet extends ItemSheet {
         options.classes = ['sheet', 'item'];
         options.width = 650;
         options.height = 'auto';
-        options.template = `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/templates/sheet/pdf-sheet.html`;
+        options.template = `systems/${Settings.DIST_PATH}/templates/sheet/pdf-sheet.html`;
         return options;
     }
 
@@ -47,7 +47,7 @@ export class PDFItemSheet extends ItemSheet {
             class: 'pdf-sheet-manual',
             icon: 'fas fa-question-circle',
             label: 'Help',
-            onclick: () => PDFoundryAPI.showHelp(),
+            onclick: () => Api.showHelp(),
         });
         //TODO: Standardize this to function w/ the Viewer one
         buttons.unshift({
@@ -89,7 +89,7 @@ export class PDFItemSheet extends ItemSheet {
             }
             offsetValue = parseInt(offsetValue as string);
 
-            PDFoundryAPI.openURL(urlValue, 5 + offsetValue, false);
+            Api.openURL(urlValue, 5 + offsetValue, false);
         });
 
         // Browse button

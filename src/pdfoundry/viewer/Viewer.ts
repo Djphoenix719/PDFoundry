@@ -13,20 +13,21 @@
  * limitations under the License.
  */
 
-import { PDFSettings } from '../settings/PDFSettings';
-import { PDFEvents } from '../api/PDFEvents';
-import { PDFData } from '../api/types/PDFData';
-import { PDFjsViewer } from '../types/PDFjsViewer';
-import { PDFSetViewEvent } from '../socket/events/PDFSetViewEvent';
-import { PDFUtil } from '../api/PDFUtil';
-import { PDFjsEventBus } from '../types/PDFjsEventBus';
-import { PDFPlayerSelect } from '../app/PDFPlayerSelect';
+import PlayerSelect from '../app/PlayerSelect';
+import { getUserIdsExceptMe } from '../util';
+import { PDFViewerEvent } from '../common/types/PDFHooks';
+import { PDFData } from '../common/types/PDFData';
+import { PDFjsViewer } from '../common/types/PDFjsViewer';
+import Settings from '../settings/Settings';
+import { PDFjsEventBus } from '../common/types/PDFjsEventBus';
+import SetViewEvent from '../socket/events/SetViewEvent';
+import EventStore from '../common/helpers/events';
 
-export class PDFViewer extends Application {
+export default class Viewer extends Application {
     static get defaultOptions() {
         const options = super.defaultOptions;
         options.classes = ['app', 'window-app', 'pdfoundry-viewer'];
-        options.template = `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/pdfoundry-dist/templates/app/pdf-viewer.html`;
+        options.template = `systems/${Settings.EXTERNAL_SYSTEM_NAME}/pdfoundry-dist/templates/app/pdf-viewer.html`;
         options.title = game.i18n.localize('PDFOUNDRY.VIEWER.ViewPDF');
         options.width = 8.5 * 100 + 64;
         options.height = 11 * 100 + 64;
@@ -38,6 +39,7 @@ export class PDFViewer extends Application {
     protected _viewer: PDFjsViewer;
     protected _eventBus: PDFjsEventBus;
     protected _pdfData: PDFData;
+    protected _eventStore: EventStore<PDFViewerEvent>;
 
     constructor(pdfData?: PDFData, options?: ApplicationOptions) {
         super(options);
@@ -53,6 +55,7 @@ export class PDFViewer extends Application {
         }
 
         this._pdfData = pdfData;
+        this._eventStore = new EventStore<PDFViewerEvent>();
     }
 
     // <editor-fold desc="Getters & Setters">
@@ -65,10 +68,17 @@ export class PDFViewer extends Application {
         return duplicate(this._pdfData);
     }
 
+    /**
+     * Get the currently viewed page.
+     */
     public get page() {
         return this._viewer.page;
     }
 
+    /**
+     * Set the currently viewed page.
+     * @param value
+     */
     public set page(value: number) {
         this._viewer.page = value;
     }
@@ -77,7 +87,7 @@ export class PDFViewer extends Application {
 
     // <editor-fold desc="Foundry Overrides">
 
-    get title(): string {
+    public get title(): string {
         let title = this._pdfData.name;
         if (this._pdfData.code !== '') {
             title = `${title} (${this._pdfData.code})`;
@@ -105,9 +115,9 @@ export class PDFViewer extends Application {
         return buttons;
     }
 
-    getData(options?: any): any | Promise<any> {
+    public getData(options?: any): any | Promise<any> {
         const data = super.getData(options);
-        data.systemName = PDFSettings.EXTERNAL_SYSTEM_NAME;
+        data.systemName = Settings.EXTERNAL_SYSTEM_NAME;
         return data;
     }
 
@@ -128,8 +138,7 @@ export class PDFViewer extends Application {
                 //     });
                 // }
 
-                // Fire the viewerReady event so the viewer may be used externally
-                PDFEvents.fire('viewerReady', this);
+                this._eventStore.fire('viewerReady', this);
             });
         });
 
@@ -142,8 +151,8 @@ export class PDFViewer extends Application {
     //     console.debug(args);
     // }
 
-    async close(): Promise<any> {
-        PDFEvents.fire('viewerClose', this);
+    public async close(): Promise<any> {
+        this._eventStore.fire('viewerClose', this);
         return super.close();
     }
 
@@ -152,17 +161,16 @@ export class PDFViewer extends Application {
     /**
      * Show the current page to GMs.
      */
-    private showTo(event: MouseEvent) {
+    protected showTo(event: MouseEvent) {
         const pdfData = this.pdfData;
         pdfData.offset = 0;
 
-        // @ts-ignore
-        const ids = PDFUtil.getUserIdsExceptMe();
+        const ids = getUserIdsExceptMe();
         if (event.shiftKey) {
-            new PDFSetViewEvent(ids, pdfData, this.page).emit();
+            new SetViewEvent(ids, pdfData, this.page).emit();
         } else {
-            new PDFPlayerSelect(ids, (filteredIds) => {
-                new PDFSetViewEvent(filteredIds, pdfData, this.page).emit();
+            new PlayerSelect(ids, (filteredIds) => {
+                new SetViewEvent(filteredIds, pdfData, this.page).emit();
             }).render(true);
         }
     }
@@ -170,12 +178,12 @@ export class PDFViewer extends Application {
     /**
      * Wait for the internal PDFjs viewer to be ready and usable.
      */
-    private getViewer(): Promise<PDFjsViewer> {
+    protected getViewer(): Promise<PDFjsViewer> {
         if (this._viewer) {
             return Promise.resolve(this._viewer);
         }
 
-        return new Promise<any>((resolve, reject) => {
+        return new Promise<any>((resolve) => {
             let timeout;
             const returnOrWait = () => {
                 // If our window has finished initializing...
@@ -198,12 +206,12 @@ export class PDFViewer extends Application {
     /**
      * Wait for the internal PDFjs eventBus to be ready and usable.
      */
-    private getEventBus(): Promise<PDFjsEventBus> {
+    protected getEventBus(): Promise<PDFjsEventBus> {
         if (this._eventBus) {
             return Promise.resolve(this._eventBus);
         }
 
-        return new Promise<any>((resolve, reject) => {
+        return new Promise<any>((resolve) => {
             this.getViewer().then((viewer) => {
                 let timeout;
                 const returnOrWait = () => {
@@ -222,7 +230,7 @@ export class PDFViewer extends Application {
      * Finish the download and return the byte array for the file.
      */
     public download(): Promise<Uint8Array> {
-        return new Promise<Uint8Array>(async (resolve, reject) => {
+        return new Promise<Uint8Array>(async (resolve) => {
             const viewer = await this.getViewer();
             let timeout;
             const returnOrWait = () => {
@@ -237,6 +245,11 @@ export class PDFViewer extends Application {
         });
     }
 
+    /**
+     * Open a PDF
+     * @param pdfSource A URL or byte array to open.
+     * @param page The initial page to open to
+     */
     public async open(pdfSource: string | Uint8Array, page?: number) {
         const pdfjsViewer = await this.getViewer();
 
@@ -245,5 +258,7 @@ export class PDFViewer extends Application {
         }
 
         await pdfjsViewer.open(pdfSource);
+
+        this._eventStore.fire('viewerOpen', this);
     }
 }

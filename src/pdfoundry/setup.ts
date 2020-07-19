@@ -13,33 +13,60 @@
  * limitations under the License.
  */
 
-import { PDFSettings } from '../settings/PDFSettings';
-import { PDFItemSheet } from '../app/PDFItemSheet';
-import { PDFoundryAPI } from '../api/PDFoundryAPI';
-import { PDFUtil } from '../api/PDFUtil';
-import { PDFPreloadEvent } from '../socket/events/PDFPreloadEvent';
-import { PDFCache } from '../cache/PDFCache';
+import { getAbsoluteURL, getPDFDataFromItem } from './util';
+import { PDFItemSheet } from './app/PDFItemSheet';
+import PreloadEvent from './socket/events/PreloadEvent';
+import { Socket } from './socket/Socket';
+import Settings from './settings/Settings';
+import FileCache from './pdf-cache/FileCache';
+import I18n from './settings/I18n';
+import Api from './api';
 
-// TODO: Utilities for get/set user flags
 /**
  * A collection of methods used for setting up the API & system state.
  * @private
  */
-export class PDFSetup {
+export default class Setup {
     /**
-     * Register the PDFoundry APi on the UI
+     * Run setup tasks.
      */
-    public static registerAPI() {
-        ui['PDFoundry'] = PDFoundryAPI;
+    public static run() {
+        // Register the PDFoundry APi on the UI
+        ui['PDFoundry'] = Api;
+
+        // Register system & css synchronously
+        Setup.registerSystem();
+        Setup.injectStyles();
+
+        // Setup tasks requiring FVTT is loaded
+        Hooks.once('ready', Setup.lateRun);
+    }
+
+    public static lateRun() {
+        // Register the PDF sheet with the class picker
+        Setup.setupSheets();
+        // Register socket event handlers
+        Socket.initialize();
+
+        return new Promise(async () => {
+            // Initialize the settings
+            await Settings.initialize();
+            await FileCache.initialize();
+            await I18n.initialize();
+
+            // PDFoundry is ready
+            Setup.userLogin();
+            Hooks.call('PDFOUNDRY\\READY', Api);
+        });
     }
 
     /**
      * Inject the CSS file into the header, so it doesn't have to be referenced in the system.json
      */
-    public static registerCSS() {
-        $('head').append(
-            $(`<link href="systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/bundle.css" rel="stylesheet" type="text/css" media="all">`),
-        );
+    public static injectStyles() {
+        const head = $('head');
+        const link = `<link href="systems/${Settings.DIST_PATH}/bundle.css" rel="stylesheet" type="text/css" media="all">`;
+        head.append($(link));
     }
 
     /**
@@ -50,12 +77,12 @@ export class PDFSetup {
         for (let i = 0; i < scripts.length; i++) {
             const script = scripts.get(i) as HTMLScriptElement;
             const folders = script.src.split('/');
-            const distIdx = folders.indexOf(PDFSettings.DIST_FOLDER);
+            const distIdx = folders.indexOf(Settings.DIST_NAME);
             if (distIdx === -1) continue;
 
             if (folders[distIdx - 1] === 'pdfoundry') break;
 
-            PDFSettings.EXTERNAL_SYSTEM_NAME = folders[distIdx - 1];
+            Settings.EXTERNAL_SYSTEM_NAME = folders[distIdx - 1];
             break;
         }
     }
@@ -63,15 +90,15 @@ export class PDFSetup {
     /**
      * Register the PDF sheet and unregister invalid sheet types from it.
      */
-    public static foundryConfig() {
-        Items.registerSheet(PDFSettings.INTERNAL_MODULE_NAME, PDFItemSheet, {
-            types: [PDFSettings.PDF_ENTITY_TYPE],
+    public static setupSheets() {
+        Items.registerSheet(Settings.INTERNAL_MODULE_NAME, PDFItemSheet, {
+            types: [Settings.PDF_ENTITY_TYPE],
             makeDefault: true,
         });
 
         // Unregister all other item sheets for the PDF entity
-        const pdfoundryKey = `${PDFSettings.INTERNAL_MODULE_NAME}.${PDFItemSheet.name}`;
-        const sheets = CONFIG.Item.sheetClasses[PDFSettings.PDF_ENTITY_TYPE];
+        const pdfoundryKey = `${Settings.INTERNAL_MODULE_NAME}.${PDFItemSheet.name}`;
+        const sheets = CONFIG.Item.sheetClasses[Settings.PDF_ENTITY_TYPE];
         for (const key of Object.keys(sheets)) {
             const sheet = sheets[key];
             // keep the PDFoundry sheet
@@ -82,7 +109,7 @@ export class PDFSetup {
             // id is MODULE.CLASS_NAME
             const [module] = sheet.id.split('.');
             Items.unregisterSheet(module, sheet.cls, {
-                types: [PDFSettings.PDF_ENTITY_TYPE],
+                types: [Settings.PDF_ENTITY_TYPE],
             });
         }
     }
@@ -104,7 +131,7 @@ export class PDFSetup {
                 icon: '<i class="fas fa-download fa-fw"></i>',
                 condition: (entityHtml: JQuery<HTMLElement>) => {
                     const item = getItemFromContext(entityHtml);
-                    if (item.type !== PDFSettings.PDF_ENTITY_TYPE) {
+                    if (item.type !== Settings.PDF_ENTITY_TYPE) {
                         return false;
                     }
 
@@ -113,7 +140,7 @@ export class PDFSetup {
                 },
                 callback: (entityHtml: JQuery<HTMLElement>) => {
                     const item = getItemFromContext(entityHtml);
-                    const pdf = PDFUtil.getPDFDataFromItem(item);
+                    const pdf = getPDFDataFromItem(item);
 
                     if (pdf === null) {
                         //TODO: Error handling
@@ -121,10 +148,10 @@ export class PDFSetup {
                     }
 
                     const { url } = pdf;
-                    const event = new PDFPreloadEvent(null, PDFUtil.getAbsoluteURL(url));
+                    const event = new PreloadEvent(null, getAbsoluteURL(url));
                     event.emit();
 
-                    PDFCache.preload(url);
+                    FileCache.preload(url);
                 },
             });
         }
@@ -134,7 +161,7 @@ export class PDFSetup {
             icon: '<i class="far fa-file-pdf"></i>',
             condition: (entityHtml: JQuery<HTMLElement>) => {
                 const item = getItemFromContext(entityHtml);
-                if (item.type !== PDFSettings.PDF_ENTITY_TYPE) {
+                if (item.type !== Settings.PDF_ENTITY_TYPE) {
                     return false;
                 }
 
@@ -143,14 +170,14 @@ export class PDFSetup {
             },
             callback: (entityHtml: JQuery<HTMLElement>) => {
                 const item = getItemFromContext(entityHtml);
-                const pdf = PDFUtil.getPDFDataFromItem(item);
+                const pdf = getPDFDataFromItem(item);
 
                 if (pdf === null) {
                     //TODO: Error handling
                     return;
                 }
 
-                PDFoundryAPI.openPDF(pdf, 1);
+                Api.openPDF(pdf, 1);
             },
         });
     }
@@ -158,28 +185,37 @@ export class PDFSetup {
     public static userLogin() {
         let viewed;
         try {
-            viewed = game.user.getFlag(PDFSettings.EXTERNAL_SYSTEM_NAME, PDFSettings.HELP_SEEN_KEY);
+            viewed = game.user.getFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.SETTING_KEY.HELP_SEEN);
         } catch (error) {
             viewed = false;
         } finally {
             if (!viewed) {
-                PDFoundryAPI.showHelp();
+                Api.showHelp();
             }
         }
     }
 
     public static async preCreateItem(entity, ...args) {
-        if (entity.type !== PDFSettings.PDF_ENTITY_TYPE) {
+        if (entity.type !== Settings.PDF_ENTITY_TYPE) {
             return;
         }
-        entity.img = `systems/${PDFSettings.EXTERNAL_SYSTEM_NAME}/${PDFSettings.DIST_FOLDER}/assets/pdf_icon.svg`;
+        entity.img = `systems/${Settings.DIST_PATH}/assets/pdf_icon.svg`;
     }
 
     public static onRenderSettings(settings: any, html: JQuery<HTMLElement>, data: any) {
         const icon = '<i class="far fa-file-pdf"></i>';
         const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
-        button.on('click', PDFoundryAPI.showHelp);
+        button.on('click', Api.showHelp);
 
         html.find('h2').last().before(button);
     }
 }
+
+// <editor-fold desc="Persistent Hooks">
+
+// preCreateItem - Setup default values for a new PDFoundry_PDF
+Hooks.on('preCreateItem', Setup.preCreateItem);
+// getItemDirectoryEntryContext - Setup context menu for 'Open PDF' links
+Hooks.on('getItemDirectoryEntryContext', Setup.getItemContextOptions);
+// renderSettings - Inject a 'Open Manual' button into help section
+Hooks.on('renderSettings', Setup.onRenderSettings);

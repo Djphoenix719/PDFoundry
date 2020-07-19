@@ -13,31 +13,35 @@
  * limitations under the License.
  */
 
-import { PDFSocketEvent } from './PDFSocketEvent';
+import SocketEvent from './SocketEvent';
+import { PDFData } from '../../common/types/PDFData';
 
 /**
  * @private
  */
-export class PDFPreloadEvent extends PDFSocketEvent {
+export default class SetViewEvent extends SocketEvent {
     public static get EVENT_TYPE() {
-        return `${super.EVENT_TYPE}/PRELOAD_PDF`;
+        return `${super.EVENT_TYPE}/SET_VIEW`;
     }
 
     get type() {
-        return PDFPreloadEvent.EVENT_TYPE;
+        return SetViewEvent.EVENT_TYPE;
     }
 
-    public url: string;
+    public page: number;
+    public pdfData: PDFData;
 
-    constructor(userIds: string[] | null, url: string) {
+    constructor(userIds: string[] | null, pdfData: PDFData, page: number) {
         super(userIds);
 
-        this.url = url;
+        this.pdfData = pdfData;
+        this.page = page;
     }
 
-    protected getPayload(): any {
+    protected getPayload() {
         const payload = super.getPayload();
-        payload.url = this.url;
+        payload.pdfData = this.pdfData;
+        payload.page = this.page;
         return payload;
     }
 }

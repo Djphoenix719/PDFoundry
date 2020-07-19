@@ -5,6 +5,8 @@
       "types": [
         "foundry-pc-types",
         "@types/pdfjs-dist"
-      ]
+      ],
+      "baseUrl": "src/pdfoundry",
+      "paths": { }
     }
   }

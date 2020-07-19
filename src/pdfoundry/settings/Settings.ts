@@ -13,38 +13,47 @@
  * limitations under the License.
  */
 
-import { PDFoundryAPI } from '../api/PDFoundryAPI';
-import { PDFCache } from '../cache/PDFCache';
-import { PDFUtil } from '../api/PDFUtil';
-import { PDFPreloadEvent } from '../socket/events/PDFPreloadEvent';
-
 /**
  * Internal settings and helper methods for PDFoundry.
  * @private
  */
-export class PDFSettings {
+export default class Settings {
     /**
      * Are feedback notifications enabled? Disable if you wish
      *  to handle them yourself.
      */
     public static NOTIFICATIONS: boolean = true;
 
-    public static DIST_FOLDER: string = 'pdfoundry-dist';
+    /**
+     * Enable additional debug information for the specified category.
+     */
+    public static DEBUG = {
+        EVENTS: true,
+    };
+
     public static EXTERNAL_SYSTEM_NAME: string = '../modules/pdfoundry';
     public static INTERNAL_MODULE_NAME: string = 'pdfoundry';
-    public static PDF_ENTITY_TYPE: string = 'PDFoundry_PDF';
 
-    public static SETTING_EXISTING_VIEWER = 'ShowInExistingViewer';
-    public static SETTING_CACHE_SIZE = 'CacheSize';
+    public static DIST_NAME = 'pdfoundry-dist';
 
-    public static HELP_SEEN_KEY: string = 'PDFoundry_HelpSeen';
-
-    public static get SOCKET_NAME() {
-        return `system.${PDFSettings.EXTERNAL_SYSTEM_NAME}`;
+    public static get DIST_PATH() {
+        return `${Settings.EXTERNAL_SYSTEM_NAME}/${Settings.DIST_NAME}`;
     }
 
-    public static registerSettings() {
-        PDFSettings.register(PDFSettings.SETTING_CACHE_SIZE, {
+    public static PDF_ENTITY_TYPE: string = 'PDFoundry_PDF';
+
+    public static SETTING_KEY = {
+        EXISTING_VIEWER: 'ShowInExistingViewer',
+        CACHE_SIZE: 'CacheSize',
+        HELP_SEEN: 'PDFoundry_HelpSeen',
+    };
+
+    public static get SOCKET_NAME() {
+        return `system.${Settings.EXTERNAL_SYSTEM_NAME}`;
+    }
+
+    public static initialize() {
+        Settings.register(Settings.SETTING_KEY.CACHE_SIZE, {
             name: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeName'),
             scope: 'user',
             type: Number,
@@ -55,11 +64,11 @@ export class PDFSettings {
                 mb = Math.round(mb);
                 mb = Math.max(mb, 64);
                 mb = Math.min(mb, 1024);
-                await PDFSettings.set(PDFSettings.SETTING_CACHE_SIZE, mb);
+                await Settings.set(Settings.SETTING_KEY.CACHE_SIZE, mb);
             },
         });
 
-        PDFSettings.register(PDFSettings.SETTING_EXISTING_VIEWER, {
+        Settings.register(Settings.SETTING_KEY.EXISTING_VIEWER, {
             name: game.i18n.localize('PDFOUNDRY.SETTINGS.ShowInExistingViewerName'),
             scope: 'user',
             type: Boolean,
@@ -75,7 +84,7 @@ export class PDFSettings {
      * @param data
      */
     public static register(key: string, data: any) {
-        game.settings.register(PDFSettings.EXTERNAL_SYSTEM_NAME, key, data);
+        game.settings.register(Settings.EXTERNAL_SYSTEM_NAME, key, data);
     }
 
     /**
@@ -83,7 +92,7 @@ export class PDFSettings {
      * @param key
      */
     public static get(key: string) {
-        return game.settings.get(PDFSettings.EXTERNAL_SYSTEM_NAME, key);
+        return game.settings.get(Settings.EXTERNAL_SYSTEM_NAME, key);
     }
 
     /**
@@ -92,6 +101,6 @@ export class PDFSettings {
      * @param value
      */
     public static async set(key: string, value: any) {
-        return game.settings.set(PDFSettings.EXTERNAL_SYSTEM_NAME, key, value);
+        return game.settings.set(Settings.EXTERNAL_SYSTEM_NAME, key, value);
     }
 }
