@@ -53,4 +53,4 @@ html_static_path = ['_static']
 
 primary_domain = 'js'
 js_language = 'typescript'
-js_source_path = 'src/pdfoundry/'
+js_source_path = './src'
