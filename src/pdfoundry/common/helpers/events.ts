@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import PDFoundryAPI from '../../Api';
+import Api from '../../Api';
 
 /**
  * @private
@@ -80,7 +80,7 @@ export default class EventStore<TKeys extends string = string> {
      * @param args
      */
     public fire(eventName: TKeys, ...args) {
-        if (PDFoundryAPI.DEBUG.EVENTS) {
+        if (Api.DEBUG.EVENTS) {
             console.warn(`PDFoundry::${eventName}`);
             console.warn(args);
         }

@@ -56,7 +56,7 @@ async function _handleOpen(viewer: Viewer, url: string, page: number, cache: boo
  *
  * ## You can access the API with `ui.PDFoundry`.
  */
-export default class PDFoundryAPI {
+export default class Api {
     /**
      * Enable additional debug information for the specified category.
      * @category Debug
@@ -71,29 +71,29 @@ export default class PDFoundryAPI {
     // <editor-fold desc="GetPDFData Methods">
 
     /**
-     * Helper method. Alias for {@link PDFoundryAPI.getPDFData} with a comparer that searches by PDF Code.
+     * Helper method. Alias for {@link Api.getPDFData} with a comparer that searches by PDF Code.
      * @param code Which code to search for a PDF with.
      * @category PDFData
      */
     public static getPDFDataByCode(code: string): PDFData | null {
-        return PDFoundryAPI.getPDFData((item) => {
+        return Api.getPDFData((item) => {
             return item.data.data.code === code;
         });
     }
 
     /**
-     * Helper method. Alias for {@link PDFoundryAPI.getPDFData} with a comparer that searches by PDF Name.
+     * Helper method. Alias for {@link Api.getPDFData} with a comparer that searches by PDF Name.
      * @param name Which name to search for a PDF with.
      * @param caseInsensitive If a case insensitive search should be done.
      * @category PDFData
      */
     public static getPDFDataByName(name: string, caseInsensitive: boolean = true): PDFData | null {
         if (caseInsensitive) {
-            return PDFoundryAPI.getPDFData((item) => {
+            return Api.getPDFData((item) => {
                 return item.name.toLowerCase() === name.toLowerCase();
             });
         } else {
-            return PDFoundryAPI.getPDFData((item) => {
+            return Api.getPDFData((item) => {
                 return item.name === name;
             });
         }
@@ -161,7 +161,7 @@ export default class PDFoundryAPI {
 
     /**
      * Open the provided {@link PDFData} to the specified page.
-     * @param pdf The PDF to open. See {@link PDFoundryAPI.getPDFData}.
+     * @param pdf The PDF to open. See {@link Api.getPDFData}.
      * @param page The page to open the PDF to.
      * @category Open
      */
@@ -231,7 +231,7 @@ export default class PDFoundryAPI {
             cache: false,
         };
 
-        return PDFoundryAPI.openPDF(pdfData);
+        return Api.openPDF(pdfData);
     }
 
     // </editor-fold>

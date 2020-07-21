@@ -14,7 +14,7 @@
  */
 
 import Settings from '../settings/Settings';
-import PDFoundryAPI from '../Api';
+import Api from '../Api';
 
 /**
  * Extends the base ItemSheet for linked PDF viewing.
@@ -47,7 +47,7 @@ export class PDFItemSheet extends ItemSheet {
             class: 'pdf-sheet-manual',
             icon: 'fas fa-question-circle',
             label: 'Help',
-            onclick: () => PDFoundryAPI.showHelp(),
+            onclick: () => Api.showHelp(),
         });
         //TODO: Standardize this to function w/ the Viewer one
         buttons.unshift({
@@ -89,7 +89,7 @@ export class PDFItemSheet extends ItemSheet {
             }
             offsetValue = parseInt(offsetValue as string);
 
-            PDFoundryAPI.openURL(urlValue, 5 + offsetValue, false);
+            Api.openURL(urlValue, 5 + offsetValue, false);
         });
 
         // Browse button
