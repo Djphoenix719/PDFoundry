@@ -46,7 +46,7 @@ const docsFolder = path.resolve(process.cwd(), 'docs');
 const jsBundle = 'bundle.js';
 
 const baseArgs = {
-    entries: ['./src/pdfoundry/main.ts'],
+    entries: ['./src/pdfoundry/Main.ts'],
     sourceType: 'module',
     debug: true,
     standalone: 'PDFoundry',
