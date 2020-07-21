@@ -20,7 +20,7 @@ import { Socket } from './socket/Socket';
 import Settings from './settings/Settings';
 import PDFCache from './cache/PDFCache';
 import I18n from './settings/I18n';
-import Api from './Api';
+import PDFoundryAPI from './Api';
 
 /**
  * A collection of methods used for setting up the API & system state.
@@ -32,7 +32,7 @@ export default class Setup {
      */
     public static run() {
         // Register the PDFoundry APi on the UI
-        ui['PDFoundry'] = Api;
+        ui['PDFoundry'] = PDFoundryAPI;
 
         // Register system & css synchronously
         Setup.registerSystem();
@@ -56,7 +56,7 @@ export default class Setup {
 
             // PDFoundry is ready
             Setup.userLogin();
-            Hooks.call('PDFOUNDRY\\READY', Api);
+            Hooks.call('PDFOUNDRY\\READY', PDFoundryAPI);
         });
     }
 
@@ -177,7 +177,7 @@ export default class Setup {
                     return;
                 }
 
-                Api.openPDF(pdf, 1);
+                PDFoundryAPI.openPDF(pdf, 1);
             },
         });
     }
@@ -190,7 +190,7 @@ export default class Setup {
             viewed = false;
         } finally {
             if (!viewed) {
-                Api.showHelp();
+                PDFoundryAPI.showHelp();
             }
         }
     }
@@ -205,7 +205,7 @@ export default class Setup {
     public static onRenderSettings(settings: any, html: JQuery<HTMLElement>, data: any) {
         const icon = '<i class="far fa-file-pdf"></i>';
         const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
-        button.on('click', Api.showHelp);
+        button.on('click', PDFoundryAPI.showHelp);
 
         html.find('h2').last().before(button);
     }

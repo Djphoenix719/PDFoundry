@@ -15,7 +15,7 @@
 
 import PreloadEvent from './events/PreloadEvent';
 import Viewer from '../viewer/Viewer';
-import Api from '../Api';
+import PDFoundryAPI from '../Api';
 import Settings from '../settings/Settings';
 import SetViewEvent from './events/SetViewEvent';
 import PDFCache from '../cache/PDFCache';
@@ -67,7 +67,7 @@ export class Socket {
             }
             // App not found, fall through.
         }
-        Api.openPDF(data.pdfData, data.page);
+        PDFoundryAPI.openPDF(data.pdfData, data.page);
     }
 
     public static handlePreloadPDF(data: any) {
