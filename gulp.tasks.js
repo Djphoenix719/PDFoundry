@@ -97,33 +97,7 @@ async function link() {
 
     logger.info(`Linking to "${chalk.green(targetPath)}"`);
 
-    try {
-        if (fs.readlinkSync(targetPath)) {
-            fs.unlinkSync(targetPath);
-        }
-    } catch (error) {
-        // Link does not exist
-    }
-
-    try {
-        if (fs.existsSync(targetPath)) {
-            await del(targetPath, { force: true });
-        }
-    } catch (error) {
-        // Folder does not exist
-    }
-
-    // For some reason fs.symlink perm errors, so we'll execute mklink
-    // Additional support would be needed for linux based systems here
-    exec(`mklink /J ${targetPath} ${destFolder}`, function (error, stdout, stderr) {
-        if (error) logger.error(chalk.red(error));
-        else logger.info(chalk.green(`Symlink created.`));
-
-        process.chdir(path.resolve(targetPath, '..'));
-
-        // Run install script to setup that system
-        require(path.resolve(process.cwd(), distName, 'scripts', 'install.js'));
-    });
+    return gulp.src(destFolder).pipe(gulp.symlink(systemPath, { overwrite: true, useJunctions: true }));
 }
 
 /**
