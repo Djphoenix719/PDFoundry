@@ -234,6 +234,7 @@ async function docs() {
                 out: 'docs/',
                 mode: 'file',
                 exclude: './src/pdfoundry/util.ts',
+                readme: './README.md',
                 excludePrivate: true,
                 excludeProtected: true,
                 stripInternal: true,
