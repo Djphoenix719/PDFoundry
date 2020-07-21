@@ -19,4 +19,4 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-.. js:autoclass:: Api
+.. autoclass:: api.Api

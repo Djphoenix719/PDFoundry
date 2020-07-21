@@ -23,7 +23,6 @@ author = 'Andrew Cuccinello'
 # The full version, including alpha/beta/rc tags
 release = '0.4.0'
 
-
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -52,5 +51,6 @@ html_theme = 'alabaster'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+primary_domain = 'js'
 js_language = 'typescript'
 js_source_path = 'src/pdfoundry/'
