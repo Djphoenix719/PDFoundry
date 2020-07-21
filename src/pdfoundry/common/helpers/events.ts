@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import Api from '../../api';
+import Api from '../../Api';
 
 /**
  * @private

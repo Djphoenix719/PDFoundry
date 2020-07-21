@@ -19,4 +19,4 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-.. autoclass:: pdfoundry/api.ts.Api
+.. autoclass:: ./pdfoundry/Api.Api

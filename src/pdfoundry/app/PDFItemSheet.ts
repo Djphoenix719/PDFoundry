@@ -14,7 +14,7 @@
  */
 
 import Settings from '../settings/Settings';
-import Api from '../api';
+import Api from '../Api';
 
 /**
  * Extends the base ItemSheet for linked PDF viewing.

@@ -15,7 +15,7 @@
 
 import PreloadEvent from './events/PreloadEvent';
 import Viewer from '../viewer/Viewer';
-import Api from '../api';
+import Api from '../Api';
 import Settings from '../settings/Settings';
 import SetViewEvent from './events/SetViewEvent';
 import PDFCache from '../cache/PDFCache';

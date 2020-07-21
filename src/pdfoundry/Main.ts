@@ -13,6 +13,6 @@
  * limitations under the License.
  */
 
-import Setup from './setup';
+import Setup from './Setup';
 
 Setup.run();

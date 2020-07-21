@@ -14,7 +14,7 @@
  */
 
 import PlayerSelect from '../app/PlayerSelect';
-import { getUserIdsExceptMe } from '../util';
+import { getUserIdsExceptMe } from '../Util';
 import { PDFViewerEvent } from '../common/types/PDFHooks';
 import { PDFData } from '../common/types/PDFData';
 import { PDFjsViewer } from '../common/types/PDFjsViewer';

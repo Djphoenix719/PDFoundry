@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-import { getAbsoluteURL, getPDFDataFromItem } from './util';
+import { getAbsoluteURL, getPDFDataFromItem } from './Util';
 import { PDFItemSheet } from './app/PDFItemSheet';
 import PreloadEvent from './socket/events/PreloadEvent';
 import { Socket } from './socket/Socket';
 import Settings from './settings/Settings';
 import PDFCache from './cache/PDFCache';
 import I18n from './settings/I18n';
-import Api from './api';
+import Api from './Api';
 
 /**
  * A collection of methods used for setting up the API & system state.

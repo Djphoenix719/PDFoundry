@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { fileExists, getAbsoluteURL, getPDFDataFromItem, validateAbsoluteURL } from './util';
+import { fileExists, getAbsoluteURL, getPDFDataFromItem, validateAbsoluteURL } from './Util';
 import Viewer from './viewer/Viewer';
 import { PDFData } from './common/types/PDFData';
 import Settings from './settings/Settings';
