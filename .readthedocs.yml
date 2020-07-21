@@ -1,6 +1,7 @@
 version: 1
 
 sphinx:
+  builder: html
   configuration: docs/conf.py
 
 formats:
