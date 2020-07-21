@@ -10,4 +10,6 @@ python:
   version: 3.7
   install:
     - method: pip
-      path: sphinx-js
+      path:
+      extra_requirements:
+        - sphinx-js

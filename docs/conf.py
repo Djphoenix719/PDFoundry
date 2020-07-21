@@ -14,8 +14,6 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
-run('pip install sphinx-js')
-
 # -- Project information -----------------------------------------------------
 
 project = 'PDFoundry'
