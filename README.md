@@ -26,7 +26,7 @@ Installation is easy, however.
 ## System Developers
 PDFoundry has a bunch of user-focused features, meaning you don't have to do anything if you decide to integrate it with your system for your players to get a bunch of benefit out of it. However, there's a fully featured API with event hooks and an interface to open PDFs you may be interested in.
 
-#### Building PDFoundry
+### Building PDFoundry
 If you wish to build PDFoundry yourself - most commonly because you want it on a system that doesn't appear on Foundry's website - you can do the following.
 
 1. Clone the respository
@@ -40,18 +40,20 @@ You have two options for installing it into a system now that PDFoundry is built
 
 In my effort to make this as easy as possible, there's a gulp script to help you. Run `gulp link --system your_system_folder_name`
 
-A symlink will allow easy updates by letting you simply do `git pull` then `gulp rebuild`
+A symlink will allow easy updates by letting you simply do `git pull` then `gulp rebuild` from the PDFoundry repository folder
 
 ##### Option 2
 > Manual
 
 Copy the "pdfoundry-dist" folder created during the build into your system directory. There is a node script you can use to install.
 
-Run `node pdfoundry-dist/scripts/install.js`.
+Run `node pdfoundry-dist/scripts/install.js` from your **system directory**.
 
-> :warning: `pdfoundry-dist/scripts/install.js` will not work.
+> :warning: `pdfoundry-dist/scripts/install.js` will not work. You MUST specify the script to be ran with `node`.
 
-See the [documentation]() for more details and examples.
+### API Examples
+
+See the [documentation](https://djphoenix719.github.io/PDFoundry/index.html) for details and examples.
 
 ## Roadmap
 See the [development board](https://github.com/Djphoenix719/PDFoundry/projects/1#column-9772243) for a list of planned features, roughly in the order I plan to get to them.

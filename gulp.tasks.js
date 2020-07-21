@@ -42,6 +42,7 @@ const typedoc = require('gulp-typedoc');
 // Config
 const distName = 'pdfoundry-dist';
 const destFolder = path.resolve(process.cwd(), distName);
+const docsFolder = path.resolve(process.cwd(), 'docs', 'build');
 const jsBundle = 'bundle.js';
 
 const baseArgs = {
@@ -108,6 +109,13 @@ async function cleanDist() {
     const files = fs.readdirSync(destFolder);
     for (const file of files) {
         await del(path.resolve(destFolder, file));
+    }
+}
+
+async function cleanDocs() {
+    const files = fs.readdirSync(docsFolder);
+    for (const file of files) {
+        await del(path.resolve(docsFolder, file));
     }
 }
 
@@ -231,10 +239,10 @@ async function docs() {
             typedoc({
                 name: 'PDFoundry',
                 target: 'es6',
-                out: 'docs/',
+                out: 'docs/build/',
                 mode: 'file',
-                exclude: './src/pdfoundry/util.ts',
-                readme: './README.md',
+                exclude: ['./src/pdfoundry/util.ts'],
+                readme: './docs/examples.md',
                 excludePrivate: true,
                 excludeProtected: true,
                 stripInternal: true,
@@ -462,7 +470,7 @@ exports.clean = cleanDist;
 exports.assets = copyAssets;
 exports.sass = buildSass;
 exports.link = link;
-exports.docs = docs;
+exports.docs = gulp.series(cleanDocs, docs);
 exports.build = gulp.series(copyAssets, buildSass, buildJS);
 exports.rebuild = gulp.series(cleanDist, exports.build);
 exports.release = gulp.series(exports.build, release);
