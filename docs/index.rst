@@ -1,29 +1,22 @@
-- A bullet list item
-- Second item
+.. PDFoundry documentation master file, created by
+   sphinx-quickstart on Tue Jul 21 12:15:45 2020.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
 
-  - A sub item
+Welcome to PDFoundry's documentation!
+=====================================
 
-- Spacing between items separates list items
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
 
-* Different bullet symbols create separate lists
 
-- Third item
 
-1) An enumerated list item
+Indices and tables
+==================
 
-2) Second item
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
 
-   a) Sub item that goes on at length and thus needs
-      to be wrapped. Note the indentation that must
-      match the beginning of the text, not the 
-      enumerator.
-
-      i) List items can even include
-
-         paragraph breaks.
-
-3) Third item
-
-#) Another enumerated list item
-
-#) Second item
+.. js:autoclass:: Api

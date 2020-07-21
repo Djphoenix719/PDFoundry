@@ -1,0 +1,13 @@
+version: 1
+
+sphinx:
+  configuration: docs/conf.py
+
+formats:
+  - pdf
+
+python:
+  version: 3.7
+  install:
+    - method: pip
+      path: sphinx-js
