@@ -42,7 +42,7 @@ const typedoc = require('gulp-typedoc');
 // Config
 const distName = 'pdfoundry-dist';
 const destFolder = path.resolve(process.cwd(), distName);
-const docsFolder = path.resolve(process.cwd(), 'docs', 'build');
+const docsFolder = path.resolve(process.cwd(), 'docs');
 const jsBundle = 'bundle.js';
 
 const baseArgs = {
@@ -77,6 +77,27 @@ function resolveRequires() {
     return requires;
 }
 
+const findFile = (root, file) => {
+    const queue = [];
+    queue.push(root);
+
+    while (queue.length > 0) {
+        const next = queue.pop();
+
+        if (next[next.length - 1] === file) {
+            return path.resolve(...next);
+        }
+
+        const nAbs = path.resolve(...next);
+        if (fs.statSync(nAbs).isDirectory()) {
+            for (const child of fs.readdirSync(nAbs)) {
+                queue.unshift([...next, child]);
+            }
+        }
+    }
+    return undefined;
+};
+
 /**
  * LINK
  * Setups up a system by creating a symlink of the dist folder and running the install script
@@ -98,7 +119,7 @@ async function link() {
 
     logger.info(`Linking to "${chalk.green(targetPath)}"`);
 
-    return gulp.src(destFolder).pipe(gulp.symlink(systemPath, { overwrite: true, useJunctions: true }));
+    // return gulp.src(destFolder).pipe(gulp.symlink(systemPath, { overwrite: true, useJunctions: true }));
 }
 
 /**
@@ -239,10 +260,10 @@ async function docs() {
             typedoc({
                 name: 'PDFoundry',
                 target: 'es6',
-                out: 'docs/build/',
+                out: 'docs/',
                 mode: 'file',
                 exclude: ['./src/pdfoundry/util.ts'],
-                readme: './docs/examples.md',
+                readme: './examples.md',
                 excludePrivate: true,
                 excludeProtected: true,
                 stripInternal: true,
@@ -274,83 +295,7 @@ function release() {
             fs.mkdirSync(installersRoot);
         }
 
-        const findFile = (root, file) => {
-            const queue = [];
-            queue.push(root);
-
-            while (queue.length > 0) {
-                const next = queue.pop();
-
-                if (next[next.length - 1] === file) {
-                    return path.resolve(...next);
-                }
-
-                const nAbs = path.resolve(...next);
-                if (fs.statSync(nAbs).isDirectory()) {
-                    for (const child of fs.readdirSync(nAbs)) {
-                        queue.unshift([...next, child]);
-                    }
-                }
-            }
-            return undefined;
-        };
-
         const distPath = path.resolve('./', distName);
-
-        // Write object properties
-        const installIntoSystem = (system, template) => {
-            // <editor-fold desc="System">
-            const systemData = JSON.parse(fs.readFileSync(system).toString());
-            if (!systemData.hasOwnProperty('esmodules')) {
-                systemData['esmodules'] = [];
-            }
-
-            if (!systemData.esmodules.includes('pdfoundry-dist/bundle.js')) {
-                systemData.esmodules.push('pdfoundry-dist/bundle.js');
-            }
-            // </editor-fold>
-
-            // <editor-fold desc="Template">
-            const templateData = JSON.parse(fs.readFileSync(template).toString());
-            if (!templateData.hasOwnProperty('Item')) {
-                templateData['Item'] = {};
-            }
-
-            if (!templateData.Item.hasOwnProperty('types')) {
-                templateData.Item['types'] = [];
-            }
-            if (!templateData.Item.types.includes('PDFoundry_PDF')) {
-                templateData.Item.types.push('PDFoundry_PDF');
-            }
-
-            if (!templateData.Item.hasOwnProperty('PDFoundry_PDF')) {
-                templateData.Item['PDFoundry_PDF'] = {};
-            }
-
-            const properties = [
-                ['url', ''],
-                ['code', ''],
-                ['offset', 0],
-                ['cache', false],
-            ];
-
-            for (const [key, value] of properties) {
-                if (!templateData.Item.PDFoundry_PDF.hasOwnProperty(key)) {
-                    templateData.Item.PDFoundry_PDF[key] = value;
-                    continue;
-                }
-
-                if (!templateData.Item.PDFoundry_PDF[key] !== value) {
-                    templateData.Item.PDFoundry_PDF[key] = value;
-                }
-            }
-            // </editor-fold>
-
-            fs.writeFileSync(system, JSON.stringify(systemData, null, 2));
-            fs.writeFileSync(template, JSON.stringify(templateData, null, 2));
-
-            return { systemData, templateData };
-        };
 
         const processed = new Set();
         const processManifest = (href) => {
@@ -398,7 +343,9 @@ function release() {
                                     logger.info(`${cTitle(title)}'s ${cName('system.json')} is located at ${cLink(system)}`);
                                     logger.info(`${cTitle(title)}'s ${cName('template.json')} is located at ${cLink(template)}`);
 
-                                    installIntoSystem(system, template);
+                                    const installPath = path.resolve(system, '..');
+                                    await install({ type: '--folder', filepath: installPath });
+
                                     logger.info(`Installed into ${cName('system.json')} and ${cName('template.json')}.`);
 
                                     const destBundleStream = fs.createWriteStream(destZipPath);
@@ -466,10 +413,100 @@ function release() {
     });
 }
 
+/**
+ * INSTALL
+ */
+async function install({ type, filepath, copyDist = false }) {
+    if (type === '--system') {
+        filepath = path.resolve(process.cwd(), '../..', 'systems', filepath);
+    } else if (type === '--folder') {
+        filepath = path.resolve(filepath);
+    } else {
+        throw new Error('Invalid type argument. Only system or folder are supported.');
+    }
+
+    if (!fs.existsSync(filepath)) {
+        throw new Error('Unable to find requested folder.');
+    }
+
+    const system = path.resolve(filepath, 'system.json');
+    const template = path.resolve(filepath, 'template.json');
+
+    if (!fs.existsSync(system)) {
+        throw new Error('Unable to find system.json.');
+    }
+    if (!fs.existsSync(template)) {
+        throw new Error('Unable to find template.json.');
+    }
+
+    // Copy pdfoundry-dist
+    if (copyDist) {
+        const sourcePath = `${path.resolve(process.cwd(), distName)}/**/*`;
+        const targetPath = path.resolve(filepath, distName);
+        if (fs.existsSync(targetPath)) {
+            await del(targetPath);
+        }
+
+        gulp.src(sourcePath).pipe(gulp.dest(targetPath));
+    }
+
+    const systemData = JSON.parse(fs.readFileSync(system).toString());
+    if (!systemData.hasOwnProperty('esmodules')) {
+        systemData['esmodules'] = [];
+    }
+
+    if (!systemData.esmodules.includes('pdfoundry-dist/bundle.js')) {
+        systemData.esmodules.push('pdfoundry-dist/bundle.js');
+    }
+    // </editor-fold>
+
+    // <editor-fold desc="Template">
+    const templateData = JSON.parse(fs.readFileSync(template).toString());
+    if (!templateData.hasOwnProperty('Item')) {
+        templateData['Item'] = {};
+    }
+
+    if (!templateData.Item.hasOwnProperty('types')) {
+        templateData.Item['types'] = [];
+    }
+    if (!templateData.Item.types.includes('PDFoundry_PDF')) {
+        templateData.Item.types.push('PDFoundry_PDF');
+    }
+
+    if (!templateData.Item.hasOwnProperty('PDFoundry_PDF')) {
+        templateData.Item['PDFoundry_PDF'] = {};
+    }
+
+    const properties = [
+        ['url', ''],
+        ['code', ''],
+        ['offset', 0],
+        ['cache', false],
+    ];
+
+    for (const [key, value] of properties) {
+        if (!templateData.Item.PDFoundry_PDF.hasOwnProperty(key)) {
+            templateData.Item.PDFoundry_PDF[key] = value;
+            continue;
+        }
+
+        if (!templateData.Item.PDFoundry_PDF[key] !== value) {
+            templateData.Item.PDFoundry_PDF[key] = value;
+        }
+    }
+    // </editor-fold>
+
+    fs.writeFileSync(system, JSON.stringify(systemData, null, 2));
+    fs.writeFileSync(template, JSON.stringify(templateData, null, 2));
+
+    return { systemData, templateData };
+}
+
 exports.clean = cleanDist;
 exports.assets = copyAssets;
 exports.sass = buildSass;
 exports.link = link;
+exports.install = install;
 exports.docs = gulp.series(cleanDocs, docs);
 exports.build = gulp.series(copyAssets, buildSass, buildJS);
 exports.rebuild = gulp.series(cleanDist, exports.build);
