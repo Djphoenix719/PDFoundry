@@ -53,8 +53,10 @@ html_static_path = ['_static']
 
 primary_domain = 'js'
 js_language = 'typescript'
+
+root_for_relative_js_paths = '../src/pdfoundry'
 js_source_path = [
     '../src/pdfoundry',
     '../node_modules/@types/pdfjs-dist',
-    '../node_modules/foundry-pc-types',
+    '../node_modules/foundry-pc-types'
 ]
