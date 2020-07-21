@@ -10,13 +10,6 @@ jobs:
     outputs:
       files: ${{ steps.files.outputs.files }}
     steps:
-      - name: Delete Previous Releases
-        uses: dev-drprasad/delete-older-releases@v0.1.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          keep_latest: 3
-
       - name: Checkout Repository
         id: checkout
         uses: actions/checkout@v2.3.1
