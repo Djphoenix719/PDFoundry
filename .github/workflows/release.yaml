@@ -30,7 +30,7 @@ jobs:
             const fs = require('fs');
             const path = require('path')
 
-            const tagName = '${{ github.ref }}'
+            const tagName = 'ReleaseDraft'
             const releaseName = 'Release Draft'
             const releaseMessage = `${fs.readFileSync('body').toString()}`;
 
