@@ -21,6 +21,10 @@
 import { PDFData } from './common/types/PDFData';
 
 export function getAbsoluteURL(dataUrl: string): string {
+    // Amazon S3 buckets are already absolute
+    if (dataUrl.includes('s3.amazonaws.com')) {
+        return dataUrl;
+    }
     return `${window.origin}/${dataUrl}`;
 }
 

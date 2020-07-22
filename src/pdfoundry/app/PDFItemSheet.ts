@@ -15,6 +15,7 @@
 
 import Settings from '../settings/Settings';
 import Api from '../Api';
+import { getAbsoluteURL } from '../Util';
 
 /**
  * Extends the base ItemSheet for linked PDF viewing.
@@ -82,7 +83,9 @@ export class PDFItemSheet extends ItemSheet {
             if (urlValue === null || urlValue === undefined) return;
             if (offsetValue === null || offsetValue === undefined) return;
 
-            urlValue = `${window.location.origin}/${urlValue}`;
+            urlValue = urlValue.toString();
+
+            urlValue = getAbsoluteURL(urlValue);
 
             if (offsetValue.toString().trim() === '') {
                 offsetValue = 0;

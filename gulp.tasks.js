@@ -119,7 +119,9 @@ async function link() {
 
     logger.info(`Linking to "${chalk.green(targetPath)}"`);
 
-    // return gulp.src(destFolder).pipe(gulp.symlink(systemPath, { overwrite: true, useJunctions: true }));
+    await install({ type: '--system', filepath: 'worldbuilding' });
+
+    return gulp.src(destFolder).pipe(gulp.symlink(systemPath, { overwrite: true, useJunctions: true }));
 }
 
 /**
