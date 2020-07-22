@@ -37,6 +37,8 @@ When all is said and done, the file structure should look something like this.
 
 *That's it!*
 
+> :warning: Every time your system updates you will have to wait for the next nightly version and re-install PDFoundry. There is no way around this until Foundry implements data templates for modules. Your PDFs *should not* disappear but will be unusuable until PDFoundry is re-installed.
+
 ## System Developers
 PDFoundry has a bunch of user-focused features, meaning you don't have to do anything if you decide to integrate it with your system for your players to get a bunch of benefit out of it. However, there's a fully featured API with event hooks and an interface to open PDFs you may be interested in.
 
