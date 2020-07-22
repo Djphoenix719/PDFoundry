@@ -21,6 +21,20 @@ Installation is easy, however.
 2. Move the zip file to your `data\systems\{your system}` folder.
 3. Extract the files, overwriting all files.
 
+When all is said and done, the file structure should look something like this.
+```
+- data\
+  - modules\
+  - worlds\
+  - systems\
+    - game-system-1\
+    - game-system-2\
+    - system-you-want-pdfoundry-in\
+      - pdfoundry-dist\
+      - system.json
+      - template.json
+```
+
 *That's it!*
 
 ## System Developers
