@@ -452,6 +452,7 @@ async function install({ type, filepath, copyDist = false }) {
         gulp.src(sourcePath).pipe(gulp.dest(targetPath));
     }
 
+    // <editor-fold desc="System">
     const systemData = JSON.parse(fs.readFileSync(system).toString());
     if (!systemData.hasOwnProperty('esmodules')) {
         systemData['esmodules'] = [];
@@ -459,6 +460,10 @@ async function install({ type, filepath, copyDist = false }) {
 
     if (!systemData.esmodules.includes('pdfoundry-dist/bundle.js')) {
         systemData.esmodules.push('pdfoundry-dist/bundle.js');
+    }
+
+    if (!systemData.socket) {
+        systemData.socket = true;
     }
     // </editor-fold>
 
