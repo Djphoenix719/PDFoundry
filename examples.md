@@ -1,3 +1,0 @@
-# PDFoundry
-
-TODO: Write examples.

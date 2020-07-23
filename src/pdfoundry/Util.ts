@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
+import { PDFData } from './common/types/PDFData';
+
 /**
  * Helper method. Convert a relative URL to a absolute URL
  *  by prepending the window origin to the relative URL.
  * @param dataUrl
  */
-import { PDFData } from './common/types/PDFData';
-
 export function getAbsoluteURL(dataUrl: string): string {
     // Amazon S3 buckets are already absolute
     if (dataUrl.includes('s3.amazonaws.com')) {

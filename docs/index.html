@@ -67,7 +67,27 @@
 				<a href="#pdfoundry" id="pdfoundry" style="color: inherit; text-decoration: none;">
 					<h1>PDFoundry</h1>
 				</a>
-				<p>TODO: Write examples.</p>
+				<a href="#this-page-is-for-system-developers-only" id="this-page-is-for-system-developers-only" style="color: inherit; text-decoration: none;">
+					<h3>This page is for system developers only!</h3>
+				</a>
+				<p>PDFoundry has a pretty simple API. The primary use case you may wish to implement in a system is to implement &#39;open source page&#39; link on item sheets, so you can link your compendium up to the source locations. Doing something like this is incredibly simple. Bind an event handler to the item sheet render hook.</p>
+				<p>Assuming you have HTML on your sheet like this.</p>
+				<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;.open-link&quot;</span>&gt;</span>Open<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;source&quot;</span>&gt;</span>CRB 191<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></code></pre>
+				<pre><code class="language-typescript">Hooks.on(<span class="hljs-string">&#x27;renderItemSheet&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">sheet, html, ...args</span>) =&gt;</span> {
+    html.find(<span class="hljs-string">&#x27;.open-link&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">event</span>) =&gt;</span> {
+        event.preventDefault();
+
+        <span class="hljs-keyword">const</span> sourceString = html.find(<span class="hljs-string">&#x27;#source&#x27;</span>).val();
+        <span class="hljs-keyword">let</span> [code, page] = sourceString.split(<span class="hljs-string">&#x27; &#x27;</span>);
+
+        ui.PDFoundry.openPDFByCode(code, page);
+    })
+})</code></pre>
+				<p>That&#39;s about it. You now support letting your users enter the source for an item, and have a link to open the PDF right to the page. You&#39;ll have to decide what input formats you support. Don&#39;t forget, you can search for a PDF by name too - so if you want the users to type a full name (or perhaps you want to support both) that&#39;s easily possible too.</p>
+				<p>Check out the API at... actually you&#39;re looking at it. The directory is on the right.</p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">

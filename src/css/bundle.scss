@@ -18,6 +18,22 @@ a.pdf-sheet-manual {
   color: orangered;
 }
 
+.pdfoundry-link {
+  background: #DDD;
+  color: black;
+  padding: 1px 4px;
+  border: 1px solid #4b4a44;
+  border-radius: 2px;
+  white-space: nowrap;
+  word-break: break-all;
+
+  &:before {
+    content: "\f1c1";
+    font-family: "Font Awesome 5 Free";
+    padding-right: 4px;
+  }
+}
+
 div.pdfoundry-viewer {
   section.window-content {
     padding: 0;

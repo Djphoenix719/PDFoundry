@@ -121,6 +121,10 @@ async function link() {
 
     await install({ type: '--system', filepath: 'worldbuilding' });
 
+    if (fs.existsSync(targetPath)) {
+        await del(targetPath, { force: true });
+    }
+
     return gulp.src(destFolder).pipe(gulp.symlink(systemPath, { overwrite: true, useJunctions: true }));
 }
 
@@ -265,7 +269,7 @@ async function docs() {
                 out: 'docs/',
                 mode: 'file',
                 exclude: ['./src/pdfoundry/util.ts'],
-                readme: './examples.md',
+                readme: './EXAMPLES.md',
                 excludePrivate: true,
                 excludeProtected: true,
                 stripInternal: true,
@@ -446,7 +450,7 @@ async function install({ type, filepath, copyDist = false }) {
         const sourcePath = `${path.resolve(process.cwd(), distName)}/**/*`;
         const targetPath = path.resolve(filepath, distName);
         if (fs.existsSync(targetPath)) {
-            await del(targetPath);
+            await del(targetPath, { force: true });
         }
 
         gulp.src(sourcePath).pipe(gulp.dest(targetPath));

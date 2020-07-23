@@ -21,6 +21,7 @@ import Settings from './settings/Settings';
 import PDFCache from './cache/PDFCache';
 import I18n from './settings/I18n';
 import Api from './Api';
+import HTMLEnricher from './HTMLEnricher';
 
 /**
  * A collection of methods used for setting up the API & system state.
@@ -42,11 +43,19 @@ export default class Setup {
         Hooks.once('ready', Setup.lateRun);
     }
 
+    /**
+     * Late setup tasks happen when the system is loaded
+     */
     public static lateRun() {
         // Register the PDF sheet with the class picker
         Setup.setupSheets();
         // Register socket event handlers
         Socket.initialize();
+
+        // Bind always-run event handlers
+        // Enrich Journal & Item Sheet rich text links
+        Hooks.on('renderItemSheet', HTMLEnricher.Handler);
+        Hooks.on('renderJournalSheet', HTMLEnricher.Handler);
 
         return new Promise(async () => {
             // Initialize the settings
@@ -56,7 +65,6 @@ export default class Setup {
 
             // PDFoundry is ready
             Setup.userLogin();
-            Hooks.call('PDFOUNDRY\\READY', Api);
         });
     }
 
@@ -182,7 +190,7 @@ export default class Setup {
         });
     }
 
-    public static userLogin() {
+    private static userLogin() {
         let viewed;
         try {
             viewed = game.user.getFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.SETTING_KEY.HELP_SEEN);
@@ -195,6 +203,9 @@ export default class Setup {
         }
     }
 
+    /**
+     * Hook handler for default data for a PDF
+     */
     public static async preCreateItem(entity, ...args) {
         if (entity.type !== Settings.PDF_ENTITY_TYPE) {
             return;
@@ -202,6 +213,9 @@ export default class Setup {
         entity.img = `systems/${Settings.DIST_PATH}/assets/pdf_icon.svg`;
     }
 
+    /**
+     * Hook handler for rendering the settings tab
+     */
     public static onRenderSettings(settings: any, html: JQuery<HTMLElement>, data: any) {
         const icon = '<i class="far fa-file-pdf"></i>';
         const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
