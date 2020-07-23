@@ -1,9 +1,9 @@
+import { getPDFDataFromItem, isPDF } from '../Util';
+
 /**
  * @private
  * A plugin for TinyMCE that handles Drag + Drop
  */
-import { getPDFDataFromItem, isPDF } from '../Util';
-
 export default class TinyMCEPlugin {
     private static pluginName = 'PDFoundry_HTMLEnrich_Drop';
 
