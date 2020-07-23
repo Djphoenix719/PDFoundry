@@ -19,7 +19,6 @@ export default class TinyMCEPlugin {
     }
 
     private static Handle(event: any) {
-        console.warn(event);
         if (event.initial) return;
         if (!event.selection || event.set !== undefined) {
             return;

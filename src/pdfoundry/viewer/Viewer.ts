@@ -234,10 +234,10 @@ export default class Viewer extends Application {
 
     // </editor-fold>
 
-    private static logEvent(key: string, ...args) {
-        console.warn(key);
-        console.warn(args);
-    }
+    // private static logEvent(key: string, ...args) {
+    //     console.warn(key);
+    //     console.warn(args);
+    // }
 
     public async close(): Promise<any> {
         this._eventStore.fire('viewerClosed', this);

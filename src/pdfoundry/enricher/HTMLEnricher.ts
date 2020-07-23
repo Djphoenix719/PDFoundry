@@ -10,11 +10,6 @@ export default class HTMLEnricher {
     public static HandleEnrich(app: Application, html: JQuery, data: any) {
         if (app instanceof PDFItemSheet) return;
 
-        // Bind Drop events
-        html.parent().on('drop', (event) => {
-            console.warn(event);
-        });
-
         HTMLEnricher.EnrichHTML(html);
         HTMLEnricher.BindClicks(html);
     }

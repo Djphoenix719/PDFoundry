@@ -81,8 +81,8 @@ export default class EventStore<TKeys extends string = string> {
      */
     public fire(eventName: TKeys, ...args) {
         if (Api.DEBUG.EVENTS) {
-            console.warn(`PDFoundry::${eventName}`);
-            console.warn(args);
+            console.debug(`PDFoundry::${eventName}`);
+            console.debug(args);
         }
 
         if (!this._map.has(eventName)) {
