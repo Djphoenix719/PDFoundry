@@ -57,6 +57,7 @@ export default class Setup {
         // Enrich Journal & Item Sheet rich text links
         Hooks.on('renderItemSheet', HTMLEnricher.HandleEnrich);
         Hooks.on('renderJournalSheet', HTMLEnricher.HandleEnrich);
+        Hooks.on('renderActorSheet', HTMLEnricher.HandleEnrich);
 
         // Register TinyMCE drag + drop events
         TinyMCEPlugin.Register();
