@@ -18,15 +18,15 @@
 \usepackage{graphicx}
 \usepackage{hyperref}
 \hypersetup{
-    colorlinks=true,
-    linkcolor=blue,
-    filecolor=magenta,
-    urlcolor=cyan,
+colorlinks=true,
+linkcolor=blue,
+filecolor=magenta,
+urlcolor=cyan,
 }
 
 \title{%
-    PDFoundry \\
-    \large User Manual}
+PDFoundry \\
+\large User Manual}
 \date{}
 \author{}
 
@@ -38,14 +38,14 @@
     \end{figure}
     \maketitle
 
-    If you're seeing this - it means your system now supports \textit{PDFoundry}, a FoundryVTT PDF reader. Likely, you just updated and are confused about what this is - so this guide goes over the features available and their use. This user manual also functions as a demo, and you can always access it through the \textbf{settings menu}, if you wish to do so later.
+    If you're seeing this - it means your system now supports \textit{PDFoundry}, a FoundryVTT PDF reader. This guide goes over the features available and their use. This user manual also functions as a demo, and you can always access it through the \textbf{settings menu}, if you wish to do so later.
 
     \tableofcontents
 
     \section{How to Use}
     One of the reasons \textit{PDFoundry} requires integration with a system is it's tight integration with the core system. You do most things in PDFoundry through \textit{items}. Just like you would normally create a weapon or armor, you can create a PDF. You'll have the option to setup what file on the server this PDF points to (or upload one), as well as a few other options.
 
-    \subsection{The Basic Steps - Adding a PDF}
+    \subsection{Adding a PDF}
     This section outlines basic steps to adding a new PDF and outlines what each PDF setting does.
 
     \begin{description}
@@ -122,11 +122,58 @@
 
     \end{description}
 
-    \section{Settings Configuration}
-    There is only one setting at present for PDFoundry. It is located with your system settings in the \textbf{Game Settings} $>$ \textbf{Configure Settings} $>$ \textbf{System Settings} menu.
+    \subsection{PDF Links in Journals}
+
+    Once we've added a PDF to Foundry, it can be embedded in journals and other rich text editor areas added by systems in items. You can quickly create a PDF link by dragging and dropping a PDF item from the \textbf{Items Directory}, which will create a link to the first page of the PDF. You can then adjust the page to a page of your choosing.
+
+    The format for a rich text link in a Journal or Item Sheet is as follows.
+
+    \begin{verbatim}
+        @PDF[Core Rulebook|page=135]{Combat: Grappling & Shoving}
+               PDF Name      Page              Link Text
+    \end{verbatim}
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=1\textwidth]{images/rich-text-link-example.png}
+        \caption{The PDF journal link created from the above example.}
+        \label{rich-text-link-example}
+    \end{figure}
 
     \begin{description}
+
+        \item [PDF Name] This specifies which PDF should be opened. You can use either a \textbf{PDF Name} or \textbf{PDF Code}.
+
+        \item [Page] (Optional) This specifies which page should be opened. You can omit this option and the PDF will be opened to the first page. If you were to omit the page from the example above, the example would be changed to look like this, and would open the Core Rulebook to the first page.
+
+        \begin{verbatim}
+        @PDF[Core Rulebook]{Combat: Grappling & Shoving}
+               PDF Name              Link Text
+        \end{verbatim}
+
+        \item [Link Text] The link text field specifies what text should be displayed. It supports rich text, so you can have bold links, underlined links, header links, and more. Unicode characters and emoji are also supported.
+
+    \end{description}
+
+    \subsubsection{Permissions}
+    A quick note on permissions - PDF links in journals will only be displayed to those with the ability to see the PDF in the \textbf{Items Directory}. If a player is unable to see the PDF, they will instead seen the link text by itself and no link will be provided. An example of what this looks like is shown in Figure~\ref{rich-text-link-example-permissions}.
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=1\textwidth]{images/rich-text-link-example-permissions.png}
+        \caption{The PDF journal link created from the above example as seen by a player who cannot view the specified PDF.}
+        \label{rich-text-link-example-permissions}
+    \end{figure}
+
+    \section{Settings Configuration}
+    There two settings at present for PDFoundry. They are located with your system settings in the \textbf{Game Settings} $>$ \textbf{Configure Settings} $>$ \textbf{System Settings} menu.
+
+    \begin{description}
+
         \item \subsection{PDF Cache Size} This allows individual users to set how much hard drive space should be allowed to be taken up by the PDF cache. When this amount is exceeded, PDFoundry will prune existing cached PDF files in reverse order of most recently accessed. That is to say, PDF files will be removed from the cache starting with the file that has least recently accessed.
+
+        \item \subsection{Show Shared PDFs in Existing Viewer} With this setting enabled, when a user opens a PDF for you with the 'Show to...' button on the top of the PDF viewer, the PDF will open in your existing viewer if you are already looking at the PDF.
+
     \end{description}
 
 \end{document}

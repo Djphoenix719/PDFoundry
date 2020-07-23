@@ -104,24 +104,36 @@ export default class HTMLEnricher {
 
         let pageNumber = 1;
         const [nameOrCode, queryString] = options.split('|');
-        if (queryString !== undefined && queryString !== '') {
-            const [_, pageString] = queryString.split('=');
-            try {
-                pageNumber = parseInt(pageString);
-            } catch (error) {
-                // Ignore page number
+
+        // Getting the PDF without invisible PDFs to check permissions
+        let pdfData = Api.getPDFData((item) => {
+            return item.name === nameOrCode || item.data.data.code === nameOrCode;
+        }, false);
+
+        if (pdfData) {
+            // Case 1 - User has permissions to see the PDF
+            if (queryString !== undefined && queryString !== '') {
+                const [_, pageString] = queryString.split('=');
+                try {
+                    pageNumber = parseInt(pageString);
+                } catch (error) {
+                    // Ignore page number
+                }
             }
+
+            if (pageNumber <= 0) {
+                throw new Error('PDFOUNDRY.ERROR.PageMustBePositive');
+            }
+
+            const i18nOpen = game.i18n.localize('PDFOUNDRY.ENRICH.LinkTitleOpen');
+            const i18nPage = game.i18n.localize('PDFOUNDRY.ENRICH.LinkTitlePage');
+            const linkTitle = `${i18nOpen} ${nameOrCode} ${i18nPage} ${pageNumber}`;
+            const result = `<a class="pdfoundry-link" title="${linkTitle}" data-ref="${nameOrCode}" data-page="${pageNumber}">${linkText}</a>`;
+
+            return this._text.slice(0, this._sPos) + result + this._text.slice(this._ePos + 1);
+        } else {
+            // Case 2 - User does not have permissions to see the PDF
+            return this._text.slice(0, this._sPos) + linkText + this._text.slice(this._ePos + 1);
         }
-
-        if (pageNumber <= 0) {
-            throw new Error('PDFOUNDRY.ERROR.PageMustBePositive');
-        }
-
-        const i18nOpen = game.i18n.localize('PDFOUNDRY.ENRICH.LinkTitleOpen');
-        const i18nPage = game.i18n.localize('PDFOUNDRY.ENRICH.LinkTitlePage');
-        const linkTitle = `${i18nOpen} ${nameOrCode} ${i18nPage} ${pageNumber}`;
-        const result = `<a class="pdfoundry-link" title="${linkTitle}" data-ref="${nameOrCode}" data-page="${pageNumber}">${linkText}</a>`;
-
-        return this._text.slice(0, this._sPos) + result + this._text.slice(this._ePos + 1);
     }
 }

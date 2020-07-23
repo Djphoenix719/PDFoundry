@@ -102,11 +102,12 @@ export default class Api {
     /**
      * Finds a PDF entity created by the user and constructs a {@link PDFData} object of the resulting PDF's data.
      * @param comparer A comparison function that will be used.
+     * @param allowInvisible If true, PDFs hidden from the active user will be returned.
      * @category PDFData
      */
-    public static getPDFData(comparer: ItemComparer): PDFData | null {
+    public static getPDFData(comparer: ItemComparer, allowInvisible: boolean = true): PDFData | null {
         const pdf: Item = game.items.find((item: Item) => {
-            return item.type === Settings.PDF_ENTITY_TYPE && comparer(item);
+            return item.type === Settings.PDF_ENTITY_TYPE && (item.visible || allowInvisible) && comparer(item);
         });
 
         return getPDFDataFromItem(pdf);
