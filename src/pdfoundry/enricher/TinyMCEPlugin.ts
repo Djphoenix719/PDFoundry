@@ -19,6 +19,7 @@ export default class TinyMCEPlugin {
     }
 
     private static Handle(event: any) {
+        console.warn(event);
         if (event.initial) return;
         if (!event.selection || event.set !== undefined) {
             return;
@@ -31,7 +32,7 @@ export default class TinyMCEPlugin {
         const entityId = initialContent.slice(lBracket + 1, rBracket);
 
         const entity = game.items.get(entityId);
-        if (!isPDF(entity)) {
+        if (entity === null || !isPDF(entity)) {
             return;
         }
 
