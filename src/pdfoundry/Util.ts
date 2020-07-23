@@ -14,6 +14,7 @@
  */
 
 import { PDFData } from './common/types/PDFData';
+import Settings from './settings/Settings';
 
 /**
  * Helper method. Convert a relative URL to a absolute URL
@@ -138,4 +139,12 @@ export function fileExists(path: string): Promise<boolean> {
             },
         });
     });
+}
+
+/**
+ * Returns true if the provided entity is a PDF
+ * @param entity
+ */
+export function isPDF(entity: Entity) {
+    return entity.data.type === Settings.PDF_ENTITY_TYPE;
 }

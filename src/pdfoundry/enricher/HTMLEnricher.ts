@@ -1,15 +1,26 @@
-import { PDFItemSheet } from './app/PDFItemSheet';
-import Settings from './settings/Settings';
-import Api from './Api';
+import { PDFItemSheet } from '../app/PDFItemSheet';
+import Settings from '../settings/Settings';
+import Api from '../Api';
 
 /**
  * @private
  * Enriches TinyMCE editor content
  */
 export default class HTMLEnricher {
-    public static Handler(app: Application, html: JQuery, data: any) {
+    public static HandleEnrich(app: Application, html: JQuery, data: any) {
         if (app instanceof PDFItemSheet) return;
 
+        // Bind Drop events
+        html.parent().on('drop', (event) => {
+            console.warn(event);
+        });
+
+        HTMLEnricher.EnrichHTML(html);
+        HTMLEnricher.BindClicks(html);
+    }
+
+    private static EnrichHTML(html: JQuery) {
+        // Enrich HTML
         for (const element of html.find('div.editor-content > *')) {
             try {
                 // We replace one at a time until done
@@ -25,8 +36,9 @@ export default class HTMLEnricher {
                 }
             }
         }
+    }
 
-        // Bind clicks now that enrichment is complete
+    private static BindClicks(html: JQuery) {
         html.find('a.pdfoundry-link').on('click', (event) => {
             event.preventDefault();
 

@@ -21,7 +21,8 @@ import Settings from './settings/Settings';
 import PDFCache from './cache/PDFCache';
 import I18n from './settings/I18n';
 import Api from './Api';
-import HTMLEnricher from './HTMLEnricher';
+import HTMLEnricher from './enricher/HTMLEnricher';
+import TinyMCEPlugin from './enricher/TinyMCEPlugin';
 
 /**
  * A collection of methods used for setting up the API & system state.
@@ -54,8 +55,11 @@ export default class Setup {
 
         // Bind always-run event handlers
         // Enrich Journal & Item Sheet rich text links
-        Hooks.on('renderItemSheet', HTMLEnricher.Handler);
-        Hooks.on('renderJournalSheet', HTMLEnricher.Handler);
+        Hooks.on('renderItemSheet', HTMLEnricher.HandleEnrich);
+        Hooks.on('renderJournalSheet', HTMLEnricher.HandleEnrich);
+
+        // Register TinyMCE drag + drop events
+        TinyMCEPlugin.Register();
 
         return new Promise(async () => {
             // Initialize the settings
