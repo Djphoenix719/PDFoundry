@@ -34,7 +34,7 @@ jobs:
               const date = new Date();
 
               const yy = date.getFullYear();
-              const MM = date.getMonth().toString().padStart(2, '0') + 1;
+              const MM = (date.getMonth() + 1).toString().padStart(2, '0');
               const dd = date.getDate().toString().padStart(2, '0');
 
               const hh = date.getHours().toString().padStart(2, '0');
