@@ -23,7 +23,7 @@ import Settings from './settings/Settings';
  */
 export function getAbsoluteURL(dataUrl: string): string {
     // Amazon S3 buckets are already absolute
-    if (dataUrl.includes('s3.amazonaws.com')) {
+    if (dataUrl.includes('amazonaws.com')) {
         return dataUrl;
     }
     return `${window.origin}/${dataUrl}`;
