@@ -36,22 +36,7 @@ export default class FillableViewer extends BaseViewer {
             icon: 'fas fa-file-pdf',
             label: game.i18n.localize('PDFOUNDRY.VIEWER.DisableSheet'),
             onclick: async () => {
-                const entityName = (this._actor.entity as unknown) as string;
-                const config = CONFIG[entityName];
-                const type = this._actor.data.type || CONST.BASE_ENTITY_TYPE;
-                const classes = Object.values(config.sheetClasses[type]);
-                const defcls: any = classes.find((c: any) => c.default);
-
-                // TODO: Handle swapping between normal sheet and the actor sheet
-                if (game.user.isGM) {
-                    const setting = (await game.settings.get('core', 'sheetClasses')) || {};
-                    mergeObject(setting, { [`${this._actor.entity}.${this._actor.data.type}`]: defcls.id });
-                    await game.settings.set('core', 'sheetClasses', setting);
-                    console.warn(defcls);
-                }
-
-                await this._actor.setFlag('core', 'sheetClass', defcls.id);
-                await this.close();
+                new EntitySheetConfig(this._actor).render(true);
             },
         });
 

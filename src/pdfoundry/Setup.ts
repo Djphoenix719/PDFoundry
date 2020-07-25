@@ -23,9 +23,9 @@ import I18n from './settings/I18n';
 import Api from './Api';
 import HTMLEnricher from './enricher/HTMLEnricher';
 import TinyMCEPlugin from './enricher/TinyMCEPlugin';
-import FillableViewer from './viewer/FillableViewer';
 import { PDFDataType } from './common/types/PDFBaseData';
 import ActorItemConfig from './app/ActorItemConfig';
+import ActorSheetAdapter from './app/ActorSheetAdapter';
 
 /**
  * A collection of methods used for setting up the API & system state.
@@ -124,7 +124,7 @@ export default class Setup {
      */
     public static setupSheets() {
         // Register actor "sheet"
-        Actors.registerSheet(Settings.INTERNAL_MODULE_NAME, FillableViewer, { makeDefault: false });
+        Actors.registerSheet(Settings.INTERNAL_MODULE_NAME, ActorSheetAdapter, { makeDefault: false });
 
         const sheetsToSetup = [
             { cls: BookItemConfig, type: PDFDataType.Book, makeDefault: true },
