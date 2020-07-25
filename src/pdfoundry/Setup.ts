@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-import { getAbsoluteURL, getPDFDataFromItem } from './Util';
-import { PDFItemSheet } from './app/PDFItemSheet';
+import { getAbsoluteURL, getPDFBookData } from './Util';
+import { BookItemConfig } from './app/BookItemConfig';
 import PreloadEvent from './socket/events/PreloadEvent';
 import { Socket } from './socket/Socket';
 import Settings from './settings/Settings';
@@ -23,6 +23,9 @@ import I18n from './settings/I18n';
 import Api from './Api';
 import HTMLEnricher from './enricher/HTMLEnricher';
 import TinyMCEPlugin from './enricher/TinyMCEPlugin';
+import FillableViewer from './viewer/FillableViewer';
+import { PDFDataType } from './common/types/PDFBaseData';
+import ActorItemConfig from './app/ActorItemConfig';
 
 /**
  * A collection of methods used for setting up the API & system state.
@@ -70,6 +73,22 @@ export default class Setup {
 
             // PDFoundry is ready
             Setup.userLogin();
+
+            // TODO: Remove
+            if (Api.findPDFEntity((item) => item.name === '5E Sheet')) {
+                return;
+            }
+
+            const copyThis = Api.findPDFEntity((item) => item.name === 'Clean Sheet') as Item;
+            const dupe = duplicate(copyThis.data);
+            Item.create(dupe).then((resultingItem) => {
+                resultingItem.update({
+                    name: '5E Sheet',
+                    data: {
+                        code: '5ESheet',
+                    },
+                });
+            });
         });
     }
 
@@ -104,26 +123,36 @@ export default class Setup {
      * Register the PDF sheet and unregister invalid sheet types from it.
      */
     public static setupSheets() {
-        Items.registerSheet(Settings.INTERNAL_MODULE_NAME, PDFItemSheet, {
-            types: [Settings.PDF_ENTITY_TYPE],
-            makeDefault: true,
-        });
+        // Register actor "sheet"
+        Actors.registerSheet(Settings.INTERNAL_MODULE_NAME, FillableViewer, { makeDefault: false });
 
-        // Unregister all other item sheets for the PDF entity
-        const pdfoundryKey = `${Settings.INTERNAL_MODULE_NAME}.${PDFItemSheet.name}`;
-        const sheets = CONFIG.Item.sheetClasses[Settings.PDF_ENTITY_TYPE];
-        for (const key of Object.keys(sheets)) {
-            const sheet = sheets[key];
-            // keep the PDFoundry sheet
-            if (sheet.id === pdfoundryKey) {
-                continue;
-            }
+        const sheetsToSetup = [
+            { cls: BookItemConfig, type: PDFDataType.Book, makeDefault: true },
+            { cls: ActorItemConfig, type: PDFDataType.Actor, makeDefault: true },
+        ];
 
-            // id is MODULE.CLASS_NAME
-            const [module] = sheet.id.split('.');
-            Items.unregisterSheet(module, sheet.cls, {
-                types: [Settings.PDF_ENTITY_TYPE],
+        for (const { cls, type, makeDefault } of sheetsToSetup) {
+            Items.registerSheet(Settings.INTERNAL_MODULE_NAME, cls, {
+                types: [type],
+                makeDefault,
             });
+
+            if (makeDefault) {
+                // Unregister all other item sheets for our entity
+                const ourKey = `${Settings.INTERNAL_MODULE_NAME}.${cls.name}`;
+                const theirSheets = CONFIG.Item.sheetClasses[type];
+                for (const theirKey of Object.keys(theirSheets)) {
+                    const theirSheet = theirSheets[theirKey];
+                    if (theirSheet.id === ourKey) {
+                        continue;
+                    }
+
+                    const [module] = theirSheet.id.split('.');
+                    Items.unregisterSheet(module, theirSheet.cls, {
+                        types: [type],
+                    });
+                }
+            }
         }
     }
 
@@ -153,7 +182,7 @@ export default class Setup {
                 },
                 callback: (entityHtml: JQuery<HTMLElement>) => {
                     const item = getItemFromContext(entityHtml);
-                    const pdf = getPDFDataFromItem(item);
+                    const pdf = getPDFBookData(item);
 
                     if (pdf === null) {
                         //TODO: Error handling
@@ -183,7 +212,7 @@ export default class Setup {
             },
             callback: (entityHtml: JQuery<HTMLElement>) => {
                 const item = getItemFromContext(entityHtml);
-                const pdf = getPDFDataFromItem(item);
+                const pdf = getPDFBookData(item);
 
                 if (pdf === null) {
                     //TODO: Error handling

@@ -1,4 +1,4 @@
-import { PDFItemSheet } from '../app/PDFItemSheet';
+import { BookItemConfig } from '../app/BookItemConfig';
 import Settings from '../settings/Settings';
 import Api from '../Api';
 
@@ -8,7 +8,7 @@ import Api from '../Api';
  */
 export default class HTMLEnricher {
     public static HandleEnrich(app: Application, html: JQuery, data: any) {
-        if (app instanceof PDFItemSheet) return;
+        if (app instanceof BookItemConfig) return;
 
         HTMLEnricher.EnrichHTML(html);
         HTMLEnricher.BindClicks(html);

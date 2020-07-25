@@ -19,7 +19,7 @@ import Settings from '../settings/Settings';
  * Callback type for player selection
  * @private
  */
-export type PDFPlayerSelectCallback = (ids: []) => void;
+export type PDFPlayerSelectCallback = (ids: string[]) => void;
 
 /**
  * An application that allows selection of players.
@@ -37,7 +37,7 @@ export default class PlayerSelect extends Application {
     }
 
     private readonly _ids;
-    private readonly _callback;
+    private readonly _callback: PDFPlayerSelectCallback;
 
     constructor(ids: string[], cb: PDFPlayerSelectCallback, options?: ApplicationOptions) {
         super(options);

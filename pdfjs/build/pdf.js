@@ -335,8 +335,8 @@ var _text_layer = __w_pdfjs_require__(18);
 
 var _svg = __w_pdfjs_require__(19);
 
-const pdfjsVersion = '2.6.148';
-const pdfjsBuild = '324af53f';
+const pdfjsVersion = '2.6.149';
+const pdfjsBuild = 'a9449f16';
 {
   const {
     isNodeJS
@@ -1951,7 +1951,7 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
 
   return worker.messageHandler.sendWithPromise("GetDocRequest", {
     docId,
-    apiVersion: '2.6.148',
+    apiVersion: '2.6.149',
     source: {
       data: source.data,
       url: source.url,
@@ -3830,9 +3830,9 @@ const InternalRenderTask = function InternalRenderTaskClosure() {
   return InternalRenderTask;
 }();
 
-const version = '2.6.148';
+const version = '2.6.149';
 exports.version = version;
-const build = '324af53f';
+const build = 'a9449f16';
 exports.build = build;
 
 /***/ }),
@@ -9058,6 +9058,12 @@ class TextWidgetAnnotationElement extends WidgetAnnotationElement {
     let element = null;
 
     if (this.renderInteractiveForms) {
+      const form = document.createElement("form");
+      form.setAttribute("autocomplete", "off");
+      form.setAttribute("style", "width: 100% !important; height: 100% !important; padding: 0 !important; margin: 0 !important;");
+
+      form.onsubmit = event => event.preventDefault();
+
       if (this.data.multiLine) {
         element = document.createElement("textarea");
         element.textContent = this.data.fieldValue;
@@ -9080,6 +9086,9 @@ class TextWidgetAnnotationElement extends WidgetAnnotationElement {
         element.classList.add("comb");
         element.style.letterSpacing = `calc(${combWidth}px - 1ch)`;
       }
+
+      form.appendChild(element);
+      element = form;
     } else {
       element = document.createElement("div");
       element.textContent = this.data.fieldValue;

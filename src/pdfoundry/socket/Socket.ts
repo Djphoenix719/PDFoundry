@@ -14,7 +14,7 @@
  */
 
 import PreloadEvent from './events/PreloadEvent';
-import Viewer from '../viewer/Viewer';
+import StaticViewer from '../viewer/StaticViewer';
 import Api from '../Api';
 import Settings from '../settings/Settings';
 import SetViewEvent from './events/SetViewEvent';
@@ -50,7 +50,7 @@ export class Socket {
 
     public static handleSetView(data: any) {
         if (Settings.get(Settings.SETTING_KEY.EXISTING_VIEWER)) {
-            function appIsViewer(app: Application): app is Viewer {
+            function appIsViewer(app: Application): app is StaticViewer {
                 return app['pdfData'] !== undefined;
             }
 

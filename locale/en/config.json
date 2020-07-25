@@ -38,7 +38,9 @@
       "ShowToPlayersTitle": "Press SHIFT to show to ALL players except yourself.",
 
       "SelectPlayers": "Select Players",
-      "SelectPlayersConfirm": "Make it so!"
+      "SelectPlayersConfirm": "Make it so!",
+      "SelectSheet": "Select Sheet",
+      "SelectSheetConfirm": "Make it so!"
     },
     "MANUAL": {
       "Name": "PDFoundry User Manual"

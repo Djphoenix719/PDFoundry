@@ -14,7 +14,7 @@
  */
 
 import SocketEvent from './SocketEvent';
-import { PDFData } from '../../common/types/PDFData';
+import { PDFBookData } from '../../common/types/PDFBookData';
 
 /**
  * @private
@@ -29,9 +29,9 @@ export default class SetViewEvent extends SocketEvent {
     }
 
     public page: number;
-    public pdfData: PDFData;
+    public pdfData: PDFBookData;
 
-    constructor(userIds: string[] | null, pdfData: PDFData, page: number) {
+    constructor(userIds: string[] | null, pdfData: PDFBookData, page: number) {
         super(userIds);
 
         this.pdfData = pdfData;

@@ -1,36 +1,13 @@
-/* Copyright 2020 Andrew Cuccinello
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-import PlayerSelect from '../app/PlayerSelect';
-import { getUserIdsExceptMe } from '../Util';
-import { PDFViewerEvent } from '../common/types/PDFHooks';
-import { PDFData } from '../common/types/PDFData';
-import { PDFjsViewer } from '../common/types/PDFjsViewer';
 import Settings from '../settings/Settings';
-import { PDFjsEventBus } from '../common/types/PDFjsEventBus';
-import SetViewEvent from '../socket/events/SetViewEvent';
 import EventStore from '../common/helpers/events';
+import { PDFViewerEvent } from '../common/types/PDFHooks';
+import { PDFjsViewer } from '../common/types/PDFjsViewer';
+import { PDFjsEventBus } from '../common/types/PDFjsEventBus';
+import { BUTTON_GITHUB } from '../common/helpers/header';
 
-/**
- * The PDFoundry Viewer class provides the core logic opening PDFs and binding their events.
- * You cannot create a new instance of this class, you must do so with the API.
- *
- * See {@link Api.openPDF}, {@link Api.openPDFByCode}, {@link Api.openPDFByName}, {@link Api.openURL} which all return a
- * promise which resolve with an instance of this class.
- */
-export default class Viewer extends Application {
+export default abstract class BaseViewer extends Application {
+    // <editor-fold desc="Static Properties">
+
     static get defaultOptions() {
         const options = super.defaultOptions;
         options.classes = ['app', 'window-app', 'pdfoundry-viewer'];
@@ -42,41 +19,26 @@ export default class Viewer extends Application {
         return options;
     }
 
+    // </editor-fold>
+    // <editor-fold desc="Properties">
+
     protected _frame: HTMLIFrameElement;
     protected _viewer: PDFjsViewer;
     protected _eventBus: PDFjsEventBus;
-    protected _pdfData: PDFData;
     protected _eventStore: EventStore<PDFViewerEvent>;
 
-    /**
-     * @internal
-     */
-    constructor(pdfData?: PDFData, options?: ApplicationOptions) {
+    // </editor-fold>
+    // <editor-fold desc="Constructor & Initialization">
+
+    protected constructor(options?: ApplicationOptions) {
         super(options);
-
-        if (pdfData === undefined) {
-            pdfData = {
-                name: game.i18n.localize('PDFOUNDRY.VIEWER.Title'),
-                code: '',
-                offset: 0,
-                url: '',
-                cache: false,
-            };
-        }
-
-        this._pdfData = pdfData;
         this._eventStore = new EventStore<PDFViewerEvent>();
     }
 
-    // <editor-fold desc="Getters & Setters">
+    // </editor-fold>
+    // <editor-fold desc="Instance Methods"></editor-fold>
 
-    /**
-     * Returns a copy of the PDFData this viewer is using.
-     * Changes to this data will not reflect in the viewer.
-     */
-    public get pdfData() {
-        return duplicate(this._pdfData);
-    }
+    // <editor-fold desc="Getters & Setters">
 
     /**
      * Get the currently viewed page.
@@ -93,41 +55,25 @@ export default class Viewer extends Application {
         this._viewer.page = value;
     }
 
+    public get title(): string {
+        return game.i18n.localize('PDFOUNDRY.VIEWER.ViewPDF');
+    }
+
     // </editor-fold>
 
     // <editor-fold desc="Foundry Overrides">
 
-    public get title(): string {
-        let title = this._pdfData.name;
-        if (this._pdfData.code !== '') {
-            title = `${title} (${this._pdfData.code})`;
-        }
-        return title;
-    }
-
     protected _getHeaderButtons(): any[] {
         const buttons = super._getHeaderButtons();
         //TODO: Standardize this to function w/ the Item sheet one
-        buttons.unshift({
-            class: 'pdf-sheet-github',
-            icon: 'fas fa-external-link-alt',
-            label: 'PDFoundry',
-            onclick: () => window.open('https://github.com/Djphoenix719/PDFoundry', '_blank'),
-        });
-
-        buttons.unshift({
-            class: 'pdf-sheet-show-players',
-            icon: 'fas fa-eye',
-            label: game.i18n.localize('PDFOUNDRY.VIEWER.ShowToPlayersText'),
-            onclick: (event) => this.showTo(event),
-        });
-
+        buttons.unshift(BUTTON_GITHUB);
         return buttons;
     }
 
     public getData(options?: any): any | Promise<any> {
         const data = super.getData(options);
         data.systemName = Settings.EXTERNAL_SYSTEM_NAME;
+        data.interactive = false;
         return data;
     }
 
@@ -241,24 +187,10 @@ export default class Viewer extends Application {
 
     public async close(): Promise<any> {
         this._eventStore.fire('viewerClosed', this);
+
+        await (await this.getViewer()).close();
+
         return super.close();
-    }
-
-    /**
-     * Show the current page to GMs.
-     */
-    protected showTo(event: MouseEvent) {
-        const pdfData = this.pdfData;
-        pdfData.offset = 0;
-
-        const ids = getUserIdsExceptMe();
-        if (event.shiftKey) {
-            new SetViewEvent(ids, pdfData, this.page).emit();
-        } else {
-            new PlayerSelect(ids, (filteredIds) => {
-                new SetViewEvent(filteredIds, pdfData, this.page).emit();
-            }).render(true);
-        }
     }
 
     /**

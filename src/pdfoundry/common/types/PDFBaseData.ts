@@ -14,27 +14,24 @@
  */
 
 /**
- * A data objection containing properties of a user-created PDF file. This is the data contained within a PDFoundry_PDF entity.
+ * Base data is common to both {@link PDFBookData} and {@link PDFActorData}.
  */
-export type PDFData = {
+export default interface PDFBaseData {
     /**
      * The name of the PDF
      */
     name: string;
     /**
-     * The shorthand code PDF
-     */
-    code: string;
-    /**
      * The location of the PDF on the server.
      */
     url: string;
     /**
-     * Page offset for the PDF vs. represented book page
+     * The type of data stored. Used to determine what type of viewer to open.
      */
-    offset: number | string;
-    /**
-     * If the user has requested caching for this PDF
-     */
-    cache: boolean;
-};
+    type: PDFDataType;
+}
+
+export enum PDFDataType {
+    Book = 'PDFoundry_PDF',
+    Actor = 'PDFoundry_ActorSheet',
+}

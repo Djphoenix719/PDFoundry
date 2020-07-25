@@ -44,11 +44,15 @@ div.pdfoundry-viewer {
   }
 }
 
-form.pdf-sheet {
-  input, label {
+form.pdf-item-sheet {
+  input, label, select {
     border: 0;
     padding: 0;
     margin: 0;
+  }
+
+  select {
+    width: 100%;
   }
 
   input[type=number] {
@@ -71,7 +75,7 @@ form.pdf-sheet {
 
 $row-height: 2rem;
 
-form.pdf-sheet {
+form.pdf-item-sheet {
   div.field-row, div.button-row {
     position: relative;
     display: flex;
@@ -139,6 +143,7 @@ form.pdf-sheet {
       text-align: justify;
     }
   }
+
   div.button-row.taller {
     height: $row-height*1.5;
   }

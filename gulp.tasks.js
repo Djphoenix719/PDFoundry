@@ -480,30 +480,31 @@ async function install({ type, filepath, copyDist = false }) {
     if (!templateData.Item.hasOwnProperty('types')) {
         templateData.Item['types'] = [];
     }
-    if (!templateData.Item.types.includes('PDFoundry_PDF')) {
-        templateData.Item.types.push('PDFoundry_PDF');
-    }
 
-    if (!templateData.Item.hasOwnProperty('PDFoundry_PDF')) {
-        templateData.Item['PDFoundry_PDF'] = {};
-    }
-
-    const properties = [
-        ['url', ''],
-        ['code', ''],
-        ['offset', 0],
-        ['cache', false],
+    const types = [
+        [
+            'PDFoundry_PDF',
+            {
+                url: '',
+                code: '',
+                offset: 0,
+                cache: true,
+            },
+        ],
+        [
+            'PDFoundry_ActorSheet',
+            {
+                url: '',
+            },
+        ],
     ];
 
-    for (const [key, value] of properties) {
-        if (!templateData.Item.PDFoundry_PDF.hasOwnProperty(key)) {
-            templateData.Item.PDFoundry_PDF[key] = value;
-            continue;
+    for (const [type, properties] of types) {
+        if (!templateData.Item.types.includes(type)) {
+            templateData.Item.types.push(type);
         }
 
-        if (!templateData.Item.PDFoundry_PDF[key] !== value) {
-            templateData.Item.PDFoundry_PDF[key] = value;
-        }
+        templateData.Item[type] = properties;
     }
     // </editor-fold>
 

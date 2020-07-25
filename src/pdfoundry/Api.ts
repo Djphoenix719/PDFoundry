@@ -13,11 +13,24 @@
  * limitations under the License.
  */
 
-import { fileExists, getAbsoluteURL, getPDFDataFromItem, validateAbsoluteURL } from './Util';
-import Viewer from './viewer/Viewer';
-import { PDFData } from './common/types/PDFData';
+import {
+    fileExists,
+    getAbsoluteURL,
+    getPDFBookData,
+    getUserIdsAtLeastRole,
+    getUserIdsAtMostRole,
+    getUserIdsBetweenRoles,
+    getUserIdsExceptMe,
+    getUserIdsOfRole,
+    isPDF,
+    validateAbsoluteURL,
+} from './Util';
+import StaticViewer from './viewer/StaticViewer';
+import { PDFBookData } from './common/types/PDFBookData';
 import Settings from './settings/Settings';
 import PDFCache from './cache/PDFCache';
+import BaseViewer from './viewer/BaseViewer';
+import { PDFDataType } from './common/types/PDFBaseData';
 
 /**
  * A function to passed to getPDFData to find user specified PDF data.
@@ -32,7 +45,7 @@ type ItemComparer = (item: Item) => boolean;
  * @param cache
  * @private
  */
-async function _handleOpen(viewer: Viewer, url: string, page: number, cache: boolean) {
+async function _handleOpen(viewer: StaticViewer, url: string, page: number, cache: boolean) {
     if (cache) {
         const cachedBytes = await PDFCache.getCache(url);
         // If we have a cache hit open the cached data
@@ -54,7 +67,7 @@ async function _handleOpen(viewer: Viewer, url: string, page: number, cache: boo
 /**
  * The PDFoundry API
  *
- * ## You can access the API with `ui.PDFoundry`.
+ * You can access the API with `ui.PDFoundry`.
  */
 export default class Api {
     /**
@@ -68,50 +81,84 @@ export default class Api {
         EVENTS: false,
     };
 
+    /**
+     * A reference to the unclassified utility functions.
+     */
+    public static get UTIL() {
+        return {
+            fileExists,
+            getAbsoluteURL,
+            getPDFBookData,
+            getUserIdsAtLeastRole,
+            getUserIdsAtMostRole,
+            getUserIdsBetweenRoles,
+            getUserIdsExceptMe,
+            getUserIdsOfRole,
+            isPDF,
+            validateAbsoluteURL,
+        };
+    }
+
     // <editor-fold desc="GetPDFData Methods">
+
+    /**
+     * Find a PDF entity from the items directory using a specified comparer.
+     * @param comparer
+     * @param allowInvisible If true, PDFs hidden from the active user will be returned.
+     */
+    public static findPDFEntity(comparer: ItemComparer, allowInvisible: boolean = true): Item | null {
+        return game.items.find((item: Item) => {
+            return item.type === Settings.PDF_ENTITY_TYPE && (item.visible || allowInvisible) && comparer(item);
+        });
+    }
 
     /**
      * Helper method. Alias for {@link Api.getPDFData} with a comparer that searches by PDF Code.
      * @param code Which code to search for a PDF with.
+     * @param allowInvisible See allowVisible on {@link findPDFEntity}
      * @category PDFData
      */
-    public static getPDFDataByCode(code: string): PDFData | null {
+    public static getPDFDataByCode(code: string, allowInvisible: boolean = true): PDFBookData | null {
         return Api.getPDFData((item) => {
             return item.data.data.code === code;
-        });
+        }, allowInvisible);
     }
 
     /**
      * Helper method. Alias for {@link Api.getPDFData} with a comparer that searches by PDF Name.
      * @param name Which name to search for a PDF with.
      * @param caseInsensitive If a case insensitive search should be done.
+     * @param allowInvisible See allowVisible on {@link findPDFEntity}
      * @category PDFData
      */
-    public static getPDFDataByName(name: string, caseInsensitive: boolean = true): PDFData | null {
+    public static getPDFDataByName(name: string, caseInsensitive: boolean = true, allowInvisible: boolean = true): PDFBookData | null {
         if (caseInsensitive) {
             return Api.getPDFData((item) => {
                 return item.name.toLowerCase() === name.toLowerCase();
-            });
+            }, allowInvisible);
         } else {
             return Api.getPDFData((item) => {
                 return item.name === name;
-            });
+            }, allowInvisible);
         }
     }
 
     /**
-     * Finds a PDF entity created by the user and constructs a {@link PDFData} object of the resulting PDF's data.
+     * Finds a PDF entity created by the user and constructs a {@link PDFBookData} object of the resulting PDF's data.
      * @param comparer A comparison function that will be used.
-     * @param allowInvisible If true, PDFs hidden from the active user will be returned.
+     * @param allowInvisible See allowVisible on {@link findPDFEntity}
      * @category PDFData
      */
-    public static getPDFData(comparer: ItemComparer, allowInvisible: boolean = true): PDFData | null {
-        const pdf: Item = game.items.find((item: Item) => {
-            return item.type === Settings.PDF_ENTITY_TYPE && (item.visible || allowInvisible) && comparer(item);
-        });
-
-        return getPDFDataFromItem(pdf);
+    public static getPDFData(comparer: ItemComparer, allowInvisible: boolean = true): PDFBookData | null {
+        const pdf = this.findPDFEntity(comparer, allowInvisible);
+        return getPDFBookData(pdf);
     }
+
+    // </editor-fold>
+
+    // <editor-fold desc="OpenActor Methods">
+
+    public static async openActor(actor: Actor, Item) {}
 
     // </editor-fold>
 
@@ -122,7 +169,7 @@ export default class Api {
      * Helper for {@link getPDFDataByCode} then {@link openPDF}.
      * @category Open
      */
-    public static async openPDFByCode(code: string, page: number = 1): Promise<Viewer> {
+    public static async openPDFByCode(code: string, page: number = 1): Promise<BaseViewer> {
         const pdf = this.getPDFDataByCode(code);
 
         if (pdf === null) {
@@ -143,7 +190,7 @@ export default class Api {
      * Helper for {@link getPDFDataByCode} then {@link openPDF}.
      * @category Open
      */
-    public static async openPDFByName(name: string, page: number = 1): Promise<Viewer> {
+    public static async openPDFByName(name: string, page: number = 1): Promise<BaseViewer> {
         const pdf = this.getPDFDataByName(name);
 
         if (pdf === null) {
@@ -161,12 +208,12 @@ export default class Api {
     }
 
     /**
-     * Open the provided {@link PDFData} to the specified page.
+     * Open the provided {@link PDFBookData} to the specified page.
      * @param pdf The PDF to open. See {@link Api.getPDFData}.
      * @param page The page to open the PDF to.
      * @category Open
      */
-    public static async openPDF(pdf: PDFData, page: number = 1): Promise<Viewer> {
+    public static async openPDF(pdf: PDFBookData, page: number = 1): Promise<BaseViewer> {
         let { url, offset, cache } = pdf;
 
         if (typeof offset === 'string') {
@@ -177,7 +224,7 @@ export default class Api {
             url = getAbsoluteURL(url);
         }
 
-        const viewer = new Viewer(pdf);
+        const viewer = new StaticViewer(pdf);
         viewer.render(true);
 
         await _handleOpen(viewer, url, page + offset, cache);
@@ -192,7 +239,7 @@ export default class Api {
      * @param cache If URL based caching should be used.
      * @category Open
      */
-    public static async openURL(url: string, page: number = 1, cache: boolean = true): Promise<Viewer> {
+    public static async openURL(url: string, page: number = 1, cache: boolean = true): Promise<BaseViewer> {
         if (isNaN(page) || page <= 0) {
             throw new Error(`Page must be > 0, but ${page} was given.`);
         }
@@ -201,7 +248,7 @@ export default class Api {
             url = getAbsoluteURL(url);
         }
 
-        const viewer = new Viewer();
+        const viewer = new StaticViewer();
         viewer.render(true);
 
         await _handleOpen(viewer, url, page, cache);
@@ -213,7 +260,7 @@ export default class Api {
      * Shows the user manual to the active user.
      * @category Utility
      */
-    public static async showHelp(): Promise<Viewer> {
+    public static async showHelp(): Promise<BaseViewer> {
         await game.user.setFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.SETTING_KEY.HELP_SEEN, true);
 
         const lang = game.i18n.lang;
@@ -224,8 +271,9 @@ export default class Api {
             manualPath = `${window.origin}/systems/${Settings.DIST_PATH}/assets/manual/en/manual.pdf`;
         }
 
-        const pdfData: PDFData = {
+        const pdfData: PDFBookData = {
             name: game.i18n.localize('PDFOUNDRY.MANUAL.Name'),
+            type: PDFDataType.Book,
             code: '',
             offset: 0,
             url: manualPath,

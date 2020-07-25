@@ -15,14 +15,11 @@
     limitations under the License.
     -->
 
-    {{#each users as |user|}}
+    <select>
+        {{#each sheets as |sheet|}}
+        <option value="{{ sheet.url }}">{{ sheet.name }}</option>
+        {{/each}}
+    </select>
 
-    <div class="field-row expand">
-        <label for="{{ user.id }}">{{ user.name }}</label>
-        <input type="checkbox" id="{{ user.id }}" />
-    </div>
-
-    {{/each}}
-
-    <button id="confirm">{{ localize 'PDFOUNDRY.VIEWER.SelectPlayersConfirm' }}</button>
+    <button id="confirm">{{ localize 'PDFOUNDRY.VIEWER.SelectSheetConfirm' }}</button>
 </form>

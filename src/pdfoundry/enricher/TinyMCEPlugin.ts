@@ -1,4 +1,4 @@
-import { getPDFDataFromItem, isPDF } from '../Util';
+import { getPDFBookData, isPDF } from '../Util';
 
 /**
  * @private
@@ -35,7 +35,7 @@ export default class TinyMCEPlugin {
             return;
         }
 
-        const pdfData = getPDFDataFromItem(entity);
+        const pdfData = getPDFBookData(entity);
         if (!pdfData) {
             return;
         }

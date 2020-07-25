@@ -1323,8 +1323,6 @@ const PDFViewerApplication = {
     }
 
     if (info.IsAcroFormPresent) {
-      console.warn("Warning: AcroForm/XFA is not supported");
-
       this._delayedFallback(_pdfjsLib.UNSUPPORTED_FEATURES.forms);
     }
 
@@ -8860,6 +8858,10 @@ var _pdf_link_service = __webpack_require__(18);
 
 var _text_layer_builder = __webpack_require__(28);
 
+var _ui_utils2 = __webpack_require__(2);
+
+var _app_options = __webpack_require__(3);
+
 const DEFAULT_CACHE_SIZE = 10;
 
 function PDFPageViewBuffer(size) {
@@ -8919,6 +8921,8 @@ class BaseViewer {
     }
 
     this._name = this.constructor.name;
+    const queryString = document.location.search.substring(1);
+    const params = (0, _ui_utils2.parseQueryString)(queryString);
     this.container = options.container;
     this.viewer = options.viewer || options.container.firstElementChild;
     this.eventBus = options.eventBus;
@@ -8928,7 +8932,7 @@ class BaseViewer {
     this.removePageBorders = options.removePageBorders || false;
     this.textLayerMode = Number.isInteger(options.textLayerMode) ? options.textLayerMode : _ui_utils.TextLayerMode.ENABLE;
     this.imageResourcesPath = options.imageResourcesPath || "";
-    this.renderInteractiveForms = options.renderInteractiveForms || true;
+    this.renderInteractiveForms = options.renderInteractiveForms || params.renderinteractiveforms === "true";
     this.enablePrintAutoRotate = options.enablePrintAutoRotate || false;
     this.renderer = options.renderer || _ui_utils.RendererType.CANVAS;
     this.enableWebGL = options.enableWebGL || false;

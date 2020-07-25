@@ -27,6 +27,9 @@ export default class Settings {
     public static EXTERNAL_SYSTEM_NAME: string = '../modules/pdfoundry';
     public static INTERNAL_MODULE_NAME: string = 'pdfoundry';
 
+    public static ACTOR_DATA_KEY: string = 'PDFoundry_ActorData';
+    public static ACTOR_SHEET_KEY: string = 'PDFoundry_ActorSheet';
+
     public static DIST_NAME = 'pdfoundry-dist';
 
     public static get DIST_PATH() {

@@ -46,27 +46,29 @@ PDFoundry has a bunch of user-focused features, meaning you don't have to do any
 If you wish to build PDFoundry yourself - most commonly because you want it on a system that doesn't appear on Foundry's website - you can do the following.
 
 1. Clone the repository to your modules folder
-2. cd into the new directory
-2. `npm install`
-3. `gulp build`
+2. Open a terminal, navigate to the repository directory
+3. Run `npm install`
+4. Run `gulp build`
 
 You have two options for installing it into a system now that PDFoundry is built.
+
+> :warning: Both the below options assume your have cloned the repository into `data\modules\pdfoundry`. If you have not, copy the root repository folder into your modules folder now.
 
 ##### Option 1
 > Symlink
 
-In my effort to make this as easy as possible, provided you have cloned into your modules folder, there's a gulp script to help you. Run `gulp link --system your_system_folder_name`.
+A symbolic link will allow easy updates by letting run `git pull && gulp rebuild`
 
-A symlink will allow easy updates by letting you simply do `git pull` then `gulp rebuild` from the PDFoundry repository folder
+1. Navigate to the repository directory in a terminal window
+2. Run `gulp link --system your_system_folder_name`
 
 ##### Option 2
 > Manual
 
-Copy the "pdfoundry-dist" folder created during the build into your system directory. There is a node script you can use to install.
+If you don't wish to use a symbolic link you can just install it once.
 
-Run `node pdfoundry-dist/scripts/install.js` from your **system directory**.
-
-> :warning: `pdfoundry-dist/scripts/install.js` will not work. You MUST specify the script to be ran with `node`.
+1. Navigate to the repository directory in a terminal window
+2. Run `gulp install --system your_system_folder_name`
 
 ### API Examples
 
