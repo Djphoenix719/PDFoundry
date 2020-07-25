@@ -62,7 +62,7 @@ export function getPDFBookData(item: Item | null | undefined): PDFBookData | nul
  */
 export function validateAbsoluteURL(dataUrl: string): boolean {
     // Amazon S3 buckets are already absolute
-    if (dataUrl.includes('s3.amazonaws.com')) {
+    if (dataUrl.includes('amazonaws.com')) {
         return true;
     }
 
