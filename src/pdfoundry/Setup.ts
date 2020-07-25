@@ -25,7 +25,7 @@ import HTMLEnricher from './enricher/HTMLEnricher';
 import TinyMCEPlugin from './enricher/TinyMCEPlugin';
 import { PDFDataType } from './common/types/PDFBaseData';
 import ActorItemConfig from './app/ActorItemConfig';
-import ActorSheetAdapter from './app/ActorSheetAdapter';
+import PDFActorSheetAdapter from './app/PDFActorSheetAdapter';
 
 /**
  * A collection of methods used for setting up the API & system state.
@@ -124,7 +124,7 @@ export default class Setup {
      */
     public static setupSheets() {
         // Register actor "sheet"
-        Actors.registerSheet(Settings.INTERNAL_MODULE_NAME, ActorSheetAdapter, { makeDefault: false });
+        Actors.registerSheet(Settings.INTERNAL_MODULE_NAME, PDFActorSheetAdapter, { makeDefault: false });
 
         const sheetsToSetup = [
             { cls: BookItemConfig, type: PDFDataType.Book, makeDefault: true },

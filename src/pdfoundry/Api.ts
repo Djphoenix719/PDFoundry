@@ -32,6 +32,8 @@ import PDFCache from './cache/PDFCache';
 import BaseViewer from './viewer/BaseViewer';
 import { PDFDataType } from './common/types/PDFBaseData';
 
+// noinspection JSUnusedGlobalSymbols
+
 /**
  * A function to passed to getPDFData to find user specified PDF data.
  */

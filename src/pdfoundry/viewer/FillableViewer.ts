@@ -1,6 +1,8 @@
 import Settings from '../settings/Settings';
 import BaseViewer from './BaseViewer';
 import ActorSheetSelect from '../app/ActorSheetSelect';
+import { PDFjsViewer } from '../common/types/PDFjsViewer';
+import { getAbsoluteURL } from '../Util';
 
 /**
  * The FillableViewer class provides an interface for displaying, serializing, and observing form-fillable PDFs.
@@ -20,6 +22,16 @@ export default class FillableViewer extends BaseViewer {
         }
 
         this._baseSheet = this._actor.getFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_SHEET_KEY);
+
+        this.on('viewerOpened', this.onViewerReady.bind(this));
+    }
+
+    protected onViewerReady(viewer: PDFjsViewer) {
+        console.warn(viewer);
+        console.warn(this._baseSheet);
+        if (this._baseSheet) {
+            this.open(getAbsoluteURL(this._baseSheet));
+        }
     }
 
     public getData(options?: any): any | Promise<any> {
@@ -31,18 +43,33 @@ export default class FillableViewer extends BaseViewer {
     protected _getHeaderButtons(): any[] {
         const buttons = super._getHeaderButtons();
 
-        buttons.unshift({
-            class: 'configure-sheet',
-            icon: 'fas fa-file-pdf',
-            label: game.i18n.localize('PDFOUNDRY.VIEWER.DisableSheet'),
-            onclick: async () => {
-                new EntitySheetConfig(this._actor).render(true);
-            },
-        });
+        const canConfigure = game.user.isGM || (this._actor.owner && game.user.can('TOKEN_CONFIGURE'));
+        if (this.options.editable && canConfigure) {
+            buttons.unshift({
+                class: 'configure-sheet',
+                icon: 'fas fa-cog',
+                label: 'Settings',
+                onclick: async () => {
+                    new EntitySheetConfig(this._actor).render(true);
+                },
+            });
 
-        const temp = buttons[0];
-        buttons[0] = buttons[1];
-        buttons[1] = temp;
+            buttons.unshift({
+                class: 'configure-token',
+                icon: 'fas fa-user-circle',
+                label: this._actor.token ? 'Token' : 'Prototype Token',
+                onclick: async () => {
+                    const token = this._actor.token || new Token(this._actor.data.token);
+                    new TokenConfig(token, {
+                        configureDefault: !this._actor.token,
+                    }).render(true);
+                },
+            });
+
+            const temp = buttons[0];
+            buttons[0] = buttons[2];
+            buttons[2] = temp;
+        }
 
         buttons.unshift({
             class: 'pdf-fillable-select',
@@ -64,23 +91,23 @@ export default class FillableViewer extends BaseViewer {
 
         // console.warn(`Page ${event.pageNumber} Rendered`);
         // console.warn(event);
-        //
-        // const annotationLayer = $(event.source.annotationLayer.div);
-        // const inputs = annotationLayer.find('section input');
-        // inputs.each((index, element) => {
-        //     this.initializeInput($(element as HTMLInputElement));
-        // });
-        //
-        // inputs.on('input', (event) => this.handleInput(event));
-        // inputs.on('change', (event) => this.handleInput(event));
-        //
-        // const textAreas = annotationLayer.find('section textarea');
-        // textAreas.each((index, element) => {
-        //     this.initializeInput($(element as HTMLTextAreaElement));
-        // });
-        //
-        // textAreas.on('input', (event) => this.handleInput(event));
-        // textAreas.on('change', (event) => this.handleInput(event));
+
+        const annotationLayer = $(event.source.annotationLayer.div);
+        const inputs = annotationLayer.find('section input');
+        inputs.each((index, element) => {
+            this.initializeInput($(element as HTMLInputElement));
+        });
+
+        inputs.on('input', (event) => this.handleInput(event));
+        inputs.on('change', (event) => this.handleInput(event));
+
+        const textAreas = annotationLayer.find('section textarea');
+        textAreas.each((index, element) => {
+            this.initializeInput($(element as HTMLTextAreaElement));
+        });
+
+        textAreas.on('input', (event) => this.handleInput(event));
+        textAreas.on('change', (event) => this.handleInput(event));
     }
 
     protected getActorValue(key: string): string | null {
@@ -118,7 +145,7 @@ export default class FillableViewer extends BaseViewer {
         const value = this.getInputValue(input);
         this.setActorValue(key, value);
 
-        console.warn(`Updated _actorData[${key}] = ${value}`);
+        // console.warn(`Updated _actorData[${key}] = ${value}`);
     }
 
     protected initializeInput(input: JQuery<HTMLInputElement | HTMLTextAreaElement>) {
@@ -132,12 +159,17 @@ export default class FillableViewer extends BaseViewer {
         if (value !== null) {
             this.setInputValue(input, value);
 
-            console.warn(`Loaded existing _actorData[${key}] = ${value}`);
+            // console.warn(`Loaded existing _actorData[${key}] = ${value}`);
         } else {
             value = this.getInputValue(input);
             this.setActorValue(key, value);
 
-            console.warn(`Initialized: _actorData[${key}] = ${value}`);
+            // console.warn(`Initialized: _actorData[${key}] = ${value}`);
         }
+    }
+
+    async close(): Promise<any> {
+        await this._viewer.close();
+        return super.close();
     }
 }

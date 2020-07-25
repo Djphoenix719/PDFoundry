@@ -4,13 +4,13 @@ import FillableViewer from '../viewer/FillableViewer';
  * Adapts a FillableViewer to function as a ActorSheet
  * @private
  */
-export default class ActorSheetAdapter extends ActorSheet {
+export default class PDFActorSheetAdapter extends ActorSheet {
     private _viewer: FillableViewer;
 
     constructor(...args) {
         super(...args);
 
-        this._viewer = new FillableViewer(args[0]);
+        this._viewer = new FillableViewer(args[0], args[1]);
     }
 
     get template(): string {
