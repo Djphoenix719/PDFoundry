@@ -40,7 +40,9 @@
       "SelectPlayers": "Select Players",
       "SelectPlayersConfirm": "Make it so!",
       "SelectSheet": "Select Sheet",
-      "SelectSheetConfirm": "Make it so!"
+      "SelectSheetConfirm": "Make it so!",
+
+      "DisableSheet": "Disable"
     },
     "MANUAL": {
       "Name": "PDFoundry User Manual"

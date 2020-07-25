@@ -15,10 +15,12 @@
     limitations under the License.
     -->
 
-    <select>
-        {{#each sheets as |sheet|}}
+    <select id="sheet">
+        {{#each sheets as |sheet|}} {{#if sheet.selected}}
+        <option value="{{ sheet.url }}" selected="selected">{{ sheet.name }}</option>
+        {{else}}
         <option value="{{ sheet.url }}">{{ sheet.name }}</option>
-        {{/each}}
+        {{/if}} {{/each}}
     </select>
 
     <button id="confirm">{{ localize 'PDFOUNDRY.VIEWER.SelectSheetConfirm' }}</button>

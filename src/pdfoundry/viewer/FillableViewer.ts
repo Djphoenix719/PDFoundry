@@ -1,6 +1,5 @@
 import Settings from '../settings/Settings';
 import BaseViewer from './BaseViewer';
-import PDFBaseData from '../common/types/PDFBaseData';
 import ActorSheetSelect from '../app/ActorSheetSelect';
 
 /**
@@ -9,12 +8,10 @@ import ActorSheetSelect from '../app/ActorSheetSelect';
 export default class FillableViewer extends BaseViewer {
     protected _actor: Actor;
     protected _actorData: Record<string, string>;
-    protected _baseSheet: PDFBaseData;
+    protected _baseSheet: string;
 
-    constructor(actor: Actor) {
-        super();
-
-        console.warn(actor);
+    constructor(actor: Actor, options?: ApplicationOptions) {
+        super(options);
 
         this._actor = actor;
         this._actorData = this._actor.getFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_DATA_KEY);
@@ -23,7 +20,6 @@ export default class FillableViewer extends BaseViewer {
         }
 
         this._baseSheet = this._actor.getFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_SHEET_KEY);
-        console.warn(this._actorData);
     }
 
     public getData(options?: any): any | Promise<any> {
@@ -36,11 +32,42 @@ export default class FillableViewer extends BaseViewer {
         const buttons = super._getHeaderButtons();
 
         buttons.unshift({
+            class: 'configure-sheet',
+            icon: 'fas fa-file-pdf',
+            label: game.i18n.localize('PDFOUNDRY.VIEWER.DisableSheet'),
+            onclick: async () => {
+                const entityName = (this._actor.entity as unknown) as string;
+                const config = CONFIG[entityName];
+                const type = this._actor.data.type || CONST.BASE_ENTITY_TYPE;
+                const classes = Object.values(config.sheetClasses[type]);
+                const defcls: any = classes.find((c: any) => c.default);
+
+                // TODO: Handle swapping between normal sheet and the actor sheet
+                if (game.user.isGM) {
+                    const setting = (await game.settings.get('core', 'sheetClasses')) || {};
+                    mergeObject(setting, { [`${this._actor.entity}.${this._actor.data.type}`]: defcls.id });
+                    await game.settings.set('core', 'sheetClasses', setting);
+                    console.warn(defcls);
+                }
+
+                await this._actor.setFlag('core', 'sheetClass', defcls.id);
+                await this.close();
+            },
+        });
+
+        const temp = buttons[0];
+        buttons[0] = buttons[1];
+        buttons[1] = temp;
+
+        buttons.unshift({
             class: 'pdf-fillable-select',
             icon: 'fas fa-user-cog',
             label: 'Sheet Select',
             onclick: () => {
-                new ActorSheetSelect(() => {}).render(true);
+                new ActorSheetSelect(this._baseSheet, (sheet) => {
+                    this._baseSheet = sheet;
+                    this._actor.setFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_SHEET_KEY, sheet);
+                }).render(true);
             },
         });
 
@@ -50,25 +77,25 @@ export default class FillableViewer extends BaseViewer {
     onPageRendered(event) {
         super.onPageRendered(event);
 
-        console.warn(`Page ${event.pageNumber} Rendered`);
-        console.warn(event);
-
-        const annotationLayer = $(event.source.annotationLayer.div);
-        const inputs = annotationLayer.find('section input');
-        inputs.each((index, element) => {
-            this.initializeInput($(element as HTMLInputElement));
-        });
-
-        inputs.on('input', (event) => this.handleInput(event));
-        inputs.on('change', (event) => this.handleInput(event));
-
-        const textAreas = annotationLayer.find('section textarea');
-        textAreas.each((index, element) => {
-            this.initializeInput($(element as HTMLTextAreaElement));
-        });
-
-        textAreas.on('input', (event) => this.handleInput(event));
-        textAreas.on('change', (event) => this.handleInput(event));
+        // console.warn(`Page ${event.pageNumber} Rendered`);
+        // console.warn(event);
+        //
+        // const annotationLayer = $(event.source.annotationLayer.div);
+        // const inputs = annotationLayer.find('section input');
+        // inputs.each((index, element) => {
+        //     this.initializeInput($(element as HTMLInputElement));
+        // });
+        //
+        // inputs.on('input', (event) => this.handleInput(event));
+        // inputs.on('change', (event) => this.handleInput(event));
+        //
+        // const textAreas = annotationLayer.find('section textarea');
+        // textAreas.each((index, element) => {
+        //     this.initializeInput($(element as HTMLTextAreaElement));
+        // });
+        //
+        // textAreas.on('input', (event) => this.handleInput(event));
+        // textAreas.on('change', (event) => this.handleInput(event));
     }
 
     protected getActorValue(key: string): string | null {
@@ -127,14 +154,5 @@ export default class FillableViewer extends BaseViewer {
 
             console.warn(`Initialized: _actorData[${key}] = ${value}`);
         }
-    }
-
-    protected async save(): Promise<void> {
-        await this._actor.setFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_DATA_KEY, this._actorData);
-    }
-
-    async close(): Promise<any> {
-        await this.save();
-        return super.close();
     }
 }

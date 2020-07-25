@@ -27,6 +27,8 @@ export default abstract class BaseViewer extends Application {
     protected _eventBus: PDFjsEventBus;
     protected _eventStore: EventStore<PDFViewerEvent>;
 
+    protected _element2: JQuery | HTMLElement;
+
     // </editor-fold>
     // <editor-fold desc="Constructor & Initialization">
 
@@ -65,7 +67,6 @@ export default abstract class BaseViewer extends Application {
 
     protected _getHeaderButtons(): any[] {
         const buttons = super._getHeaderButtons();
-        //TODO: Standardize this to function w/ the Item sheet one
         buttons.unshift(BUTTON_GITHUB);
         return buttons;
     }
@@ -102,6 +103,8 @@ export default abstract class BaseViewer extends Application {
                 // }
 
                 this._eventStore.fire('viewerReady', this);
+                window['activeViewer'] = this;
+                this._element2 = this.element;
             });
         });
 
@@ -187,8 +190,6 @@ export default abstract class BaseViewer extends Application {
 
     public async close(): Promise<any> {
         this._eventStore.fire('viewerClosed', this);
-
-        await (await this.getViewer()).close();
 
         return super.close();
     }

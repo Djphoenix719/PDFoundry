@@ -1,23 +1,30 @@
 import Settings from '../settings/Settings';
-import { PDFPlayerSelectCallback } from './PlayerSelect';
 import { PDFDataType } from '../common/types/PDFBaseData';
+
+/**
+ * Callback type for sheet selection
+ * @private
+ */
+export type PDFActorSheetSelectCallback = (sheet: string) => void;
 
 export default class ActorSheetSelect extends Application {
     static get defaultOptions() {
         const options = super.defaultOptions;
         options.classes = ['sheet'];
         options.template = `systems/${Settings.DIST_PATH}/templates/app/pdf-sheet-select.html`;
-        options.width = 'auto';
+        options.width = 200;
         options.height = 'auto';
         options.title = game.i18n.localize('PDFOUNDRY.VIEWER.SelectSheet');
         return options;
     }
 
+    private readonly _default;
     private readonly _callback;
 
-    constructor(cb: PDFPlayerSelectCallback, options?: ApplicationOptions) {
+    constructor(defaultValue: string, cb: PDFActorSheetSelectCallback, options?: ApplicationOptions) {
         super(options);
 
+        this._default = defaultValue;
         this._callback = cb;
     }
 
@@ -31,8 +38,11 @@ export default class ActorSheetSelect extends Application {
             return {
                 name: sheet.name,
                 url: sheet.data.data.url,
+                selected: sheet.data.data.url === this._default ? 'selected' : '',
             };
         });
+
+        data.default = this._default;
         return data;
     }
 
@@ -41,7 +51,7 @@ export default class ActorSheetSelect extends Application {
 
         const button = $(html).find('#confirm');
         button.on('click', () => {
-            console.warn('closing');
+            this._callback($(html).find('#sheet').val());
             this.close();
         });
     }
