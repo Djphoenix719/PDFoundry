@@ -27,8 +27,6 @@ export default abstract class BaseViewer extends Application {
     protected _eventBus: PDFjsEventBus;
     protected _eventStore: EventStore<PDFViewerEvent>;
 
-    protected _element2: JQuery | HTMLElement;
-
     // </editor-fold>
     // <editor-fold desc="Constructor & Initialization">
 
@@ -103,8 +101,6 @@ export default abstract class BaseViewer extends Application {
                 // }
 
                 this._eventStore.fire('viewerReady', this);
-                window['activeViewer'] = this;
-                this._element2 = this.element;
             });
         });
 
@@ -270,7 +266,17 @@ export default abstract class BaseViewer extends Application {
      * @param page The initial page to open to
      */
     public async open(pdfSource: string | Uint8Array, page?: number) {
+        console.warn(`
+        ----------------------------------------
+        ---     VIEWER IS OPENING A PDF      ---
+        ----------------------------------------
+        `);
+
+        console.warn(this);
+
         const pdfjsViewer = await this.getViewer();
+
+        console.warn(pdfjsViewer);
 
         if (page) {
             pdfjsViewer.initialBookmark = `page=${page}`;

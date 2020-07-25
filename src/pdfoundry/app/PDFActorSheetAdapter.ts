@@ -6,23 +6,35 @@ import FillableViewer from '../viewer/FillableViewer';
  */
 export default class PDFActorSheetAdapter extends ActorSheet {
     private _viewer: FillableViewer;
+    private readonly _options?: ApplicationOptions;
 
     constructor(...args) {
         super(...args);
 
-        this._viewer = new FillableViewer(args[0], args[1]);
+        this._options = args[1];
+        this._viewer = new FillableViewer(this.actor, this, this._options);
     }
 
-    get template(): string {
-        return this._viewer.template;
+    protected activateListeners(html: JQuery | HTMLElement) {
+        $(this.element).css('display', 'none');
+        super.activateListeners(html);
+    }
+
+    getData(): ActorSheetData {
+        return mergeObject(super.getData(), this._viewer.getData());
     }
 
     render(force?: boolean, options?: RenderOptions): Application {
-        return this._viewer.render(force, options);
+        if (!this._viewer) {
+            this._viewer = new FillableViewer(this.actor, this, this._options);
+        }
+        this._viewer.render(force, options);
+        return super.render(force, options);
     }
 
     async close(): Promise<void> {
-        await this._viewer.close();
+        this._viewer.close();
+        delete this._viewer;
         return super.close();
     }
 }

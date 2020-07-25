@@ -47,7 +47,7 @@ type ItemComparer = (item: Item) => boolean;
  * @param cache
  * @private
  */
-async function _handleOpen(viewer: StaticViewer, url: string, page: number, cache: boolean) {
+export async function _handleOpen(viewer: BaseViewer, url: string, page: number, cache: boolean) {
     if (cache) {
         const cachedBytes = await PDFCache.getCache(url);
         // If we have a cache hit open the cached data
