@@ -303,6 +303,7 @@ function release() {
 
         const distPath = path.resolve('./', distName);
 
+        // TODO: Re-write with error handling + separate releases per system?
         const processed = new Set();
         const processManifest = (href) => {
             return new Promise((resolve, reject) => {

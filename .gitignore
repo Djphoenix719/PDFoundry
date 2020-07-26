@@ -4,3 +4,4 @@ node_modules/*
 module/**/*.js
 books/*
 pdfoundry-dist/**/*
+installers/**/*
