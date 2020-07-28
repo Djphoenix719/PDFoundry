@@ -266,21 +266,22 @@ export default abstract class BaseViewer extends Application {
      * @param page The initial page to open to
      */
     public async open(pdfSource: string | Uint8Array, page?: number) {
-        console.warn(`
-        ----------------------------------------
-        ---     VIEWER IS OPENING A PDF      ---
-        ----------------------------------------
-        `);
-
-        console.warn(this);
+        console.warn('Incoming pdfSource');
+        console.warn(pdfSource);
 
         const pdfjsViewer = await this.getViewer();
-
-        console.warn(pdfjsViewer);
 
         if (page) {
             pdfjsViewer.initialBookmark = `page=${page}`;
         }
+
+        console.warn(new Error().stack);
+        console.warn('this');
+        console.warn(pdfjsViewer);
+
+        console.warn(pdfSource.toString());
+
+        console.warn('past toString');
 
         await pdfjsViewer.open(pdfSource);
     }

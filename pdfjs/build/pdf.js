@@ -1792,6 +1792,9 @@ function getDocument(src) {
   const task = new PDFDocumentLoadingTask();
   let source;
 
+  console.warn('src')
+  console.warn(src)
+
   if (typeof src === "string") {
     source = {
       url: src
@@ -1815,6 +1818,9 @@ function getDocument(src) {
 
     source = src;
   }
+
+  console.warn('source')
+  console.warn(source)
 
   const params = Object.create(null);
   let rangeTransport = null,

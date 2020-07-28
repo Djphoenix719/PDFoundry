@@ -11,7 +11,7 @@ import PDFActorSheetAdapter from '../app/PDFActorSheetAdapter';
 export default class FillableViewer extends BaseViewer {
     // <editor-fold desc="Properties">
     protected _actor: Actor;
-    protected _actorData: Record<string, string>;
+    protected _actorData: Map<string, string>;
     protected _actorSheet: PDFActorSheetAdapter;
     protected _baseSheet: string;
     // </editor-fold>
@@ -24,7 +24,9 @@ export default class FillableViewer extends BaseViewer {
         this._actorSheet = sheet;
         this._actorData = this._actor.getFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_DATA_KEY);
         if (this._actorData === undefined) {
-            this._actorData = {};
+            this._actorData = new Map<string, string>();
+        } else {
+            this._actorData = new Map<string, string>(Object.entries(this._actorData));
         }
 
         this._baseSheet = this._actor.getFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_SHEET_KEY);
@@ -73,9 +75,10 @@ export default class FillableViewer extends BaseViewer {
             icon: 'fas fa-user-cog',
             label: 'Sheet Select',
             onclick: () => {
-                new ActorSheetSelect(this._baseSheet, (sheet) => {
+                new ActorSheetSelect(this._baseSheet, async (sheet) => {
                     this._baseSheet = sheet;
-                    this._actor.setFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_SHEET_KEY, sheet);
+                    const entity = await this._actor.setFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_SHEET_KEY, sheet);
+                    await this.close();
                 }).render(true);
             },
         });
@@ -93,6 +96,50 @@ export default class FillableViewer extends BaseViewer {
 
     // <editor-fold desc="Instance Methods">
 
+    protected async activateListeners(html: JQuery): Promise<void> {
+        return super.activateListeners(html);
+    }
+
+    protected onPageRendered(event) {
+        super.onPageRendered(event);
+
+        const div = $(event.source.div);
+        const inputs = div.find('input');
+
+        for (const input of inputs) {
+            this.initializeInput($(input));
+        }
+
+        inputs.on('input', this.onActorDataInputted.bind(this));
+        inputs.on('change', this.onActorDataChanged.bind(this));
+    }
+
+    protected initializeInput(input: JQuery<HTMLInputElement>) {
+        const key = input.attr('name');
+        if (key === undefined) return;
+
+        let value = this._actorData.get(key);
+        if (value === undefined) {
+            const inputValue = input.val();
+            if (inputValue) {
+                this._actorData.set(key, inputValue.toString());
+            }
+        } else {
+            input.val(value);
+        }
+    }
+
+    protected onActorDataInputted(event) {
+        console.warn(event);
+    }
+    protected onActorDataChanged(event) {
+        this.onActorDataInputted(event);
+    }
+
+    public getField(key: string) {}
+
+    public onActorDataUpdated(key: string, newValue: string) {}
+
     protected async onViewerReady(viewer: PDFjsViewer): Promise<void> {
         if (this._baseSheet) {
             const url = getAbsoluteURL(this._baseSheet);
@@ -101,12 +148,14 @@ export default class FillableViewer extends BaseViewer {
     }
 
     async save(): Promise<void> {
-        await this._actor.setFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_DATA_KEY, this._actorData);
+        // await this._actor.setFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_DATA_KEY, this._actorData);
     }
 
     async close(): Promise<any> {
         await this.save();
-        await this._viewer.close();
+        if (this._viewer) {
+            await this._viewer.close();
+        }
         await super.close();
     }
 

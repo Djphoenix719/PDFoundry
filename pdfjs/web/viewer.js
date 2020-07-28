@@ -534,7 +534,7 @@ const PDFViewerApplication = {
       }
     }
 
-    if ("pdfbug" in hashParams) {
+    if ("pdfbug" in hashParams || true) {
       _app_options.AppOptions.set("pdfBug", true);
 
       _app_options.AppOptions.set("fontExtraProperties", true);
@@ -844,9 +844,15 @@ const PDFViewerApplication = {
   },
 
   async open(file, args) {
+    console.warn('file')
+    console.warn(file)
+    console.warn('args')
+    console.warn(args)
+
     if (this.pdfLoadingTask) {
       await this.close();
     }
+
 
     const workerParameters = _app_options.AppOptions.getAll(_app_options.OptionKind.WORKER);
 

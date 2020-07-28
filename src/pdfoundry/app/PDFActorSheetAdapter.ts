@@ -33,8 +33,10 @@ export default class PDFActorSheetAdapter extends ActorSheet {
     }
 
     async close(): Promise<void> {
-        this._viewer.close();
-        delete this._viewer;
+        if (this._viewer) {
+            await this._viewer.close();
+            delete this._viewer;
+        }
         return super.close();
     }
 }
