@@ -42,6 +42,11 @@ div.pdfoundry-viewer {
   iframe {
     border: 0;
   }
+
+  form, form iframe {
+    width: 100%;
+    height: 100%;
+  }
 }
 
 form.pdf-item-sheet {

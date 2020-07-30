@@ -11,7 +11,7 @@ export default abstract class BaseViewer extends Application {
     static get defaultOptions() {
         const options = super.defaultOptions;
         options.classes = ['app', 'window-app', 'pdfoundry-viewer'];
-        options.template = `systems/${Settings.EXTERNAL_SYSTEM_NAME}/pdfoundry-dist/templates/app/pdf-viewer.html`;
+        options.template = `systems/${Settings.EXTERNAL_SYSTEM_NAME}/pdfoundry-dist/templates/app/pdf-viewer-static.html`;
         options.title = game.i18n.localize('PDFOUNDRY.VIEWER.ViewPDF');
         options.width = 8.5 * 100 + 64;
         options.height = 11 * 100 + 64;
@@ -266,22 +266,11 @@ export default abstract class BaseViewer extends Application {
      * @param page The initial page to open to
      */
     public async open(pdfSource: string | Uint8Array, page?: number) {
-        console.warn('Incoming pdfSource');
-        console.warn(pdfSource);
-
         const pdfjsViewer = await this.getViewer();
 
         if (page) {
             pdfjsViewer.initialBookmark = `page=${page}`;
         }
-
-        console.warn(new Error().stack);
-        console.warn('this');
-        console.warn(pdfjsViewer);
-
-        console.warn(pdfSource.toString());
-
-        console.warn('past toString');
 
         await pdfjsViewer.open(pdfSource);
     }

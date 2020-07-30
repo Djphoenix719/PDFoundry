@@ -18,13 +18,13 @@ export default class ActorSheetSelect extends Application {
         return options;
     }
 
-    private readonly _default;
+    private readonly _current?: string;
     private readonly _callback;
 
-    constructor(defaultValue: string, cb: PDFActorSheetSelectCallback, options?: ApplicationOptions) {
+    constructor(currentValue: string | undefined, cb: PDFActorSheetSelectCallback, options?: ApplicationOptions) {
         super(options);
 
-        this._default = defaultValue;
+        this._current = currentValue;
         this._callback = cb;
     }
 
@@ -38,11 +38,11 @@ export default class ActorSheetSelect extends Application {
             return {
                 name: sheet.name,
                 url: sheet.data.data.url,
-                selected: sheet.data.data.url === this._default ? 'selected' : '',
+                selected: sheet.data.data.url === this._current ? 'selected' : '',
             };
         });
 
-        data.default = this._default;
+        data.default = this._current;
         return data;
     }
 
@@ -51,7 +51,11 @@ export default class ActorSheetSelect extends Application {
 
         const button = $(html).find('#confirm');
         button.on('click', () => {
-            this._callback($(html).find('#sheet').val());
+            const select = $(html).find('#sheet');
+            const value = select.val();
+            if (value !== this._current) {
+                this._callback(value);
+            }
             this.close();
         });
     }

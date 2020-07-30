@@ -9,33 +9,74 @@ import PDFActorSheetAdapter from '../app/PDFActorSheetAdapter';
  * The FillableViewer class provides an interface for displaying, serializing, and observing form-fillable PDFs.
  */
 export default class FillableViewer extends BaseViewer {
+    // <editor-fold desc="Static Properties">
+
+    static get defaultOptions() {
+        const options = super.defaultOptions;
+        options.template = `systems/${Settings.EXTERNAL_SYSTEM_NAME}/pdfoundry-dist/templates/app/pdf-viewer-fillable.html`;
+        return options;
+    }
+
+    // </editor-fold>
     // <editor-fold desc="Properties">
-    protected _actor: Actor;
-    protected _actorData: Map<string, string>;
-    protected _actorSheet: PDFActorSheetAdapter;
-    protected _baseSheet: string;
+    protected actor: Actor;
+    protected actorData: Map<string, string>;
+    protected actorSheet: PDFActorSheetAdapter;
     // </editor-fold>
 
     // <editor-fold desc="Constructor & Initialization">
     constructor(actor: Actor, sheet: PDFActorSheetAdapter, options?: ApplicationOptions) {
         super(options);
 
-        this._actor = actor;
-        this._actorSheet = sheet;
-        this._actorData = this._actor.getFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_DATA_KEY);
-        if (this._actorData === undefined) {
-            this._actorData = new Map<string, string>();
-        } else {
-            this._actorData = new Map<string, string>(Object.entries(this._actorData));
-        }
+        this.actor = actor;
+        this.actorSheet = sheet;
 
-        this._baseSheet = this._actor.getFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_SHEET_KEY);
+        this.actorData = this.getActorData();
 
         this.on('viewerReady', this.onViewerReady.bind(this));
     }
     // </editor-fold>
 
     // <editor-fold desc="Getters & Setters">
+
+    get title(): string {
+        return this.actor.name;
+    }
+
+    /**
+     * Get the URL for the current sheet from the actor flags.
+     */
+    public getCurrentSheet(): string | undefined {
+        return this.actor.getFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_SHEET_KEY);
+    }
+
+    /**
+     * Save the URL for the current sheet to the actor flags.
+     * @param value
+     */
+    public async setCurrentSheet(value: string) {
+        return this.actor.setFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_SHEET_KEY, value);
+    }
+
+    /**
+     * Get the actor data map from the actor flags.
+     */
+    public getActorData(): Map<string, string> {
+        const data = this.actor.getFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_DATA_KEY);
+        if (data) {
+            return new Map<string, string>(Object.entries(data));
+        } else {
+            return new Map<string, string>();
+        }
+    }
+
+    /**
+     * Save the actor data map to the actor flags.
+     * @param value
+     */
+    public async setActorData(value: Map<string, string>) {
+        return this.actor.setFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_DATA_KEY, value);
+    }
 
     protected _getHeaderButtons(): any[] {
         const buttons: any[] = [];
@@ -44,19 +85,19 @@ export default class FillableViewer extends BaseViewer {
             label: 'Close',
             class: 'close',
             icon: 'fas fa-times',
-            onclick: (ev) => this._actorSheet.close(),
+            onclick: (ev) => this.actorSheet.close(),
         });
 
-        const canConfigure = game.user.isGM || (this._actor.owner && game.user.can('TOKEN_CONFIGURE'));
+        const canConfigure = game.user.isGM || (this.actor.owner && game.user.can('TOKEN_CONFIGURE'));
         if (this.options.editable && canConfigure) {
             buttons.unshift({
                 class: 'configure-token',
                 icon: 'fas fa-user-circle',
-                label: this._actor.token ? 'Token' : 'Prototype Token',
+                label: this.actor.token ? 'Token' : 'Prototype Token',
                 onclick: async () => {
-                    const token = this._actor.token || new Token(this._actor.data.token);
+                    const token = this.actor.token || new Token(this.actor.data.token);
                     new TokenConfig(token, {
-                        configureDefault: !this._actor.token,
+                        configureDefault: !this.actor.token,
                     }).render(true);
                 },
             });
@@ -65,7 +106,7 @@ export default class FillableViewer extends BaseViewer {
                 icon: 'fas fa-cog',
                 label: 'Settings',
                 onclick: async () => {
-                    new EntitySheetConfig(this._actor).render(true);
+                    new EntitySheetConfig(this.actor).render(true);
                 },
             });
         }
@@ -75,11 +116,7 @@ export default class FillableViewer extends BaseViewer {
             icon: 'fas fa-user-cog',
             label: 'Sheet Select',
             onclick: () => {
-                new ActorSheetSelect(this._baseSheet, async (sheet) => {
-                    this._baseSheet = sheet;
-                    const entity = await this._actor.setFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_SHEET_KEY, sheet);
-                    await this.close();
-                }).render(true);
+                new ActorSheetSelect(this.getCurrentSheet(), this.onUpdateBaseSheet.bind(this)).render(true);
             },
         });
 
@@ -96,8 +133,9 @@ export default class FillableViewer extends BaseViewer {
 
     // <editor-fold desc="Instance Methods">
 
-    protected async activateListeners(html: JQuery): Promise<void> {
-        return super.activateListeners(html);
+    protected async onUpdateBaseSheet(sheet) {
+        await this.setCurrentSheet(sheet);
+        await this.actorSheet.close();
     }
 
     protected onPageRendered(event) {
@@ -118,11 +156,11 @@ export default class FillableViewer extends BaseViewer {
         const key = input.attr('name');
         if (key === undefined) return;
 
-        let value = this._actorData.get(key);
+        let value = this.actorData.get(key);
         if (value === undefined) {
             const inputValue = input.val();
             if (inputValue) {
-                this._actorData.set(key, inputValue.toString());
+                this.actorData.set(key, inputValue.toString());
             }
         } else {
             input.val(value);
@@ -138,11 +176,14 @@ export default class FillableViewer extends BaseViewer {
 
     public getField(key: string) {}
 
-    public onActorDataUpdated(key: string, newValue: string) {}
+    public onActorDataUpdated(key: string, newValue: string) {
+        console.warn('onActorDataUpdated');
+    }
 
     protected async onViewerReady(viewer: PDFjsViewer): Promise<void> {
-        if (this._baseSheet) {
-            const url = getAbsoluteURL(this._baseSheet);
+        const sheet = this.getCurrentSheet();
+        if (sheet) {
+            const url = getAbsoluteURL(sheet);
             await this.open(url);
         }
     }
@@ -157,6 +198,15 @@ export default class FillableViewer extends BaseViewer {
             await this._viewer.close();
         }
         await super.close();
+    }
+
+    async open(pdfSource: string | Uint8Array, page?: number): Promise<void> {
+        try {
+            await super.open(pdfSource, page);
+        } catch (error) {
+            await this.actorSheet.close();
+            new PDFActorSheetAdapter(this.actor, this.options).render(true);
+        }
     }
 
     // </editor-fold>

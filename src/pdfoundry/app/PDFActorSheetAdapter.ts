@@ -8,11 +8,10 @@ export default class PDFActorSheetAdapter extends ActorSheet {
     private _viewer: FillableViewer;
     private readonly _options?: ApplicationOptions;
 
-    constructor(...args) {
-        super(...args);
+    constructor(actor: Actor, options?: ApplicationOptions) {
+        super(actor, options);
 
-        this._options = args[1];
-        this._viewer = new FillableViewer(this.actor, this, this._options);
+        this._options = options;
     }
 
     protected activateListeners(html: JQuery | HTMLElement) {
