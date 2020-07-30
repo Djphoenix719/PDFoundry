@@ -72,7 +72,6 @@ export default abstract class BaseViewer extends Application {
     public getData(options?: any): any | Promise<any> {
         const data = super.getData(options);
         data.systemName = Settings.EXTERNAL_SYSTEM_NAME;
-        data.interactive = false;
         return data;
     }
 

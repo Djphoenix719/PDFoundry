@@ -123,12 +123,6 @@ export default class FillableViewer extends BaseViewer {
         return buttons;
     }
 
-    public getData(options?: any): any | Promise<any> {
-        const data = super.getData(options);
-        data.interactive = true;
-        return data;
-    }
-
     // </editor-fold>
 
     // <editor-fold desc="Instance Methods">
