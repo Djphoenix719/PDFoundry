@@ -73,22 +73,6 @@ export default class Setup {
 
             // PDFoundry is ready
             Setup.userLogin();
-
-            // TODO: Remove
-            if (Api.findPDFEntity((item) => item.name === '5E Sheet')) {
-                return;
-            }
-
-            const copyThis = Api.findPDFEntity((item) => item.name === 'Clean Sheet') as Item;
-            const dupe = duplicate(copyThis.data);
-            Item.create(dupe).then((resultingItem) => {
-                resultingItem.update({
-                    name: '5E Sheet',
-                    data: {
-                        code: '5ESheet',
-                    },
-                });
-            });
         });
     }
 
