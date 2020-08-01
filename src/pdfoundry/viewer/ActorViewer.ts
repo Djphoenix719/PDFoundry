@@ -5,8 +5,16 @@ import { PDFjsViewer } from '../common/types/PDFjsViewer';
 import { fileExists, getAbsoluteURL } from '../Util';
 import PDFActorSheetAdapter from '../app/PDFActorSheetAdapter';
 
-export interface PDFActorData extends Record<string, string> {
-    name: string;
+function isInput(element: Element): element is HTMLInputElement {
+    return element.tagName === 'INPUT';
+}
+
+function isTextArea(element: Element): element is HTMLTextAreaElement {
+    return element.tagName === 'TEXTAREA';
+}
+
+function isCheckbox(element: Element): element is HTMLInputElement {
+    return isInput(element) && element.getAttribute('type') === 'checkbox';
 }
 
 /**
@@ -29,10 +37,33 @@ export default class ActorViewer extends BaseViewer {
      * Validate the data path of the key.
      * @param path
      */
-    public static isKeyAllowed(path: string): boolean {
-        if (path === 'name') return true;
-        if (path.includes('_id')) return false;
-        return path.startsWith('data.');
+    public static dataPathValid(path: string): boolean {
+        return !path.includes('_id');
+    }
+
+    /**
+     * Fix keys by removing invalid characters
+     * @param key
+     */
+    public static fixKey(key: string): string {
+        if (key.startsWith(`data.`)) {
+            return key;
+        }
+
+        key = key.trim();
+        return key.replace(/\s/g, '_');
+    }
+
+    /**
+     * Resolve a key path to the proper flattened key
+     * @param key
+     */
+    public static resolveKeyPath(key: string): string {
+        if (key === 'name') return key;
+        if (key.startsWith(`data.`)) {
+            return this.fixKey(key);
+        }
+        return `flags.${Settings.EXTERNAL_SYSTEM_NAME}.${Settings.ACTOR_DATA_KEY}.${this.fixKey(key)}`;
     }
 
     // </editor-fold>
@@ -40,6 +71,7 @@ export default class ActorViewer extends BaseViewer {
     // <editor-fold desc="Properties">
     protected actor: Actor;
     protected actorSheet: PDFActorSheetAdapter;
+    protected viewerContainer: JQuery;
     // </editor-fold>
 
     // <editor-fold desc="Constructor & Initialization">
@@ -116,7 +148,11 @@ export default class ActorViewer extends BaseViewer {
                 icon: 'fas fa-user-cog',
                 label: 'Sheet Select',
                 onclick: () => {
-                    new ActorSheetSelect(this.getCurrentSheet(), this.onUpdateBaseSheet.bind(this)).render(true);
+                    new ActorSheetSelect(this.getCurrentSheet(), async (sheet) => {
+                        await this.setCurrentSheet(sheet);
+                        await this.actorSheet.close();
+                        await this.open(sheet);
+                    }).render(true);
                 },
             });
         }
@@ -124,15 +160,20 @@ export default class ActorViewer extends BaseViewer {
         return buttons;
     }
 
-    protected flattenActor(): PDFActorData {
+    // </editor-fold>
+
+    // <editor-fold desc="Instance Methods">
+
+    protected flattenActor(): Record<string, string> {
         const data = flattenObject({
             name: this.actor.name,
             data: this.actor.data.data,
-        }) as PDFActorData;
+            flags: this.actor.data.flags,
+        }) as Record<string, string>;
 
         // Do not allow non-data keys to make it into the flat object
         for (const key of Object.keys(data)) {
-            if (!ActorViewer.isKeyAllowed(key)) {
+            if (!ActorViewer.dataPathValid(key)) {
                 delete data[key];
             }
         }
@@ -140,133 +181,177 @@ export default class ActorViewer extends BaseViewer {
         return data;
     }
 
-    // </editor-fold>
+    protected resolveDelta(oldData: Record<string, any>, newData: Record<string, any>) {
+        // Flags must be fully resolved
+        const delta = { ...flattenObject({ flags: this.actor.data.flags }) };
+        for (const [key, newValue] of Object.entries(newData)) {
+            const oldValue = oldData[key];
 
-    // <editor-fold desc="Instance Methods">
-
-    protected async onUpdateBaseSheet(sheet) {
-        await this.setCurrentSheet(sheet);
-        await this.actorSheet.close();
-        await this.open(sheet);
-    }
-
-    protected resolveActorDelta(originalData: PDFActorData, newData: Partial<PDFActorData>) {
-        const delta = new Map<string, string>();
-        for (const [ko, vo] of Object.entries(newData)) {
-            if (originalData.hasOwnProperty(ko) && ko !== originalData[ko]) {
-                delta[ko] = vo;
+            // Arrays dont make sense on static PDFs
+            if (Array.isArray(newValue) || Array.isArray(oldValue)) {
+                delete delta[key];
+                continue;
             }
-        }
 
-        console.warn(`Resolved actor delta`);
-        console.warn(`Original data was`);
-        console.warn(originalData);
-        console.warn(`New data is`);
-        console.warn(newData);
+            // Skip matching values
+            if (oldValue !== undefined && newValue === oldValue) {
+                continue;
+            }
+
+            delta[key] = newValue;
+        }
 
         return delta;
     }
 
-    protected async updateActor(delta: object) {
-        // Don't allow empty updates
-        if (isObjectEmpty(delta)) {
-            return;
-        }
+    protected async update(delta: object) {
         // data must be expanded to set properly
         return this.actor.update(expandObject(delta));
     }
 
     protected onPageRendered(event) {
-        const div = $(event.source.div);
-        const inputs = div.find('input');
+        const container = $(event.source.div);
+        const elements = container.find('input, textarea') as JQuery<HTMLInputElement | HTMLTextAreaElement>;
 
-        const actorData = this.flattenActor();
-        const changedData = duplicate(actorData);
-
-        let hasWrite = false;
-        for (const input of inputs) {
-            // order is important - call || hasWrite prevents short circuit after first write
-            hasWrite = this.initializeInput($(input), changedData) || hasWrite;
+        if (this.viewerContainer === undefined || this.viewerContainer.length === 0) {
+            this.viewerContainer = $(container.parents().find('#viewerContainer'));
         }
 
-        if (hasWrite) {
-            this.updateActor(this.resolveActorDelta(actorData, changedData));
-        }
+        this.initializeInputs(elements);
 
-        inputs.on('change', this.onInputChanged.bind(this));
+        elements.on('change', this.onInputChanged.bind(this));
 
         super.onPageRendered(event);
     }
 
-    protected onUpdateActor(actor: Actor, data: Partial<ActorData>, options: { diff: boolean }, id: string) {
-        if (id !== this.actor.id) return;
+    protected initializeInputs(elements: JQuery<HTMLInputElement | HTMLTextAreaElement>) {
+        const oldData = this.flattenActor();
+        const newData = duplicate(oldData);
 
-        // TODO: Update fields when actor update occurs
-        if (options.diff) {
-        } else {
+        // Load data from sheet as initialization data
+        // Fill in existing data where it exists on the actor
+        let write = false;
+        for (const element of elements) {
+            const input = element;
+
+            let key = input.getAttribute('name');
+            if (key === null || !ActorViewer.dataPathValid(key)) {
+                continue;
+            }
+
+            key = ActorViewer.resolveKeyPath(key);
+
+            if (isCheckbox(element)) {
+                write = this.initializeCheckInput($(element), key, newData) || write;
+            } else if (isInput(element) || isTextArea(element)) {
+                write = this.initializeTextInput($(input), key, newData) || write;
+            } else {
+                console.error('Unsupported input type in PDF.');
+            }
+        }
+
+        if (write) {
+            this.update(this.resolveDelta(oldData, newData));
         }
     }
 
-    // <editor-fold desc="Actor Data Methods">
-
-    // public getAttribute(key: string): string | undefined {
-    //     const dataValue = this.actorData.get(key);
-    //     if (dataValue !== undefined) {
-    //         return dataValue;
-    //     }
-    //
-    //     const input = $(this.element).find(`#${key}`);
-    //     if (input.length !== 1) {
-    //         return undefined;
-    //     }
-    //
-    //     return input.val()?.toString().trim();
-    // }
-
-    // </editor-fold>
-
-    /**
-     * Initializes the input and returns true if a value was pulled from the input into the actor.
-     * @param input
-     * @param data
-     */
-    protected initializeInput(input: JQuery<HTMLInputElement>, data: PDFActorData): boolean {
-        const key = input.attr('name');
-        if (key === undefined || !ActorViewer.isKeyAllowed(key)) {
-            return false;
-        }
-
+    protected initializeTextInput(input: JQuery<HTMLInputElement | HTMLTextAreaElement>, key: string, data: Record<string, string>): boolean {
         let value = data[key];
         if (value === undefined) {
             // If value does not exist on actor yet, load from sheet
             const inputValue = input.val();
+
             if (inputValue) {
+                // Actor changes were made
                 data[key] = inputValue.toString();
-                // Return true to signify actor changes were made
                 return true;
             }
         } else {
             // Otherwise initialize input value to actor value
-            input.val(value);
-            return false;
+            this.setTextInput(input, value);
         }
         return false;
     }
 
-    protected onInputChanged(event) {
-        const input = event.currentTarget as HTMLInputElement;
-        input.value = input.value.trim();
+    protected initializeCheckInput(input: JQuery<HTMLInputElement>, key: string, data: Record<string, string>): boolean {
+        let value = data[key];
+        if (value === undefined) {
+            const inputValue = input.attr('checked') !== undefined;
 
-        const key = input.getAttribute('name');
-        if (key === null) return;
-
-        if (ActorViewer.isKeyAllowed(key)) {
-            const originalData = this.flattenActor();
-            const newData = {
-                [key]: input.value,
-            };
-            this.updateActor(this.resolveActorDelta(originalData, newData));
+            // Actor changes were made
+            data[key] = inputValue.toString();
+            return true;
+        } else {
+            this.setCheckInput(input, value);
         }
+        return false;
+    }
+
+    protected setTextInput(input: JQuery<HTMLInputElement | HTMLTextAreaElement>, value: string) {
+        input.val(value);
+    }
+
+    protected setCheckInput(input: JQuery<HTMLInputElement>, value: string) {
+        if (value === 'true') {
+            input.attr('checked', 'true');
+        } else {
+            input.removeAttr('checked');
+        }
+    }
+
+    protected onUpdateActor(actor: Actor, data: Partial<ActorData> & { _id: string }, options: { diff: boolean }, id: string) {
+        if (data._id !== this.actor.id) {
+            return;
+        }
+
+        const args = duplicate(data);
+        delete args['_id'];
+
+        this.initializeInputs(this.viewerContainer.find('input, textarea') as JQuery<HTMLInputElement | HTMLTextAreaElement>);
+        $(this.element).parent().parent().find('.window-title').text(this.actor.name);
+    }
+
+    protected onInputChanged(event) {
+        const element = event.currentTarget;
+        let value = '';
+
+        if (isCheckbox(element)) {
+            const input = $(element as HTMLInputElement);
+            value = this.getCheckInputValue(input);
+        } else if (isInput(element) || isTextArea(element)) {
+            const input = $(element as HTMLInputElement | HTMLTextAreaElement);
+            value = this.getTextInputValue(input);
+        }
+
+        let key = $(element).attr('name');
+        if (key === undefined) {
+            return;
+        }
+
+        key = ActorViewer.resolveKeyPath(key);
+
+        if (!ActorViewer.dataPathValid(key)) {
+            return;
+        }
+
+        this.update(
+            this.resolveDelta(this.flattenActor(), {
+                [key]: value,
+            }),
+        );
+    }
+
+    protected getTextInputValue(input: JQuery<HTMLInputElement | HTMLTextAreaElement>): string {
+        const value = input.val();
+        if (!value) {
+            return '';
+        }
+
+        return value.toString().trim();
+    }
+
+    protected getCheckInputValue(input: JQuery<HTMLInputElement>): string {
+        return (window.getComputedStyle(input.get(0), ':before').content !== 'none').toString();
     }
 
     protected async onViewerReady(viewer: PDFjsViewer): Promise<void> {
