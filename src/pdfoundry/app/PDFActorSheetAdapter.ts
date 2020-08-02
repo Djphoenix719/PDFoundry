@@ -1,4 +1,5 @@
 import ActorViewer from '../viewer/ActorViewer';
+import Settings from '../settings/Settings';
 
 /**
  * Adapts a FillableViewer to function as a ActorSheet
@@ -34,7 +35,8 @@ export default class PDFActorSheetAdapter extends ActorSheet {
 
     render(force?: boolean, options?: RenderOptions): Application {
         if (!this._viewer) {
-            this._viewer = new ActorViewer(this.actor, this, this._options);
+            const sheetId = this.actor.getFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_SHEET_KEY);
+            this._viewer = new ActorViewer(this.actor, sheetId, this, this._options);
         }
 
         // If this window is already open, don't re-render

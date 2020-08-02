@@ -64,6 +64,15 @@
         <input type="checkbox" id="data-cache" name="data.cache" {{#if data.cache}}checked{{/if}}>
     </div>
 
+    <div class="field-row expand" title="{{ localize 'PDFOUNDRY.PDFSHEET.TOOLTIP.PDFType' }}">
+        <label for="data-pdf_type">{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.PDFType' }}</label>
+        <select id="data-pdf_type" name="data.pdf_type">
+            {{#select data.pdf_type}} {{#each CONST.pdf_types as |type|}}
+            <option value="{{type.value}}">{{type.name}}</option>
+            {{/each}} {{/select}}
+        </select>
+    </div>
+
     <div class="button-row taller expand">
         <p class="description">{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.TestSettings' }}</p>
         <button id="pdf-test">{{ localize 'PDFOUNDRY.PDFSHEET.BUTTON.TestSettings' }}</button>

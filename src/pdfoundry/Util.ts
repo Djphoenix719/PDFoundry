@@ -13,9 +13,8 @@
  * limitations under the License.
  */
 
-import { PDFBookData } from './common/types/PDFBookData';
+import { PDFData } from './common/types/PDFData';
 import Settings from './settings/Settings';
-import { PDFDataType } from './common/types/PDFBaseData';
 
 /**
  * Helper method. Convert a relative URL to a absolute URL
@@ -31,15 +30,15 @@ export function getAbsoluteURL(dataUrl: string): string {
 }
 
 /**
- * Pull relevant data from an item, creating a {@link PDFBookData}.
+ * Pull relevant data from an item, creating a {@link PDFData}.
  * @param item The item to pull data from.
  */
-export function getPDFBookData(item: Item | null | undefined): PDFBookData | null {
+export function getPDFBookData(item: Item | null | undefined): PDFData | null {
     if (item === undefined || item === null) {
         return null;
     }
 
-    let { code, url, offset, cache } = item.data.data;
+    let { code, url, offset, cache, pdf_type } = item.data.data;
     let name = item.name;
 
     if (typeof offset === 'string') {
@@ -47,7 +46,7 @@ export function getPDFBookData(item: Item | null | undefined): PDFBookData | nul
     }
 
     return {
-        type: PDFDataType.Book,
+        pdf_type,
         name,
         code,
         url,

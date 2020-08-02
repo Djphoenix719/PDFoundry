@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-import { PDFBookData } from '../common/types/PDFBookData';
+import { PDFData } from '../common/types/PDFData';
 import BaseViewer from './BaseViewer';
 import PlayerSelect from '../app/PlayerSelect';
 import { getUserIdsExceptMe } from '../Util';
 import SetViewEvent from '../socket/events/SetViewEvent';
-import { PDFDataType } from '../common/types/PDFBaseData';
+import { PDFDataType } from '../common/types/PDFDataType';
 
 /**
  * The PDFoundry Viewer class provides the core logic opening PDFs and binding their events.
@@ -30,13 +30,13 @@ import { PDFDataType } from '../common/types/PDFBaseData';
 export default class StaticViewer extends BaseViewer {
     // <editor-fold desc="Properties">
 
-    protected _pdfData: PDFBookData;
+    protected _pdfData: PDFData;
 
     // </editor-fold>
 
     // <editor-fold desc="Constructor & Initialization">
 
-    constructor(pdfData?: PDFBookData, options?: ApplicationOptions) {
+    constructor(pdfData?: PDFData, options?: ApplicationOptions) {
         super(options);
 
         if (pdfData === undefined) {
@@ -45,7 +45,7 @@ export default class StaticViewer extends BaseViewer {
                 code: '',
                 offset: 0,
                 url: '',
-                type: PDFDataType.Book,
+                pdf_type: PDFDataType.StaticPDF,
                 cache: false,
             };
         }
