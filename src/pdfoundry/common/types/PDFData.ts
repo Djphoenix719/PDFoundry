@@ -13,10 +13,13 @@
  * limitations under the License.
  */
 
+import { PDFDataType } from './PDFDataType';
+
 /**
- * Base data is common to both {@link PDFBookData} and {@link PDFActorData}.
+ * A data object containing properties of a user-created static PDF file.
+ * This is the data contained within a PDFoundry_PDF entity.
  */
-export default interface PDFBaseData {
+export interface PDFData {
     /**
      * The name of the PDF
      */
@@ -26,12 +29,19 @@ export default interface PDFBaseData {
      */
     url: string;
     /**
+     * The shorthand code PDF
+     */
+    code: string;
+    /**
+     * Page offset for the PDF vs. represented book page
+     */
+    offset: number | string;
+    /**
+     * If the user has requested caching for this PDF
+     */
+    cache: boolean;
+    /**
      * The type of data stored. Used to determine what type of viewer to open.
      */
-    type: PDFDataType;
-}
-
-export enum PDFDataType {
-    Book = 'PDFoundry_PDF',
-    Actor = 'PDFoundry_ActorSheet',
+    pdf_type: PDFDataType;
 }

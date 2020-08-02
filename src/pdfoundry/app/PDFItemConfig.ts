@@ -17,12 +17,34 @@ import Settings from '../settings/Settings';
 import Api from '../Api';
 import { getAbsoluteURL } from '../Util';
 import BaseConfig from './BaseConfig';
+import { PDFDataType } from '../common/types/PDFDataType';
+
+const PDF_TYPES: {
+    // Convince compiler to error if type changes
+    [P in PDFDataType]: {
+        name: string;
+        value: PDFDataType;
+    };
+} = {
+    PDFoundry_PDF: {
+        value: PDFDataType.StaticPDF,
+        name: 'Static PDF',
+    },
+    PDFoundry_FillablePDF: {
+        value: PDFDataType.FillablePDF,
+        name: 'Fillable PDF',
+    },
+    PDFoundry_FillableActor: {
+        value: PDFDataType.ActorLinkPDF,
+        name: 'Actor Linked PDF',
+    },
+};
 
 /**
  * Extends the base ItemSheet for linked PDF viewing.
  * @private
  */
-export class BookItemConfig extends BaseConfig {
+export class PDFItemConfig extends BaseConfig {
     static get defaultOptions() {
         const options = super.defaultOptions;
         options.template = `systems/${Settings.DIST_PATH}/templates/sheet/pdf-book-item-sheet.html`;
@@ -56,5 +78,15 @@ export class BookItemConfig extends BaseConfig {
 
             Api.openURL(urlValue, 5 + offsetValue, false);
         });
+    }
+
+    getData(): ItemSheetData {
+        const data = super.getData();
+
+        data['CONST'] = {
+            pdf_types: Object.values(PDF_TYPES),
+        };
+
+        return data;
     }
 }

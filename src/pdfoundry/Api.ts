@@ -26,11 +26,12 @@ import {
     validateAbsoluteURL,
 } from './Util';
 import StaticViewer from './viewer/StaticViewer';
-import { PDFBookData } from './common/types/PDFBookData';
+import { PDFData } from './common/types/PDFData';
 import Settings from './settings/Settings';
 import PDFCache from './cache/PDFCache';
 import BaseViewer from './viewer/BaseViewer';
-import { PDFDataType } from './common/types/PDFBaseData';
+import { PDFDataType } from './common/types/PDFDataType';
+import FillableViewer from './viewer/FillableViewer';
 
 // noinspection JSUnusedGlobalSymbols
 
@@ -120,7 +121,7 @@ export default class Api {
      * @param allowInvisible See allowVisible on {@link findPDFEntity}
      * @category PDFData
      */
-    public static getPDFDataByCode(code: string, allowInvisible: boolean = true): PDFBookData | null {
+    public static getPDFDataByCode(code: string, allowInvisible: boolean = true): PDFData | null {
         return Api.getPDFData((item) => {
             return item.data.data.code === code;
         }, allowInvisible);
@@ -133,7 +134,7 @@ export default class Api {
      * @param allowInvisible See allowVisible on {@link findPDFEntity}
      * @category PDFData
      */
-    public static getPDFDataByName(name: string, caseInsensitive: boolean = true, allowInvisible: boolean = true): PDFBookData | null {
+    public static getPDFDataByName(name: string, caseInsensitive: boolean = true, allowInvisible: boolean = true): PDFData | null {
         if (caseInsensitive) {
             return Api.getPDFData((item) => {
                 return item.name.toLowerCase() === name.toLowerCase();
@@ -146,12 +147,12 @@ export default class Api {
     }
 
     /**
-     * Finds a PDF entity created by the user and constructs a {@link PDFBookData} object of the resulting PDF's data.
+     * Finds a PDF entity created by the user and constructs a {@link PDFData} object of the resulting PDF's data.
      * @param comparer A comparison function that will be used.
      * @param allowInvisible See allowVisible on {@link findPDFEntity}
      * @category PDFData
      */
-    public static getPDFData(comparer: ItemComparer, allowInvisible: boolean = true): PDFBookData | null {
+    public static getPDFData(comparer: ItemComparer, allowInvisible: boolean = true): PDFData | null {
         const pdf = this.findPDFEntity(comparer, allowInvisible);
         return getPDFBookData(pdf);
     }
@@ -210,12 +211,12 @@ export default class Api {
     }
 
     /**
-     * Open the provided {@link PDFBookData} to the specified page.
+     * Open the provided {@link PDFData} to the specified page.
      * @param pdf The PDF to open. See {@link Api.getPDFData}.
      * @param page The page to open the PDF to.
      * @category Open
      */
-    public static async openPDF(pdf: PDFBookData, page: number = 1): Promise<BaseViewer> {
+    public static async openPDF(pdf: PDFData, page: number = 1): Promise<BaseViewer> {
         let { url, offset, cache } = pdf;
 
         if (typeof offset === 'string') {
@@ -227,6 +228,27 @@ export default class Api {
         }
 
         const viewer = new StaticViewer(pdf);
+        viewer.render(true);
+
+        await _handleOpen(viewer, url, page + offset, cache);
+
+        return viewer;
+    }
+
+    public static async openFillablePDF(pdf: PDFData, dataTarget: Item | Actor, page: number = 1): Promise<FillableViewer> {
+        let { url, offset, cache, pdf_type } = pdf;
+
+        if (typeof offset === 'string') {
+            offset = parseInt(offset);
+        }
+
+        if (!validateAbsoluteURL(url)) {
+            url = getAbsoluteURL(url);
+        }
+
+        console.warn('openning fillable viewer');
+
+        const viewer = new FillableViewer(dataTarget, pdf);
         viewer.render(true);
 
         await _handleOpen(viewer, url, page + offset, cache);
@@ -273,9 +295,9 @@ export default class Api {
             manualPath = `${window.origin}/systems/${Settings.DIST_PATH}/assets/manual/en/manual.pdf`;
         }
 
-        const pdfData: PDFBookData = {
+        const pdfData: PDFData = {
             name: game.i18n.localize('PDFOUNDRY.MANUAL.Name'),
-            type: PDFDataType.Book,
+            pdf_type: PDFDataType.StaticPDF,
             code: '',
             offset: 0,
             url: manualPath,

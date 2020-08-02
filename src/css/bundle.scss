@@ -49,6 +49,7 @@ div.pdfoundry-viewer {
   }
 }
 
+// TODO: There uses of the item sheet style in dialogs. bad
 form.pdf-item-sheet {
   input, label, select {
     border: 0;
@@ -58,6 +59,9 @@ form.pdf-item-sheet {
 
   select {
     width: 100%;
+  }
+  .field-row select {
+    height: 100%;
   }
 
   input[type=number] {

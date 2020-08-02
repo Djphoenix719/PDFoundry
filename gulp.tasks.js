@@ -489,12 +489,7 @@ async function install({ type, filepath, copyDist = false }) {
                 code: '',
                 offset: 0,
                 cache: true,
-            },
-        ],
-        [
-            'PDFoundry_ActorSheet',
-            {
-                url: '',
+                pdf_type: 'StaticPDF',
             },
         ],
     ];
