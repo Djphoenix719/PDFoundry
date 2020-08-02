@@ -10,7 +10,8 @@
         "Code": "What is the short code that will be used to open this PDF?",
         "URL": "Which PDF file should be opened?",
         "PageOffset": "When you ask the system to open a page, how much should the page be offset by so the page opens correctly?",
-        "EnableCaching": "Should this PDF be cached on a player's computer after being opened? This may save bandwidth, but will require storage space on the user's computer."
+        "EnableCaching": "Should this PDF be cached on a player's computer after being opened? This may save bandwidth, but will require storage space on the user's computer.",
+        "PDFType": "See the manual for a description of PDF types."
       },
       "LABEL": {
         "Name": "PDF Name",
@@ -18,6 +19,7 @@
         "URL": "PDF URL",
         "PageOffset": "Page Offset",
         "EnableCaching": "Enable Caching",
+        "PDFType": "PDF Type",
         "TestSettings": "When you click this button, your PDF should open to page 5. If it doesn't, close the PDF, then adjust the page offset until it does."
       },
       "PLACEHOLDER": {
