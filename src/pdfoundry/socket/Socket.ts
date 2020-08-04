@@ -27,23 +27,27 @@ export class Socket {
     public static initialize() {
         // @ts-ignore
         game.socket.on(Settings.SOCKET_NAME, (event) => {
-            const { userIds, type, payload } = event;
-            // null = all users, otherwise check if this event effects us
-            if (userIds !== null && !userIds.includes(game.userId)) {
-                return;
-            }
-
-            if (type === SetViewEvent.EVENT_TYPE) {
-                Socket.handleSetView(payload);
-                return;
-            } else if (type === PreloadEvent.EVENT_TYPE) {
-                Socket.handlePreloadPDF(payload);
-                return;
-            } else {
-                if (type.includes('PDFOUNDRY')) {
-                    console.error(`Event of type ${type} has no handler.`);
+            try {
+                const { userIds, type, payload } = event;
+                // null = all users, otherwise check if this event effects us
+                if (userIds !== null && !userIds.includes(game.userId)) {
                     return;
                 }
+
+                if (type === SetViewEvent.EVENT_TYPE) {
+                    Socket.handleSetView(payload);
+                    return;
+                } else if (type === PreloadEvent.EVENT_TYPE) {
+                    Socket.handlePreloadPDF(payload);
+                    return;
+                } else {
+                    if (type.includes('PDFOUNDRY')) {
+                        console.error(`Event of type ${type} has no handler.`);
+                        return;
+                    }
+                }
+            } catch (e) {
+                // Pass
             }
         });
     }
