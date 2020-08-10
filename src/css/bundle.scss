@@ -82,6 +82,12 @@ form.pdf-item-sheet {
   }
 }
 
+div.pdf-item-app {
+  section {
+    background: url(../../../ui/parchment.jpg) repeat !important;
+  }
+}
+
 $row-height: 2rem;
 
 form.pdf-item-sheet {

@@ -18,7 +18,7 @@ import { BUTTON_GITHUB, BUTTON_HELP } from '../common/helpers/header';
 export default abstract class BaseConfig extends ItemSheet {
     static get defaultOptions() {
         const options = super.defaultOptions;
-        options.classes = ['sheet', 'item'];
+        options.classes = ['sheet', 'item', 'pdf-item-app'];
         options.width = 650;
         options.height = 'auto';
         return options;

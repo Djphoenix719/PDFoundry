@@ -31,7 +31,7 @@ export default class HTMLEnricher {
 
     private static EnrichHTML(html: JQuery) {
         // Enrich HTML
-        for (const element of html.find('div.editor-content > *')) {
+        for (const element of html.find('div.editor-content > *, p')) {
             try {
                 // We replace one at a time until done
                 while (element.innerText.includes('@PDF')) {
