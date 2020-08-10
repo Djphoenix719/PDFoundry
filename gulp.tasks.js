@@ -39,11 +39,15 @@ const logger = require('gulplog');
 const sourcemaps = require('gulp-sourcemaps');
 const typedoc = require('gulp-typedoc');
 
+const foundryConfig = JSON.parse(fs.readFileSync('./foundryconfig.json'));
+
 // Config
-const distName = 'pdfoundry-dist';
-const destFolder = path.resolve(process.cwd(), distName);
+const distName = 'pdfoundry';
+const destFolder = path.resolve(foundryConfig['dataPath'], distName);
 const docsFolder = path.resolve(process.cwd(), 'docs');
 const jsBundle = 'bundle.js';
+
+logger.info(`Writing to ${destFolder}`);
 
 const baseArgs = {
     entries: ['./src/pdfoundry/Main.ts'],
@@ -135,14 +139,14 @@ async function link() {
 async function cleanDist() {
     const files = fs.readdirSync(destFolder);
     for (const file of files) {
-        await del(path.resolve(destFolder, file));
+        await del(path.resolve(destFolder, file), { force: true });
     }
 }
 
 async function cleanDocs() {
     const files = fs.readdirSync(docsFolder);
     for (const file of files) {
-        await del(path.resolve(docsFolder, file));
+        await del(path.resolve(destFolder, file), { force: true });
     }
 }
 
@@ -178,12 +182,12 @@ async function buildJS() {
  * COPY ASSETS
  */
 async function copyAssets() {
+    gulp.src('module.json').pipe(gulp.dest(destFolder));
     gulp.src('assets/**/*').pipe(gulp.dest(path.resolve(destFolder, 'assets')));
     gulp.src('manual/**/*.pdf').pipe(gulp.dest(path.resolve(destFolder, 'assets', 'manual')));
     gulp.src('src/templates/**/*').pipe(gulp.dest(path.resolve(destFolder, 'templates')));
     gulp.src('locale/**/*').pipe(gulp.dest(path.resolve(destFolder, 'locale')));
     gulp.src('pdfjs/**/*').pipe(gulp.dest(path.resolve(destFolder, 'pdfjs')));
-    gulp.src('src/scripts/**/*').pipe(gulp.dest(path.resolve(destFolder, 'scripts')));
     gulp.src('LICENSE').pipe(gulp.dest(destFolder));
 }
 
