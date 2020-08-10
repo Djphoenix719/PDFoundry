@@ -36,6 +36,10 @@ export default class Settings {
         return `${Settings.PATH_MODULE}/pdfjs`;
     }
 
+    public static get SOCKET_NAME() {
+        return `module.${Settings.MODULE_NAME}`;
+    }
+
     public static readonly PDF_ENTITY_TYPE: string = 'PDFoundry_PDF';
 
     public static readonly SETTINGS_KEY = {

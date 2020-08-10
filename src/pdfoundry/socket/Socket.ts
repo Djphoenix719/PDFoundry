@@ -25,7 +25,6 @@ import PDFCache from '../cache/PDFCache';
  */
 export class Socket {
     public static initialize() {
-        // @ts-ignore
         game.socket.on(Settings.SOCKET_NAME, (event) => {
             const { userIds, type, payload } = event;
             // null = all users, otherwise check if this event effects us
