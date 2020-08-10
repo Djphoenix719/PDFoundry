@@ -73,7 +73,7 @@ export default class FillableViewer extends BaseViewer {
     // </editor-fold>
     // <editor-fold desc="Constructor & Initialization">
 
-    public constructor(entity: Item | Actor, pdfData: PDFData, options?: ApplicationOptions) {
+    public constructor(entity: JournalEntry | Actor, pdfData: PDFData, options?: ApplicationOptions) {
         super(options);
 
         this.entity = entity;

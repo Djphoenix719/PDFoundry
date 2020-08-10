@@ -49,31 +49,32 @@ export function validateAbsoluteURL(dataUrl: string): boolean {
 
 // </editor-fold>
 
+// *************
+// DATA HELPERS
+// *************
+// <editor-fold desc='Data Helpers">
+
 /**
- * Pull relevant data from an item, creating a {@link PDFData}.
- * @param item The item to pull data from.
+ * Returns true if the provided entity contains PDF data
+ * @param entity
  */
-export function getPDFBookData(item: Item | null | undefined): PDFData | null {
-    if (item === undefined || item === null) {
-        return null;
-    }
-
-    let { code, url, offset, cache, pdf_type } = item.data.data;
-    let name = item.name;
-
-    if (typeof offset === 'string') {
-        offset = parseInt(offset);
-    }
-
-    return {
-        pdf_type,
-        name,
-        code,
-        url,
-        offset,
-        cache,
-    };
+export function isEntityPDF(entity: Entity): boolean {
+    return entity.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.PDF_DATA) !== undefined;
 }
+
+/**
+ * Pull relevant data from an journal entry, creating a {@link PDFData} object.
+ * @param journal The journal entry to pull data from.
+ */
+export function getPDFData(journal: JournalEntry | null | undefined): PDFData | undefined {
+    if (journal === undefined || journal === null) {
+        return undefined;
+    }
+
+    return journal.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.PDF_DATA);
+}
+
+// </editor-fold>
 
 /**
  * Return all users ids except the active user
@@ -84,55 +85,6 @@ export function getUserIdsExceptMe() {
             return user.id !== game.userId;
         })
         .map((user: User) => user.id);
-}
-
-/**
- * Gets users with a role number between the provided lower inclusive and upper inclusive bounds.
- * @param lower
- * @param upper
- */
-export function getUserIdsBetweenRoles(lower: number, upper: number) {
-    return game.users
-        .filter((user) => {
-            return user.role >= lower && user.role <= upper;
-        })
-        .map((user) => user.id);
-}
-
-/**
- * Gets users with a role number exactly matching the one provided.
- * @param role
- */
-export function getUserIdsOfRole(role: number) {
-    return game.users
-        .filter((user) => {
-            return user.role === role;
-        })
-        .map((user) => user.id);
-}
-
-/**
- * Gets users with a role number at least the one provided.
- * @param role
- */
-export function getUserIdsAtLeastRole(role: number) {
-    return game.users
-        .filter((user) => {
-            return user.role >= role;
-        })
-        .map((user) => user.id);
-}
-
-/**
- * Gets users with a role number at most the one provided.
- * @param role
- */
-export function getUserIdsAtMostRole(role: number) {
-    return game.users
-        .filter((user) => {
-            return user.role <= role;
-        })
-        .map((user) => user.id);
 }
 
 /**
@@ -152,12 +104,4 @@ export function fileExists(path: string): Promise<boolean> {
             },
         });
     });
-}
-
-/**
- * Returns true if the provided entity is a PDF
- * @param entity
- */
-export function isPDF(entity: Entity) {
-    return entity.data.type === Settings.PDF_ENTITY_TYPE;
 }

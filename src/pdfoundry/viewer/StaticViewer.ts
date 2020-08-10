@@ -18,7 +18,7 @@ import BaseViewer from './BaseViewer';
 import PlayerSelect from '../app/PlayerSelect';
 import { getUserIdsExceptMe } from '../Util';
 import SetViewEvent from '../socket/events/SetViewEvent';
-import { PDFDataType } from '../common/types/PDFDataType';
+import { PDFType } from '../common/types/PDFType';
 
 /**
  * The PDFoundry Viewer class provides the core logic opening PDFs and binding their events.
@@ -45,7 +45,7 @@ export default class StaticViewer extends BaseViewer {
                 code: '',
                 offset: 0,
                 url: '',
-                pdf_type: PDFDataType.StaticPDF,
+                type: PDFType.Static,
                 cache: false,
             };
         }

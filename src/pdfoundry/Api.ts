@@ -13,24 +13,13 @@
  * limitations under the License.
  */
 
-import {
-    fileExists,
-    getAbsoluteURL,
-    getPDFBookData,
-    getUserIdsAtLeastRole,
-    getUserIdsAtMostRole,
-    getUserIdsBetweenRoles,
-    getUserIdsExceptMe,
-    getUserIdsOfRole,
-    isPDF,
-    validateAbsoluteURL,
-} from './Util';
+import { fileExists, getAbsoluteURL, getPDFData, isEntityPDF, validateAbsoluteURL } from './Util';
 import StaticViewer from './viewer/StaticViewer';
 import { PDFData } from './common/types/PDFData';
 import Settings from './settings/Settings';
 import PDFCache from './cache/PDFCache';
 import BaseViewer from './viewer/BaseViewer';
-import { PDFDataType } from './common/types/PDFDataType';
+import { PDFType } from './common/types/PDFType';
 import FillableViewer from './viewer/FillableViewer';
 
 // noinspection JSUnusedGlobalSymbols
@@ -38,7 +27,7 @@ import FillableViewer from './viewer/FillableViewer';
 /**
  * A function to passed to getPDFData to find user specified PDF data.
  */
-type ItemComparer = (item: Item) => boolean;
+type PDFValidator = (data: PDFData) => boolean;
 
 /**
  * Open the specified PDF in a provided viewer
@@ -91,13 +80,8 @@ export default class Api {
         return {
             fileExists,
             getAbsoluteURL,
-            getPDFBookData,
-            getUserIdsAtLeastRole,
-            getUserIdsAtMostRole,
-            getUserIdsBetweenRoles,
-            getUserIdsExceptMe,
-            getUserIdsOfRole,
-            isPDF,
+            getPDFData,
+            isEntityPDF,
             validateAbsoluteURL,
         };
     }
@@ -105,43 +89,52 @@ export default class Api {
     // <editor-fold desc="GetPDFData Methods">
 
     /**
-     * Find a PDF entity from the items directory using a specified comparer.
+     * Find a PDF containing journal entry from the journals directory using a specified comparer.
      * @param comparer
      * @param allowInvisible If true, PDFs hidden from the active user will be returned.
      */
-    public static findPDFEntity(comparer: ItemComparer, allowInvisible: boolean = true): Item | null {
-        return game.items.find((item: Item) => {
-            return item.type === Settings.PDF_ENTITY_TYPE && (item.visible || allowInvisible) && comparer(item);
+    public static findPDFEntity(comparer: PDFValidator, allowInvisible: boolean = true): JournalEntry | undefined {
+        return game.journal.find((journalEntry: JournalEntry) => {
+            if (!isEntityPDF(journalEntry)) {
+                return false;
+            }
+
+            const pdfData = getPDFData(journalEntry);
+            if (pdfData === undefined) {
+                return false;
+            }
+
+            return (journalEntry.visible || allowInvisible) && comparer(pdfData);
         });
     }
 
     /**
-     * Helper method. Alias for {@link Api.getPDFData} with a comparer that searches by PDF Code.
+     * Helper method. Alias for {@link Api.findPDFData} with a comparer that searches by PDF Code.
      * @param code Which code to search for a PDF with.
      * @param allowInvisible See allowVisible on {@link findPDFEntity}
      * @category PDFData
      */
-    public static getPDFDataByCode(code: string, allowInvisible: boolean = true): PDFData | null {
-        return Api.getPDFData((item) => {
-            return item.data.data.code === code;
+    public static getPDFDataByCode(code: string, allowInvisible: boolean = true): PDFData | undefined {
+        return Api.findPDFData((data: PDFData) => {
+            return data.code === code;
         }, allowInvisible);
     }
 
     /**
-     * Helper method. Alias for {@link Api.getPDFData} with a comparer that searches by PDF Name.
+     * Helper method. Alias for {@link Api.findPDFData} with a comparer that searches by PDF Name.
      * @param name Which name to search for a PDF with.
      * @param caseInsensitive If a case insensitive search should be done.
      * @param allowInvisible See allowVisible on {@link findPDFEntity}
      * @category PDFData
      */
-    public static getPDFDataByName(name: string, caseInsensitive: boolean = true, allowInvisible: boolean = true): PDFData | null {
+    public static findPDFDataByName(name: string, caseInsensitive: boolean = true, allowInvisible: boolean = true): PDFData | undefined {
         if (caseInsensitive) {
-            return Api.getPDFData((item) => {
-                return item.name.toLowerCase() === name.toLowerCase();
+            return Api.findPDFData((data) => {
+                return data.name.toLowerCase() === name.toLowerCase();
             }, allowInvisible);
         } else {
-            return Api.getPDFData((item) => {
-                return item.name === name;
+            return Api.findPDFData((data) => {
+                return data.name === name;
             }, allowInvisible);
         }
     }
@@ -152,16 +145,14 @@ export default class Api {
      * @param allowInvisible See allowVisible on {@link findPDFEntity}
      * @category PDFData
      */
-    public static getPDFData(comparer: ItemComparer, allowInvisible: boolean = true): PDFData | null {
+    public static findPDFData(comparer: PDFValidator, allowInvisible: boolean = true): PDFData | undefined {
         const pdf = this.findPDFEntity(comparer, allowInvisible);
-        return getPDFBookData(pdf);
+        if (pdf === null) {
+            return undefined;
+        }
+
+        return getPDFData(pdf);
     }
-
-    // </editor-fold>
-
-    // <editor-fold desc="OpenActor Methods">
-
-    public static async openActor(actor: Actor, Item) {}
 
     // </editor-fold>
 
@@ -175,7 +166,7 @@ export default class Api {
     public static async openPDFByCode(code: string, page: number = 1): Promise<BaseViewer> {
         const pdf = this.getPDFDataByCode(code);
 
-        if (pdf === null) {
+        if (pdf === undefined) {
             const error = game.i18n.localize('PDFOUNDRY.ERROR.NoPDFWithCode');
 
             ui.notifications.error(error);
@@ -192,9 +183,9 @@ export default class Api {
      * @category Open
      */
     public static async openPDFByName(name: string, page: number = 1): Promise<BaseViewer> {
-        const pdf = this.getPDFDataByName(name);
+        const pdf = this.findPDFDataByName(name);
 
-        if (pdf === null) {
+        if (pdf === undefined) {
             const message = game.i18n.localize('PDFOUNDRY.ERROR.NoPDFWithName');
             const error = new Error(message);
 
@@ -208,7 +199,7 @@ export default class Api {
 
     /**
      * Open the provided {@link PDFData} to the specified page.
-     * @param pdf The PDF to open. See {@link Api.getPDFData}.
+     * @param pdf The PDF to open. See {@link Api.findPDFData}.
      * @param page The page to open the PDF to.
      * @category Open
      */
@@ -231,8 +222,8 @@ export default class Api {
         return viewer;
     }
 
-    public static async openFillablePDF(pdf: PDFData, dataTarget: Item | Actor, page: number = 1): Promise<FillableViewer> {
-        let { url, offset, cache, pdf_type } = pdf;
+    public static async openFillablePDF(pdf: PDFData, dataTarget: JournalEntry | Actor, page: number = 1): Promise<FillableViewer> {
+        let { url, offset, cache, type } = pdf;
 
         if (typeof offset === 'string') {
             offset = parseInt(offset);
@@ -293,7 +284,7 @@ export default class Api {
 
         const pdfData: PDFData = {
             name: game.i18n.localize('PDFOUNDRY.MANUAL.Name'),
-            pdf_type: PDFDataType.StaticPDF,
+            type: PDFType.Static,
             code: '',
             offset: 0,
             url: manualPath,

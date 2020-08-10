@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { PDFDataType } from './PDFDataType';
+import { PDFType } from './PDFType';
 
 /**
  * A data object containing properties of a user-created static PDF file.
@@ -43,5 +43,6 @@ export interface PDFData {
     /**
      * The type of data stored. Used to determine what type of viewer to open.
      */
-    pdf_type: PDFDataType;
+    type: PDFType;
 }
+

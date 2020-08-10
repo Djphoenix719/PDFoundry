@@ -14,7 +14,7 @@
  */
 
 import Settings from '../settings/Settings';
-import { PDFDataType } from '../common/types/PDFDataType';
+import { PDFType } from '../common/types/PDFType';
 
 /**
  * Callback type for sheet selection
@@ -47,7 +47,7 @@ export default class ActorSheetSelect extends Application {
         const data = super.getData(options);
 
         const sheets: Item[] = game.items.filter((item: Item) => {
-            return item.data.data['pdf_type'] === PDFDataType.ActorLinkPDF && item.data.data.url !== '';
+            return item.data.data['type'] === PDFType.Actor && item.data.data.url !== '';
         });
         data['sheets'] = sheets.map((sheet) => {
             return {
@@ -61,7 +61,7 @@ export default class ActorSheetSelect extends Application {
         return data;
     }
 
-    protected activateListeners(html: JQuery<HTMLElement> | HTMLElement): void {
+    protected activateListeners(html: JQuery | HTMLElement): void {
         super.activateListeners(html);
 
         const button = $(html).find('#confirm');

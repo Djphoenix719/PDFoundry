@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { getPDFBookData, isPDF } from '../Util';
+import { getPDFData, isEntityPDF } from '../Util';
 
 /**
  * @private
@@ -45,13 +45,13 @@ export default class TinyMCEPlugin {
         const rBracket = initialContent.indexOf(']');
         const entityId = initialContent.slice(lBracket + 1, rBracket);
 
-        const entity = game.items.get(entityId);
-        if (entity === null || !isPDF(entity)) {
+        const entity = game.journal.get(entityId);
+        if (entity === undefined || !isEntityPDF(entity)) {
             return;
         }
 
-        const pdfData = getPDFBookData(entity);
-        if (!pdfData) {
+        const pdfData = getPDFData(entity);
+        if (pdfData === undefined) {
             return;
         }
 

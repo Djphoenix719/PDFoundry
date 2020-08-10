@@ -54,8 +54,8 @@ export default class HTMLEnricher {
             const page = target.data('page');
 
             // ref can match name or code
-            let pdfData = Api.getPDFData((item) => {
-                return item.name === ref || item.data.data.code === ref;
+            let pdfData = Api.findPDFData((data) => {
+                return data.name === ref || data.code === ref;
             });
 
             if (!pdfData) {
@@ -112,8 +112,8 @@ export default class HTMLEnricher {
         const [nameOrCode, queryString] = options.split('|');
 
         // Getting the PDF without invisible PDFs to check permissions
-        let pdfData = Api.getPDFData((item) => {
-            return item.name === nameOrCode || item.data.data.code === nameOrCode;
+        let pdfData = Api.findPDFData((data) => {
+            return data.name === nameOrCode || data.code === nameOrCode;
         }, false);
 
         if (pdfData) {

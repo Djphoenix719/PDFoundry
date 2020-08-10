@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { getAbsoluteURL, getPDFBookData } from './Util';
+import { getAbsoluteURL, getPDFData, isEntityPDF } from './Util';
 import PreloadEvent from './socket/events/PreloadEvent';
 import { Socket } from './socket/Socket';
 import Settings from './settings/Settings';
@@ -23,7 +23,7 @@ import Api from './Api';
 import HTMLEnricher from './enricher/HTMLEnricher';
 import TinyMCEPlugin from './enricher/TinyMCEPlugin';
 import PDFActorSheetAdapter from './app/PDFActorSheetAdapter';
-import { PDFDataType } from './common/types/PDFDataType';
+import { PDFType } from './common/types/PDFType';
 
 /**
  * A collection of methods used for setting up the API & system state.
@@ -37,8 +37,16 @@ export default class Setup {
         // Register the PDFoundry APi on the UI
         ui['PDFoundry'] = Api;
 
-        // Setup tasks requiring FVTT is loaded
+        // Setup tasks requiring that FVTT is loaded
         Hooks.once('ready', Setup.lateRun);
+
+        Hooks.on('renderJournalDirectory', Setup.onRenderJournalDirectory);
+
+        // getItemDirectoryEntryContext - Setup context menu for 'Open PDF' links
+        Hooks.on('getJournalDirectoryEntryContext', Setup.getJournalContextOptions);
+
+        // Cogwheel settings menu
+        Hooks.on('renderSettings', Setup.onRenderSettings);
     }
 
     /**
@@ -83,41 +91,27 @@ export default class Setup {
      * @param html
      * @param options
      */
-    public static getItemContextOptions(html, options: any[]) {
-        const getItemFromContext = (html: JQuery<HTMLElement>): Item => {
+    public static getJournalContextOptions(html, options: any[]) {
+        const getJournalEntryFromLi = (html: JQuery): JournalEntry => {
             const id = html.data('entity-id');
-            return game.items.get(id);
+            return game.journal.get(id);
         };
 
-        const shouldAdd = (item: Item) => {
-            // TODO: Inline all should add logic? Safe casts to PDFDataContainer?
-            const type = item.data.data.pdf_type;
-            return type === PDFDataType.StaticPDF || type === PDFDataType.FillablePDF;
+        const shouldAdd = (entityHtml: JQuery) => {
+            const journalEntry = getJournalEntryFromLi(entityHtml);
+            return isEntityPDF(journalEntry);
         };
 
         if (game.user.isGM) {
             options.unshift({
                 name: game.i18n.localize('PDFOUNDRY.CONTEXT.PreloadPDF'),
                 icon: '<i class="fas fa-download fa-fw"></i>',
-                condition: (entityHtml: JQuery) => {
-                    const item = getItemFromContext(entityHtml);
-                    if (item.type !== Settings.PDF_ENTITY_TYPE) {
-                        return false;
-                    }
-
-                    if (!shouldAdd(item)) {
-                        return false;
-                    }
-
-                    const { url } = item.data.data;
-                    return url !== '';
-                },
+                condition: shouldAdd,
                 callback: (entityHtml: JQuery) => {
-                    const item = getItemFromContext(entityHtml);
-                    const pdf = getPDFBookData(item);
+                    const journalEntry = getJournalEntryFromLi(entityHtml);
+                    const pdf = getPDFData(journalEntry);
 
-                    if (pdf === null) {
-                        //TODO: Error handling
+                    if (pdf === undefined) {
                         return;
                     }
 
@@ -133,34 +127,21 @@ export default class Setup {
         options.unshift({
             name: game.i18n.localize('PDFOUNDRY.CONTEXT.OpenPDF'),
             icon: '<i class="far fa-file-pdf"></i>',
-            condition: (entityHtml: JQuery<HTMLElement>) => {
-                const item = getItemFromContext(entityHtml);
-                if (item.type !== Settings.PDF_ENTITY_TYPE) {
-                    return false;
-                }
-
-                if (!shouldAdd(item)) {
-                    return false;
-                }
-
-                const { url } = item.data.data;
-                return url !== '';
-            },
+            condition: shouldAdd,
             callback: (entityHtml: JQuery<HTMLElement>) => {
-                const item = getItemFromContext(entityHtml);
-                const pdf = getPDFBookData(item);
+                const journalEntry = getJournalEntryFromLi(entityHtml);
+                const pdf = getPDFData(journalEntry);
 
-                if (pdf === null) {
-                    //TODO: Error handling
+                if (pdf === undefined) {
                     return;
                 }
 
-                if (pdf.pdf_type === PDFDataType.StaticPDF) {
+                if (pdf.type === PDFType.Static) {
                     Api.openPDF(pdf, 1);
-                } else if (pdf.pdf_type === PDFDataType.FillablePDF) {
-                    Api.openFillablePDF(pdf, item);
+                } else if (pdf.type === PDFType.Fillable) {
+                    Api.openFillablePDF(pdf, journalEntry);
                 } else {
-                    throw new Error(`Unhandled PDF context type ${pdf.pdf_type}`);
+                    throw new Error(`Unhandled PDF context type ${pdf.type}`);
                 }
             },
         });
@@ -180,16 +161,6 @@ export default class Setup {
     }
 
     /**
-     * Hook handler for default data for a PDF
-     */
-    public static async preCreateItem(entity, ...args) {
-        if (entity.type !== Settings.PDF_ENTITY_TYPE) {
-            return;
-        }
-        entity.img = `${Settings.PATH_ASSETS}/pdf_icon.svg`;
-    }
-
-    /**
      * Hook handler for rendering the settings tab
      */
     public static onRenderSettings(settings: any, html: JQuery<HTMLElement>, data: any) {
@@ -199,13 +170,6 @@ export default class Setup {
 
         html.find('h2').last().before(button);
     }
+
+    private static onRenderJournalDirectory(app: Application, html: JQuery) {}
 }
-
-// <editor-fold desc="Persistent Hooks">
-
-// preCreateItem - Setup default values for a new PDFoundry_PDF
-Hooks.on('preCreateItem', Setup.preCreateItem);
-// getItemDirectoryEntryContext - Setup context menu for 'Open PDF' links
-Hooks.on('getItemDirectoryEntryContext', Setup.getItemContextOptions);
-// renderSettings - Inject a 'Open Manual' button into help section
-Hooks.on('renderSettings', Setup.onRenderSettings);

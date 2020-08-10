@@ -16,27 +16,27 @@
 import Settings from '../settings/Settings';
 import Api from '../Api';
 import { getAbsoluteURL } from '../Util';
-import { PDFDataType } from '../common/types/PDFDataType';
+import { PDFType } from '../common/types/PDFType';
 import { BUTTON_GITHUB, BUTTON_HELP } from '../common/helpers/header';
 
 const PDF_TYPES: {
     // Convince compiler to error if type changes
-    [P in PDFDataType]: {
+    [P in PDFType]: {
         name: string;
-        value: PDFDataType;
+        value: PDFType;
     };
 } = {
-    PDFoundry_PDF: {
-        value: PDFDataType.StaticPDF,
+    [PDFType.Static]: {
+        value: PDFType.Static,
         name: 'Static PDF',
     },
-    PDFoundry_FillablePDF: {
-        value: PDFDataType.FillablePDF,
+    [PDFType.Fillable]: {
+        value: PDFType.Fillable,
         name: 'Fillable PDF',
     },
-    PDFoundry_FillableActor: {
-        value: PDFDataType.ActorLinkPDF,
-        name: 'Actor Linked PDF',
+    [PDFType.Actor]: {
+        value: PDFType.Actor,
+        name: 'Actor Sheet',
     },
 };
 

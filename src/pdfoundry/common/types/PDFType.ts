@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-export enum PDFDataType {
-    StaticPDF = 'PDFoundry_PDF',
-    FillablePDF = 'PDFoundry_FillablePDF',
-    ActorLinkPDF = 'PDFoundry_FillableActor',
+export enum PDFType {
+    Static = 'static',
+    Fillable = 'fillable',
+    Actor = 'actor',
 }

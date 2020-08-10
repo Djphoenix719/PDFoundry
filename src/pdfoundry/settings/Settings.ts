@@ -48,6 +48,7 @@ export default class Settings {
         HELP_SEEN: 'HelpSeen',
     };
     public static readonly FLAGS_KEY = {
+        PDF_DATA: 'PDFData',
         FORM_DATA: 'FormData',
         SHEET_ID: 'ActorSheet',
     };
