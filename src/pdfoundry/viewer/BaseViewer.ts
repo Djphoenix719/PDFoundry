@@ -26,7 +26,7 @@ export default abstract class BaseViewer extends Application {
     static get defaultOptions() {
         const options = super.defaultOptions;
         options.classes = ['app', 'window-app', 'pdfoundry-viewer'];
-        options.template = `systems/${Settings.EXTERNAL_SYSTEM_NAME}/pdfoundry-dist/templates/app/pdf-viewer-static.html`;
+        options.template = `${Settings.PATH_TEMPLATES}/app/viewer/static.html`;
         options.title = game.i18n.localize('PDFOUNDRY.VIEWER.ViewPDF');
         options.width = 8.5 * 100 + 64;
         options.height = 11 * 100 + 64;
@@ -86,7 +86,7 @@ export default abstract class BaseViewer extends Application {
 
     public getData(options?: any): any | Promise<any> {
         const data = super.getData(options);
-        data.systemName = Settings.EXTERNAL_SYSTEM_NAME;
+        data.viewerFramePath = `${Settings.PATH_PDFJS}/web/viewer.html`;
         return data;
     }
 

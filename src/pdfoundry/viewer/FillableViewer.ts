@@ -22,7 +22,7 @@ export default class FillableViewer extends BaseViewer {
 
     static get defaultOptions() {
         const options = super.defaultOptions;
-        options.template = `systems/${Settings.EXTERNAL_SYSTEM_NAME}/pdfoundry-dist/templates/app/pdf-viewer-fillable.html`;
+        options.template = `${Settings.PATH_TEMPLATES}/app/viewer/fillable.html`;
         return options;
     }
 
@@ -59,7 +59,8 @@ export default class FillableViewer extends BaseViewer {
         if (key.startsWith(`data.`)) {
             return this.fixKey(key);
         }
-        return `flags.${Settings.EXTERNAL_SYSTEM_NAME}.${Settings.ACTOR_DATA_KEY}.${this.fixKey(key)}`;
+
+        return `flags.${Settings.MODULE_NAME}.${Settings.FLAGS_KEY.FORM_DATA}.${this.fixKey(key)}`;
     }
 
     // </editor-fold>

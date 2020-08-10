@@ -14,7 +14,6 @@
  */
 
 import { getAbsoluteURL, getPDFBookData } from './Util';
-import { PDFItemConfig } from './app/PDFItemConfig';
 import PreloadEvent from './socket/events/PreloadEvent';
 import { Socket } from './socket/Socket';
 import Settings from './settings/Settings';
@@ -37,10 +36,6 @@ export default class Setup {
     public static run() {
         // Register the PDFoundry APi on the UI
         ui['PDFoundry'] = Api;
-
-        // Register system & css synchronously
-        Setup.registerSystem();
-        Setup.injectStyles();
 
         // Setup tasks requiring FVTT is loaded
         Hooks.once('ready', Setup.lateRun);
@@ -76,64 +71,11 @@ export default class Setup {
     }
 
     /**
-     * Inject the CSS file into the header, so it doesn't have to be referenced in the system.json
-     */
-    public static injectStyles() {
-        const head = $('head');
-        const link = `<link href="systems/${Settings.DIST_PATH}/bundle.css" rel="stylesheet" type="text/css" media="all">`;
-        head.append($(link));
-    }
-
-    /**
-     * Pulls the system name from the script tags.
-     */
-    public static registerSystem() {
-        const scripts = $('script');
-        for (let i = 0; i < scripts.length; i++) {
-            const script = scripts.get(i) as HTMLScriptElement;
-            const folders = script.src.split('/');
-            const distIdx = folders.indexOf(Settings.DIST_NAME);
-            if (distIdx === -1) continue;
-
-            if (folders[distIdx - 1] === 'pdfoundry') break;
-
-            Settings.EXTERNAL_SYSTEM_NAME = folders[distIdx - 1];
-            break;
-        }
-    }
-
-    /**
      * Register the PDF sheet and unregister invalid sheet types from it.
      */
     public static setupSheets() {
         // Register actor "sheet"
-        Actors.registerSheet(Settings.INTERNAL_MODULE_NAME, PDFActorSheetAdapter, { makeDefault: false });
-
-        const sheetsToSetup = [{ cls: PDFItemConfig, type: PDFDataType.StaticPDF, makeDefault: true }];
-
-        for (const { cls, type, makeDefault } of sheetsToSetup) {
-            Items.registerSheet(Settings.INTERNAL_MODULE_NAME, cls, {
-                types: [type],
-                makeDefault,
-            });
-
-            if (makeDefault) {
-                // Unregister all other item sheets for our entity
-                const ourKey = `${Settings.INTERNAL_MODULE_NAME}.${cls.name}`;
-                const theirSheets = CONFIG.Item.sheetClasses[type];
-                for (const theirKey of Object.keys(theirSheets)) {
-                    const theirSheet = theirSheets[theirKey];
-                    if (theirSheet.id === ourKey) {
-                        continue;
-                    }
-
-                    const [module] = theirSheet.id.split('.');
-                    Items.unregisterSheet(module, theirSheet.cls, {
-                        types: [type],
-                    });
-                }
-            }
-        }
+        Actors.registerSheet(Settings.MODULE_NAME, PDFActorSheetAdapter, { makeDefault: false });
     }
 
     /**
@@ -227,7 +169,7 @@ export default class Setup {
     private static userLogin() {
         let viewed;
         try {
-            viewed = game.user.getFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.SETTING_KEY.HELP_SEEN);
+            viewed = Settings.get(Settings.SETTINGS_KEY.HELP_SEEN);
         } catch (error) {
             viewed = false;
         } finally {
@@ -244,7 +186,7 @@ export default class Setup {
         if (entity.type !== Settings.PDF_ENTITY_TYPE) {
             return;
         }
-        entity.img = `systems/${Settings.DIST_PATH}/assets/pdf_icon.svg`;
+        entity.img = `${Settings.PATH_ASSETS}/pdf_icon.svg`;
     }
 
     /**

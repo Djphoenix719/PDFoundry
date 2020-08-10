@@ -54,7 +54,7 @@ export default class ActorViewer extends FillableViewer {
      * Get the URL for the current sheet from the actor flags.
      */
     public getCurrentSheet(): string | undefined {
-        return this.entity.getFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_SHEET_KEY);
+        return this.entity.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID);
     }
 
     /**
@@ -63,9 +63,9 @@ export default class ActorViewer extends FillableViewer {
      */
     public async setCurrentSheet(value: string | undefined) {
         if (typeof value === 'string') {
-            return this.entity.setFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_SHEET_KEY, value);
+            return this.entity.setFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID, value);
         } else {
-            return this.entity.unsetFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_SHEET_KEY);
+            return this.entity.unsetFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID);
         }
     }
 

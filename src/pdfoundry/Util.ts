@@ -16,6 +16,11 @@
 import { PDFData } from './common/types/PDFData';
 import Settings from './settings/Settings';
 
+// *************
+// URL HELPERS
+// *************
+// <editor-fold desc='URL Helpers">
+
 /**
  * Helper method. Convert a relative URL to a absolute URL
  *  by prepending the window origin to the relative URL.
@@ -28,6 +33,21 @@ export function getAbsoluteURL(dataUrl: string): string {
     }
     return `${window.origin}/${dataUrl}`;
 }
+
+/**
+ * Returns true if the URL starts with the origin.
+ * @param dataUrl A url.
+ */
+export function validateAbsoluteURL(dataUrl: string): boolean {
+    // Amazon S3 buckets are already absolute
+    if (dataUrl.includes('amazonaws.com')) {
+        return true;
+    }
+
+    return dataUrl.startsWith(window.origin);
+}
+
+// </editor-fold>
 
 /**
  * Pull relevant data from an item, creating a {@link PDFData}.
@@ -56,27 +76,14 @@ export function getPDFBookData(item: Item | null | undefined): PDFData | null {
 }
 
 /**
- * Returns true if the URL starts with the origin.
- * @param dataUrl A url.
- */
-export function validateAbsoluteURL(dataUrl: string): boolean {
-    // Amazon S3 buckets are already absolute
-    if (dataUrl.includes('amazonaws.com')) {
-        return true;
-    }
-
-    return dataUrl.startsWith(window.origin);
-}
-
-/**
  * Return all users ids except the active user
  */
 export function getUserIdsExceptMe() {
     return game.users
-        .filter((user) => {
+        .filter((user: User) => {
             return user.id !== game.userId;
         })
-        .map((user) => user.id);
+        .map((user: User) => user.id);
 }
 
 /**

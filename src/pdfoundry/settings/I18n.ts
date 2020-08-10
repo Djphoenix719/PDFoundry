@@ -26,9 +26,9 @@ export default class I18n {
     public static async initialize() {
         const lang = game.i18n.lang;
         // user's language path
-        const u_path = `systems/${Settings.DIST_PATH}/locale/${lang}/config.json`;
+        const u_path = `${Settings.PATH_LOCALE}/${lang}/config.json`;
         // english fallback path
-        const f_path = `systems/${Settings.DIST_PATH}/locale/en/config.json`;
+        const f_path = `${Settings.PATH_LOCALE}/en/config.json`;
 
         let json;
         try {

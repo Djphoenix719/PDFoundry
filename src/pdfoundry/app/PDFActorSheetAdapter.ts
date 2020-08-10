@@ -50,7 +50,7 @@ export default class PDFActorSheetAdapter extends ActorSheet {
 
     render(force?: boolean, options?: RenderOptions): Application {
         if (!this._viewer) {
-            const sheetId = this.actor.getFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.ACTOR_SHEET_KEY);
+            const sheetId = this.actor.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID);
             this._viewer = new ActorViewer(this.actor, sheetId, this, this._options);
         }
 

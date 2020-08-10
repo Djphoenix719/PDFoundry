@@ -40,8 +40,8 @@ export default class PDFCache {
     /**
      * Max size of the cache for the active user, defaults to 256 MB.
      */
-    public static get MAX_BYTES() {
-        return game.settings.get(Settings.EXTERNAL_SYSTEM_NAME, 'CacheSize') * 2 ** 20;
+    private static get MAX_BYTES() {
+        return Settings.get(Settings.SETTINGS_KEY.CACHE_SIZE) * 2 ** 20;
     }
 
     private static readonly IDB_NAME: string = 'PDFoundry';

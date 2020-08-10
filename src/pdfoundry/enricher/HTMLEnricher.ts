@@ -14,7 +14,6 @@
  */
 
 import { PDFItemConfig } from '../app/PDFItemConfig';
-import Settings from '../settings/Settings';
 import Api from '../Api';
 
 /**
@@ -39,11 +38,8 @@ export default class HTMLEnricher {
                 }
             } catch (error) {
                 // Errors get propagated from instance for proper error modeling
-                if (Settings.NOTIFICATIONS) {
-                    ui.notifications.error(error.message);
-                } else {
-                    console.error(error);
-                }
+                ui.notifications.error(error.message);
+                console.error(error);
             }
         }
     }

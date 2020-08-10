@@ -26,7 +26,7 @@ export default class ActorSheetSelect extends Application {
     static get defaultOptions() {
         const options = super.defaultOptions;
         options.classes = ['sheet'];
-        options.template = `systems/${Settings.DIST_PATH}/templates/app/pdf-sheet-select.html`;
+        options.template = `${Settings.PATH_TEMPLATES}/app/pdf-sheet-select.html`;
         options.width = 200;
         options.height = 'auto';
         options.title = game.i18n.localize('PDFOUNDRY.VIEWER.SelectSheet');

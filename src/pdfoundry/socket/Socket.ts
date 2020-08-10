@@ -49,7 +49,7 @@ export class Socket {
     }
 
     public static handleSetView(data: any) {
-        if (Settings.get(Settings.SETTING_KEY.EXISTING_VIEWER)) {
+        if (Settings.get(Settings.SETTINGS_KEY.EXISTING_VIEWER)) {
             function appIsViewer(app: Application): app is StaticViewer {
                 return app['pdfData'] !== undefined;
             }

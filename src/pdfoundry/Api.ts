@@ -178,9 +178,7 @@ export default class Api {
         if (pdf === null) {
             const error = game.i18n.localize('PDFOUNDRY.ERROR.NoPDFWithCode');
 
-            if (Settings.NOTIFICATIONS) {
-                ui.notifications.error(error);
-            }
+            ui.notifications.error(error);
 
             return Promise.reject(error);
         }
@@ -200,9 +198,7 @@ export default class Api {
             const message = game.i18n.localize('PDFOUNDRY.ERROR.NoPDFWithName');
             const error = new Error(message);
 
-            if (Settings.NOTIFICATIONS) {
-                ui.notifications.error(error.message);
-            }
+            ui.notifications.error(error.message);
 
             return Promise.reject(error);
         }
@@ -285,14 +281,14 @@ export default class Api {
      * @category Utility
      */
     public static async showHelp(): Promise<BaseViewer> {
-        await game.user.setFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.SETTING_KEY.HELP_SEEN, true);
+        await Settings.set(Settings.SETTINGS_KEY.HELP_SEEN, true);
 
         const lang = game.i18n.lang;
-        let manualPath = `${window.origin}/systems/${Settings.DIST_PATH}/assets/manual/${lang}/manual.pdf`;
+        let manualPath = `${window.origin}/${Settings.PATH_ASSETS}/manual/${lang}/manual.pdf`;
         const manualExists = await fileExists(manualPath);
 
         if (!manualExists) {
-            manualPath = `${window.origin}/systems/${Settings.DIST_PATH}/assets/manual/en/manual.pdf`;
+            manualPath = `${window.origin}/${Settings.PATH_ASSETS}/manual/en/manual.pdf`;
         }
 
         const pdfData: PDFData = {

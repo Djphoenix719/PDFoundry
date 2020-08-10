@@ -19,7 +19,7 @@ export default class PDFActorDataBrowser extends Application {
     static get defaultOptions() {
         const options = super.defaultOptions;
 
-        options.template = `systems/${Settings.DIST_PATH}/templates/app/pdf-actor-data-browser.html`;
+        options.template = `${Settings.PATH_TEMPLATES}/app/pdf-actor-data-browser.html`;
         options.width = 600;
         options.height = 400;
 

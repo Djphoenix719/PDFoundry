@@ -48,7 +48,7 @@ export class PDFItemConfig extends ItemSheet {
     static get defaultOptions() {
         const options = super.defaultOptions;
         options.classes = ['sheet', 'item', 'pdf-item-app'];
-        options.template = `systems/${Settings.DIST_PATH}/templates/sheet/pdf-book-item-sheet.html`;
+        options.template = `${Settings.PATH_TEMPLATES}/sheet/pdf-config.html`;
         options.width = 650;
         options.height = 'auto';
         return options;
