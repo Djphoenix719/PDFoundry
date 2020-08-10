@@ -16,8 +16,8 @@
 import Settings from '../settings/Settings';
 import Api from '../Api';
 import { getAbsoluteURL } from '../Util';
-import BaseConfig from './BaseConfig';
 import { PDFDataType } from '../common/types/PDFDataType';
+import { BUTTON_GITHUB, BUTTON_HELP } from '../common/helpers/header';
 
 const PDF_TYPES: {
     // Convince compiler to error if type changes
@@ -44,11 +44,21 @@ const PDF_TYPES: {
  * Extends the base ItemSheet for linked PDF viewing.
  * @private
  */
-export class PDFItemConfig extends BaseConfig {
+export class PDFItemConfig extends ItemSheet {
     static get defaultOptions() {
         const options = super.defaultOptions;
+        options.classes = ['sheet', 'item', 'pdf-item-app'];
         options.template = `systems/${Settings.DIST_PATH}/templates/sheet/pdf-book-item-sheet.html`;
+        options.width = 650;
+        options.height = 'auto';
         return options;
+    }
+
+    protected _getHeaderButtons(): any[] {
+        const buttons = super._getHeaderButtons();
+        buttons.unshift(BUTTON_HELP);
+        buttons.unshift(BUTTON_GITHUB);
+        return buttons;
     }
 
     protected activateListeners(html: JQuery<HTMLElement>): void {
@@ -56,6 +66,30 @@ export class PDFItemConfig extends BaseConfig {
 
         const urlInput = html.find('#data-url');
         const offsetInput = html.find('#data-offset');
+
+        // Block enter from displaying the PDF
+        html.find('input').on('keypress', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+            }
+        });
+
+        // Browse button
+        html.find('#pdf-browse').on('click', async function (event) {
+            event.preventDefault();
+
+            const picker = new FilePicker({});
+            // @ts-ignore TODO: foundry-pc-types
+            picker.extensions = ['.pdf'];
+            picker.field = urlInput[0];
+
+            let urlValue = urlInput.val();
+            if (urlValue !== undefined) {
+                await picker.browse(urlValue.toString().trim());
+            }
+
+            picker.render(true);
+        });
 
         // Test button
         html.find('#pdf-test').on('click', function (event) {
