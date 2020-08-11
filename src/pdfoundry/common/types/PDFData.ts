@@ -46,3 +46,18 @@ export interface PDFData {
     type: PDFType;
 }
 
+type PDFDataUpdateKeys = Exclude<keyof PDFData, 'name'>;
+
+/**
+ * A data update for PDF data.
+ */
+export type PDFDataUpdate = {
+    [P in PDFDataUpdateKeys]: PDFData[P];
+};
+
+/**
+ * A data delete for PDF data, included fields are removed.
+ */
+export type PDFDataDelete = {
+    [P in PDFDataUpdateKeys]: null;
+};

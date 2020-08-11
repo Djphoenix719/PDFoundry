@@ -64,6 +64,20 @@
       "CacheSizeHint": "How many MB of hard drive space should be allowed to be taken up by the PDF cache? Must be between 64 and 1024 inclusive.",
       "ShowInExistingViewerName": "Show Shared PDFs in Existing Viewer",
       "ShowInExistingViewerHint": "If enabled, when another player shows a PDF to you, if you have the PDF open already the page will change instead of opening a new window."
+    },
+    "MISC": {
+      "PDFTYPE": {
+        "Static": "Static",
+        "Fillable": "Form Fillable (Unlinked)",
+        "Actor": "Form Fillable (Actor Sheet)"
+      },
+
+      "CreatePDF": "Create PDF",
+      "NewPDF": "New PDF",
+
+      "SelectTypeLabel": "Select PDF Type",
+
+      "Confirm": "Confirm"
     }
   }
 }

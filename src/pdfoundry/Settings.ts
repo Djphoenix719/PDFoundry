@@ -40,7 +40,7 @@ export default class Settings {
         return `module.${Settings.MODULE_NAME}`;
     }
 
-    public static readonly PDF_ENTITY_TYPE: string = 'PDFoundry_PDF';
+    public static readonly CSS_CLASS = 'pdf-app';
 
     public static readonly SETTINGS_KEY = {
         EXISTING_VIEWER: 'ShowInExistingViewer',

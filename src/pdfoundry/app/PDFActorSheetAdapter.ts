@@ -14,7 +14,7 @@
  */
 
 import ActorViewer from '../viewer/ActorViewer';
-import Settings from '../settings/Settings';
+import Settings from '../Settings';
 
 /**
  * Adapts a FillableViewer to function as a ActorSheet

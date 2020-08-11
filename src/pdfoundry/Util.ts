@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-import { PDFData } from './common/types/PDFData';
-import Settings from './settings/Settings';
+import { PDFData, PDFDataDelete, PDFDataUpdate } from './common/types/PDFData';
+import Settings from './Settings';
 
 // *************
 // URL HELPERS
@@ -64,14 +64,34 @@ export function isEntityPDF(entity: Entity): boolean {
 
 /**
  * Pull relevant data from an journal entry, creating a {@link PDFData} object.
- * @param journal The journal entry to pull data from.
+ * @param journalEntry The journal entry to pull data from.
  */
-export function getPDFData(journal: JournalEntry | null | undefined): PDFData | undefined {
-    if (journal === undefined || journal === null) {
+export function getPDFData(journalEntry: JournalEntry | null | undefined): PDFData | undefined {
+    if (journalEntry === undefined || journalEntry === null) {
         return undefined;
     }
 
-    return journal.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.PDF_DATA);
+    const pdfData = journalEntry.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.PDF_DATA) as PDFData | undefined;
+    if (pdfData === undefined) {
+        return undefined;
+    }
+    pdfData.name = journalEntry.name;
+    return pdfData;
+}
+
+export function setPDFData(journalEntry: JournalEntry, pdfData: Partial<PDFDataUpdate>) {
+    return journalEntry.setFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.PDF_DATA, pdfData);
+}
+
+export function deletePDFData(journalEntry: JournalEntry, pdfData: Partial<PDFDataDelete>) {
+    const update = {};
+
+    // TODO: Feature request to use Symbols to perform this type of operation
+    for (const key of Object.keys(pdfData)) {
+        update[`flags.${Settings.MODULE_NAME}.${Settings.FLAGS_KEY.PDF_DATA}.-=${key}`] = null;
+    }
+
+    return journalEntry.update(update);
 }
 
 // </editor-fold>

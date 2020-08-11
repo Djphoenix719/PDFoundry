@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { PDFItemConfig } from '../app/PDFItemConfig';
+import { PDFConfig } from '../app/PDFConfig';
 import Api from '../Api';
 
 /**
@@ -22,7 +22,7 @@ import Api from '../Api';
  */
 export default class HTMLEnricher {
     public static HandleEnrich(app: Application, html: JQuery, data: any) {
-        if (app instanceof PDFItemConfig) return;
+        if (app instanceof PDFConfig) return;
 
         HTMLEnricher.EnrichHTML(html);
         HTMLEnricher.BindClicks(html);

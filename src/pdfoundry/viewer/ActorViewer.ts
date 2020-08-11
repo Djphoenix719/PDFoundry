@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import Settings from '../settings/Settings';
+import Settings from '../Settings';
 import ActorSheetSelect from '../app/ActorSheetSelect';
 import { fileExists, getAbsoluteURL } from '../Util';
 import PDFActorSheetAdapter from '../app/PDFActorSheetAdapter';

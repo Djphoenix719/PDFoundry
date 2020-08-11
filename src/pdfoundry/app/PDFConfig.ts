@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import Settings from '../settings/Settings';
+import Settings from '../Settings';
 import Api from '../Api';
 import { getAbsoluteURL } from '../Util';
 import { PDFType } from '../common/types/PDFType';
@@ -44,10 +44,10 @@ const PDF_TYPES: {
  * Extends the base ItemSheet for linked PDF viewing.
  * @private
  */
-export class PDFItemConfig extends ItemSheet {
+export class PDFConfig extends JournalSheet {
     static get defaultOptions() {
         const options = super.defaultOptions;
-        options.classes = ['sheet', 'item', 'pdf-item-app'];
+        options.classes = [...options.classes!, Settings.CSS_CLASS];
         options.template = `${Settings.PATH_TEMPLATES}/sheet/pdf-config.html`;
         options.width = 650;
         options.height = 'auto';

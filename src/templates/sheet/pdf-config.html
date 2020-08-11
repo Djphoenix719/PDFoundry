@@ -25,7 +25,7 @@
         <input
             type="text"
             id="data-code"
-            name="data.code"
+            name="{{ dataPath }}.code"
             value="{{ data.code }}"
             placeholder="{{ localize 'PDFOUNDRY.PDFSHEET.PLACEHOLDER.Code' }}"
             autocomplete="off"
@@ -38,7 +38,7 @@
             <input
                 type="text"
                 id="data-url"
-                name="data.url"
+                name="{{ dataPath }}.url"
                 value="{{ data.url }}"
                 placeholder="{{ localize 'PDFOUNDRY.PDFSHEET.PLACEHOLDER.URL' }}"
                 autocomplete="off"
@@ -52,7 +52,7 @@
         <input
             type="number"
             id="data-offset"
-            name="data.offset"
+            name="{{ dataPath }}.offset"
             value="{{ data.offset }}"
             placeholder="{{ localize 'PDFOUNDRY.PDFSHEET.PLACEHOLDER.PageOffset' }}"
             autocomplete="off"
@@ -61,12 +61,12 @@
 
     <div class="field-row expand" title="{{ localize 'PDFOUNDRY.PDFSHEET.TOOLTIP.EnableCaching' }}">
         <label for="data-cache">{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.EnableCaching' }}</label>
-        <input type="checkbox" id="data-cache" name="data.cache" {{#if data.cache}}checked{{/if}}>
+        <input type="checkbox" id="data-cache" name="{{ dataPath }}.cache" {{#if data.cache}}checked{{/if}}>
     </div>
 
     <div class="field-row expand" title="{{ localize 'PDFOUNDRY.PDFSHEET.TOOLTIP.PDFType' }}">
         <label for="data-type">{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.PDFType' }}</label>
-        <select id="data-type" name="data.type">
+        <select id="data-type" name="{{ dataPath }}.type">
             {{#select data.pdf_type}} {{#each CONST.pdf_types as |type|}}
             <option value="{{type.value}}">{{type.name}}</option>
             {{/each}} {{/select}}

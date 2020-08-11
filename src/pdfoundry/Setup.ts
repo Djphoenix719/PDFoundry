@@ -16,14 +16,14 @@
 import { getAbsoluteURL, getPDFData, isEntityPDF } from './Util';
 import PreloadEvent from './socket/events/PreloadEvent';
 import { Socket } from './socket/Socket';
-import Settings from './settings/Settings';
+import Settings from './Settings';
 import PDFCache from './cache/PDFCache';
-import I18n from './settings/I18n';
 import Api from './Api';
 import HTMLEnricher from './enricher/HTMLEnricher';
 import TinyMCEPlugin from './enricher/TinyMCEPlugin';
 import PDFActorSheetAdapter from './app/PDFActorSheetAdapter';
 import { PDFType } from './common/types/PDFType';
+import PDFTypeSelect from './app/PDFTypeSelect';
 
 /**
  * A collection of methods used for setting up the API & system state.
@@ -71,7 +71,6 @@ export default class Setup {
             // Initialize the settings
             await Settings.initialize();
             await PDFCache.initialize();
-            await I18n.initialize();
 
             // PDFoundry is ready
             Setup.userLogin();
@@ -171,5 +170,24 @@ export default class Setup {
         html.find('h2').last().before(button);
     }
 
-    private static onRenderJournalDirectory(app: Application, html: JQuery) {}
+    private static async createPDF(value: string, text: string) {
+        JournalEntry.create({
+            name: game.i18n.localize('PDFOUNDRY.MISC.NewPDF'),
+            [`flags.${Settings.MODULE_NAME}.${Settings.FLAGS_KEY.PDF_DATA}.type`]: PDFType[value],
+        });
+    }
+
+    private static onRenderJournalDirectory(app: Application, html: JQuery) {
+        const button = $(`<button class="create-pdf"><i class="fas fa-file-pdf"></i> ${game.i18n.localize('PDFOUNDRY.MISC.CreatePDF')}</button>`);
+        button.on('click', () => {
+            new PDFTypeSelect(Setup.createPDF).render(true);
+        });
+
+        let footer = html.find('.directory-footer');
+        if (footer.length === 0) {
+            footer = $(`<footer class="directory-footer"></footer>`);
+            html.append(footer);
+        }
+        footer.append(button);
+    }
 }

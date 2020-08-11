@@ -16,7 +16,7 @@
 import PreloadEvent from './events/PreloadEvent';
 import StaticViewer from '../viewer/StaticViewer';
 import Api from '../Api';
-import Settings from '../settings/Settings';
+import Settings from '../Settings';
 import SetViewEvent from './events/SetViewEvent';
 import PDFCache from '../cache/PDFCache';
 

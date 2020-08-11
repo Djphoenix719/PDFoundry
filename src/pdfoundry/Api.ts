@@ -16,7 +16,7 @@
 import { fileExists, getAbsoluteURL, getPDFData, isEntityPDF, validateAbsoluteURL } from './Util';
 import StaticViewer from './viewer/StaticViewer';
 import { PDFData } from './common/types/PDFData';
-import Settings from './settings/Settings';
+import Settings from './Settings';
 import PDFCache from './cache/PDFCache';
 import BaseViewer from './viewer/BaseViewer';
 import { PDFType } from './common/types/PDFType';

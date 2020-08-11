@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import Settings from '../settings/Settings';
+import Settings from '../Settings';
 
 export default class PDFActorDataBrowser extends Application {
     static get defaultOptions() {

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import Settings from '../settings/Settings';
+import Settings from '../Settings';
 import EventStore from '../common/helpers/events';
 import { PDFViewerEvent } from '../common/types/PDFHooks';
 import { PDFjsViewer } from '../common/types/PDFjsViewer';
