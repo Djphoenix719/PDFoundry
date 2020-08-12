@@ -13,65 +13,40 @@
  * limitations under the License.
  */
 
-import Settings from '../Settings';
 import { PDFType } from '../common/types/PDFType';
+import SelectApp, { SelectOption } from './SelectApp';
+import { getPDFData, isEntityPDF } from '../Util';
+import { PDFData } from '../common/types/PDFData';
 
-/**
- * Callback type for sheet selection
- * @private
- */
-export type PDFActorSheetSelectCallback = (sheet: string) => void;
-
-export default class ActorSheetSelect extends Application {
-    static get defaultOptions() {
-        const options = super.defaultOptions;
-        options.classes = ['sheet'];
-        options.template = `${Settings.PATH_TEMPLATES}/app/pdf-sheet-select.html`;
-        options.width = 200;
-        options.height = 'auto';
-        options.title = game.i18n.localize('PDFOUNDRY.VIEWER.SelectSheet');
-        return options;
+export default class ActorSheetSelect extends SelectApp {
+    protected get selectTitle(): string {
+        return 'PDFOUNDRY.VIEWER.SelectSheet';
     }
 
-    private readonly _current?: string;
-    private readonly _callback;
-
-    constructor(currentValue: string | undefined, cb: PDFActorSheetSelectCallback, options?: ApplicationOptions) {
-        super(options);
-
-        this._current = currentValue;
-        this._callback = cb;
+    protected get selectId(): string {
+        return 'actor-sheet';
     }
 
-    getData(options?: any): any | Promise<any> {
-        const data = super.getData(options);
+    protected get selectLabel(): string {
+        return 'PDFOUNDRY.VIEWER.SelectSheet';
+    }
 
-        const sheets: Item[] = game.items.filter((item: Item) => {
-            return item.data.data['type'] === PDFType.Actor && item.data.data.url !== '';
+    protected get selectOptions(): SelectOption[] {
+        const journals: JournalEntry[] = game.journal.filter((je: JournalEntry) => {
+            return isEntityPDF(je) && getPDFData(je)?.type === PDFType.Actor;
         });
-        data['sheets'] = sheets.map((sheet) => {
+
+        console.warn(journals);
+
+        const datas = journals.map((je) => getPDFData(je)).filter((data) => data !== undefined) as PDFData[];
+
+        console.warn(datas);
+
+        return datas.map((data) => {
             return {
-                name: sheet.name,
-                url: sheet.data.data.url,
-                selected: sheet.data.data.url === this._current ? 'selected' : '',
+                text: data.name,
+                value: data.url,
             };
-        });
-
-        data.default = this._current;
-        return data;
-    }
-
-    protected activateListeners(html: JQuery | HTMLElement): void {
-        super.activateListeners(html);
-
-        const button = $(html).find('#confirm');
-        button.on('click', () => {
-            const select = $(html).find('#sheet');
-            const value = select.val();
-            if (value !== this._current) {
-                this._callback(value);
-            }
-            this.close();
         });
     }
 }

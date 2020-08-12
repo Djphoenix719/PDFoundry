@@ -107,11 +107,11 @@ export default class ActorViewer extends FillableViewer {
                 icon: 'fas fa-user-cog',
                 label: 'Sheet Select',
                 onclick: () => {
-                    new ActorSheetSelect(this.getCurrentSheet(), async (sheet) => {
+                    new ActorSheetSelect(async (sheet) => {
                         await this.setCurrentSheet(sheet);
                         await this.actorSheet.close();
                         await this.open(sheet);
-                    }).render(true);
+                    }, this.getCurrentSheet()).render(true);
                 },
             });
 

@@ -92,7 +92,7 @@ export class PDFConfig extends Application {
     // </editor-fold>
     // <editor-fold desc="Instance Methods">
 
-    protected activateListeners(html: JQuery<HTMLElement>): void {
+    protected activateListeners(html: JQuery): void {
         super.activateListeners(html);
 
         const urlInput = html.find('#data-url');
@@ -155,7 +155,7 @@ export class PDFConfig extends Application {
 
         data['types'] = Object.entries(PDFType).map(([key]) => {
             return {
-                value: key,
+                value: PDFType[key],
                 text: `PDFOUNDRY.MISC.PDFTYPE.${key}`,
             };
         });

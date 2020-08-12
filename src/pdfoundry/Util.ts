@@ -15,6 +15,7 @@
 
 import { PDFData, PDFDataDelete, PDFDataUpdate } from './common/types/PDFData';
 import Settings from './Settings';
+import { PDFType } from './common/types/PDFType';
 
 // *************
 // URL HELPERS
@@ -92,6 +93,18 @@ export function deletePDFData(journalEntry: JournalEntry, pdfData: Partial<PDFDa
     }
 
     return journalEntry.update(update);
+}
+
+export function canOpenPDF(pdfData: PDFData) {
+    if (PDFType[pdfData.type] === undefined) {
+        return false;
+    }
+
+    if (pdfData.url === undefined || pdfData.url === '') {
+        return false;
+    }
+
+    return true;
 }
 
 // </editor-fold>
