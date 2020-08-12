@@ -24,6 +24,7 @@ import TinyMCEPlugin from './enricher/TinyMCEPlugin';
 import PDFActorSheetAdapter from './app/PDFActorSheetAdapter';
 import { PDFType } from './common/types/PDFType';
 import PDFTypeSelect from './app/PDFTypeSelect';
+import { PDFConfig } from './app/PDFConfig';
 
 /**
  * A collection of methods used for setting up the API & system state.
@@ -40,7 +41,8 @@ export default class Setup {
         // Setup tasks requiring that FVTT is loaded
         Hooks.once('ready', Setup.lateRun);
 
-        Hooks.on('renderJournalDirectory', Setup.onRenderJournalDirectory);
+        Hooks.on('renderJournalDirectory', Setup.createJournalButton);
+        Hooks.on('renderJournalDirectory', Setup.hookListItems);
 
         // getItemDirectoryEntryContext - Setup context menu for 'Open PDF' links
         Hooks.on('getJournalDirectoryEntryContext', Setup.getJournalContextOptions);
@@ -69,7 +71,7 @@ export default class Setup {
 
         return new Promise(async () => {
             // Initialize the settings
-            await Settings.initialize();
+            Settings.initialize();
             await PDFCache.initialize();
 
             // PDFoundry is ready
@@ -171,13 +173,15 @@ export default class Setup {
     }
 
     private static async createPDF(value: string, text: string) {
-        JournalEntry.create({
+        const journalEntry = (await JournalEntry.create({
             name: game.i18n.localize('PDFOUNDRY.MISC.NewPDF'),
             [`flags.${Settings.MODULE_NAME}.${Settings.FLAGS_KEY.PDF_DATA}.type`]: PDFType[value],
-        });
+        })) as JournalEntry;
+
+        new PDFConfig(journalEntry).render(true);
     }
 
-    private static onRenderJournalDirectory(app: Application, html: JQuery) {
+    private static createJournalButton(app: Application, html: JQuery) {
         const button = $(`<button class="create-pdf"><i class="fas fa-file-pdf"></i> ${game.i18n.localize('PDFOUNDRY.MISC.CreatePDF')}</button>`);
         button.on('click', () => {
             new PDFTypeSelect(Setup.createPDF).render(true);
@@ -189,5 +193,33 @@ export default class Setup {
             html.append(footer);
         }
         footer.append(button);
+    }
+
+    private static hookListItems(app: Application, html: JQuery) {
+        const lis = html.find('li');
+
+        for (const li of lis) {
+            const target = $(li);
+            const id = target.data('entity-id');
+            const journalEntry = game.journal.get(id);
+
+            if (isEntityPDF(journalEntry)) {
+                const thumbnail = $(`<img class="pdf-thumbnail" src="${Settings.PATH_ASSETS}/pdf_icon.svg" alt="PDF Icon">`);
+                target.append(thumbnail);
+
+                target.find('h4').on('click', (event) => {
+                    event.stopImmediatePropagation();
+                    new PDFConfig(journalEntry).render(true);
+                });
+
+                target.find('img').on('click', (event) => {
+                    event.stopImmediatePropagation();
+                    const pdfData = getPDFData(journalEntry);
+                    if (pdfData) {
+                        Api.openPDF(pdfData);
+                    }
+                });
+            }
+        }
     }
 }

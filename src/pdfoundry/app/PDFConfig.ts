@@ -15,7 +15,7 @@
 
 import Settings from '../Settings';
 import Api from '../Api';
-import { getAbsoluteURL } from '../Util';
+import { getAbsoluteURL, getPDFData } from '../Util';
 import { PDFType } from '../common/types/PDFType';
 import { BUTTON_GITHUB, BUTTON_HELP } from '../common/helpers/header';
 
@@ -44,7 +44,9 @@ const PDF_TYPES: {
  * Extends the base ItemSheet for linked PDF viewing.
  * @private
  */
-export class PDFConfig extends JournalSheet {
+export class PDFConfig extends Application {
+    // <editor-fold desc="Static Properties">
+
     static get defaultOptions() {
         const options = super.defaultOptions;
         options.classes = [...options.classes!, Settings.CSS_CLASS];
@@ -54,12 +56,41 @@ export class PDFConfig extends JournalSheet {
         return options;
     }
 
+    // </editor-fold>
+    // <editor-fold desc="Static Methods"></editor-fold>
+    // <editor-fold desc="Properties">
+
+    private readonly journalEntry: JournalEntry;
+
+    // </editor-fold>
+    // <editor-fold desc="Constructor & Initialization">
+
+    constructor(journalEntry: JournalEntry, options?: ApplicationOptions) {
+        super(options);
+
+        this.journalEntry = journalEntry;
+    }
+
+    // </editor-fold>
+    // <editor-fold desc="Getters & Setters">
+
+    public get title(): string {
+        return this.journalEntry.name;
+    }
+
+    public get id(): string {
+        return `pdf-${this.journalEntry.id}`;
+    }
+
     protected _getHeaderButtons(): any[] {
         const buttons = super._getHeaderButtons();
         buttons.unshift(BUTTON_HELP);
         buttons.unshift(BUTTON_GITHUB);
         return buttons;
     }
+
+    // </editor-fold>
+    // <editor-fold desc="Instance Methods">
 
     protected activateListeners(html: JQuery<HTMLElement>): void {
         super.activateListeners(html);
@@ -112,15 +143,43 @@ export class PDFConfig extends JournalSheet {
 
             Api.openURL(urlValue, 5 + offsetValue, false);
         });
+
+        html.on('change', async (event) => {
+            await this.submit();
+            this.render();
+        });
     }
 
-    getData(): ItemSheetData {
+    public getData(): ItemSheetData {
         const data = super.getData();
 
-        data['CONST'] = {
-            pdf_types: Object.values(PDF_TYPES),
-        };
+        data['types'] = Object.entries(PDFType).map(([key]) => {
+            return {
+                value: key,
+                text: `PDFOUNDRY.MISC.PDFTYPE.${key}`,
+            };
+        });
+        data['dataPath'] = `flags.${Settings.MODULE_NAME}.${Settings.FLAGS_KEY.PDF_DATA}`;
+        data['flags'] = getPDFData(this.journalEntry);
+        data['name'] = this.journalEntry.data.name;
 
         return data;
     }
+
+    public async submit(): Promise<void> {
+        const form = $(this.element).find('form');
+        const formData = form.serializeArray();
+        const updateData: { [name: string]: any } = {};
+        for (const field of formData) {
+            updateData[field.name] = field.value;
+        }
+        await this.journalEntry.update(updateData);
+    }
+
+    public async close(): Promise<any> {
+        await this.submit();
+        return super.close();
+    }
+
+    // </editor-fold>
 }

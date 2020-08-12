@@ -1,4 +1,4 @@
-<form class="{{ cssClass }} pdf-item-sheet" autocomplete="off" onsubmit="event.preventDefault()">
+<form autocomplete="off" onsubmit="event.preventDefault()">
     <!--
     Copyright 2020 Andrew Cuccinello
 
@@ -15,66 +15,75 @@
     limitations under the License.
     -->
 
-    <div class="field-row" title="{{ localize 'PDFOUNDRY.PDFSHEET.TOOLTIP.Name' }}">
-        <label for="name">{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.Name' }}</label>
-        <input type="text" id="name" name="name" value="{{ item.name }}" placeholder="{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.Name' }}" autocomplete="off" />
+    <div class="flex" title="{{ localize 'PDFOUNDRY.PDFSHEET.TOOLTIP.Name' }}">
+        <label class="shrink" for="name">{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.Name' }}</label>
+        <input
+            type="text"
+            id="name"
+            name="name"
+            class="grow"
+            value="{{ name }}"
+            placeholder="{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.Name' }}"
+            autocomplete="off"
+        />
     </div>
 
-    <div class="field-row" title="{{ localize 'PDFOUNDRY.PDFSHEET.TOOLTIP.Code' }}">
-        <label for="data-code">{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.Code' }}</label>
+    <div class="flex" title="{{ localize 'PDFOUNDRY.PDFSHEET.TOOLTIP.Code' }}">
+        <label class="shrink" for="data-code">{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.Code' }}</label>
         <input
             type="text"
             id="data-code"
             name="{{ dataPath }}.code"
-            value="{{ data.code }}"
+            class="grow"
+            value="{{ flags.code }}"
             placeholder="{{ localize 'PDFOUNDRY.PDFSHEET.PLACEHOLDER.Code' }}"
             autocomplete="off"
         />
     </div>
 
-    <div class="button-row" title="{{ localize 'PDFOUNDRY.PDFSHEET.TOOLTIP.URL' }}">
-        <div class="field-row">
-            <label for="data-url">{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.URL' }}</label>
-            <input
-                type="text"
-                id="data-url"
-                name="{{ dataPath }}.url"
-                value="{{ data.url }}"
-                placeholder="{{ localize 'PDFOUNDRY.PDFSHEET.PLACEHOLDER.URL' }}"
-                autocomplete="off"
-            />
-        </div>
-        <button class="right" id="pdf-browse">{{ localize 'PDFOUNDRY.PDFSHEET.BUTTON.Browse' }}</button>
+    <div class="flex">
+        <label class="shrink" for="data-url">{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.URL' }}</label>
+        <input
+            type="text"
+            id="data-url"
+            name="{{ dataPath }}.url"
+            class="grow"
+            value="{{ flags.url }}"
+            placeholder="{{ localize 'PDFOUNDRY.PDFSHEET.PLACEHOLDER.URL' }}"
+            autocomplete="off"
+        />
+        <button class="shrink" id="pdf-browse">{{ localize 'PDFOUNDRY.PDFSHEET.BUTTON.Browse' }}</button>
     </div>
 
-    <div class="field-row" title="{{ localize 'PDFOUNDRY.PDFSHEET.TOOLTIP.PageOffset' }}">
-        <label for="data-offset">{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.PageOffset' }}</label>
+    <div class="flex" title="{{ localize 'PDFOUNDRY.PDFSHEET.TOOLTIP.PageOffset' }}">
+        <label class="shrink" for="data-offset">{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.PageOffset' }}</label>
         <input
             type="number"
             id="data-offset"
             name="{{ dataPath }}.offset"
-            value="{{ data.offset }}"
+            class="grow"
+            value="{{ flags.offset }}"
             placeholder="{{ localize 'PDFOUNDRY.PDFSHEET.PLACEHOLDER.PageOffset' }}"
             autocomplete="off"
         />
     </div>
 
-    <div class="field-row expand" title="{{ localize 'PDFOUNDRY.PDFSHEET.TOOLTIP.EnableCaching' }}">
-        <label for="data-cache">{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.EnableCaching' }}</label>
-        <input type="checkbox" id="data-cache" name="{{ dataPath }}.cache" {{#if data.cache}}checked{{/if}}>
+    <div class="flex" title="{{ localize 'PDFOUNDRY.PDFSHEET.TOOLTIP.EnableCaching' }}">
+        <label class="grow" for="data-cache">{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.EnableCaching' }}</label>
+        <input type="checkbox" id="data-cache" name="{{ dataPath }}.cache" class="shrink" {{#if flags.cache}}checked{{/if}}>
     </div>
 
-    <div class="field-row expand" title="{{ localize 'PDFOUNDRY.PDFSHEET.TOOLTIP.PDFType' }}">
-        <label for="data-type">{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.PDFType' }}</label>
-        <select id="data-type" name="{{ dataPath }}.type">
-            {{#select data.pdf_type}} {{#each CONST.pdf_types as |type|}}
-            <option value="{{type.value}}">{{type.name}}</option>
+    <div class="flex" title="{{ localize 'PDFOUNDRY.PDFSHEET.TOOLTIP.PDFType' }}">
+        <label class="shrink" for="data-type">{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.PDFType' }}</label>
+        <select class="grow" id="data-type" name="{{ dataPath }}.type">
+            {{#select flags.type}} {{#each types as |type|}}
+            <option value="{{type.value}}">{{localize type.text}}</option>
             {{/each}} {{/select}}
         </select>
     </div>
 
-    <div class="button-row taller expand">
-        <p class="description">{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.TestSettings' }}</p>
-        <button id="pdf-test">{{ localize 'PDFOUNDRY.PDFSHEET.BUTTON.TestSettings' }}</button>
+    <div class="flex">
+        <p class="grow">{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.TestSettings' }}</p>
+        <button class="shrink" id="pdf-test">{{ localize 'PDFOUNDRY.PDFSHEET.BUTTON.TestSettings' }}</button>
     </div>
 </form>
