@@ -15,6 +15,4 @@
 
 import Setup from './Setup';
 
-CONFIG.debug.hooks = true;
-
 Setup.run();
