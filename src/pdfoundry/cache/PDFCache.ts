@@ -179,4 +179,16 @@ export default class PDFCache {
             totalBytes -= next.meta.size;
         }
     }
+
+    /**
+     * Clear the PDF cache
+     */
+    public static async clear() {
+        const keys = await this._cacheHelper.keys(PDFCache.META);
+
+        for (const key of keys) {
+            await this._cacheHelper.del(key, PDFCache.META);
+            await this._cacheHelper.del(key, PDFCache.CACHE);
+        }
+    }
 }

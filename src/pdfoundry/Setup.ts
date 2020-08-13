@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { getAbsoluteURL, getPDFData, isEntityPDF } from './Util';
+import { getAbsoluteURL, getPDFData, isEntityPDF, purgeCache } from './Util';
 import PreloadEvent from './socket/events/PreloadEvent';
 import { Socket } from './socket/Socket';
 import Settings from './Settings';
@@ -163,9 +163,14 @@ export default class Setup {
         }
     }
 
-    private static onChatMessage(app, content, options) {
+    private static onChatMessage(app, content: string, options) {
         if (content === '/pdfoundry convert-items') {
             migrateLegacy();
+            return false;
+        }
+
+        if (content === '/pdfoundry purge-cache') {
+            purgeCache();
             return false;
         }
     }

@@ -75,6 +75,8 @@
       "CreatePDF": "Create PDF",
       "NewPDF": "New PDF",
 
+      "CacheCleared": "PDF cache has been cleared.",
+
       "Confirm": "Confirm"
     }
   }
