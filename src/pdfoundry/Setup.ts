@@ -164,6 +164,8 @@ export default class Setup {
     }
 
     private static onChatMessage(app, content: string, options) {
+        content = content.toLocaleLowerCase();
+
         if (content === '/pdfoundry convert-items') {
             migrateLegacy();
             return false;
