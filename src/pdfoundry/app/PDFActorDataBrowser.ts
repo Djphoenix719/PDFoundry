@@ -15,6 +15,10 @@
 
 import Settings from '../Settings';
 
+/**
+ * Basic app to allow the user to see data keys for actor sheets
+ * @internal
+ */
 export default class PDFActorDataBrowser extends Application {
     static get defaultOptions() {
         const options = super.defaultOptions;

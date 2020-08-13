@@ -14,6 +14,7 @@
  */
 
 import Api from '../../Api';
+import Settings from '../../Settings';
 
 /**
  * @internal
@@ -81,7 +82,7 @@ export default class EventStore<TKeys extends string = string> {
      */
     public fire(eventName: TKeys, ...args) {
         if (Api.DEBUG.EVENTS) {
-            console.debug(`PDFoundry::${eventName}`);
+            console.debug(`${Settings.MODULE_NAME.toUpperCase()}::${eventName}`);
             console.debug(args);
         }
 

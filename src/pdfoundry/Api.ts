@@ -13,7 +13,14 @@
  * limitations under the License.
  */
 
-import { fileExists, getAbsoluteURL, getPDFData, isEntityPDF, validateAbsoluteURL } from './Util';
+/**
+ * The PDFoundry API.
+ *
+ * You can access the API with `ui.PDFoundry`.
+ * @moduledefinition API
+ */
+
+import { canOpenPDF, deletePDFData, fileExists, getAbsoluteURL, getPDFData, getUserIdsExceptMe, isEntityPDF, setPDFData, validateAbsoluteURL } from './Util';
 import StaticViewer from './viewer/StaticViewer';
 import { PDFData } from './common/types/PDFData';
 import Settings from './Settings';
@@ -25,9 +32,10 @@ import FillableViewer from './viewer/FillableViewer';
 // noinspection JSUnusedGlobalSymbols
 
 /**
- * A function to passed to getPDFData to find user specified PDF data.
+ * A function to passed to {@link Api.findPDFData} to find user specified PDF data.
+ * @module API
  */
-type PDFValidator = (data: PDFData) => boolean;
+export type PDFValidator = (data: PDFData) => boolean;
 
 /**
  * Open the specified PDF in a provided viewer
@@ -35,7 +43,7 @@ type PDFValidator = (data: PDFData) => boolean;
  * @param url
  * @param page
  * @param cache
- * @private
+ * @internal
  */
 export async function _handleOpen(viewer: BaseViewer, url: string, page: number, cache: boolean) {
     if (cache) {
@@ -60,6 +68,7 @@ export async function _handleOpen(viewer: BaseViewer, url: string, page: number,
  * The PDFoundry API
  *
  * You can access the API with `ui.PDFoundry`.
+ * @module API
  */
 export default class Api {
     /**
@@ -75,14 +84,19 @@ export default class Api {
 
     /**
      * A reference to the unclassified utility functions.
+     * @category Utility
      */
     public static get Utilities() {
         return {
-            fileExists,
             getAbsoluteURL,
-            getPDFData,
-            isEntityPDF,
             validateAbsoluteURL,
+            fileExists,
+            isEntityPDF,
+            getPDFData,
+            setPDFData,
+            deletePDFData,
+            canOpenPDF,
+            getUserIdsExceptMe,
         };
     }
 
@@ -90,8 +104,9 @@ export default class Api {
 
     /**
      * Find a PDF containing journal entry from the journals directory using a specified comparer.
-     * @param comparer
+     * @param comparer The function to compare PDF data with.
      * @param allowInvisible If true, PDFs hidden from the active user will be returned.
+     * @category PDFData
      */
     public static findPDFEntity(comparer: PDFValidator, allowInvisible: boolean = true): JournalEntry | undefined {
         return game.journal.find((journalEntry: JournalEntry) => {
@@ -114,7 +129,7 @@ export default class Api {
      * @param allowInvisible See allowVisible on {@link findPDFEntity}
      * @category PDFData
      */
-    public static getPDFDataByCode(code: string, allowInvisible: boolean = true): PDFData | undefined {
+    public static findPDFDataByCode(code: string, allowInvisible: boolean = true): PDFData | undefined {
         return Api.findPDFData((data: PDFData) => {
             return data.code === code;
         }, allowInvisible);
@@ -160,11 +175,11 @@ export default class Api {
 
     /**
      * Open the PDF with the provided code to the specified page.
-     * Helper for {@link getPDFDataByCode} then {@link openPDF}.
+     * Helper for {@link findPDFDataByCode} then {@link openPDF}.
      * @category Open
      */
     public static async openPDFByCode(code: string, page: number = 1): Promise<BaseViewer> {
-        const pdf = this.getPDFDataByCode(code);
+        const pdf = this.findPDFDataByCode(code);
 
         if (pdf === undefined) {
             const error = game.i18n.localize('PDFOUNDRY.ERROR.NoPDFWithCode');
@@ -179,7 +194,7 @@ export default class Api {
 
     /**
      * Open the PDF with the provided code to the specified page.
-     * Helper for {@link getPDFDataByCode} then {@link openPDF}.
+     * Helper for {@link findPDFDataByCode} then {@link openPDF}.
      * @category Open
      */
     public static async openPDFByName(name: string, page: number = 1): Promise<BaseViewer> {

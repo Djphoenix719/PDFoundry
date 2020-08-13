@@ -15,6 +15,7 @@
 
 /**
  * The type of PDF file, as specified by the user.
+ * @module API
  */
 export enum PDFType {
     /**

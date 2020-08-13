@@ -56,6 +56,11 @@ async function convert() {
     ui.journal.render();
 }
 
+/**
+ * Get legacy PDF data & type
+ * @param item
+ * @internal
+ */
 function getLegacyData(item: Item): PDFData {
     const typeMap = {
         PDFoundry_PDF: PDFType.Static,

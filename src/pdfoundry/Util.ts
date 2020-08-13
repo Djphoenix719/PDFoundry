@@ -13,6 +13,13 @@
  * limitations under the License.
  */
 
+/**
+ * A collection of utilities that are used internally or made to be used externally by you.
+ *
+ * You can access these utilities with `ui.PDFoundry.Utilities`.
+ * @moduledefinition Utilities
+ */
+
 import { PDFData, PDFDataDelete, PDFDataUpdate } from './common/types/PDFData';
 import Settings from './Settings';
 import { PDFType } from './common/types/PDFType';
@@ -28,6 +35,8 @@ import { DOMAIN_WHITELIST } from './common/Whitelist';
  * If the URL is of a white listed domain, will simply return the provided URL.
  * @param dataUrl A url to be validated.
  * @see {@link DOMAIN_WHITELIST}
+ * @see {@link Api.Utilities}
+ * @module Utilities
  */
 export function getAbsoluteURL(dataUrl: string): string {
     // Some domains are white listed, these should be considered absolute already
@@ -45,6 +54,8 @@ export function getAbsoluteURL(dataUrl: string): string {
  *  white listed domains.
  * @param dataUrl A url to be validated.
  * @see {@link DOMAIN_WHITELIST}
+ * @see {@link Api.Utilities}
+ * @module Utilities
  */
 export function validateAbsoluteURL(dataUrl: string): boolean {
     // Some domains are white listed
@@ -57,6 +68,32 @@ export function validateAbsoluteURL(dataUrl: string): boolean {
     return dataUrl.startsWith(window.origin);
 }
 
+/**
+ * Checks if a remote file exists at the specified path. That is, if the URL is valid. This does not guarantee a
+ * valid file exists at that location. For example, an HTML file will result in true but not be a valid PDF.
+ * @param path The absolute URL to check. Adheres to the {@link DOMAIN_WHITELIST}.
+ * @see {@link Api.Utilities}
+ * @module Utilities
+ */
+export function fileExists(path: string): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+        if (!validateAbsoluteURL(path)) {
+            resolve(false);
+            return;
+        }
+
+        $.ajax(path, {
+            type: 'HEAD',
+            success: () => {
+                resolve(true);
+            },
+            error: () => {
+                resolve(false);
+            },
+        });
+    });
+}
+
 // </editor-fold>
 
 // *************
@@ -67,6 +104,8 @@ export function validateAbsoluteURL(dataUrl: string): boolean {
 /**
  * Returns true if the provided entity contains PDF data
  * @param entity The entity to check. Only JournalEntities are allowed to be PDFs natively.
+ * @see {@link Api.Utilities}
+ * @module Utilities
  */
 export function isEntityPDF(entity: Entity): boolean {
     return entity.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.PDF_DATA) !== undefined;
@@ -75,6 +114,8 @@ export function isEntityPDF(entity: Entity): boolean {
 /**
  * Pull relevant data from an journal entry, creating a {@link PDFData} object.
  * @param journalEntry The journal entry to pull data from.
+ * @see {@link Api.Utilities}
+ * @module Utilities
  */
 export function getPDFData(journalEntry: JournalEntry | null | undefined): PDFData | undefined {
     if (journalEntry === undefined || journalEntry === null) {
@@ -94,6 +135,8 @@ export function getPDFData(journalEntry: JournalEntry | null | undefined): PDFDa
  *  are not specified. If you wish to update the PDF name, use Entity.update as normal in Foundry.
  * @param journalEntry The PDF to update the data on.
  * @param pdfData A partial mapping of a {@link PDFData} object.
+ * @see {@link Api.Utilities}
+ * @module Utilities
  */
 export function setPDFData(journalEntry: JournalEntry, pdfData: Partial<PDFDataUpdate>) {
     return journalEntry.setFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.PDF_DATA, pdfData);
@@ -103,6 +146,8 @@ export function setPDFData(journalEntry: JournalEntry, pdfData: Partial<PDFDataU
  * Deletes a key from the PDF data. Requires the value of the key to be set to null.
  * @param journalEntry The journal entry to delete the key from.
  * @param pdfData A mapping of {key: null} pairs to delete.
+ * @see {@link Api.Utilities}
+ * @module Utilities
  */
 export function deletePDFData(journalEntry: JournalEntry, pdfData: Partial<PDFDataDelete>) {
     const update = {};
@@ -120,23 +165,27 @@ export function deletePDFData(journalEntry: JournalEntry, pdfData: Partial<PDFDa
  *  Does not guarantee any specific data for a type of open (e.g. opening as a fillable PDF)
  *  only that the static viewer is able to open the PDF.
  * @param pdfData The PDF data to check.
+ * @see {@link Api.Utilities}
+ * @module Utilities
  */
 export function canOpenPDF(pdfData: PDFData) {
     if (PDFType[pdfData.type] === undefined) {
         return false;
     }
 
-    if (pdfData.url === undefined || pdfData.url === '') {
-        return false;
-    }
-
-    return true;
+    return !(pdfData.url === undefined || pdfData.url === '');
 }
 
 // </editor-fold>
 
+// *************
+// USER HELPERS
+// *************
+// <editor-fold desc='User Helpers">
 /**
- * Return all users ids except the active user
+ * Return all users ids except the current user
+ * @see {@link Api.Utilities}
+ * @module Utilities
  */
 export function getUserIdsExceptMe() {
     return game.users
@@ -146,21 +195,4 @@ export function getUserIdsExceptMe() {
         .map((user: User) => user.id);
 }
 
-/**
- * Checks if a remote file exists at the specified path. That is, if the URL is valid. This does not guarantee a
- * valid file exists at that location. For example, an HTML file will result in true but not be a valid PDF.
- * @param path
- */
-export function fileExists(path: string): Promise<boolean> {
-    return new Promise<boolean>((resolve, reject) => {
-        $.ajax(path, {
-            type: 'HEAD',
-            success: () => {
-                resolve(true);
-            },
-            error: () => {
-                resolve(false);
-            },
-        });
-    });
-}
+// </editor-fold>

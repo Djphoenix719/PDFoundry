@@ -18,6 +18,7 @@ import { PDFType } from './PDFType';
 /**
  * A data object containing properties of a user-created PDF file. This is the data filled out by the user
  *  when they edit a PDF or click the 'Create PDF' button.
+ * @module API
  */
 export interface PDFData {
     /**
@@ -46,6 +47,10 @@ export interface PDFData {
     cache: boolean;
 }
 
+/**
+ * Valid keys for a update/delete map
+ * @internal
+ */
 type PDFDataUpdateKeys = Exclude<keyof PDFData, 'name'>;
 
 /**
