@@ -15,13 +15,25 @@
 
 import Settings from '../Settings';
 
+/**
+ * Callback type for select apps
+ * @internal
+ */
 export type SelectAppCallback = (value: string, text: string) => void;
 
+/**
+ * Data layout for select options
+ * @internal
+ */
 export interface SelectOption {
     text: string;
     value: string;
 }
 
+/**
+ * Base class for app that uses a select drop down
+ * @internal
+ */
 export default abstract class SelectApp extends Application {
     // <editor-fold desc="Static Properties">
 

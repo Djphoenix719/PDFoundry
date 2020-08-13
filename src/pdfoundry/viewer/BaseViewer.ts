@@ -70,6 +70,10 @@ export default abstract class BaseViewer extends Application {
         this._viewer.page = value;
     }
 
+    /**
+     * Returns the localized name of the window title.
+     * @override
+     */
     public get title(): string {
         return game.i18n.localize('PDFOUNDRY.VIEWER.ViewPDF');
     }
@@ -84,6 +88,9 @@ export default abstract class BaseViewer extends Application {
         return buttons;
     }
 
+    /**
+     * @internal
+     */
     public getData(options?: any): any | Promise<any> {
         const data = super.getData(options);
         data.viewerFramePath = `${Settings.PATH_PDFJS}/web/viewer.html`;
@@ -107,18 +114,11 @@ export default abstract class BaseViewer extends Application {
                 this._eventBus.on('updateviewarea', this.onViewAreaUpdated.bind(this));
                 this._eventBus.on('scalechanging', this.onScaleChanging.bind(this));
 
-                // const listeners = eventBus._listeners;
-                // for (const eventName of Object.keys(listeners)) {
-                //     eventBus.on(eventName, (...args) => {
-                //         Viewer.logEvent(eventName, args);
-                //     });
-                // }
-
                 this._eventStore.fire('viewerReady', this);
             });
         });
 
-        // _getHeaderButtons does not permit titles...
+        // _getHeaderButtons does not permit title attributes used for tooltips...
         $(html).parents().parents().find('.pdf-sheet-show-players').prop('title', game.i18n.localize('PDFOUNDRY.VIEWER.ShowToPlayersTitle'));
     }
 
@@ -126,6 +126,15 @@ export default abstract class BaseViewer extends Application {
 
     // <editor-fold desc="Events">
 
+    protected onViewerOpened(event) {
+
+    }
+
+    /**
+     * Occurs during scrolling when a page passes the breakpoint
+     * @param event
+     * @protected
+     */
     protected onPageChanging(event) {
         this._eventStore.fire('pageChanging', this, {
             pageLabel: event.pageLabel,
@@ -133,6 +142,11 @@ export default abstract class BaseViewer extends Application {
         });
     }
 
+    /**
+     * Occurs when a new page is loaded and rendered
+     * @param event
+     * @protected
+     */
     protected onPageRendered(event) {
         this._eventStore.fire('pageRendered', this, {
             pageNumber: event.pageNumber,
@@ -147,6 +161,11 @@ export default abstract class BaseViewer extends Application {
         });
     }
 
+    /**
+     * Occurs when the zoom is changed or window scrolled
+     * @param event
+     * @protected
+     */
     protected onViewAreaUpdated(event) {
         this._eventStore.fire('viewAreaUpdated', this, {
             top: event.location.top,
@@ -157,6 +176,11 @@ export default abstract class BaseViewer extends Application {
         });
     }
 
+    /**
+     * Occurs when the zoom is changed
+     * @param event
+     * @protected
+     */
     protected onScaleChanging(event) {
         this._eventStore.fire('scaleChanging', this, {
             presetValue: event.presetValue,
@@ -168,6 +192,7 @@ export default abstract class BaseViewer extends Application {
      * Register a callback to occur when an event fires. See individual events for descriptions and use {@link Api.DEBUG.EVENTS} to log and analyze events.
      * @param eventName
      * @param callback
+     * @category Events
      */
     public on(eventName: PDFViewerEvent, callback: Function): void {
         this._eventStore.on(eventName, callback);
@@ -177,6 +202,7 @@ export default abstract class BaseViewer extends Application {
      * Deregister an event that has been registered with {@link on} or {@link once}.
      * @param eventName
      * @param callback
+     * @category Events
      */
     public off(eventName: PDFViewerEvent, callback: Function): void {
         this._eventStore.off(eventName, callback);
@@ -186,6 +212,7 @@ export default abstract class BaseViewer extends Application {
      * Like {@link on} but only fires on the next occurrence.
      * @param eventName
      * @param callback
+     * @category Events
      */
     public once(eventName: PDFViewerEvent, callback: Function): void {
         this._eventStore.once(eventName, callback);
@@ -193,11 +220,10 @@ export default abstract class BaseViewer extends Application {
 
     // </editor-fold>
 
-    // private static logEvent(key: string, ...args) {
-    //     console.warn(key);
-    //     console.warn(args);
-    // }
-
+    /**
+     * Close the application and un-register references to it within UI mappings
+     * This function returns a Promise which resolves once the window closing animation concludes
+     */
     public async close(): Promise<any> {
         this._eventStore.fire('viewerClosed', this);
 
@@ -257,6 +283,8 @@ export default abstract class BaseViewer extends Application {
 
     /**
      * Finish the download and return the byte array for the file.
+     * @returns A promise that resolves to {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array|Uint8Array}
+     *  of file bytes once that download is finished. You can pass this to a viewer to open it, or do something else with it.
      */
     public download(): Promise<Uint8Array> {
         return new Promise<Uint8Array>(async (resolve) => {

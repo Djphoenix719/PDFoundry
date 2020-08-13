@@ -18,6 +18,10 @@ import SelectApp, { SelectOption } from './SelectApp';
 import { getPDFData, isEntityPDF } from '../Util';
 import { PDFData } from '../common/types/PDFData';
 
+/**
+ * Selects an actor sheet in a pop up window.
+ * @internal
+ */
 export default class ActorSheetSelect extends SelectApp {
     protected get selectTitle(): string {
         return 'PDFOUNDRY.VIEWER.SelectSheet';

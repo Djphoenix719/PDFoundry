@@ -15,7 +15,7 @@
 
 /**
  * Internal settings and helper methods for PDFoundry.
- * @private
+ * @internal
  */
 export default class Settings {
     public static readonly MODULE_NAME: string = 'pdfoundry';

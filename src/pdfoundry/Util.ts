@@ -16,6 +16,7 @@
 import { PDFData, PDFDataDelete, PDFDataUpdate } from './common/types/PDFData';
 import Settings from './Settings';
 import { PDFType } from './common/types/PDFType';
+import { DOMAIN_WHITELIST } from './common/Whitelist';
 
 // *************
 // URL HELPERS
@@ -23,26 +24,34 @@ import { PDFType } from './common/types/PDFType';
 // <editor-fold desc='URL Helpers">
 
 /**
- * Helper method. Convert a relative URL to a absolute URL
- *  by prepending the window origin to the relative URL.
- * @param dataUrl
+ * Convert a relative URL to a absolute URL by prepending the window origin to the relative URL.
+ * If the URL is of a white listed domain, will simply return the provided URL.
+ * @param dataUrl A url to be validated.
+ * @see {@link DOMAIN_WHITELIST}
  */
 export function getAbsoluteURL(dataUrl: string): string {
-    // Amazon S3 buckets are already absolute
-    if (dataUrl.includes('amazonaws.com')) {
-        return dataUrl;
+    // Some domains are white listed, these should be considered absolute already
+    for (const domain of DOMAIN_WHITELIST) {
+        if (dataUrl.includes(domain)) {
+            return dataUrl;
+        }
     }
+
     return `${window.origin}/${dataUrl}`;
 }
 
 /**
- * Returns true if the URL starts with the origin.
- * @param dataUrl A url.
+ * Returns true if the URL starts with the origin or the domain is one of the
+ *  white listed domains.
+ * @param dataUrl A url to be validated.
+ * @see {@link DOMAIN_WHITELIST}
  */
 export function validateAbsoluteURL(dataUrl: string): boolean {
-    // Amazon S3 buckets are already absolute
-    if (dataUrl.includes('amazonaws.com')) {
-        return true;
+    // Some domains are white listed
+    for (const domain of DOMAIN_WHITELIST) {
+        if (dataUrl.includes(domain)) {
+            return true;
+        }
     }
 
     return dataUrl.startsWith(window.origin);
@@ -57,7 +66,7 @@ export function validateAbsoluteURL(dataUrl: string): boolean {
 
 /**
  * Returns true if the provided entity contains PDF data
- * @param entity
+ * @param entity The entity to check. Only JournalEntities are allowed to be PDFs natively.
  */
 export function isEntityPDF(entity: Entity): boolean {
     return entity.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.PDF_DATA) !== undefined;
@@ -80,10 +89,21 @@ export function getPDFData(journalEntry: JournalEntry | null | undefined): PDFDa
     return pdfData;
 }
 
+/**
+ * Set one or more {@link PDFData} attributes to the provided values. Makes no changes to fields that
+ *  are not specified. If you wish to update the PDF name, use Entity.update as normal in Foundry.
+ * @param journalEntry The PDF to update the data on.
+ * @param pdfData A partial mapping of a {@link PDFData} object.
+ */
 export function setPDFData(journalEntry: JournalEntry, pdfData: Partial<PDFDataUpdate>) {
     return journalEntry.setFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.PDF_DATA, pdfData);
 }
 
+/**
+ * Deletes a key from the PDF data. Requires the value of the key to be set to null.
+ * @param journalEntry The journal entry to delete the key from.
+ * @param pdfData A mapping of {key: null} pairs to delete.
+ */
 export function deletePDFData(journalEntry: JournalEntry, pdfData: Partial<PDFDataDelete>) {
     const update = {};
 
@@ -95,6 +115,12 @@ export function deletePDFData(journalEntry: JournalEntry, pdfData: Partial<PDFDa
     return journalEntry.update(update);
 }
 
+/**
+ * Returns true or false if all required data is set such that the PDF is possible to open.
+ *  Does not guarantee any specific data for a type of open (e.g. opening as a fillable PDF)
+ *  only that the static viewer is able to open the PDF.
+ * @param pdfData The PDF data to check.
+ */
 export function canOpenPDF(pdfData: PDFData) {
     if (PDFType[pdfData.type] === undefined) {
         return false;

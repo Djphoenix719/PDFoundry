@@ -16,14 +16,18 @@
 import { PDFType } from './PDFType';
 
 /**
- * A data object containing properties of a user-created static PDF file.
- * This is the data contained within a PDFoundry_PDF entity.
+ * A data object containing properties of a user-created PDF file. This is the data filled out by the user
+ *  when they edit a PDF or click the 'Create PDF' button.
  */
 export interface PDFData {
     /**
      * The name of the PDF
      */
     name: string;
+    /**
+     * The type of data stored. Used to determine what type of viewer to open.
+     */
+    type: PDFType;
     /**
      * The location of the PDF on the server.
      */
@@ -40,23 +44,21 @@ export interface PDFData {
      * If the user has requested caching for this PDF
      */
     cache: boolean;
-    /**
-     * The type of data stored. Used to determine what type of viewer to open.
-     */
-    type: PDFType;
 }
 
 type PDFDataUpdateKeys = Exclude<keyof PDFData, 'name'>;
 
 /**
- * A data update for PDF data.
+ * Update mapping for a {@link PDFData}
+ * @internal
  */
 export type PDFDataUpdate = {
     [P in PDFDataUpdateKeys]: PDFData[P];
 };
 
 /**
- * A data delete for PDF data, included fields are removed.
+ * Delete mapping for a {@link PDFData}
+ * @internal
  */
 export type PDFDataDelete = {
     [P in PDFDataUpdateKeys]: null;

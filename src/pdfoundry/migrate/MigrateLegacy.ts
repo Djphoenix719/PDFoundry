@@ -2,6 +2,10 @@ import { PDFData } from '../common/types/PDFData';
 import { PDFType } from '../common/types/PDFType';
 import { setPDFData } from '../Util';
 
+/**
+ * Open the migration window for migration
+ * @internal
+ */
 export function migrateLegacy(): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         let d = new Dialog({
@@ -31,6 +35,10 @@ export function migrateLegacy(): Promise<void> {
     });
 }
 
+/**
+ * Run the conversion
+ * @internal
+ */
 async function convert() {
     const items = game.items.filter((i: Item) => i.data.type === 'PDFoundry_PDF') as Item[];
     for (const item of items) {

@@ -16,7 +16,7 @@
 import Api from '../../Api';
 
 /**
- * @private
+ * @internal
  */
 export default class EventStore<TKeys extends string = string> {
     private readonly _map: Map<string, Function[]>;

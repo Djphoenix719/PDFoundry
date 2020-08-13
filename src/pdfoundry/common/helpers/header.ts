@@ -17,6 +17,7 @@ import Api from '../../Api';
 
 /**
  * Github link header button.
+ * @internal
  */
 export const BUTTON_GITHUB = {
     class: 'pdf-sheet-github',
@@ -27,6 +28,7 @@ export const BUTTON_GITHUB = {
 
 /**
  * Manual link header button.
+ * @internal
  */
 export const BUTTON_HELP = {
     class: 'pdf-sheet-manual',

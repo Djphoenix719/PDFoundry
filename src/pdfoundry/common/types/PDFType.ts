@@ -13,8 +13,20 @@
  * limitations under the License.
  */
 
+/**
+ * The type of PDF file, as specified by the user.
+ */
 export enum PDFType {
+    /**
+     * Static PDFs contain no form fillable elements.
+     */
     Static = 'static',
+    /**
+     * Fillable PDFs are not linked to actor sheets, but do contain form fillable elements.
+     */
     Fillable = 'fillable',
+    /**
+     * Actor-linked PDFs store their data on the actor, so they can represent actors.
+     */
     Actor = 'actor',
 }

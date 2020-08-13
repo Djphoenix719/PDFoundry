@@ -277,7 +277,6 @@ async function docs() {
                 excludePrivate: true,
                 excludeProtected: true,
                 stripInternal: true,
-                disableSources: true,
                 version: true,
             }),
         );

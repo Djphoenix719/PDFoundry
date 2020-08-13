@@ -15,8 +15,31 @@
 
 /**
  * All available PDF Viewer events.
+ * @module Events
  */
-export type PDFViewerEvent = PDFViewerWindowEvent | 'pageRendered' | 'pageChanging' | 'viewAreaUpdated' | 'scaleChanging';
+export type PDFViewerEvent = PDFViewerWindowEvent | PDFViewerInteractionEvent;
+
+/**
+ * Interaction events fire when the user interacts with the viewer in some way.
+ */
+export type PDFViewerInteractionEvent = PDFViewerPageRenderedEvent | PDFViewerPageChangingEvent | PDFViewerViewAreaUpdatedEvent | PDFViewerScaleChangingEvent;
+
+/**
+ * Fires when new page is loaded from memory and rendered onto the DOM.
+ */
+export type PDFViewerPageRenderedEvent = 'pageRendered';
+/**
+ * Fires when a page is changed via scrolling of the viewer.
+ */
+export type PDFViewerPageChangingEvent = 'pageChanging';
+/**
+ * Fires when the view area is updated either via scrolling or zooming.
+ */
+export type PDFViewerViewAreaUpdatedEvent = 'viewAreaUpdated';
+/**
+ * Fires when the view area is changed via zooming.
+ */
+export type PDFViewerScaleChangingEvent = 'scaleChanging';
 
 /**
  * Meta events that occur on a PDF Viewer that relate to the state of the application.
@@ -39,9 +62,7 @@ export type PDFViewerClosing = 'viewerClosing';
  * Fires right before the viewer is deleted. This is the last event that will fire.
  */
 export type PDFViewerClosed = 'viewerClosed';
-
 /**
  * Fires when the viewer is ready for use.
- * @param {Viewer} The viewer that is ready
  */
 export type PDFViewerReady = 'viewerReady';

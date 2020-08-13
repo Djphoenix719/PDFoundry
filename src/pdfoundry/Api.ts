@@ -76,7 +76,7 @@ export default class Api {
     /**
      * A reference to the unclassified utility functions.
      */
-    public static get UTIL() {
+    public static get Utilities() {
         return {
             fileExists,
             getAbsoluteURL,
@@ -222,6 +222,13 @@ export default class Api {
         return viewer;
     }
 
+    /**
+     * Opens the provided {@link PDFData} to the specified page as a form fillable PDF.
+     * @param pdf The PDF to open. See {@link Api.findPDFData}.
+     * @param dataTarget The entity that will be used to store data.
+     * @param page The page to open the PDF to.
+     * @category Open
+     */
     public static async openFillablePDF(pdf: PDFData, dataTarget: JournalEntry | Actor, page: number = 1): Promise<FillableViewer> {
         let { url, offset, cache, type } = pdf;
 
