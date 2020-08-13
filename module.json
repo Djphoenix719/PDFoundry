@@ -14,6 +14,7 @@
     ],
     "esmodules": ["./bundle.js"],
     "styles": ["./bundle.css"],
+    "socket": true,
     "compatibleCoreVersion": "0.6.5",
     "minimumCoreVersion": "0.6.0",
     "manifest": "https://raw.githubusercontent.com/Djphoenix719/PDFoundry/feature/foundry-installer/module.json",

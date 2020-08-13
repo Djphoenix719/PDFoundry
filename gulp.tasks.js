@@ -200,6 +200,7 @@ async function watch() {
         gulp.watch(pattern).on('change', () => gulp.src(pattern).pipe(gulp.dest(path.resolve(destFolder, out))));
     }
 
+    watch('module.json', '');
     watch('assets/**/*', 'assets');
     watch('manual/**/*.pdf', ['assets', 'manual']);
     watch('src/templates/**/*', 'templates');

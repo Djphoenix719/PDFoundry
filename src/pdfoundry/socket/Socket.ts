@@ -66,7 +66,9 @@ export class Socket {
             }
             // App not found, fall through.
         }
-        Api.openPDF(data.pdfData, data.page);
+        Api.openPDF(data.pdfData, {
+            page: data.page,
+        });
     }
 
     public static handlePreloadPDF(data: any) {
