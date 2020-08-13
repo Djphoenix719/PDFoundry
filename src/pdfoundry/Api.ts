@@ -20,7 +20,17 @@
  * @moduledefinition API
  */
 
-import { canOpenPDF, deletePDFData, fileExists, getAbsoluteURL, getPDFData, getUserIdsExceptMe, isEntityPDF, setPDFData, validateAbsoluteURL } from './Util';
+import {
+    canOpenPDF,
+    deletePDFData,
+    fileExists,
+    getAbsoluteURL,
+    getPDFData,
+    getUserIdsExceptMe,
+    isEntityPDF,
+    setPDFData,
+    validateAbsoluteURL,
+} from './Util';
 import StaticViewer from './viewer/StaticViewer';
 import { PDFData } from './common/types/PDFData';
 import Settings from './Settings';
@@ -62,6 +72,21 @@ export async function _handleOpen(viewer: BaseViewer, url: string, page: number,
     } else {
         await viewer.open(url, page);
     }
+}
+
+/**
+ * Options passed to the {@link Api.openPDF} function.
+ * @module API
+ */
+export interface PDFOpenOptions {
+    /**
+     * The page to open to, defaults to 1 if not specified.
+     */
+    page?: number;
+    /**
+     * If you're opening a fillable pdf, you must specify an entity for data storage.
+     */
+    entity?: JournalEntry;
 }
 
 /**
@@ -178,7 +203,12 @@ export default class Api {
      * Helper for {@link findPDFDataByCode} then {@link openPDF}.
      * @category Open
      */
-    public static async openPDFByCode(code: string, page: number = 1): Promise<BaseViewer> {
+    public static async openPDFByCode(
+        code: string,
+        options: PDFOpenOptions = {
+            page: 1,
+        },
+    ): Promise<BaseViewer> {
         const pdf = this.findPDFDataByCode(code);
 
         if (pdf === undefined) {
@@ -189,7 +219,7 @@ export default class Api {
             return Promise.reject(error);
         }
 
-        return this.openPDF(pdf, page);
+        return this.openPDF(pdf, options);
     }
 
     /**
@@ -197,7 +227,12 @@ export default class Api {
      * Helper for {@link findPDFDataByCode} then {@link openPDF}.
      * @category Open
      */
-    public static async openPDFByName(name: string, page: number = 1): Promise<BaseViewer> {
+    public static async openPDFByName(
+        name: string,
+        options: PDFOpenOptions = {
+            page: 1,
+        },
+    ): Promise<BaseViewer> {
         const pdf = this.findPDFDataByName(name);
 
         if (pdf === undefined) {
@@ -209,16 +244,22 @@ export default class Api {
             return Promise.reject(error);
         }
 
-        return this.openPDF(pdf, page);
+        return this.openPDF(pdf, options);
     }
 
     /**
      * Open the provided {@link PDFData} to the specified page.
      * @param pdf The PDF to open. See {@link Api.findPDFData}.
-     * @param page The page to open the PDF to.
+     * @param options The specified options for PDFs
+     * @default {options.page} 1
      * @category Open
      */
-    public static async openPDF(pdf: PDFData, page: number = 1): Promise<BaseViewer> {
+    public static async openPDF(
+        pdf: PDFData,
+        options: PDFOpenOptions = {
+            page: 1,
+        },
+    ): Promise<BaseViewer> {
         let { url, offset, cache } = pdf;
 
         if (typeof offset === 'string') {
@@ -229,44 +270,37 @@ export default class Api {
             url = getAbsoluteURL(url);
         }
 
-        const viewer = new StaticViewer(pdf);
-        viewer.render(true);
+        if (options.page === undefined) {
+            options.page = 1;
+        }
 
-        await _handleOpen(viewer, url, page + offset, cache);
+        let viewer: BaseViewer;
 
+        switch (pdf.type) {
+            case PDFType.Static:
+                viewer = new StaticViewer(pdf);
+                viewer.render(true);
+
+                await _handleOpen(viewer, url, options.page + offset, cache);
+                break;
+            case PDFType.Fillable:
+                if (!(options.entity instanceof JournalEntry)) {
+                    throw new Error('Provided entity was not a journal entry.');
+                }
+
+                viewer = new FillableViewer(options.entity, pdf);
+                viewer.render(true);
+
+                await _handleOpen(viewer, url, options.page + offset, cache);
+                break;
+            case PDFType.Actor:
+                throw new Error('Actor sheets can only be opened through the actor.sheet accessor.');
+        }
         return viewer;
     }
 
     /**
-     * Opens the provided {@link PDFData} to the specified page as a form fillable PDF.
-     * @param pdf The PDF to open. See {@link Api.findPDFData}.
-     * @param dataTarget The entity that will be used to store data.
-     * @param page The page to open the PDF to.
-     * @category Open
-     */
-    public static async openFillablePDF(pdf: PDFData, dataTarget: JournalEntry | Actor, page: number = 1): Promise<FillableViewer> {
-        let { url, offset, cache, type } = pdf;
-
-        if (typeof offset === 'string') {
-            offset = parseInt(offset);
-        }
-
-        if (!validateAbsoluteURL(url)) {
-            url = getAbsoluteURL(url);
-        }
-
-        console.warn('openning fillable viewer');
-
-        const viewer = new FillableViewer(dataTarget, pdf);
-        viewer.render(true);
-
-        await _handleOpen(viewer, url, page + offset, cache);
-
-        return viewer;
-    }
-
-    /**
-     * Open a URL as a PDF.
+     * Open a URL as a static PDF. For form fillable PDFs you muse use {@link Api.openPDF}
      * @param url The URL to open (must be absolute).
      * @param page Which page to open to. Must be >= 1.
      * @param cache If URL based caching should be used.

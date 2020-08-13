@@ -252,7 +252,10 @@ export default class Setup {
                     Api.openPDF(pdfData);
                     break;
                 case PDFType.Fillable:
-                    Api.openFillablePDF(pdfData, journalEntry);
+                    Api.openPDF(pdfData, {
+                        page: 1,
+                        entity: journalEntry,
+                    });
                     break;
                 case PDFType.Actor:
                     // Pass - no functionality

@@ -21,11 +21,14 @@ import SetViewEvent from '../socket/events/SetViewEvent';
 import { PDFType } from '../common/types/PDFType';
 
 /**
- * The PDFoundry Viewer class provides the core logic opening PDFs and binding their events.
+ * The PDFoundry StaticViewer class opens PDFs and provides event hooks for observing the viewer.
+ * Static viewers display a PDF but do not render or instantiate any fillable fields or their data.
+ *
  * You cannot create a new instance of this class, you must do so with the API.
  *
- * See {@link Api.openPDF}, {@link Api.openPDFByCode}, {@link Api.openPDFByName}, {@link Api.openURL} which all return a
- * promise which resolve with an instance of this class.
+ * See {@link Api.openPDF}, {@link Api.openPDFByCode}, {@link Api.openPDFByName}, {@link Api.openURL}
+ *  which all return a promise which resolve with an instance of this class.
+ * @module API
  */
 export default class StaticViewer extends BaseViewer {
     // <editor-fold desc="Properties">

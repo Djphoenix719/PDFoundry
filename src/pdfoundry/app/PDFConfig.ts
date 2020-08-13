@@ -138,6 +138,7 @@ export class PDFConfig extends Application {
                 text: `PDFOUNDRY.MISC.PDFTYPE.${key}`,
             };
         });
+
         data['dataPath'] = `flags.${Settings.MODULE_NAME}.${Settings.FLAGS_KEY.PDF_DATA}`;
         data['flags'] = getPDFData(this.journalEntry);
         data['name'] = this.journalEntry.data.name;
@@ -151,6 +152,16 @@ export class PDFConfig extends Application {
         const updateData: { [name: string]: any } = {};
         for (const field of formData) {
             updateData[field.name] = field.value;
+        }
+
+        const checks = form.find('input[type=checkbox]') as JQuery<HTMLInputElement>;
+        for (const checkbox of checks) {
+            const name = checkbox.getAttribute('name');
+            if (name === null) {
+                continue;
+            }
+
+            updateData[name] = checkbox.checked;
         }
         await this.journalEntry.update(updateData);
     }

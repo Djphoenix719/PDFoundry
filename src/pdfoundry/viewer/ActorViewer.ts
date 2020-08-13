@@ -22,7 +22,9 @@ import { PDFData } from '../common/types/PDFData';
 import PDFActorDataBrowser from '../app/PDFActorDataBrowser';
 
 /**
- * The FillableViewer class provides an interface for displaying, serializing, and observing form-fillable PDFs.
+ * The FillableViewer class provides an interface for displaying, serializing, and observing form-fillable PDFs,
+ *  all while connecting their data to a specific actor.
+ * @module API
  */
 export default class ActorViewer extends FillableViewer {
     // <editor-fold desc="Static Properties"></editor-fold>
@@ -39,8 +41,6 @@ export default class ActorViewer extends FillableViewer {
 
         this.entity = actor;
         this.actorSheet = sheet;
-
-        this.on('viewerReady', this.onViewerReady.bind(this));
     }
     // </editor-fold>
 
@@ -129,9 +129,11 @@ export default class ActorViewer extends FillableViewer {
     }
 
     // </editor-fold>
+
     // <editor-fold desc="Instance Methods">
 
     protected async onViewerReady(): Promise<void> {
+        super.onViewerReady();
         const sheet = this.getCurrentSheet();
         if (sheet) {
             const url = getAbsoluteURL(sheet);

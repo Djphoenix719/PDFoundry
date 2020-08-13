@@ -20,6 +20,13 @@ import { PDFjsViewer } from '../common/types/PDFjsViewer';
 import { PDFjsEventBus } from '../common/types/PDFjsEventBus';
 import { BUTTON_GITHUB } from '../common/helpers/header';
 
+/**
+ * The base viewer class from which all other types of viewers inherit.
+ * @see {@link StaticViewer}
+ * @see {@link FillableViewer}
+ * @see {@link ActorViewer}
+ * @module API
+ */
 export default abstract class BaseViewer extends Application {
     // <editor-fold desc="Static Properties">
 
@@ -98,14 +105,14 @@ export default abstract class BaseViewer extends Application {
     }
 
     protected async activateListeners(html: JQuery): Promise<void> {
-        this._eventStore.fire('viewerOpening', this);
+        this.onViewerOpening();
         super.activateListeners(html);
 
         this._frame = html.parent().find('iframe.pdfViewer').get(0) as HTMLIFrameElement;
         this.getViewer().then(async (viewer) => {
             this._viewer = viewer;
 
-            this._eventStore.fire('viewerOpened', this);
+            this.onViewerOpened();
 
             this.getEventBus().then((eventBus) => {
                 this._eventBus = eventBus;
@@ -114,7 +121,7 @@ export default abstract class BaseViewer extends Application {
                 this._eventBus.on('updateviewarea', this.onViewAreaUpdated.bind(this));
                 this._eventBus.on('scalechanging', this.onScaleChanging.bind(this));
 
-                this._eventStore.fire('viewerReady', this);
+                this.onViewerReady();
             });
         });
 
@@ -126,8 +133,44 @@ export default abstract class BaseViewer extends Application {
 
     // <editor-fold desc="Events">
 
-    protected onViewerOpened(event) {
+    /**
+     * Fires when the viewer window first starts opening
+     * @protected
+     */
+    protected onViewerOpening() {
+        this._eventStore.fire('viewerOpening', this);
+    }
 
+    /**
+     * Fires when the viewer window is fully opened, but not yet ready
+     * @protected
+     */
+    protected onViewerOpened() {
+        this._eventStore.fire('viewerOpened', this);
+    }
+
+    /**
+     * Fires when the viewer window is fully opened and is ready for use
+     * @protected
+     */
+    protected onViewerReady() {
+        this._eventStore.fire('viewerReady', this);
+    }
+
+    /**
+     * Fires when the viewer window first starts closing
+     * @protected
+     */
+    protected onViewerClosing() {
+        this._eventStore.fire('viewerClosing', this);
+    }
+
+    /**
+     * Fires when the viewer window is fully closed
+     * @protected
+     */
+    protected onViewerClosed() {
+        this._eventStore.fire('viewerClosed', this);
     }
 
     /**
@@ -224,10 +267,12 @@ export default abstract class BaseViewer extends Application {
      * Close the application and un-register references to it within UI mappings
      * This function returns a Promise which resolves once the window closing animation concludes
      */
-    public async close(): Promise<any> {
-        this._eventStore.fire('viewerClosed', this);
+    public async close(): Promise<void> {
+        this.onViewerClosing();
 
-        return super.close();
+        await super.close();
+
+        this.onViewerClosed();
     }
 
     /**

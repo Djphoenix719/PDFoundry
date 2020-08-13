@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>API | PDFoundry</title>
+	<title>PDFOpenOptions | PDFoundry</title>
 	<meta name="description" content="Documentation for PDFoundry">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,10 +56,13 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="api.html">API</a>
+					<a href="../modules/api.html">API</a>
+				</li>
+				<li>
+					<a href="api.pdfopenoptions.html">PDFOpenOptions</a>
 				</li>
 			</ul>
-			<h1>Module API</h1>
+			<h1>Interface PDFOpenOptions</h1>
 		</div>
 	</div>
 </header>
@@ -69,80 +72,62 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>The PDFoundry API.</p>
+						<p>Options passed to the <a href="../classes/api.api-1.html#openpdf">Api.openPDF</a> function.</p>
 					</div>
-					<p>You can access the API with <code>ui.PDFoundry</code>.</p>
 				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">PDFOpenOptions</span>
+					</li>
+				</ul>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Classes</h3>
+							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/api.api-1.html" class="tsd-kind-icon">Api</a></li>
-								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/api.baseviewer.html" class="tsd-kind-icon">Base<wbr>Viewer</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section ">
-							<h3>Interfaces</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/api.pdfdata.html" class="tsd-kind-icon">PDFData</a></li>
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/api.pdfopenoptions.html" class="tsd-kind-icon">PDFOpen<wbr>Options</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section ">
-							<h3>Type aliases</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="api.html#pdfvalidator" class="tsd-kind-icon">PDFValidator</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section ">
-							<h3>Enumerations</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-enum tsd-parent-kind-module"><a href="../enums/api.pdftype.html" class="tsd-kind-icon">PDFType</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api.pdfopenoptions.html#entity" class="tsd-kind-icon">entity</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api.pdfopenoptions.html#page" class="tsd-kind-icon">page</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Type aliases</h2>
-				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
-					<a name="pdfvalidator" class="tsd-anchor"></a>
-					<h3>PDFValidator</h3>
-					<div class="tsd-signature tsd-kind-icon">PDFValidator<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>data<span class="tsd-signature-symbol">: </span><a href="../interfaces/api.pdfdata.html" class="tsd-signature-type">PDFData</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">boolean</span></div>
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="entity" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> entity</h3>
+					<div class="tsd-signature tsd-kind-icon">entity<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">JournalEntry</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/eb76a58/src/pdfoundry/Api.ts#L40">src/pdfoundry/Api.ts:40</a></li>
+							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/eb76a58/src/pdfoundry/Api.ts#L81">src/pdfoundry/Api.ts:81</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>A function to passed to <a href="../classes/api.api-1.html#findpdfdata">Api.findPDFData</a> to find user specified PDF data.</p>
+							<p>If you&#39;re opening a fillable pdf, you must specify an entity for data storage.</p>
 						</div>
 					</div>
-					<div class="tsd-type-declaration">
-						<h4>Type declaration</h4>
-						<ul class="tsd-parameters">
-							<li class="tsd-parameter-signature">
-								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-type-alias">
-									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>data<span class="tsd-signature-symbol">: </span><a href="../interfaces/api.pdfdata.html" class="tsd-signature-type">PDFData</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
-								</ul>
-								<ul class="tsd-descriptions">
-									<li class="tsd-description">
-										<h4 class="tsd-parameters-title">Parameters</h4>
-										<ul class="tsd-parameters">
-											<li>
-												<h5>data: <a href="../interfaces/api.pdfdata.html" class="tsd-signature-type">PDFData</a></h5>
-											</li>
-										</ul>
-										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
-									</li>
-								</ul>
-							</li>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="page" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> page</h3>
+					<div class="tsd-signature tsd-kind-icon">page<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/eb76a58/src/pdfoundry/Api.ts#L77">src/pdfoundry/Api.ts:77</a></li>
 						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The page to open to, defaults to 1 if not specified.</p>
+						</div>
 					</div>
 				</section>
 			</section>
@@ -154,13 +139,13 @@
 						<a href="../globals.html"><em>Globals</em></a>
 					</li>
 					<li class="current tsd-kind-module">
-						<a href="api.html">API</a>
+						<a href="../modules/api.html">API</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="events.html">Events</a>
+						<a href="../modules/events.html">Events</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="utilities.html">Utilities</a>
+						<a href="../modules/utilities.html">Utilities</a>
 					</li>
 				</ul>
 			</nav>
@@ -176,13 +161,25 @@
 						<a href="../classes/api.baseviewer.html" class="tsd-kind-icon">Base<wbr>Viewer</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/api.pdfdata.html" class="tsd-kind-icon">PDFData</a>
+						<a href="api.pdfdata.html" class="tsd-kind-icon">PDFData</a>
 					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/api.pdfopenoptions.html" class="tsd-kind-icon">PDFOpen<wbr>Options</a>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface tsd-parent-kind-module">
+						<a href="api.pdfopenoptions.html" class="tsd-kind-icon">PDFOpen<wbr>Options</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api.pdfopenoptions.html#entity" class="tsd-kind-icon">entity</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api.pdfopenoptions.html#page" class="tsd-kind-icon">page</a>
+							</li>
+						</ul>
 					</li>
+				</ul>
+				<ul class="after-current">
 					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
-						<a href="api.html#pdfvalidator" class="tsd-kind-icon">PDFValidator</a>
+						<a href="../modules/api.html#pdfvalidator" class="tsd-kind-icon">PDFValidator</a>
 					</li>
 				</ul>
 			</nav>
@@ -208,10 +205,11 @@
 				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
 			</ul>
 		</div>
 	</div>

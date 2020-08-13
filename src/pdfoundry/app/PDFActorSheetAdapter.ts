@@ -18,17 +18,35 @@ import Settings from '../Settings';
 
 /**
  * Adapts a FillableViewer to function as a ActorSheet
- * @private
+ * @internal
  */
 export default class PDFActorSheetAdapter extends ActorSheet {
+    // <editor-fold desc="Static Properties"></editor-fold>
+    // <editor-fold desc="Static Methods"></editor-fold>
+    // <editor-fold desc="Properties">
+
     private _viewer: ActorViewer;
     private readonly _options?: ApplicationOptions;
+
+    // </editor-fold>
+
+    // <editor-fold desc="Constructor & Initialization">
 
     constructor(actor: Actor, options?: ApplicationOptions) {
         super(actor, options);
 
         this._options = options;
     }
+
+    // </editor-fold>
+    // <editor-fold desc="Getters & Setters">
+
+    public get viewer(): ActorViewer {
+        return this._viewer;
+    }
+
+    // </editor-fold>
+    // <editor-fold desc="Instance Methods">
 
     protected activateListeners(html: JQuery | HTMLElement) {
         $(this.element).css('display', 'none');
@@ -70,4 +88,6 @@ export default class PDFActorSheetAdapter extends ActorSheet {
         }
         return super.close();
     }
+
+    // </editor-fold>
 }
