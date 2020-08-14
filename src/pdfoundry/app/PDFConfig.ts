@@ -164,6 +164,7 @@ export class PDFConfig extends Application {
             updateData[name] = checkbox.checked;
         }
         await this.journalEntry.update(updateData);
+        game.journal.render();
     }
 
     public async close(): Promise<any> {
