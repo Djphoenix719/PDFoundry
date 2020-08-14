@@ -1,6 +1,6 @@
-import { PDFData } from '../common/types/PDFData';
-import { PDFType } from '../common/types/PDFType';
-import { setPDFData } from '../Util';
+import { PDFData } from '../../common/types/PDFData';
+import { PDFType } from '../../common/types/PDFType';
+import { setPDFData } from '../../Util';
 
 /**
  * Open the migration window for migration

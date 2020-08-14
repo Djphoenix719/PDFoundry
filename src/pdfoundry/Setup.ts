@@ -24,7 +24,8 @@ import TinyMCEPlugin from './enricher/TinyMCEPlugin';
 import PDFActorSheetAdapter from './app/PDFActorSheetAdapter';
 import { PDFType } from './common/types/PDFType';
 import { PDFConfig } from './app/PDFConfig';
-import { migrateLegacy } from './migrate/MigrateLegacy';
+import { migrateLegacy } from './commands/migrate/MigrateLegacy';
+import { fixMissingTypes } from './commands/FixMissingTypes';
 
 /**
  * A collection of methods used for setting up the API & system state.
@@ -174,6 +175,11 @@ export default class Setup {
 
         if (content === '/pdfoundry purge-cache') {
             purgeCache();
+            return false;
+        }
+
+        if (content === '/pdfoundry fix-missing-types') {
+            fixMissingTypes();
             return false;
         }
     }
