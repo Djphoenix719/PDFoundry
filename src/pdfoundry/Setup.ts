@@ -240,6 +240,7 @@ export default class Setup {
                             });
                             break;
                         case PDFType.Actor:
+                            // Actors can't be opened by link
                             thumbnail.css('filter', 'grayscale(100%)');
                             break;
                     }

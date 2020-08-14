@@ -67,12 +67,13 @@ function getLegacyData(item: Item): PDFData {
         PDFoundry_FillablePDF: PDFType.Fillable,
         PDFoundry_FillableActor: PDFType.Actor,
     };
+    let type = typeMap[item.data.data.pdf_type] ?? PDFType.Static;
     return {
         name: item.data.name,
         url: item.data.data.url,
         code: item.data.data.code,
         offset: item.data.data.offset,
         cache: item.data.data.cache,
-        type: typeMap[item.data.data.pdf_type],
+        type,
     };
 }
