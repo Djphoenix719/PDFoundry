@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { getAbsoluteURL, getPDFData, isEntityPDF, purgeCache } from './Util';
+import { getAbsoluteURL, getPDFData, isEntityPDF } from './Util';
 import PreloadEvent from './socket/events/PreloadEvent';
 import { Socket } from './socket/Socket';
 import Settings from './Settings';
@@ -24,8 +24,9 @@ import TinyMCEPlugin from './enricher/TinyMCEPlugin';
 import PDFActorSheetAdapter from './app/PDFActorSheetAdapter';
 import { PDFType } from './common/types/PDFType';
 import { PDFConfig } from './app/PDFConfig';
-import { migrateLegacy } from './commands/migrate/MigrateLegacy';
-import { fixMissingTypes } from './commands/FixMissingTypes';
+import FixMissingTypes from './commands/FixMissingTypes';
+import PurgeCache from './commands/PurgeCache';
+import { legacyMigrationRequired, migrateLegacy } from './migrate/MigrateLegacy';
 
 /**
  * A collection of methods used for setting up the API & system state.
@@ -52,6 +53,8 @@ export default class Setup {
         Hooks.on('renderSettings', Setup.onRenderSettings);
     }
 
+    private static readonly COMMANDS = [new FixMissingTypes(), new PurgeCache()];
+
     /**
      * Late setup tasks happen when the system is loaded
      */
@@ -76,6 +79,12 @@ export default class Setup {
             // Initialize the settings
             Settings.initialize();
             await PDFCache.initialize();
+
+            if (legacyMigrationRequired()) {
+                migrateLegacy().then(() => {
+                    Settings.set(Settings.SETTINGS_KEY.DATA_VERSION, 'v0.6.0');
+                });
+            }
 
             // PDFoundry is ready
             Setup.userLogin();
@@ -168,20 +177,17 @@ export default class Setup {
     private static onChatMessage(app, content: string, options) {
         content = content.toLocaleLowerCase();
 
-        if (content === '/pdfoundry convert-items') {
-            migrateLegacy();
-            return false;
+        for (let command of Setup.COMMANDS) {
+            if (command.execute(content)) {
+                return false;
+            }
         }
-
-        if (content === '/pdfoundry purge-cache') {
-            purgeCache();
-            return false;
-        }
-
-        if (content === '/pdfoundry fix-missing-types') {
-            fixMissingTypes();
-            return false;
-        }
+        return true;
+        //
+        // if (content === '/pdfoundry convert-items') {
+        //     migrateLegacy();
+        //     return false;
+        // }
     }
 
     /**

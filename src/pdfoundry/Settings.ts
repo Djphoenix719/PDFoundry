@@ -46,6 +46,7 @@ export default class Settings {
         EXISTING_VIEWER: 'ShowInExistingViewer',
         CACHE_SIZE: 'CacheSize',
         HELP_SEEN: 'HelpSeen',
+        DATA_VERSION: 'DataVersion',
     };
     public static readonly FLAGS_KEY = {
         PDF_DATA: 'PDFData',
@@ -82,6 +83,13 @@ export default class Settings {
             scope: 'user',
             type: Boolean,
             default: false,
+            config: false,
+        });
+
+        Settings.register(Settings.SETTINGS_KEY.DATA_VERSION, {
+            scope: 'world',
+            type: String,
+            default: undefined,
             config: false,
         });
     }

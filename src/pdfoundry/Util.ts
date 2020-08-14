@@ -24,7 +24,6 @@ import { PDFData, PDFDataDelete, PDFDataUpdate } from './common/types/PDFData';
 import Settings from './Settings';
 import { PDFType } from './common/types/PDFType';
 import { DOMAIN_WHITELIST } from './common/Whitelist';
-import PDFCache from './cache/PDFCache';
 
 // *************
 // URL HELPERS
@@ -194,26 +193,6 @@ export function getUserIdsExceptMe() {
             return user.id !== game.userId;
         })
         .map((user: User) => user.id);
-}
-
-// </editor-fold>
-
-// *************
-// CACHE HELPERS
-// *************
-// <editor-fold desc='User Helpers">
-/**
- * Clear the PDF cache
- * @param notify Should the user be notified that the cache was cleared?
- * @see {@link Api.Utilities}
- * @module Utilities
- */
-export async function purgeCache(notify: boolean = true) {
-    await PDFCache.clear();
-
-    if (notify) {
-        ui.notifications.info(game.i18n.localize('PDFOUNDRY.MISC.CacheCleared'));
-    }
 }
 
 // </editor-fold>

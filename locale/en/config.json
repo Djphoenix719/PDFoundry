@@ -75,9 +75,15 @@
       "CreatePDF": "Create PDF",
       "NewPDF": "New PDF",
 
-      "CacheCleared": "PDF cache has been cleared.",
-
       "Confirm": "Confirm"
+    },
+    "COMMANDS": {
+      "Success": "PDFoundry: $COMMAND_NAME$ complete successfully.",
+      "Failure": "PDFoundry: $COMMAND_NAME$ encountered an error. See the console for additional details.",
+
+      "PurgeCacheSuccess": "PDF cache has been cleared.",
+      "FixMissingTypesSuccess": "Fixed PDFs with missing type definitions.",
+      "FixMissingTypesFailure": "No PDFs with missing type definitions found."
     }
   }
 }

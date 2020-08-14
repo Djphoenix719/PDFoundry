@@ -1,36 +1,41 @@
 import { getPDFData, setPDFData } from '../Util';
 import { PDFType } from '../common/types/PDFType';
+import ChatCommand from './ChatCommand';
 
 /**
+ * Fixes missing types
  * @internal
  */
-export function fixMissingTypes() {
-    return new Promise(async (resolve, reject) => {
-        const nFixed = await run();
-        if (nFixed > 0) {
-            ui.notifications.info(`Fixed ${nFixed} PDFs missing type definitions.`);
-        } else {
-            ui.notifications.info(`No PDFs were found that had missing type definitions.`);
-        }
-        resolve();
-    });
-}
+export default class FixMissingTypes extends ChatCommand {
+    // <editor-fold desc="Getters & Setters">
 
-/**
- * @internal
- */
-async function run() {
-    let i = 0;
-    const journals = game.journal.filter((je: JournalEntry) => getPDFData(je) !== undefined && getPDFData(je)?.type === undefined) as JournalEntry[];
-    for (const journalEntry of journals) {
-        await setPDFData(journalEntry, {
-            type: PDFType.Static,
-        });
-        i += 1;
+    get CommandName(): string {
+        return 'fix-missing-types';
     }
 
-    // @ts-ignore
-    ui.journal.render();
+    // </editor-fold>
 
-    return i;
+    // <editor-fold desc="Instance Methods">
+
+    protected async run(args: string[]): Promise<void> {
+        let fixedPDFs = 0;
+        const journals = game.journal.filter((je: JournalEntry) => getPDFData(je) !== undefined && getPDFData(je)?.type === undefined) as JournalEntry[];
+        for (const journalEntry of journals) {
+            await setPDFData(journalEntry, {
+                type: PDFType.Static,
+            });
+            fixedPDFs += 1;
+        }
+
+        // @ts-ignore
+        ui.journal.render();
+
+        if (fixedPDFs > 0) {
+            ui.notifications.info(game.i18n.localize('PDFOUNDRY.COMMANDS.FixMissingTypesSuccess'));
+        } else {
+            ui.notifications.info(game.i18n.localize('PDFOUNDRY.COMMANDS.FixMissingTypesFailure'));
+        }
+    }
+
+    // </editor-fold>
 }
