@@ -127,27 +127,28 @@ export default class Setup {
             });
         }
 
-        // options.unshift({
-        //     name: game.i18n.localize('PDFOUNDRY.CONTEXT.OpenPDF'),
-        //     icon: '<i class="far fa-file-pdf"></i>',
-        //     condition: shouldAdd,
-        //     callback: (entityHtml: JQuery) => {
-        //         const journalEntry = getJournalEntryFromLi(entityHtml);
-        //         const pdf = getPDFData(journalEntry);
-        //
-        //         if (pdf === undefined) {
-        //             return;
-        //         }
-        //
-        //         if (pdf.type === PDFType.Static) {
-        //             Api.openPDF(pdf, 1);
-        //         } else if (pdf.type === PDFType.Fillable) {
-        //             Api.openFillablePDF(pdf, journalEntry);
-        //         } else {
-        //             throw new Error(`Unhandled PDF context type ${pdf.type}`);
-        //         }
-        //     },
-        // });
+        options.unshift({
+            name: game.i18n.localize('PDFOUNDRY.CONTEXT.OpenPDF'),
+            icon: '<i class="far fa-file-pdf"></i>',
+            condition: shouldAdd,
+            callback: (entityHtml: JQuery) => {
+                const journalEntry = getJournalEntryFromLi(entityHtml);
+                const pdf = getPDFData(journalEntry);
+
+                if (pdf === undefined) {
+                    return;
+                }
+
+                if (pdf.type === PDFType.Actor) {
+                    throw new Error(`Unhandled PDF context type ${pdf.type}`);
+                } else {
+                    Api.openPDF(pdf, {
+                        page: 1,
+                        entity: journalEntry,
+                    });
+                }
+            },
+        });
     }
 
     private static userLogin() {
