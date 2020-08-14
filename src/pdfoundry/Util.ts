@@ -76,12 +76,7 @@ export function validateAbsoluteURL(dataUrl: string): boolean {
  * @module Utilities
  */
 export function fileExists(path: string): Promise<boolean> {
-    return new Promise<boolean>((resolve, reject) => {
-        if (!validateAbsoluteURL(path)) {
-            resolve(false);
-            return;
-        }
-
+    return new Promise<boolean>((resolve) => {
         $.ajax(path, {
             type: 'HEAD',
             success: () => {

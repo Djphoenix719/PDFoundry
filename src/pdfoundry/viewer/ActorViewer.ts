@@ -15,7 +15,7 @@
 
 import Settings from '../Settings';
 import ActorSheetSelect from '../app/ActorSheetSelect';
-import { fileExists, getAbsoluteURL } from '../Util';
+import { getAbsoluteURL, getPDFData } from '../Util';
 import PDFActorSheetAdapter from '../app/PDFActorSheetAdapter';
 import FillableViewer from './FillableViewer';
 import { PDFData } from '../common/types/PDFData';
@@ -53,7 +53,7 @@ export default class ActorViewer extends FillableViewer {
     /**
      * Get the URL for the current sheet from the actor flags.
      */
-    public getCurrentSheet(): string | undefined {
+    public getSheetId(): string | undefined {
         return this.entity.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID);
     }
 
@@ -61,12 +61,22 @@ export default class ActorViewer extends FillableViewer {
      * Save the URL for the current sheet to the actor flags.
      * @param value
      */
-    public async setCurrentSheet(value: string | undefined) {
+    public async setSheetId(value: string | undefined) {
         if (typeof value === 'string') {
             return this.entity.setFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID, value);
         } else {
             return this.entity.unsetFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID);
         }
+    }
+
+    /**
+     * Get pdf data for the currently set PDF sheet id
+     */
+    public getSheetPdf(): PDFData | undefined {
+        const id = this.getSheetId();
+        if (id === undefined) return undefined;
+
+        return getPDFData(game.journal.get(id));
     }
 
     protected _getHeaderButtons(): any[] {
@@ -76,6 +86,7 @@ export default class ActorViewer extends FillableViewer {
             label: 'Close',
             class: 'close',
             icon: 'fas fa-times',
+            // actor sheet is responsible for our clean up
             onclick: (ev) => this.actorSheet.close(),
         });
 
@@ -103,15 +114,15 @@ export default class ActorViewer extends FillableViewer {
             });
 
             buttons.unshift({
-                class: 'pdf-fillable-select',
+                class: 'pdf-sheet-select',
                 icon: 'fas fa-user-cog',
                 label: 'Sheet Select',
                 onclick: () => {
-                    new ActorSheetSelect(async (sheet) => {
-                        await this.setCurrentSheet(sheet);
+                    new ActorSheetSelect(async (id) => {
+                        await this.setSheetId(id);
                         await this.actorSheet.close();
-                        await this.open(sheet);
-                    }, this.getCurrentSheet()).render(true);
+                        await this.open(id);
+                    }, this.getSheetId()).render(true);
                 },
             });
 
@@ -134,19 +145,16 @@ export default class ActorViewer extends FillableViewer {
 
     protected async onViewerReady(): Promise<void> {
         super.onViewerReady();
-        const sheet = this.getCurrentSheet();
+        const sheet = this.getSheetPdf();
         if (sheet) {
-            const url = getAbsoluteURL(sheet);
+            const url = getAbsoluteURL(sheet.url);
             await this.open(url);
         }
     }
 
     async open(pdfSource: string | Uint8Array, page?: number): Promise<void> {
-        // Validate PDF source to prevent crashes on missing/changed files
-        if (typeof pdfSource === 'string' && !(await fileExists(pdfSource))) {
-            await this.setCurrentSheet(undefined);
-            new PDFActorSheetAdapter(this.entity, this.options).render(true);
-            return;
+        if (pdfSource instanceof Uint8Array) {
+            throw new Error('Actor Sheets must be opened by ID');
         }
 
         try {

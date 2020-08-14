@@ -16,7 +16,6 @@
 import { PDFType } from '../common/types/PDFType';
 import SelectApp, { SelectOption } from './SelectApp';
 import { getPDFData, isEntityPDF } from '../Util';
-import { PDFData } from '../common/types/PDFData';
 
 /**
  * Selects an actor sheet in a pop up window.
@@ -40,16 +39,10 @@ export default class ActorSheetSelect extends SelectApp {
             return isEntityPDF(je) && getPDFData(je)?.type === PDFType.Actor;
         });
 
-        console.warn(journals);
-
-        const datas = journals.map((je) => getPDFData(je)).filter((data) => data !== undefined) as PDFData[];
-
-        console.warn(datas);
-
-        return datas.map((data) => {
+        return journals.map((je) => {
             return {
-                text: data.name,
-                value: data.url,
+                text: je.data.name,
+                value: je.id,
             };
         });
     }
