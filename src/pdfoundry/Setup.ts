@@ -30,13 +30,37 @@ import { legacyMigrationRequired, migrateLegacy } from './migrate/MigrateLegacy'
 
 /**
  * A collection of methods used for setting up the API & system state.
- * @private
+ * @internal
  */
 export default class Setup {
     /**
      * Run setup tasks.
      */
     public static run() {
+        if (hasProperty(ui, 'PDFoundry')) {
+            Hooks.once('init', async () => {
+                let d = new Dialog({
+                    title: 'PDFoundry: Error',
+                    content: [
+                        '<div style="text-align: justify; margin: 0; padding: 0;">',
+                        '<h1 style="color: red">PDFoundry Is Already Installed</h1>',
+                        '<p style="font-weight: bold">You have enabled the module version of PDFoundry, but the system you ' +
+                            'are using already has PDFoundry installed.</p>',
+                        '<p>1. If you installed PDFoundry using a nightly build, uninstall and reinstall your system with the ' +
+                            '"Game Systems" menu in Foundry VTT setup, or simply update the system if an update is available. ' +
+                            'Your world data is safe either way.</p>',
+                        '<p>2. If the system you are using comes with PDFoundry already installed - you must use that version of ' +
+                            'PDFoundry by disabling the module version.</p>',
+                        '<p style="font-weight: bold">The module version of PDFoundry will not function.</p>',
+                        '</div>',
+                    ].join(''),
+                    buttons: {},
+                });
+                d.render(true);
+            });
+            return;
+        }
+
         // Register the PDFoundry APi on the UI
         ui['PDFoundry'] = Api;
 
