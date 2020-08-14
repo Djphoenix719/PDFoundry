@@ -62,7 +62,9 @@ export default class HTMLEnricher {
                 ui.notifications.error(`Unable to find a PDF with a name or code matching ${ref}.`);
                 return;
             }
-            Api.openPDF(pdfData, page);
+            Api.openPDF(pdfData, {
+                page,
+            });
         });
     }
 
