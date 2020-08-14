@@ -254,13 +254,14 @@ export default class Api {
      * @default {options.page} 1
      * @category Open
      */
-    public static async openPDF(
-        pdf: PDFData,
-        options: PDFOpenOptions = {
-            page: 1,
-        },
-    ): Promise<BaseViewer> {
+    public static async openPDF(pdf: PDFData, options?: PDFOpenOptions): Promise<BaseViewer> {
         let { url, offset, cache } = pdf;
+
+        if (options === undefined) {
+            options = {
+                page: 1,
+            };
+        }
 
         if (typeof offset === 'string') {
             offset = parseInt(offset);

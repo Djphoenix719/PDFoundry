@@ -50,8 +50,8 @@ export default class HTMLEnricher {
 
             // This will always be an anchor
             const target = $(event.currentTarget as HTMLAnchorElement);
-            const ref = target.data('ref');
-            const page = target.data('page');
+            const ref = target.data('ref') as string;
+            const page = target.data('page') as number;
 
             // ref can match name or code
             let pdfData = Api.findPDFData((data) => {

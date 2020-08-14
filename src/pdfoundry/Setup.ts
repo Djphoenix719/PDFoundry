@@ -128,7 +128,7 @@ export default class Setup {
      * @param html
      * @param options
      */
-    public static getJournalContextOptions(html, options: any[]) {
+    public static getJournalContextOptions(html: JQuery, options: any[]) {
         const getJournalEntryFromLi = (html: JQuery): JournalEntry => {
             const id = html.data('entity-id');
             return game.journal.get(id);
