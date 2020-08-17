@@ -5,39 +5,17 @@
 [![GitHub license](https://img.shields.io/github/license/Djphoenix719/PDFoundry)](https://github.com/Djphoenix719/PDFoundry/blob/master/LICENSE)
 
 ![Release](https://github.com/Djphoenix719/PDFoundry/workflows/Release/badge.svg)
-![Nightly](https://github.com/Djphoenix719/PDFoundry/workflows/Nightly/badge.svg)
 
-A PDF viewer module for Foundry VTT, made for developers to integrate with their systems.
+PDFoundry is a *fully featured* PDF viewer for FoundryVTT!  PDFoundry supports a full suite of features for viewing PDFs right in Foundry VTT. Fillable forms, bookmarks, page links in journals and LOTS more. You can even use a form fillable PDF character sheet for an actor!
 
-> **Anyone** can install PDFoundry and make use of a limited set of features - without a system integration you still get a fully fledged PDF viewer! 
+## Setup
+PDFoundry is easily installable - find it in the modules list inside Foundry VTT. Alternatively, you can use the manifest link below.
 
-The goal of this library is to provide system developers with a easy to use and homogenized source support library to provide high quality source links in-application. I'd like to be able to click "view source" in every system, because finding information in PDFs takes a long time!
+<p align="center">[Please consider supporting PDFoundry on Ko-Fi](https://ko-fi.com/djsmods)</p>
 
-## Setup for Users
-PDFoundry makes use of some features that prevent it from being installed with the normal Foundry VTT installation method.
+### Manifest
+> https://raw.githubusercontent.com/Djphoenix719/PDFoundry/master/module.json
 
-Installation is easy, however.
-1. Find and download your system in the [latest release](https://github.com/Djphoenix719/PDFoundry/releases/latest) - the name should match the folder name in your `data\systems\` folder, and you should ensure you have a matching version by checking your installed version in Foundry VTT.
-2. Move the zip file to your `data\systems\{your system}` folder.
-3. Extract the files, overwriting all files.
-
-When all is said and done, the file structure should look something like this.
-```
-- data\
-  - modules\
-  - worlds\
-  - systems\
-    - game-system-1\
-    - game-system-2\
-    - system-you-want-pdfoundry-in\
-      - pdfoundry-dist\
-      - system.json
-      - template.json
-```
-
-*That's it!*
-
-> :warning: Every time your system updates you will have to wait for the next nightly version and re-install PDFoundry. There is no way around this until Foundry implements data templates for modules. Your PDFs *should not* disappear but will be unusuable until PDFoundry is re-installed.
 
 ## System Developers
 PDFoundry has a bunch of user-focused features, meaning you don't have to do anything if you decide to integrate it with your system for your players to get a bunch of benefit out of it. However, there's a fully featured API with event hooks and an interface to open PDFs you may be interested in.
