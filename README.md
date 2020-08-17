@@ -11,44 +11,23 @@ PDFoundry is a *fully featured* PDF viewer for FoundryVTT!  PDFoundry supports a
 ## Setup
 PDFoundry is easily installable - find it in the modules list inside Foundry VTT. Alternatively, you can use the manifest link below.
 
-<p align="center">
-    [Please consider supporting PDFoundry on Ko-Fi](https://ko-fi.com/djsmods)
-</p>
+[Please consider supporting me on Ko-Fi](https://ko-fi.com/djsmods)
 
 ### Manifest
 > https://raw.githubusercontent.com/Djphoenix719/PDFoundry/master/module.json
 
 
 ## System Developers
-PDFoundry has a bunch of user-focused features, meaning you don't have to do anything if you decide to integrate it with your system for your players to get a bunch of benefit out of it. However, there's a fully featured API with event hooks and an interface to open PDFs you may be interested in.
+I highly recommend you do not bundle PDFoundry - if you do however, the module version will disable itself and display a warning to the user. Instead, you can see the [documentation](https://djphoenix719.github.io/PDFoundry/index.html) for an example of checking for the presence of PDFoundry, and enabling additional support if it is found.
 
 ### Building PDFoundry
-If you wish to build PDFoundry yourself - most commonly because you want it on a system that doesn't appear on Foundry's website - you can do the following.
+If you wish to build PDFoundry yourself - most commonly because you want to contribute - you can do the following.
 
-1. Clone the repository to your modules folder
+1. Clone the repository anywhere
+2. Copy `foundryconfig.example.json` and rename it `foundryconfig.json`. Edit the dataPath to your data folder.
 2. Open a terminal, navigate to the repository directory
 3. Run `npm install`
-4. Run `gulp build`
-
-You have two options for installing it into a system now that PDFoundry is built.
-
-> :warning: Both the below options assume your have cloned the repository into `data\modules\pdfoundry`. If you have not, copy the root repository folder into your modules folder now.
-
-##### Option 1
-> Symlink
-
-A symbolic link will allow easy updates by letting run `git pull && gulp rebuild`
-
-1. Navigate to the repository directory in a terminal window
-2. Run `gulp link --system your_system_folder_name`
-
-##### Option 2
-> Manual
-
-If you don't wish to use a symbolic link you can just install it once.
-
-1. Navigate to the repository directory in a terminal window
-2. Run `gulp install --system your_system_folder_name`
+4. Run `gulp build` to perform a one off build, or `gulp watch` to perform incremental builds as you change things
 
 ### API Examples
 
