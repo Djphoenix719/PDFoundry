@@ -11,7 +11,9 @@ PDFoundry is a *fully featured* PDF viewer for FoundryVTT!  PDFoundry supports a
 ## Setup
 PDFoundry is easily installable - find it in the modules list inside Foundry VTT. Alternatively, you can use the manifest link below.
 
-<p align="center">[Please consider supporting PDFoundry on Ko-Fi](https://ko-fi.com/djsmods)</p>
+<p align="center">
+    [Please consider supporting PDFoundry on Ko-Fi](https://ko-fi.com/djsmods)
+</p>
 
 ### Manifest
 > https://raw.githubusercontent.com/Djphoenix719/PDFoundry/master/module.json
