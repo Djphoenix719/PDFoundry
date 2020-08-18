@@ -23,7 +23,7 @@ import PDFActorDataBrowser from '../app/PDFActorDataBrowser';
 
 /**
  * The FillableViewer class provides an interface for displaying, serializing, and observing form-fillable PDFs,
- *  all while connecting their data to a specific actor.
+ *  all while connecting their data to a specific actor. Extends the Fillable Viewer.
  * @module API
  */
 export default class ActorViewer extends FillableViewer {

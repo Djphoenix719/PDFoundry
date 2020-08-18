@@ -17,6 +17,10 @@ import BaseViewer from './BaseViewer';
 import Settings from '../Settings';
 import { PDFData } from '../common/types/PDFData';
 
+/**
+ * Handles base form fillable support, can be used as a stand alone form fillable viewer.
+ * @module API
+ */
 export default class FillableViewer extends BaseViewer {
     // <editor-fold desc="Static Properties">
 

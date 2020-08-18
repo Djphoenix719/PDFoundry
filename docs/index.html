@@ -83,9 +83,13 @@
         <span class="hljs-keyword">const</span> sourceString = html.find(<span class="hljs-string">&#x27;#source&#x27;</span>).val();
         <span class="hljs-keyword">let</span> [code, page] = sourceString.split(<span class="hljs-string">&#x27; &#x27;</span>);
 
-        ui.PDFoundry.openPDFByCode(code, page);
-    })
-})</code></pre>
+        <span class="hljs-keyword">if</span> (ui.PDFoundry) {
+            ui.PDFoundry.openPDFByCode(code, { page });
+        } <span class="hljs-keyword">else</span> {
+            ui.notifications.warn(<span class="hljs-string">&#x27;PDFoundry must be installed to use source links.&#x27;</span>);
+        }
+    });
+});</code></pre>
 				<p>That&#39;s about it. You now support letting your users enter the source for an item, and have a link to open the PDF right to the page. You&#39;ll have to decide what input formats you support. Don&#39;t forget, you can search for a PDF by name too - so if you want the users to type a full name (or perhaps you want to support both) that&#39;s easily possible too.</p>
 				<p>Check out the API at... actually you&#39;re looking at it. The directory is on the right.</p>
 			</div>
@@ -109,9 +113,6 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-class">
-						<a href="classes/fillableviewer.html" class="tsd-kind-icon">Fillable<wbr>Viewer</a>
-					</li>
 					<li class=" tsd-kind-variable">
 						<a href="globals.html#domain_whitelist" class="tsd-kind-icon">DOMAIN_<wbr>WHITELIST</a>
 					</li>
@@ -125,16 +126,6 @@
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
-				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
-				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
-			</ul>
-			<ul class="tsd-legend">
 				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
 				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
 			</ul>
@@ -143,6 +134,9 @@
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
 			</ul>
 		</div>
 	</div>

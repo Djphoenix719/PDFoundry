@@ -16,6 +16,9 @@
 import ChatCommand from './ChatCommand';
 import PDFCache from '../cache/PDFCache';
 
+/**
+ * @internal
+ */
 export default class PurgeCache extends ChatCommand {
     // <editor-fold desc="Getters & Setters">
 

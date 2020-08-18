@@ -13,6 +13,10 @@
  * limitations under the License.
  */
 
+/**
+ * Chat command processor
+ * @internal
+ */
 export default abstract class ChatCommand {
     // <editor-fold desc="Getters & Setters">
 
