@@ -1,14 +1,23 @@
 {
-	"name": "pdfoundry",
-	"title": "PDFoundry",
-	"description": "A PDF Viewer Module w/ Hot-linking for FoundryVTT",
-	"version": "0.5.0",
-	"author": "Andrew Cuccinello [DJ#1982]",
-	"packs": [],
-	"esmodules": [],
-	"compatibleCoreVersion": "0.6.5",
-	"minimumCoreVersion": "0.6.0",
-	"manifest": "https://raw.githubusercontent.com/Djphoenix719/PDFoundry/master/module.json",
-	"download": "https://github.com/Djphoenix719/PDFoundry/archive/master.zip",
-	"url": "https://github.com/Djphoenix719/PDFoundry"
+    "name": "pdfoundry",
+    "title": "PDFoundry",
+    "description": "A fully featured PDF Viewer Module. Includes journal support, form fillable support, and more.",
+    "version": "0.6.0 beta9",
+    "author": "Andrew Cuccinello [DJ#1982]",
+    "packs": [],
+    "languages": [
+        {
+            "lang": "en",
+            "name": "English",
+            "path": "locale/en/config.json"
+        }
+    ],
+    "esmodules": ["./bundle.js"],
+    "styles": ["./bundle.css"],
+    "socket": true,
+    "compatibleCoreVersion": "0.6.5",
+    "minimumCoreVersion": "0.6.0",
+    "manifest": "https://raw.githubusercontent.com/Djphoenix719/PDFoundry/feature/foundry-installer/module.json",
+    "download": "https://github.com/Djphoenix719/PDFoundry/releases/download/v0.6.0-beta1/pdfoundry-v0.6.0b9.zip",
+    "url": "https://github.com/Djphoenix719/PDFoundry"
 }

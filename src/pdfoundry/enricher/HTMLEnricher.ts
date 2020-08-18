@@ -1,5 +1,19 @@
-import { PDFItemSheet } from '../app/PDFItemSheet';
-import Settings from '../settings/Settings';
+/* Copyright 2020 Andrew Cuccinello
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { PDFConfig } from '../app/PDFConfig';
 import Api from '../Api';
 
 /**
@@ -8,7 +22,7 @@ import Api from '../Api';
  */
 export default class HTMLEnricher {
     public static HandleEnrich(app: Application, html: JQuery, data: any) {
-        if (app instanceof PDFItemSheet) return;
+        if (app instanceof PDFConfig) return;
 
         HTMLEnricher.EnrichHTML(html);
         HTMLEnricher.BindClicks(html);
@@ -16,7 +30,7 @@ export default class HTMLEnricher {
 
     private static EnrichHTML(html: JQuery) {
         // Enrich HTML
-        for (const element of html.find('div.editor-content > *')) {
+        for (const element of html.find('div.editor-content > *, p')) {
             try {
                 // We replace one at a time until done
                 while (element.innerText.includes('@PDF')) {
@@ -24,11 +38,8 @@ export default class HTMLEnricher {
                 }
             } catch (error) {
                 // Errors get propagated from instance for proper error modeling
-                if (Settings.NOTIFICATIONS) {
-                    ui.notifications.error(error.message);
-                } else {
-                    console.error(error);
-                }
+                ui.notifications.error(error.message);
+                console.error(error);
             }
         }
     }
@@ -39,19 +50,21 @@ export default class HTMLEnricher {
 
             // This will always be an anchor
             const target = $(event.currentTarget as HTMLAnchorElement);
-            const ref = target.data('ref');
-            const page = target.data('page');
+            const ref = target.data('ref') as string;
+            const page = target.data('page') as number;
 
             // ref can match name or code
-            let pdfData = Api.getPDFData((item) => {
-                return item.name === ref || item.data.data.code === ref;
+            let pdfData = Api.findPDFData((data) => {
+                return data.name === ref || data.code === ref;
             });
 
             if (!pdfData) {
                 ui.notifications.error(`Unable to find a PDF with a name or code matching ${ref}.`);
                 return;
             }
-            Api.openPDF(pdfData, page);
+            Api.openPDF(pdfData, {
+                page,
+            });
         });
     }
 
@@ -101,8 +114,8 @@ export default class HTMLEnricher {
         const [nameOrCode, queryString] = options.split('|');
 
         // Getting the PDF without invisible PDFs to check permissions
-        let pdfData = Api.getPDFData((item) => {
-            return item.name === nameOrCode || item.data.data.code === nameOrCode;
+        let pdfData = Api.findPDFData((data) => {
+            return data.name === nameOrCode || data.code === nameOrCode;
         }, false);
 
         if (pdfData) {

@@ -15,38 +15,47 @@
 
 /**
  * Internal settings and helper methods for PDFoundry.
- * @private
+ * @internal
  */
 export default class Settings {
-    /**
-     * Are feedback notifications enabled? Disable if you wish
-     *  to handle them yourself.
-     */
-    public static NOTIFICATIONS: boolean = true;
+    public static readonly MODULE_NAME: string = 'pdfoundry';
 
-    public static EXTERNAL_SYSTEM_NAME: string = '../modules/pdfoundry';
-    public static INTERNAL_MODULE_NAME: string = 'pdfoundry';
-
-    public static DIST_NAME = 'pdfoundry-dist';
-
-    public static get DIST_PATH() {
-        return `${Settings.EXTERNAL_SYSTEM_NAME}/${Settings.DIST_NAME}`;
+    public static get PATH_MODULE() {
+        return `modules/${Settings.MODULE_NAME}`;
     }
-
-    public static PDF_ENTITY_TYPE: string = 'PDFoundry_PDF';
-
-    public static SETTING_KEY = {
-        EXISTING_VIEWER: 'ShowInExistingViewer',
-        CACHE_SIZE: 'CacheSize',
-        HELP_SEEN: 'PDFoundry_HelpSeen',
-    };
+    public static get PATH_ASSETS() {
+        return `${Settings.PATH_MODULE}/assets`;
+    }
+    public static get PATH_LOCALE() {
+        return `${Settings.PATH_MODULE}/locale`;
+    }
+    public static get PATH_TEMPLATES() {
+        return `${Settings.PATH_MODULE}/templates`;
+    }
+    public static get PATH_PDFJS() {
+        return `${Settings.PATH_MODULE}/pdfjs`;
+    }
 
     public static get SOCKET_NAME() {
-        return `system.${Settings.EXTERNAL_SYSTEM_NAME}`;
+        return `module.${Settings.MODULE_NAME}`;
     }
 
+    public static readonly CSS_CLASS = 'pdf-app';
+
+    public static readonly SETTINGS_KEY = {
+        EXISTING_VIEWER: 'ShowInExistingViewer',
+        CACHE_SIZE: 'CacheSize',
+        HELP_SEEN: 'HelpSeen',
+        DATA_VERSION: 'DataVersion',
+    };
+    public static readonly FLAGS_KEY = {
+        PDF_DATA: 'PDFData',
+        FORM_DATA: 'FormData',
+        SHEET_ID: 'ActorSheet',
+    };
+
     public static initialize() {
-        Settings.register(Settings.SETTING_KEY.CACHE_SIZE, {
+        Settings.register(Settings.SETTINGS_KEY.CACHE_SIZE, {
             name: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeName'),
             scope: 'user',
             type: Number,
@@ -57,11 +66,11 @@ export default class Settings {
                 mb = Math.round(mb);
                 mb = Math.max(mb, 64);
                 mb = Math.min(mb, 1024);
-                await Settings.set(Settings.SETTING_KEY.CACHE_SIZE, mb);
+                await Settings.set(Settings.SETTINGS_KEY.CACHE_SIZE, mb);
             },
         });
 
-        Settings.register(Settings.SETTING_KEY.EXISTING_VIEWER, {
+        Settings.register(Settings.SETTINGS_KEY.EXISTING_VIEWER, {
             name: game.i18n.localize('PDFOUNDRY.SETTINGS.ShowInExistingViewerName'),
             scope: 'user',
             type: Boolean,
@@ -69,31 +78,48 @@ export default class Settings {
             default: true,
             config: true,
         });
+
+        Settings.register(Settings.SETTINGS_KEY.HELP_SEEN, {
+            scope: 'user',
+            type: Boolean,
+            default: false,
+            config: false,
+        });
+
+        Settings.register(Settings.SETTINGS_KEY.DATA_VERSION, {
+            scope: 'world',
+            type: String,
+            default: undefined,
+            config: false,
+        });
     }
 
     /**
      * Wrapper around game.settings.register. Ensures scope is correct.
      * @param key
      * @param data
+     * @internal
      */
     public static register(key: string, data: any) {
-        game.settings.register(Settings.EXTERNAL_SYSTEM_NAME, key, data);
+        game.settings.register(Settings.MODULE_NAME, key, data);
     }
 
     /**
      * Wrapper around game.settings.get. Ensures scope is correct.
      * @param key
+     * @internal
      */
     public static get(key: string) {
-        return game.settings.get(Settings.EXTERNAL_SYSTEM_NAME, key);
+        return game.settings.get(Settings.MODULE_NAME, key);
     }
 
     /**
      * Wrapper around game.settings.set. Ensures scope is correct.
      * @param key
      * @param value
+     * @internal
      */
     public static async set(key: string, value: any) {
-        return game.settings.set(Settings.EXTERNAL_SYSTEM_NAME, key, value);
+        return game.settings.set(Settings.MODULE_NAME, key, value);
     }
 }

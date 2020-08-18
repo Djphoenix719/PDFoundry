@@ -5,68 +5,29 @@
 [![GitHub license](https://img.shields.io/github/license/Djphoenix719/PDFoundry)](https://github.com/Djphoenix719/PDFoundry/blob/master/LICENSE)
 
 ![Release](https://github.com/Djphoenix719/PDFoundry/workflows/Release/badge.svg)
-![Nightly](https://github.com/Djphoenix719/PDFoundry/workflows/Nightly/badge.svg)
 
-A PDF viewer module for Foundry VTT, made for developers to integrate with their systems.
+PDFoundry is a *fully featured* PDF viewer for FoundryVTT!  PDFoundry supports a full suite of features for viewing PDFs right in Foundry VTT. Fillable forms, bookmarks, page links in journals and LOTS more. You can even use a form fillable PDF character sheet for an actor!
 
-> **Anyone** can install PDFoundry and make use of a limited set of features - without a system integration you still get a fully fledged PDF viewer! 
+## Setup
+PDFoundry is easily installable - find it in the modules list inside Foundry VTT. Alternatively, you can use the manifest link below.
 
-The goal of this library is to provide system developers with a easy to use and homogenized source support library to provide high quality source links in-application. I'd like to be able to click "view source" in every system, because finding information in PDFs takes a long time!
+[Please consider supporting me on Ko-Fi](https://ko-fi.com/djsmods)
 
-## Setup for Users
-PDFoundry makes use of some features that prevent it from being installed with the normal Foundry VTT installation method.
+### Manifest
+> https://raw.githubusercontent.com/Djphoenix719/PDFoundry/master/module.json
 
-Installation is easy, however.
-1. Find and download your system in the [latest release](https://github.com/Djphoenix719/PDFoundry/releases/latest) - the name should match the folder name in your `data\systems\` folder, and you should ensure you have a matching version by checking your installed version in Foundry VTT.
-2. Move the zip file to your `data\systems\{your system}` folder.
-3. Extract the files, overwriting all files.
-
-When all is said and done, the file structure should look something like this.
-```
-- data\
-  - modules\
-  - worlds\
-  - systems\
-    - game-system-1\
-    - game-system-2\
-    - system-you-want-pdfoundry-in\
-      - pdfoundry-dist\
-      - system.json
-      - template.json
-```
-
-*That's it!*
-
-> :warning: Every time your system updates you will have to wait for the next nightly version and re-install PDFoundry. There is no way around this until Foundry implements data templates for modules. Your PDFs *should not* disappear but will be unusuable until PDFoundry is re-installed.
 
 ## System Developers
-PDFoundry has a bunch of user-focused features, meaning you don't have to do anything if you decide to integrate it with your system for your players to get a bunch of benefit out of it. However, there's a fully featured API with event hooks and an interface to open PDFs you may be interested in.
+I highly recommend you do not bundle PDFoundry - if you do however, the module version will disable itself and display a warning to the user. Instead, you can see the [documentation](https://djphoenix719.github.io/PDFoundry/index.html) for an example of checking for the presence of PDFoundry, and enabling additional support if it is found.
 
 ### Building PDFoundry
-If you wish to build PDFoundry yourself - most commonly because you want it on a system that doesn't appear on Foundry's website - you can do the following.
+If you wish to build PDFoundry yourself - most commonly because you want to contribute - you can do the following.
 
-1. Clone the repository to your modules folder
-2. cd into the new directory
-2. `npm install`
-3. `gulp build`
-
-You have two options for installing it into a system now that PDFoundry is built.
-
-##### Option 1
-> Symlink
-
-In my effort to make this as easy as possible, provided you have cloned into your modules folder, there's a gulp script to help you. Run `gulp link --system your_system_folder_name`.
-
-A symlink will allow easy updates by letting you simply do `git pull` then `gulp rebuild` from the PDFoundry repository folder
-
-##### Option 2
-> Manual
-
-Copy the "pdfoundry-dist" folder created during the build into your system directory. There is a node script you can use to install.
-
-Run `node pdfoundry-dist/scripts/install.js` from your **system directory**.
-
-> :warning: `pdfoundry-dist/scripts/install.js` will not work. You MUST specify the script to be ran with `node`.
+1. Clone the repository anywhere
+2. Copy `foundryconfig.example.json` and rename it `foundryconfig.json`. Edit the dataPath to your data folder.
+2. Open a terminal, navigate to the repository directory
+3. Run `npm install`
+4. Run `gulp build` to perform a one off build, or `gulp watch` to perform incremental builds as you change things
 
 ### API Examples
 

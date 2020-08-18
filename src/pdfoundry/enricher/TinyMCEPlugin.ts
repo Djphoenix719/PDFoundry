@@ -1,4 +1,19 @@
-import { getPDFDataFromItem, isPDF } from '../Util';
+/* Copyright 2020 Andrew Cuccinello
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { getPDFData, isEntityPDF } from '../Util';
 
 /**
  * @private
@@ -30,13 +45,13 @@ export default class TinyMCEPlugin {
         const rBracket = initialContent.indexOf(']');
         const entityId = initialContent.slice(lBracket + 1, rBracket);
 
-        const entity = game.items.get(entityId);
-        if (entity === null || !isPDF(entity)) {
+        const entity = game.journal.get(entityId);
+        if (entity === undefined || !isEntityPDF(entity)) {
             return;
         }
 
-        const pdfData = getPDFDataFromItem(entity);
-        if (!pdfData) {
+        const pdfData = getPDFData(entity);
+        if (pdfData === undefined) {
             return;
         }
 

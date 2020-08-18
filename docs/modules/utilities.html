@@ -1,0 +1,565 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Utilities | PDFoundry</title>
+	<meta name="description" content="Documentation for PDFoundry">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">PDFoundry</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="utilities.html">Utilities</a>
+				</li>
+			</ul>
+			<h1>Module Utilities</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>A collection of utilities that are used internally or made to be used externally by you.</p>
+					</div>
+					<p>You can access these utilities with <code>ui.PDFoundry.Utilities</code>.</p>
+				</div>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Functions</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="utilities.html#canopenpdf" class="tsd-kind-icon">can<wbr>OpenPDF</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="utilities.html#deletepdfdata" class="tsd-kind-icon">deletePDFData</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="utilities.html#fileexists" class="tsd-kind-icon">file<wbr>Exists</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="utilities.html#getabsoluteurl" class="tsd-kind-icon">get<wbr>AbsoluteURL</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="utilities.html#getpdfdata" class="tsd-kind-icon">getPDFData</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="utilities.html#getuseridsexceptme" class="tsd-kind-icon">get<wbr>User<wbr>Ids<wbr>Except<wbr>Me</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="utilities.html#isentitypdf" class="tsd-kind-icon">is<wbr>EntityPDF</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="utilities.html#purgecache" class="tsd-kind-icon">purge<wbr>Cache</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="utilities.html#setpdfdata" class="tsd-kind-icon">setPDFData</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="utilities.html#validateabsoluteurl" class="tsd-kind-icon">validate<wbr>AbsoluteURL</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="canopenpdf" class="tsd-anchor"></a>
+					<h3>can<wbr>OpenPDF</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">can<wbr>OpenPDF<span class="tsd-signature-symbol">(</span>pdfData<span class="tsd-signature-symbol">: </span><a href="../interfaces/api.pdfdata.html" class="tsd-signature-type">PDFData</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/Util.ts#L172">src/pdfoundry/Util.ts:172</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns true or false if all required data is set such that the PDF is possible to open.
+										Does not guarantee any specific data for a type of open (e.g. opening as a fillable PDF)
+									only that the static viewer is able to open the PDF.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>see</dt>
+									<dd><p><a href="../classes/api.api-1.html#utilities">Api.Utilities</a></p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>pdfData: <a href="../interfaces/api.pdfdata.html" class="tsd-signature-type">PDFData</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The PDF data to check.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="deletepdfdata" class="tsd-anchor"></a>
+					<h3>deletePDFData</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">deletePDFData<span class="tsd-signature-symbol">(</span>journalEntry<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">JournalEntry</span>, pdfData<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">PDFDataDelete</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">JournalEntry</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/Util.ts#L153">src/pdfoundry/Util.ts:153</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Deletes a key from the PDF data. Requires the value of the key to be set to null.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>see</dt>
+									<dd><p><a href="../classes/api.api-1.html#utilities">Api.Utilities</a></p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>journalEntry: <span class="tsd-signature-type">JournalEntry</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The journal entry to delete the key from.</p>
+									</div>
+								</li>
+								<li>
+									<h5>pdfData: <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">PDFDataDelete</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>A mapping of {key: null} pairs to delete.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">JournalEntry</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="fileexists" class="tsd-anchor"></a>
+					<h3>file<wbr>Exists</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">file<wbr>Exists<span class="tsd-signature-symbol">(</span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/Util.ts#L79">src/pdfoundry/Util.ts:79</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Checks if a remote file exists at the specified path. That is, if the URL is valid. This does not guarantee a
+									valid file exists at that location. For example, an HTML file will result in true but not be a valid PDF.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>see</dt>
+									<dd><p><a href="../classes/api.api-1.html#utilities">Api.Utilities</a></p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>path: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The absolute URL to check. Adheres to the <a href="../globals.html#domain_whitelist">DOMAIN_WHITELIST</a>.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="getabsoluteurl" class="tsd-anchor"></a>
+					<h3>get<wbr>AbsoluteURL</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>AbsoluteURL<span class="tsd-signature-symbol">(</span>dataUrl<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/Util.ts#L42">src/pdfoundry/Util.ts:42</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Convert a relative URL to a absolute URL by prepending the window origin to the relative URL.
+									If the URL is of a white listed domain, will simply return the provided URL.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>see</dt>
+									<dd><p><a href="../globals.html#domain_whitelist">DOMAIN_WHITELIST</a></p>
+									</dd>
+									<dt>see</dt>
+									<dd><p><a href="../classes/api.api-1.html#utilities">Api.Utilities</a></p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>dataUrl: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>A url to be validated.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="getpdfdata" class="tsd-anchor"></a>
+					<h3>getPDFData</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">getPDFData<span class="tsd-signature-symbol">(</span>journalEntry<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">JournalEntry</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/api.pdfdata.html" class="tsd-signature-type">PDFData</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/Util.ts#L121">src/pdfoundry/Util.ts:121</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Pull relevant data from an journal entry, creating a <a href="../interfaces/api.pdfdata.html">PDFData</a> object.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>see</dt>
+									<dd><p><a href="../classes/api.api-1.html#utilities">Api.Utilities</a></p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>journalEntry: <span class="tsd-signature-type">JournalEntry</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The journal entry to pull data from.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/api.pdfdata.html" class="tsd-signature-type">PDFData</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="getuseridsexceptme" class="tsd-anchor"></a>
+					<h3>get<wbr>User<wbr>Ids<wbr>Except<wbr>Me</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>User<wbr>Ids<wbr>Except<wbr>Me<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/Util.ts#L191">src/pdfoundry/Util.ts:191</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Return all users ids except the current user</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>see</dt>
+									<dd><p><a href="../classes/api.api-1.html#utilities">Api.Utilities</a></p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="isentitypdf" class="tsd-anchor"></a>
+					<h3>is<wbr>EntityPDF</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">is<wbr>EntityPDF<span class="tsd-signature-symbol">(</span>entity<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Entity</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/Util.ts#L111">src/pdfoundry/Util.ts:111</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns true if the provided entity contains PDF data</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>see</dt>
+									<dd><p><a href="../classes/api.api-1.html#utilities">Api.Utilities</a></p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>entity: <span class="tsd-signature-type">Entity</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The entity to check. Only JournalEntities are allowed to be PDFs natively.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="purgecache" class="tsd-anchor"></a>
+					<h3>purge<wbr>Cache</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">purge<wbr>Cache<span class="tsd-signature-symbol">(</span>notify<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/Util.ts#L211">src/pdfoundry/Util.ts:211</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Clear the PDF cache</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>see</dt>
+									<dd><p><a href="../classes/api.api-1.html#utilities">Api.Utilities</a></p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> notify: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Should the user be notified that the cache was cleared?</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="setpdfdata" class="tsd-anchor"></a>
+					<h3>setPDFData</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">setPDFData<span class="tsd-signature-symbol">(</span>journalEntry<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">JournalEntry</span>, pdfData<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">PDFDataUpdate</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">JournalEntry</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/Util.ts#L142">src/pdfoundry/Util.ts:142</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Set one or more <a href="../interfaces/api.pdfdata.html">PDFData</a> attributes to the provided values. Makes no changes to fields that
+									are not specified. If you wish to update the PDF name, use Entity.update as normal in Foundry.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>see</dt>
+									<dd><p><a href="../classes/api.api-1.html#utilities">Api.Utilities</a></p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>journalEntry: <span class="tsd-signature-type">JournalEntry</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The PDF to update the data on.</p>
+									</div>
+								</li>
+								<li>
+									<h5>pdfData: <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">PDFDataUpdate</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>A partial mapping of a <a href="../interfaces/api.pdfdata.html">PDFData</a> object.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">JournalEntry</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="validateabsoluteurl" class="tsd-anchor"></a>
+					<h3>validate<wbr>AbsoluteURL</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">validate<wbr>AbsoluteURL<span class="tsd-signature-symbol">(</span>dataUrl<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/Util.ts#L61">src/pdfoundry/Util.ts:61</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns true if the URL starts with the origin or the domain is one of the
+									white listed domains.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>see</dt>
+									<dd><p><a href="../globals.html#domain_whitelist">DOMAIN_WHITELIST</a></p>
+									</dd>
+									<dt>see</dt>
+									<dd><p><a href="../classes/api.api-1.html#utilities">Api.Utilities</a></p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>dataUrl: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>A url to be validated.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="api.html">API</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="events.html">Events</a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="utilities.html">Utilities</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="utilities.html#canopenpdf" class="tsd-kind-icon">can<wbr>OpenPDF</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="utilities.html#deletepdfdata" class="tsd-kind-icon">deletePDFData</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="utilities.html#fileexists" class="tsd-kind-icon">file<wbr>Exists</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="utilities.html#getabsoluteurl" class="tsd-kind-icon">get<wbr>AbsoluteURL</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="utilities.html#getpdfdata" class="tsd-kind-icon">getPDFData</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="utilities.html#getuseridsexceptme" class="tsd-kind-icon">get<wbr>User<wbr>Ids<wbr>Except<wbr>Me</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="utilities.html#isentitypdf" class="tsd-kind-icon">is<wbr>EntityPDF</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="utilities.html#purgecache" class="tsd-kind-icon">purge<wbr>Cache</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="utilities.html#setpdfdata" class="tsd-kind-icon">setPDFData</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="utilities.html#validateabsoluteurl" class="tsd-kind-icon">validate<wbr>AbsoluteURL</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

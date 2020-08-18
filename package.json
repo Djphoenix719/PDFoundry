@@ -5,6 +5,7 @@
         "@babel/plugin-transform-runtime": "^7.10.1",
         "@babel/preset-env": "^7.0.0",
         "@babel/preset-typescript": "^7.10.1",
+        "@convergencelabs/typedoc-plugin-custom-modules": "^0.4.0",
         "@types/pdfjs-dist": "^2.1.4",
         "archiver": "^4.0.2",
         "babel-core": "7.0.0-bridge.0",
@@ -34,8 +35,8 @@
         "vinyl-source-stream": "^2.0.0",
         "watchify": "^3.11.1"
     },
-    "repository": "https://github.com/smilligan93/SR5-Compendiums-FoundryVTT",
-    "license": "https://github.com/smilligan93/SR5-Compendiums-FoundryVTT/blob/master/LICENSE",
+    "repository": "https://github.com/Djphoenix719/PDFoundry",
+    "license": "https://github.com/Djphoenix719/PDFoundry/blob/master/LICENSE",
     "dependencies": {},
     "version": "v0.3.0"
 }

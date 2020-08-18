@@ -13,133 +13,114 @@
  * limitations under the License.
  */
 
+div.pdf-app {
+    section.window-content {
+        background: url(../../../ui/parchment.jpg) repeat !important;
 
+        select,
+        input,
+        textarea {
+            max-width: 100%;
+            border: 0;
+        }
+    }
+
+    div.flex {
+        position: relative;
+        display: flex;
+
+        > * {
+            line-height: 2em;
+            height: 2em;
+            margin: 0;
+        }
+        > p {
+            line-height: 1em;
+        }
+
+        label {
+            white-space: nowrap;
+            font-weight: bold;
+        }
+        label:first-child {
+            padding-right: 4px;
+        }
+
+        button {
+            width: unset;
+            min-width: unset;
+            white-space: nowrap;
+        }
+
+        .grow {
+            flex-grow: 1;
+        }
+        .shrink {
+            flex-shrink: 1;
+        }
+    }
+
+    input {
+        min-width: 20px;
+        background: rgba(0, 0, 0, 0.05);
+        padding: 1px 3px;
+        margin: 0;
+        color: #191813;
+        font-family: inherit;
+        font-size: inherit;
+        text-align: inherit;
+        line-height: inherit;
+        -webkit-user-select: text;
+        -moz-user-select: text;
+        -ms-user-select: text;
+        user-select: text;
+    }
+}
+
+#journal {
+    .pdf-thumbnail {
+        margin: 0;
+        flex: 0 0 32px;
+        width: 32px;
+        height: 32px;
+
+        cursor: pointer;
+    }
+}
+
+// TODO: Refactor all below into re-usable CSS
 a.pdf-sheet-manual {
-  color: orangered;
+    color: orangered;
 }
 
 .pdfoundry-link {
-  background: #DDD;
-  color: black;
-  padding: 1px 4px;
-  border: 1px solid #4b4a44;
-  border-radius: 2px;
-  white-space: nowrap;
-  word-break: break-all;
+    background: #ddd;
+    color: black;
+    padding: 1px 4px;
+    border: 1px solid #4b4a44;
+    border-radius: 2px;
+    white-space: nowrap;
+    word-break: break-all;
 
-  &:before {
-    content: "\f1c1";
-    font-family: "Font Awesome 5 Free";
-    padding-right: 4px;
-  }
+    &:before {
+        content: '\f1c1';
+        font-family: 'Font Awesome 5 Free';
+        padding-right: 4px;
+    }
 }
 
 div.pdfoundry-viewer {
-  section.window-content {
-    padding: 0;
-  }
+    section.window-content {
+        padding: 0;
+    }
 
-  iframe {
-    border: 0;
-  }
-}
+    iframe {
+        border: 0;
+    }
 
-form.pdf-sheet {
-  input, label {
-    border: 0;
-    padding: 0;
-    margin: 0;
-  }
-
-  input[type=number] {
-    min-width: 20px;
-    height: 24px;
-    background: rgba(0, 0, 0, 0.05);
-    padding: 1px 3px;
-    margin: 0;
-    color: #191813;
-    font-family: inherit;
-    font-size: inherit;
-    text-align: inherit;
-    line-height: inherit;
-    -webkit-user-select: text;
-    -moz-user-select: text;
-    -ms-user-select: text;
-    user-select: text;
-  }
-}
-
-$row-height: 2rem;
-
-form.pdf-sheet {
-  div.field-row, div.button-row {
-    position: relative;
-    display: flex;
-    height: $row-height;
-
-    border-bottom: 1px solid black;
-
-    input, label, button {
-      height: 100%;
-      line-height: $row-height;
+    form,
+    form iframe {
+        width: 100%;
+        height: 100%;
     }
-    input[type=checkbox] {
-      height: $row-height - 0.5rem;
-      line-height: $row-height - 0.5rem;
-      margin: 0.25rem;
-      text-align: right;
-    }
-    label {
-      text-transform: uppercase;
-      font-weight: bold;
-    }
-    button {
-      border: 0;
-    }
-    input {
-      padding: 0 4px;
-    }
-  }
-
-  div.field-row.expand, div.button-row.expand {
-    justify-content: space-between;
-
-    input {
-      flex-shrink: 1;
-      flex-grow: unset;
-    }
-    label {
-      flex-shrink: unset;
-      flex-grow: 1;
-    }
-  }
-
-  div.field-row {
-    label {
-      flex-shrink: 1;
-      white-space: nowrap;
-      padding-right: 4px;
-    }
-    input {
-      flex-grow: 1;
-    }
-  }
-
-  div.button-row {
-    div.field-row {
-      flex-grow: 1;
-    }
-    button {
-      flex-shrink: 1;
-      width: auto;
-      white-space: nowrap;
-    }
-    p {
-      margin: 4px;
-      text-align: justify;
-    }
-  }
-  div.button-row.taller {
-    height: $row-height*1.5;
-  }
 }

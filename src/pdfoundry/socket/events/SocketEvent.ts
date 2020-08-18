@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import Settings from '../../settings/Settings';
+import Settings from '../../Settings';
 
 /**
  * @private
@@ -48,7 +48,6 @@ export default abstract class SocketEvent {
     }
 
     public emit() {
-        // @ts-ignore
         game.socket.emit(Settings.SOCKET_NAME, {
             type: this.type,
             userIds: this.userIds,

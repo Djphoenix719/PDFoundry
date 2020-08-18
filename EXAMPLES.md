@@ -21,7 +21,7 @@ Hooks.on('renderItemSheet', (sheet, html, ...args) => {
         const sourceString = html.find('#source').val();
         let [code, page] = sourceString.split(' ');
 
-        ui.PDFoundry.openPDFByCode(code, page);
+        ui.PDFoundry.openPDFByCode(code, { page });
     })
 })
 ```

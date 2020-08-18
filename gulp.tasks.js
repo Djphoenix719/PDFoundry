@@ -39,11 +39,15 @@ const logger = require('gulplog');
 const sourcemaps = require('gulp-sourcemaps');
 const typedoc = require('gulp-typedoc');
 
+const foundryConfig = JSON.parse(fs.readFileSync('./foundryconfig.json'));
+
 // Config
-const distName = 'pdfoundry-dist';
-const destFolder = path.resolve(process.cwd(), distName);
+const distName = 'pdfoundry';
+const destFolder = path.resolve(foundryConfig['dataPath'], distName);
 const docsFolder = path.resolve(process.cwd(), 'docs');
 const jsBundle = 'bundle.js';
+
+logger.info(`Writing to ${destFolder}`);
 
 const baseArgs = {
     entries: ['./src/pdfoundry/Main.ts'],
@@ -77,57 +81,6 @@ function resolveRequires() {
     return requires;
 }
 
-const findFile = (root, file) => {
-    const queue = [];
-    queue.push(root);
-
-    while (queue.length > 0) {
-        const next = queue.pop();
-
-        if (next[next.length - 1] === file) {
-            return path.resolve(...next);
-        }
-
-        const nAbs = path.resolve(...next);
-        if (fs.statSync(nAbs).isDirectory()) {
-            for (const child of fs.readdirSync(nAbs)) {
-                queue.unshift([...next, child]);
-            }
-        }
-    }
-    return undefined;
-};
-
-/**
- * LINK
- * Setups up a system by creating a symlink of the dist folder and running the install script
- */
-async function link() {
-    if (process.argv.length < 5) {
-        logger.error(`${chalk.red('Link requires 2 arguments')}: gulp link --system <system name>`);
-        return;
-    }
-    const [nodePath, gulpPath, task, linkType, linkName] = process.argv;
-
-    if (linkType !== '--system') {
-        logger.error(`${chalk.red('Error: Curently only --system is supported')}`);
-        return;
-    }
-
-    const systemPath = path.resolve(process.cwd(), '../..', 'systems', linkName);
-    const targetPath = path.resolve(systemPath, distName);
-
-    logger.info(`Linking to "${chalk.green(targetPath)}"`);
-
-    await install({ type: '--system', filepath: 'worldbuilding' });
-
-    if (fs.existsSync(targetPath)) {
-        await del(targetPath, { force: true });
-    }
-
-    return gulp.src(destFolder).pipe(gulp.symlink(systemPath, { overwrite: true, useJunctions: true }));
-}
-
 /**
  * CLEAN
  * Removes all files from the dist folder
@@ -135,14 +88,14 @@ async function link() {
 async function cleanDist() {
     const files = fs.readdirSync(destFolder);
     for (const file of files) {
-        await del(path.resolve(destFolder, file));
+        await del(path.resolve(destFolder, file), { force: true });
     }
 }
 
 async function cleanDocs() {
     const files = fs.readdirSync(docsFolder);
     for (const file of files) {
-        await del(path.resolve(docsFolder, file));
+        await del(path.resolve(destFolder, file), { force: true });
     }
 }
 
@@ -178,12 +131,12 @@ async function buildJS() {
  * COPY ASSETS
  */
 async function copyAssets() {
+    gulp.src('module.json').pipe(gulp.dest(destFolder));
     gulp.src('assets/**/*').pipe(gulp.dest(path.resolve(destFolder, 'assets')));
     gulp.src('manual/**/*.pdf').pipe(gulp.dest(path.resolve(destFolder, 'assets', 'manual')));
     gulp.src('src/templates/**/*').pipe(gulp.dest(path.resolve(destFolder, 'templates')));
     gulp.src('locale/**/*').pipe(gulp.dest(path.resolve(destFolder, 'locale')));
     gulp.src('pdfjs/**/*').pipe(gulp.dest(path.resolve(destFolder, 'pdfjs')));
-    gulp.src('src/scripts/**/*').pipe(gulp.dest(path.resolve(destFolder, 'scripts')));
     gulp.src('LICENSE').pipe(gulp.dest(destFolder));
 }
 
@@ -196,6 +149,7 @@ async function watch() {
         gulp.watch(pattern).on('change', () => gulp.src(pattern).pipe(gulp.dest(path.resolve(destFolder, out))));
     }
 
+    watch('module.json', '');
     watch('assets/**/*', 'assets');
     watch('manual/**/*.pdf', ['assets', 'manual']);
     watch('src/templates/**/*', 'templates');
@@ -267,262 +221,24 @@ async function docs() {
                 name: 'PDFoundry',
                 target: 'es6',
                 out: 'docs/',
-                mode: 'file',
+                mode: 'modules',
+                plugins: ['@convergencelabs/typedoc-plugin-custom-modules'],
                 exclude: ['./src/pdfoundry/util.ts'],
                 readme: './EXAMPLES.md',
                 excludePrivate: true,
                 excludeProtected: true,
                 stripInternal: true,
-                disableSources: true,
                 version: true,
             }),
         );
 }
 
-/**
- * RELEASE
- */
-function release() {
-    const fetch = require('node-fetch');
-    const JSSoup = require('jssoup').default;
-
-    const archiver = require('archiver');
-    const extractZip = require('extract-zip');
-
-    const installersRoot = `installers`;
-    let messagePrefix = '-----';
-    const excluded = new Map([]);
-    return new Promise(async (coreResolve, coreReject) => {
-        const cTitle = chalk.green;
-        const cName = chalk.magenta;
-        const cLink = chalk.blue;
-        const cError = chalk.red;
-        if (!fs.existsSync(installersRoot)) {
-            fs.mkdirSync(installersRoot);
-        }
-
-        const distPath = path.resolve('./', distName);
-
-        // TODO: Re-write with error handling + separate releases per system?
-        const processed = new Set();
-        const processManifest = (href) => {
-            return new Promise((resolve, reject) => {
-                fetch(href)
-                    .then((res) => res.text())
-                    .then(async (body) => {
-                        const system = JSON.parse(body);
-                        const { download, name, title, version } = system;
-
-                        if (processed.has(name)) {
-                            logger.info(`${cError('Skipping duplicate')}: ${cTitle(title)}`);
-                            resolve();
-                            return;
-                        }
-                        if (excluded.has(name)) {
-                            logger.info(`${cError('Skipping excluded')}: ${cTitle(title)}`);
-                            resolve();
-                            return;
-                        }
-
-                        if (download && name && title && version) {
-                            logger.info(`${cLink(processed.size + 1)} - Found a system: ${cTitle(title)} (${cName(name)})`);
-
-                            const sourceZipPath = path.resolve(installersRoot, `${name}.zip`);
-                            const sourceZipStream = fs.createWriteStream(sourceZipPath);
-                            const sourceFolderPath = path.resolve(installersRoot, name);
-                            const destZipPath = path.resolve(installersRoot, `${name}_v${version}.zip`);
-                            fetch(download).then((res) => {
-                                res.body.pipe(sourceZipStream).on('finish', async () => {
-                                    await extractZip(sourceZipPath, { dir: sourceFolderPath });
-                                    await del(sourceZipPath);
-
-                                    if (findFile([installersRoot, sourceFolderPath], distName) !== undefined) {
-                                        await del(sourceFolderPath);
-
-                                        logger.info(`${cError('Skipping')} ${cTitle(title)}: PDFoundry is already installed.`);
-                                        excluded.set(name, `${title} [${name}] already includes PDFoundry as part of the system.`);
-                                        resolve();
-                                        return;
-                                    }
-
-                                    const system = findFile([installersRoot, sourceFolderPath], 'system.json');
-                                    const template = findFile([installersRoot, sourceFolderPath], 'template.json');
-                                    logger.info(`${cTitle(title)}'s ${cName('system.json')} is located at ${cLink(system)}`);
-                                    logger.info(`${cTitle(title)}'s ${cName('template.json')} is located at ${cLink(template)}`);
-
-                                    const installPath = path.resolve(system, '..');
-                                    await install({ type: '--folder', filepath: installPath });
-
-                                    logger.info(`Installed into ${cName('system.json')} and ${cName('template.json')}.`);
-
-                                    const destBundleStream = fs.createWriteStream(destZipPath);
-                                    const archive = archiver('zip', {
-                                        zlib: { level: 9 },
-                                    });
-
-                                    await archive.append(fs.createReadStream(system), {
-                                        name: 'system.json',
-                                    });
-                                    logger.info(`Wrote ${cName('system.json')} into archive.`);
-                                    await archive.append(fs.createReadStream(template), {
-                                        name: 'template.json',
-                                    });
-                                    logger.info(`Wrote ${cName('template.json')} into archive.`);
-                                    await archive.directory(distPath, distName);
-                                    logger.info(`Wrote ${cName(distName)} into archive.`);
-
-                                    await archive.pipe(destBundleStream);
-                                    await archive.finalize();
-                                    await del(sourceFolderPath);
-
-                                    logger.info(`Build complete for ${cTitle(title)} (${cName(name)})!`);
-                                    processed.add(name);
-                                    resolve();
-                                });
-                            });
-                        } else {
-                            logger.info(cError(`Invalid system at ${href}`));
-                            resolve();
-                        }
-                    });
-            });
-        };
-
-        fetch('https://foundryvtt.com/packages/systems')
-            .then((res) => res.text())
-            .then(async (body) => {
-                const soup = new JSSoup(body);
-                const anchors = new Set(soup.findAll('a'));
-
-                for (const anchor of anchors) {
-                    const ref = anchor.attrs.href.toLowerCase();
-                    if (ref.indexOf('.json') === -1) {
-                        continue;
-                    }
-
-                    if (ref.indexOf('github') >= 1) {
-                        logger.info(`Processing ${cTitle('GitHub')} repository ${cLink(ref)}`);
-                        logger.info('----------------------------------------');
-                        await processManifest(ref);
-                        logger.info('----------------------------------------');
-                    } else if (ref.includes('gitlab') >= 1) {
-                        logger.info(`Processing ${cTitle('GitLab')} repository ${cLink(ref)}`);
-                        logger.info('----------------------------------------');
-                        await processManifest(ref);
-                        logger.info('----------------------------------------');
-                    }
-                }
-
-                fs.writeFileSync('body', `${messagePrefix}\n${Array.from(excluded.values()).join('\n')}`);
-
-                coreResolve();
-            });
-    });
-}
-
-/**
- * INSTALL
- */
-async function install({ type, filepath, copyDist = false }) {
-    if (type === '--system') {
-        filepath = path.resolve(process.cwd(), '../..', 'systems', filepath);
-    } else if (type === '--folder') {
-        filepath = path.resolve(filepath);
-    } else {
-        throw new Error('Invalid type argument. Only system or folder are supported.');
-    }
-
-    if (!fs.existsSync(filepath)) {
-        throw new Error('Unable to find requested folder.');
-    }
-
-    const system = path.resolve(filepath, 'system.json');
-    const template = path.resolve(filepath, 'template.json');
-
-    if (!fs.existsSync(system)) {
-        throw new Error('Unable to find system.json.');
-    }
-    if (!fs.existsSync(template)) {
-        throw new Error('Unable to find template.json.');
-    }
-
-    // Copy pdfoundry-dist
-    if (copyDist) {
-        const sourcePath = `${path.resolve(process.cwd(), distName)}/**/*`;
-        const targetPath = path.resolve(filepath, distName);
-        if (fs.existsSync(targetPath)) {
-            await del(targetPath, { force: true });
-        }
-
-        gulp.src(sourcePath).pipe(gulp.dest(targetPath));
-    }
-
-    // <editor-fold desc="System">
-    const systemData = JSON.parse(fs.readFileSync(system).toString());
-    if (!systemData.hasOwnProperty('esmodules')) {
-        systemData['esmodules'] = [];
-    }
-
-    if (!systemData.esmodules.includes('pdfoundry-dist/bundle.js')) {
-        systemData.esmodules.push('pdfoundry-dist/bundle.js');
-    }
-
-    if (!systemData.socket) {
-        systemData.socket = true;
-    }
-    // </editor-fold>
-
-    // <editor-fold desc="Template">
-    const templateData = JSON.parse(fs.readFileSync(template).toString());
-    if (!templateData.hasOwnProperty('Item')) {
-        templateData['Item'] = {};
-    }
-
-    if (!templateData.Item.hasOwnProperty('types')) {
-        templateData.Item['types'] = [];
-    }
-    if (!templateData.Item.types.includes('PDFoundry_PDF')) {
-        templateData.Item.types.push('PDFoundry_PDF');
-    }
-
-    if (!templateData.Item.hasOwnProperty('PDFoundry_PDF')) {
-        templateData.Item['PDFoundry_PDF'] = {};
-    }
-
-    const properties = [
-        ['url', ''],
-        ['code', ''],
-        ['offset', 0],
-        ['cache', false],
-    ];
-
-    for (const [key, value] of properties) {
-        if (!templateData.Item.PDFoundry_PDF.hasOwnProperty(key)) {
-            templateData.Item.PDFoundry_PDF[key] = value;
-            continue;
-        }
-
-        if (!templateData.Item.PDFoundry_PDF[key] !== value) {
-            templateData.Item.PDFoundry_PDF[key] = value;
-        }
-    }
-    // </editor-fold>
-
-    fs.writeFileSync(system, JSON.stringify(systemData, null, 2));
-    fs.writeFileSync(template, JSON.stringify(templateData, null, 2));
-
-    return { systemData, templateData };
-}
-
 exports.clean = cleanDist;
 exports.assets = copyAssets;
 exports.sass = buildSass;
-exports.link = link;
-exports.install = install;
 exports.docs = gulp.series(cleanDocs, docs);
 exports.build = gulp.series(copyAssets, buildSass, buildJS);
 exports.rebuild = gulp.series(cleanDist, exports.build);
-exports.release = gulp.series(exports.build, release);
 
 exports.watch = gulp.series(exports.build, watch);
 exports.rewatch = gulp.series(cleanDist, exports.watch);

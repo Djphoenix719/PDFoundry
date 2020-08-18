@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Viewer | PDFoundry</title>
+	<title>FillableViewer | PDFoundry</title>
 	<meta name="description" content="Documentation for PDFoundry">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,34 +56,29 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="viewer.html">Viewer</a>
+					<a href="fillableviewer.html">FillableViewer</a>
 				</li>
 			</ul>
-			<h1>Class Viewer</h1>
+			<h1>Class FillableViewer</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<section class="tsd-panel tsd-comment">
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>The PDFoundry Viewer class provides the core logic opening PDFs and binding their events.
-						You cannot create a new instance of this class, you must do so with the API.</p>
-					</div>
-					<p>See <a href="api.html#openpdf">Api.openPDF</a>, <a href="api.html#openpdfbycode">Api.openPDFByCode</a>, <a href="api.html#openpdfbyname">Api.openPDFByName</a>, <a href="api.html#openurl">Api.openURL</a> which all return a
-					promise which resolve with an instance of this class.</p>
-				</div>
-			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="tsd-signature-type">Application</span>
+						<a href="api.baseviewer.html" class="tsd-signature-type">BaseViewer</a>
 						<ul class="tsd-hierarchy">
 							<li>
-								<span class="target">Viewer</span>
+								<span class="target">FillableViewer</span>
+								<ul class="tsd-hierarchy">
+									<li>
+										<a href="api.actorviewer.html" class="tsd-signature-type">ActorViewer</a>
+									</li>
+								</ul>
 							</li>
 						</ul>
 					</li>
@@ -93,45 +88,87 @@
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Constructors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="fillableviewer.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
 						<section class="tsd-index-section tsd-is-inherited">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="viewer.html#appid" class="tsd-kind-icon">app<wbr>Id</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="viewer.html#options" class="tsd-kind-icon">options</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="viewer.html#position" class="tsd-kind-icon">position</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="fillableviewer.html#appid" class="tsd-kind-icon">app<wbr>Id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="fillableviewer.html#options" class="tsd-kind-icon">options</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="fillableviewer.html#position" class="tsd-kind-icon">position</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Accessors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="viewer.html#element" class="tsd-kind-icon">element</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="viewer.html#id" class="tsd-kind-icon">id</a></li>
-								<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="viewer.html#page" class="tsd-kind-icon">page</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="viewer.html#pdfdata" class="tsd-kind-icon">pdf<wbr>Data</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="viewer.html#popout" class="tsd-kind-icon">pop<wbr>Out</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="viewer.html#rendered" class="tsd-kind-icon">rendered</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="viewer.html#template" class="tsd-kind-icon">template</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-overwrite"><a href="viewer.html#title" class="tsd-kind-icon">title</a></li>
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-overwrite tsd-is-static"><a href="viewer.html#defaultoptions" class="tsd-kind-icon">default<wbr>Options</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="fillableviewer.html#element" class="tsd-kind-icon">element</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="fillableviewer.html#entitytype" class="tsd-kind-icon">entity<wbr>Type</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="fillableviewer.html#id" class="tsd-kind-icon">id</a></li>
+								<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><a href="fillableviewer.html#page" class="tsd-kind-icon">page</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="fillableviewer.html#popout" class="tsd-kind-icon">pop<wbr>Out</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="fillableviewer.html#rendered" class="tsd-kind-icon">rendered</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited"><a href="fillableviewer.html#template" class="tsd-kind-icon">template</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited"><a href="fillableviewer.html#title" class="tsd-kind-icon">title</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-overwrite tsd-is-static"><a href="fillableviewer.html#defaultoptions" class="tsd-kind-icon">default<wbr>Options</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
-							<h3>Methods</h3>
+							<h3>Events Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="viewer.html#close" class="tsd-kind-icon">close</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="viewer.html#download" class="tsd-kind-icon">download</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="viewer.html#getdata" class="tsd-kind-icon">get<wbr>Data</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="viewer.html#maximise" class="tsd-kind-icon">maximise</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="viewer.html#minimize" class="tsd-kind-icon">minimize</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="viewer.html#off" class="tsd-kind-icon">off</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="viewer.html#on" class="tsd-kind-icon">on</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="viewer.html#once" class="tsd-kind-icon">once</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="viewer.html#open" class="tsd-kind-icon">open</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="viewer.html#render" class="tsd-kind-icon">render</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="viewer.html#setposition" class="tsd-kind-icon">set<wbr>Position</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="fillableviewer.html#off" class="tsd-kind-icon">off</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="fillableviewer.html#on" class="tsd-kind-icon">on</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="fillableviewer.html#once" class="tsd-kind-icon">once</a></li>
+							</ul>
+							<h3>Other Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="fillableviewer.html#close" class="tsd-kind-icon">close</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="fillableviewer.html#download" class="tsd-kind-icon">download</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="fillableviewer.html#maximize" class="tsd-kind-icon">maximize</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="fillableviewer.html#minimize" class="tsd-kind-icon">minimize</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="fillableviewer.html#open" class="tsd-kind-icon">open</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="fillableviewer.html#refreshtitle" class="tsd-kind-icon">refresh<wbr>Title</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="fillableviewer.html#render" class="tsd-kind-icon">render</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="fillableviewer.html#setposition" class="tsd-kind-icon">set<wbr>Position</a></li>
 							</ul>
 						</section>
 					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+					<a name="constructor" class="tsd-anchor"></a>
+					<h3>constructor</h3>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Fillable<wbr>Viewer<span class="tsd-signature-symbol">(</span>entity<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">JournalEntry</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Actor</span>, pdfData<span class="tsd-signature-symbol">: </span><a href="../interfaces/api.pdfdata.html" class="tsd-signature-type">PDFData</a>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">ApplicationOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="fillableviewer.html" class="tsd-signature-type">FillableViewer</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides BaseViewer.__constructor</p>
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/viewer/FillableViewer.ts#L71">src/pdfoundry/viewer/FillableViewer.ts:71</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>entity: <span class="tsd-signature-type">JournalEntry</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Actor</span></h5>
+								</li>
+								<li>
+									<h5>pdfData: <a href="../interfaces/api.pdfdata.html" class="tsd-signature-type">PDFData</a></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <span class="tsd-signature-type">ApplicationOptions</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="fillableviewer.html" class="tsd-signature-type">FillableViewer</a></h4>
+						</li>
+					</ul>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
@@ -141,7 +178,10 @@
 					<h3>app<wbr>Id</h3>
 					<div class="tsd-signature tsd-kind-icon">app<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from Application.appId</p>
+						<p>Inherited from <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#appid">appId</a></p>
+						<ul>
+							<li>Defined in node_modules/foundry-pc-types/types/apps/app.d.ts:81</li>
+						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
@@ -155,7 +195,10 @@
 					<h3>options</h3>
 					<div class="tsd-signature tsd-kind-icon">options<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ApplicationOptions</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from Application.options</p>
+						<p>Inherited from <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#options">options</a></p>
+						<ul>
+							<li>Defined in node_modules/foundry-pc-types/types/apps/app.d.ts:75</li>
+						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
@@ -168,7 +211,10 @@
 					<h3>position</h3>
 					<div class="tsd-signature tsd-kind-icon">position<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ApplicationPosition</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from Application.position</p>
+						<p>Inherited from <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#position">position</a></p>
+						<ul>
+							<li>Defined in node_modules/foundry-pc-types/types/apps/app.d.ts:86</li>
+						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
@@ -188,7 +234,10 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from Application.element</p>
+								<p>Inherited from <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#element">element</a></p>
+								<ul>
+									<li>Defined in node_modules/foundry-pc-types/types/apps/app.d.ts:150</li>
+								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
@@ -196,6 +245,23 @@
 								</div>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">JQuery</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">HTMLElement</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="entitytype" class="tsd-anchor"></a>
+					<h3>entity<wbr>Type</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> entityType<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"Actor"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"Item"</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/viewer/FillableViewer.ts#L88">src/pdfoundry/viewer/FillableViewer.ts:88</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">"Actor"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"Item"</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -208,7 +274,10 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from Application.id</p>
+								<p>Inherited from <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#id">id</a></p>
+								<ul>
+									<li>Defined in node_modules/foundry-pc-types/types/apps/app.d.ts:145</li>
+								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
@@ -219,16 +288,20 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited">
 					<a name="page" class="tsd-anchor"></a>
 					<h3>page</h3>
-					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> page<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
 						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">set</span> page<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#page">page</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/viewer/BaseViewer.ts#L68">src/pdfoundry/viewer/BaseViewer.ts:68</a></li>
+								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
@@ -239,6 +312,10 @@
 						</li>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#page">page</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/viewer/BaseViewer.ts#L76">src/pdfoundry/viewer/BaseViewer.ts:76</a></li>
+								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
@@ -257,68 +334,6 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
-					<a name="pdfdata" class="tsd-anchor"></a>
-					<h3>pdf<wbr>Data</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> pdfData<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>cache<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>code<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>offset<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>url<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Returns a copy of the PDFData this viewer is using.
-									Changes to this data will not reflect in the viewer.</p>
-								</div>
-							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>cache<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>code<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>offset<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>url<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></h4>
-							<ul class="tsd-parameters">
-								<li class="tsd-parameter">
-									<h5>cache<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<div class="lead">
-											<p>If the user has requested caching for this PDF</p>
-										</div>
-									</div>
-								</li>
-								<li class="tsd-parameter">
-									<h5>code<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<div class="lead">
-											<p>The shorthand code PDF</p>
-										</div>
-									</div>
-								</li>
-								<li class="tsd-parameter">
-									<h5>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<div class="lead">
-											<p>The name of the PDF</p>
-										</div>
-									</div>
-								</li>
-								<li class="tsd-parameter">
-									<h5>offset<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<div class="lead">
-											<p>Page offset for the PDF vs. represented book page</p>
-										</div>
-									</div>
-								</li>
-								<li class="tsd-parameter">
-									<h5>url<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<div class="lead">
-											<p>The location of the PDF on the server.</p>
-										</div>
-									</div>
-								</li>
-							</ul>
-						</li>
-					</ul>
-				</section>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
 					<a name="popout" class="tsd-anchor"></a>
 					<h3>pop<wbr>Out</h3>
@@ -328,7 +343,10 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from Application.popOut</p>
+								<p>Inherited from <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#popout">popOut</a></p>
+								<ul>
+									<li>Defined in node_modules/foundry-pc-types/types/apps/app.d.ts:161</li>
+								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
@@ -349,7 +367,10 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from Application.rendered</p>
+								<p>Inherited from <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#rendered">rendered</a></p>
+								<ul>
+									<li>Defined in node_modules/foundry-pc-types/types/apps/app.d.ts:166</li>
+								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
@@ -369,7 +390,10 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from Application.template</p>
+								<p>Inherited from <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#template">template</a></p>
+								<ul>
+									<li>Defined in node_modules/foundry-pc-types/types/apps/app.d.ts:155</li>
+								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
@@ -380,17 +404,30 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-overwrite">
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
 					<a name="title" class="tsd-anchor"></a>
 					<h3>title</h3>
-					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-overwrite">
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> title<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#title">title</a></p>
 								<p>Overrides Application.title</p>
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/viewer/BaseViewer.ts#L84">src/pdfoundry/viewer/BaseViewer.ts:84</a></li>
+								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns the localized name of the window title.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>override</dt>
+									<dd></dd>
+								</dl>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
 						</li>
 					</ul>
@@ -404,7 +441,10 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides Application.defaultOptions</p>
+								<p>Overrides <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#defaultoptions">defaultOptions</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/viewer/FillableViewer.ts#L23">src/pdfoundry/viewer/FillableViewer.ts:23</a></li>
+								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">ApplicationOptions</span></h4>
 						</li>
@@ -412,7 +452,106 @@
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Methods</h2>
+				<h2>Events Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<a name="off" class="tsd-anchor"></a>
+					<h3>off</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">off<span class="tsd-signature-symbol">(</span>eventName<span class="tsd-signature-symbol">: </span><a href="../modules/events.html#pdfviewerevent" class="tsd-signature-type">PDFViewerEvent</a>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#off">off</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/viewer/BaseViewer.ts#L250">src/pdfoundry/viewer/BaseViewer.ts:250</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Deregister an event that has been registered with <a href="fillableviewer.html#on">on</a> or <a href="fillableviewer.html#once">once</a>.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>eventName: <a href="../modules/events.html#pdfviewerevent" class="tsd-signature-type">PDFViewerEvent</a></h5>
+								</li>
+								<li>
+									<h5>callback: <span class="tsd-signature-type">Function</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<a name="on" class="tsd-anchor"></a>
+					<h3>on</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">on<span class="tsd-signature-symbol">(</span>eventName<span class="tsd-signature-symbol">: </span><a href="../modules/events.html#pdfviewerevent" class="tsd-signature-type">PDFViewerEvent</a>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#on">on</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/viewer/BaseViewer.ts#L240">src/pdfoundry/viewer/BaseViewer.ts:240</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Register a callback to occur when an event fires. See individual events for descriptions and use <a href="api.api-1.html#debug.events">Api.DEBUG.EVENTS</a> to log and analyze events.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>eventName: <a href="../modules/events.html#pdfviewerevent" class="tsd-signature-type">PDFViewerEvent</a></h5>
+								</li>
+								<li>
+									<h5>callback: <span class="tsd-signature-type">Function</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<a name="once" class="tsd-anchor"></a>
+					<h3>once</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">once<span class="tsd-signature-symbol">(</span>eventName<span class="tsd-signature-symbol">: </span><a href="../modules/events.html#pdfviewerevent" class="tsd-signature-type">PDFViewerEvent</a>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#once">once</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/viewer/BaseViewer.ts#L260">src/pdfoundry/viewer/BaseViewer.ts:260</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Like <a href="fillableviewer.html#on">on</a> but only fires on the next occurrence.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>eventName: <a href="../modules/events.html#pdfviewerevent" class="tsd-signature-type">PDFViewerEvent</a></h5>
+								</li>
+								<li>
+									<h5>callback: <span class="tsd-signature-type">Function</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Other Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="close" class="tsd-anchor"></a>
 					<h3>close</h3>
@@ -422,21 +561,28 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides Application.close</p>
+								<p>Overrides <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#close">close</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/viewer/FillableViewer.ts#L316">src/pdfoundry/viewer/FillableViewer.ts:316</a></li>
+								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="download" class="tsd-anchor"></a>
 					<h3>download</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">download<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#download">download</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/viewer/BaseViewer.ts#L334">src/pdfoundry/viewer/BaseViewer.ts:334</a></li>
+								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
@@ -444,40 +590,24 @@
 								</div>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-					<a name="getdata" class="tsd-anchor"></a>
-					<h3>get<wbr>Data</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Data<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Overrides Application.getData</p>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>A promise that resolves to <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array" class="external">Uint8Array</a>
+							of file bytes once that download is finished. You can pass this to a viewer to open it, or do something else with it.</p>
 						</li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-					<a name="maximise" class="tsd-anchor"></a>
-					<h3>maximise</h3>
+					<a name="maximize" class="tsd-anchor"></a>
+					<h3>maximize</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">maximise<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">maximize<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from Application.maximise</p>
+								<p>Inherited from <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#maximize">maximize</a></p>
+								<ul>
+									<li>Defined in node_modules/foundry-pc-types/types/apps/app.d.ts:335</li>
+								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
@@ -499,7 +629,10 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from Application.minimize</p>
+								<p>Inherited from <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#minimize">minimize</a></p>
+								<ul>
+									<li>Defined in node_modules/foundry-pc-types/types/apps/app.d.ts:328</li>
+								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
@@ -512,105 +645,19 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="off" class="tsd-anchor"></a>
-					<h3>off</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">off<span class="tsd-signature-symbol">(</span>eventName<span class="tsd-signature-symbol">: </span><a href="../globals.html#pdfviewerevent" class="tsd-signature-type">PDFViewerEvent</a>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Deregister an event that has been registered with <a href="viewer.html#on">on</a> or <a href="viewer.html#once">once</a>.</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>eventName: <a href="../globals.html#pdfviewerevent" class="tsd-signature-type">PDFViewerEvent</a></h5>
-								</li>
-								<li>
-									<h5>callback: <span class="tsd-signature-type">Function</span></h5>
-									<div class="tsd-comment tsd-typography">
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="on" class="tsd-anchor"></a>
-					<h3>on</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">on<span class="tsd-signature-symbol">(</span>eventName<span class="tsd-signature-symbol">: </span><a href="../globals.html#pdfviewerevent" class="tsd-signature-type">PDFViewerEvent</a>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Register a callback to occur when an event fires. See individual events for descriptions and use <a href="api.html#debug.events">Api.DEBUG.EVENTS</a> to log and analyze events.</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>eventName: <a href="../globals.html#pdfviewerevent" class="tsd-signature-type">PDFViewerEvent</a></h5>
-								</li>
-								<li>
-									<h5>callback: <span class="tsd-signature-type">Function</span></h5>
-									<div class="tsd-comment tsd-typography">
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="once" class="tsd-anchor"></a>
-					<h3>once</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">once<span class="tsd-signature-symbol">(</span>eventName<span class="tsd-signature-symbol">: </span><a href="../globals.html#pdfviewerevent" class="tsd-signature-type">PDFViewerEvent</a>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Like <a href="viewer.html#on">on</a> but only fires on the next occurrence.</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>eventName: <a href="../globals.html#pdfviewerevent" class="tsd-signature-type">PDFViewerEvent</a></h5>
-								</li>
-								<li>
-									<h5>callback: <span class="tsd-signature-type">Function</span></h5>
-									<div class="tsd-comment tsd-typography">
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="open" class="tsd-anchor"></a>
 					<h3>open</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">open<span class="tsd-signature-symbol">(</span>pdfSource<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Uint8Array</span>, page<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#open">open</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/viewer/BaseViewer.ts#L355">src/pdfoundry/viewer/BaseViewer.ts:355</a></li>
+								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
@@ -636,6 +683,23 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="refreshtitle" class="tsd-anchor"></a>
+					<h3>refresh<wbr>Title</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">refresh<wbr>Title<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/d8346fc/src/pdfoundry/viewer/FillableViewer.ts#L237">src/pdfoundry/viewer/FillableViewer.ts:237</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="render" class="tsd-anchor"></a>
 					<h3>render</h3>
@@ -645,7 +709,10 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from Application.render</p>
+								<p>Inherited from <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#render">render</a></p>
+								<ul>
+									<li>Defined in node_modules/foundry-pc-types/types/apps/app.d.ts:193</li>
+								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
@@ -683,7 +750,10 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from Application.setPosition</p>
+								<p>Inherited from <a href="api.baseviewer.html">BaseViewer</a>.<a href="api.baseviewer.html#setposition">setPosition</a></p>
+								<ul>
+									<li>Defined in node_modules/foundry-pc-types/types/apps/app.d.ts:340</li>
+								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
@@ -725,147 +795,102 @@
 					<li class="globals  ">
 						<a href="../globals.html"><em>Globals</em></a>
 					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/api.html">API</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/events.html">Events</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/utilities.html">Utilities</a>
+					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-class">
-						<a href="api.html" class="tsd-kind-icon">Api</a>
-					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-class">
-						<a href="viewer.html" class="tsd-kind-icon">Viewer</a>
+						<a href="fillableviewer.html" class="tsd-kind-icon">Fillable<wbr>Viewer</a>
 						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="viewer.html#appid" class="tsd-kind-icon">app<wbr>Id</a>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+								<a href="fillableviewer.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="viewer.html#options" class="tsd-kind-icon">options</a>
+								<a href="fillableviewer.html#appid" class="tsd-kind-icon">app<wbr>Id</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="viewer.html#position" class="tsd-kind-icon">position</a>
+								<a href="fillableviewer.html#options" class="tsd-kind-icon">options</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="fillableviewer.html#position" class="tsd-kind-icon">position</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-								<a href="viewer.html#element" class="tsd-kind-icon">element</a>
-							</li>
-							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-								<a href="viewer.html#id" class="tsd-kind-icon">id</a>
-							</li>
-							<li class=" tsd-kind-accessor tsd-parent-kind-class">
-								<a href="viewer.html#page" class="tsd-kind-icon">page</a>
+								<a href="fillableviewer.html#element" class="tsd-kind-icon">element</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
-								<a href="viewer.html#pdfdata" class="tsd-kind-icon">pdf<wbr>Data</a>
+								<a href="fillableviewer.html#entitytype" class="tsd-kind-icon">entity<wbr>Type</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-								<a href="viewer.html#popout" class="tsd-kind-icon">pop<wbr>Out</a>
+								<a href="fillableviewer.html#id" class="tsd-kind-icon">id</a>
+							</li>
+							<li class=" tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited">
+								<a href="fillableviewer.html#page" class="tsd-kind-icon">page</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-								<a href="viewer.html#rendered" class="tsd-kind-icon">rendered</a>
+								<a href="fillableviewer.html#popout" class="tsd-kind-icon">pop<wbr>Out</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
-								<a href="viewer.html#template" class="tsd-kind-icon">template</a>
+								<a href="fillableviewer.html#rendered" class="tsd-kind-icon">rendered</a>
 							</li>
-							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-overwrite">
-								<a href="viewer.html#title" class="tsd-kind-icon">title</a>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-inherited">
+								<a href="fillableviewer.html#template" class="tsd-kind-icon">template</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
+								<a href="fillableviewer.html#title" class="tsd-kind-icon">title</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-overwrite tsd-is-static">
-								<a href="viewer.html#defaultoptions" class="tsd-kind-icon">default<wbr>Options</a>
+								<a href="fillableviewer.html#defaultoptions" class="tsd-kind-icon">default<wbr>Options</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-								<a href="viewer.html#close" class="tsd-kind-icon">close</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="viewer.html#download" class="tsd-kind-icon">download</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-								<a href="viewer.html#getdata" class="tsd-kind-icon">get<wbr>Data</a>
+								<a href="fillableviewer.html#close" class="tsd-kind-icon">close</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="viewer.html#maximise" class="tsd-kind-icon">maximise</a>
+								<a href="fillableviewer.html#download" class="tsd-kind-icon">download</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="viewer.html#minimize" class="tsd-kind-icon">minimize</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="viewer.html#off" class="tsd-kind-icon">off</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="viewer.html#on" class="tsd-kind-icon">on</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="viewer.html#once" class="tsd-kind-icon">once</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="viewer.html#open" class="tsd-kind-icon">open</a>
+								<a href="fillableviewer.html#maximize" class="tsd-kind-icon">maximize</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="viewer.html#render" class="tsd-kind-icon">render</a>
+								<a href="fillableviewer.html#minimize" class="tsd-kind-icon">minimize</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="viewer.html#setposition" class="tsd-kind-icon">set<wbr>Position</a>
+								<a href="fillableviewer.html#off" class="tsd-kind-icon">off</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="fillableviewer.html#on" class="tsd-kind-icon">on</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="fillableviewer.html#once" class="tsd-kind-icon">once</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="fillableviewer.html#open" class="tsd-kind-icon">open</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="fillableviewer.html#refreshtitle" class="tsd-kind-icon">refresh<wbr>Title</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="fillableviewer.html#render" class="tsd-kind-icon">render</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="fillableviewer.html#setposition" class="tsd-kind-icon">set<wbr>Position</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#itemcomparer" class="tsd-kind-icon">Item<wbr>Comparer</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#pdfdata" class="tsd-kind-icon">PDFData</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#pdfviewerclosed" class="tsd-kind-icon">PDFViewer<wbr>Closed</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#pdfviewerclosing" class="tsd-kind-icon">PDFViewer<wbr>Closing</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#pdfviewerevent" class="tsd-kind-icon">PDFViewer<wbr>Event</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#pdfvieweropened" class="tsd-kind-icon">PDFViewer<wbr>Opened</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#pdfvieweropening" class="tsd-kind-icon">PDFViewer<wbr>Opening</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#pdfviewerready" class="tsd-kind-icon">PDFViewer<wbr>Ready</a>
-					</li>
-					<li class=" tsd-kind-type-alias">
-						<a href="../globals.html#pdfviewerwindowevent" class="tsd-kind-icon">PDFViewer<wbr>Window<wbr>Event</a>
-					</li>
-					<li class=" tsd-kind-function">
-						<a href="../globals.html#fileexists" class="tsd-kind-icon">file<wbr>Exists</a>
-					</li>
-					<li class=" tsd-kind-function">
-						<a href="../globals.html#getabsoluteurl" class="tsd-kind-icon">get<wbr>AbsoluteURL</a>
-					</li>
-					<li class=" tsd-kind-function">
-						<a href="../globals.html#getpdfdatafromitem" class="tsd-kind-icon">getPDFData<wbr>From<wbr>Item</a>
-					</li>
-					<li class=" tsd-kind-function">
-						<a href="../globals.html#getuseridsatleastrole" class="tsd-kind-icon">get<wbr>User<wbr>Ids<wbr>AtLeast<wbr>Role</a>
-					</li>
-					<li class=" tsd-kind-function">
-						<a href="../globals.html#getuseridsatmostrole" class="tsd-kind-icon">get<wbr>User<wbr>Ids<wbr>AtMost<wbr>Role</a>
-					</li>
-					<li class=" tsd-kind-function">
-						<a href="../globals.html#getuseridsbetweenroles" class="tsd-kind-icon">get<wbr>User<wbr>Ids<wbr>Between<wbr>Roles</a>
-					</li>
-					<li class=" tsd-kind-function">
-						<a href="../globals.html#getuseridsexceptme" class="tsd-kind-icon">get<wbr>User<wbr>Ids<wbr>Except<wbr>Me</a>
-					</li>
-					<li class=" tsd-kind-function">
-						<a href="../globals.html#getuseridsofrole" class="tsd-kind-icon">get<wbr>User<wbr>Ids<wbr>OfRole</a>
-					</li>
-					<li class=" tsd-kind-function">
-						<a href="../globals.html#ispdf" class="tsd-kind-icon">isPDF</a>
-					</li>
-					<li class=" tsd-kind-function">
-						<a href="../globals.html#validateabsoluteurl" class="tsd-kind-icon">validate<wbr>AbsoluteURL</a>
+					<li class=" tsd-kind-variable">
+						<a href="../globals.html#domain_whitelist" class="tsd-kind-icon">DOMAIN_<wbr>WHITELIST</a>
 					</li>
 				</ul>
 			</nav>
@@ -877,15 +902,24 @@
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
 			</ul>
 		</div>
 	</div>

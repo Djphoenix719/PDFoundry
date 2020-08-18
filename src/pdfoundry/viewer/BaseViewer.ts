@@ -13,28 +13,27 @@
  * limitations under the License.
  */
 
-import PlayerSelect from '../app/PlayerSelect';
-import { getUserIdsExceptMe } from '../Util';
-import { PDFViewerEvent } from '../common/types/PDFHooks';
-import { PDFData } from '../common/types/PDFData';
-import { PDFjsViewer } from '../common/types/PDFjsViewer';
-import Settings from '../settings/Settings';
-import { PDFjsEventBus } from '../common/types/PDFjsEventBus';
-import SetViewEvent from '../socket/events/SetViewEvent';
+import Settings from '../Settings';
 import EventStore from '../common/helpers/events';
+import { PDFViewerEvent } from '../common/types/PDFHooks';
+import { PDFjsViewer } from '../common/types/PDFjsViewer';
+import { PDFjsEventBus } from '../common/types/PDFjsEventBus';
+import { BUTTON_GITHUB } from '../common/helpers/header';
 
 /**
- * The PDFoundry Viewer class provides the core logic opening PDFs and binding their events.
- * You cannot create a new instance of this class, you must do so with the API.
- *
- * See {@link Api.openPDF}, {@link Api.openPDFByCode}, {@link Api.openPDFByName}, {@link Api.openURL} which all return a
- * promise which resolve with an instance of this class.
+ * The base viewer class from which all other types of viewers inherit.
+ * @see {@link StaticViewer}
+ * @see {@link FillableViewer}
+ * @see {@link ActorViewer}
+ * @module API
  */
-export default class Viewer extends Application {
+export default abstract class BaseViewer extends Application {
+    // <editor-fold desc="Static Properties">
+
     static get defaultOptions() {
         const options = super.defaultOptions;
         options.classes = ['app', 'window-app', 'pdfoundry-viewer'];
-        options.template = `systems/${Settings.EXTERNAL_SYSTEM_NAME}/pdfoundry-dist/templates/app/pdf-viewer.html`;
+        options.template = `${Settings.PATH_TEMPLATES}/app/viewer/static.html`;
         options.title = game.i18n.localize('PDFOUNDRY.VIEWER.ViewPDF');
         options.width = 8.5 * 100 + 64;
         options.height = 11 * 100 + 64;
@@ -42,41 +41,26 @@ export default class Viewer extends Application {
         return options;
     }
 
+    // </editor-fold>
+    // <editor-fold desc="Properties">
+
     protected _frame: HTMLIFrameElement;
     protected _viewer: PDFjsViewer;
     protected _eventBus: PDFjsEventBus;
-    protected _pdfData: PDFData;
     protected _eventStore: EventStore<PDFViewerEvent>;
 
-    /**
-     * @internal
-     */
-    constructor(pdfData?: PDFData, options?: ApplicationOptions) {
+    // </editor-fold>
+    // <editor-fold desc="Constructor & Initialization">
+
+    protected constructor(options?: ApplicationOptions) {
         super(options);
-
-        if (pdfData === undefined) {
-            pdfData = {
-                name: game.i18n.localize('PDFOUNDRY.VIEWER.Title'),
-                code: '',
-                offset: 0,
-                url: '',
-                cache: false,
-            };
-        }
-
-        this._pdfData = pdfData;
         this._eventStore = new EventStore<PDFViewerEvent>();
     }
 
-    // <editor-fold desc="Getters & Setters">
+    // </editor-fold>
+    // <editor-fold desc="Instance Methods"></editor-fold>
 
-    /**
-     * Returns a copy of the PDFData this viewer is using.
-     * Changes to this data will not reflect in the viewer.
-     */
-    public get pdfData() {
-        return duplicate(this._pdfData);
-    }
+    // <editor-fold desc="Getters & Setters">
 
     /**
      * Get the currently viewed page.
@@ -93,53 +77,42 @@ export default class Viewer extends Application {
         this._viewer.page = value;
     }
 
+    /**
+     * Returns the localized name of the window title.
+     * @override
+     */
+    public get title(): string {
+        return game.i18n.localize('PDFOUNDRY.VIEWER.ViewPDF');
+    }
+
     // </editor-fold>
 
     // <editor-fold desc="Foundry Overrides">
 
-    public get title(): string {
-        let title = this._pdfData.name;
-        if (this._pdfData.code !== '') {
-            title = `${title} (${this._pdfData.code})`;
-        }
-        return title;
-    }
-
     protected _getHeaderButtons(): any[] {
         const buttons = super._getHeaderButtons();
-        //TODO: Standardize this to function w/ the Item sheet one
-        buttons.unshift({
-            class: 'pdf-sheet-github',
-            icon: 'fas fa-external-link-alt',
-            label: 'PDFoundry',
-            onclick: () => window.open('https://github.com/Djphoenix719/PDFoundry', '_blank'),
-        });
-
-        buttons.unshift({
-            class: 'pdf-sheet-show-players',
-            icon: 'fas fa-eye',
-            label: game.i18n.localize('PDFOUNDRY.VIEWER.ShowToPlayersText'),
-            onclick: (event) => this.showTo(event),
-        });
-
+        buttons.unshift(BUTTON_GITHUB);
         return buttons;
     }
 
+    /**
+     * @internal
+     */
     public getData(options?: any): any | Promise<any> {
         const data = super.getData(options);
-        data.systemName = Settings.EXTERNAL_SYSTEM_NAME;
+        data.viewerFramePath = `${Settings.PATH_PDFJS}/web/viewer.html`;
         return data;
     }
 
     protected async activateListeners(html: JQuery): Promise<void> {
-        this._eventStore.fire('viewerOpening', this);
+        this.onViewerOpening();
         super.activateListeners(html);
 
         this._frame = html.parent().find('iframe.pdfViewer').get(0) as HTMLIFrameElement;
         this.getViewer().then(async (viewer) => {
             this._viewer = viewer;
 
-            this._eventStore.fire('viewerOpened', this);
+            this.onViewerOpened();
 
             this.getEventBus().then((eventBus) => {
                 this._eventBus = eventBus;
@@ -148,18 +121,11 @@ export default class Viewer extends Application {
                 this._eventBus.on('updateviewarea', this.onViewAreaUpdated.bind(this));
                 this._eventBus.on('scalechanging', this.onScaleChanging.bind(this));
 
-                // const listeners = eventBus._listeners;
-                // for (const eventName of Object.keys(listeners)) {
-                //     eventBus.on(eventName, (...args) => {
-                //         Viewer.logEvent(eventName, args);
-                //     });
-                // }
-
-                this._eventStore.fire('viewerReady', this);
+                this.onViewerReady();
             });
         });
 
-        // _getHeaderButtons does not permit titles...
+        // _getHeaderButtons does not permit title attributes used for tooltips...
         $(html).parents().parents().find('.pdf-sheet-show-players').prop('title', game.i18n.localize('PDFOUNDRY.VIEWER.ShowToPlayersTitle'));
     }
 
@@ -167,6 +133,51 @@ export default class Viewer extends Application {
 
     // <editor-fold desc="Events">
 
+    /**
+     * Fires when the viewer window first starts opening
+     * @protected
+     */
+    protected onViewerOpening() {
+        this._eventStore.fire('viewerOpening', this);
+    }
+
+    /**
+     * Fires when the viewer window is fully opened, but not yet ready
+     * @protected
+     */
+    protected onViewerOpened() {
+        this._eventStore.fire('viewerOpened', this);
+    }
+
+    /**
+     * Fires when the viewer window is fully opened and is ready for use
+     * @protected
+     */
+    protected onViewerReady() {
+        this._eventStore.fire('viewerReady', this);
+    }
+
+    /**
+     * Fires when the viewer window first starts closing
+     * @protected
+     */
+    protected onViewerClosing() {
+        this._eventStore.fire('viewerClosing', this);
+    }
+
+    /**
+     * Fires when the viewer window is fully closed
+     * @protected
+     */
+    protected onViewerClosed() {
+        this._eventStore.fire('viewerClosed', this);
+    }
+
+    /**
+     * Occurs during scrolling when a page passes the breakpoint
+     * @param event
+     * @protected
+     */
     protected onPageChanging(event) {
         this._eventStore.fire('pageChanging', this, {
             pageLabel: event.pageLabel,
@@ -174,6 +185,11 @@ export default class Viewer extends Application {
         });
     }
 
+    /**
+     * Occurs when a new page is loaded and rendered
+     * @param event
+     * @protected
+     */
     protected onPageRendered(event) {
         this._eventStore.fire('pageRendered', this, {
             pageNumber: event.pageNumber,
@@ -188,6 +204,11 @@ export default class Viewer extends Application {
         });
     }
 
+    /**
+     * Occurs when the zoom is changed or window scrolled
+     * @param event
+     * @protected
+     */
     protected onViewAreaUpdated(event) {
         this._eventStore.fire('viewAreaUpdated', this, {
             top: event.location.top,
@@ -198,6 +219,11 @@ export default class Viewer extends Application {
         });
     }
 
+    /**
+     * Occurs when the zoom is changed
+     * @param event
+     * @protected
+     */
     protected onScaleChanging(event) {
         this._eventStore.fire('scaleChanging', this, {
             presetValue: event.presetValue,
@@ -209,6 +235,7 @@ export default class Viewer extends Application {
      * Register a callback to occur when an event fires. See individual events for descriptions and use {@link Api.DEBUG.EVENTS} to log and analyze events.
      * @param eventName
      * @param callback
+     * @category Events
      */
     public on(eventName: PDFViewerEvent, callback: Function): void {
         this._eventStore.on(eventName, callback);
@@ -218,6 +245,7 @@ export default class Viewer extends Application {
      * Deregister an event that has been registered with {@link on} or {@link once}.
      * @param eventName
      * @param callback
+     * @category Events
      */
     public off(eventName: PDFViewerEvent, callback: Function): void {
         this._eventStore.off(eventName, callback);
@@ -227,6 +255,7 @@ export default class Viewer extends Application {
      * Like {@link on} but only fires on the next occurrence.
      * @param eventName
      * @param callback
+     * @category Events
      */
     public once(eventName: PDFViewerEvent, callback: Function): void {
         this._eventStore.once(eventName, callback);
@@ -234,31 +263,16 @@ export default class Viewer extends Application {
 
     // </editor-fold>
 
-    // private static logEvent(key: string, ...args) {
-    //     console.warn(key);
-    //     console.warn(args);
-    // }
-
-    public async close(): Promise<any> {
-        this._eventStore.fire('viewerClosed', this);
-        return super.close();
-    }
-
     /**
-     * Show the current page to GMs.
+     * Close the application and un-register references to it within UI mappings
+     * This function returns a Promise which resolves once the window closing animation concludes
      */
-    protected showTo(event: MouseEvent) {
-        const pdfData = this.pdfData;
-        pdfData.offset = 0;
+    public async close(): Promise<void> {
+        this.onViewerClosing();
 
-        const ids = getUserIdsExceptMe();
-        if (event.shiftKey) {
-            new SetViewEvent(ids, pdfData, this.page).emit();
-        } else {
-            new PlayerSelect(ids, (filteredIds) => {
-                new SetViewEvent(filteredIds, pdfData, this.page).emit();
-            }).render(true);
-        }
+        await super.close();
+
+        this.onViewerClosed();
     }
 
     /**
@@ -314,6 +328,8 @@ export default class Viewer extends Application {
 
     /**
      * Finish the download and return the byte array for the file.
+     * @returns A promise that resolves to {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array|Uint8Array}
+     *  of file bytes once that download is finished. You can pass this to a viewer to open it, or do something else with it.
      */
     public download(): Promise<Uint8Array> {
         return new Promise<Uint8Array>(async (resolve) => {

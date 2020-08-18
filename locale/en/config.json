@@ -10,7 +10,8 @@
         "Code": "What is the short code that will be used to open this PDF?",
         "URL": "Which PDF file should be opened?",
         "PageOffset": "When you ask the system to open a page, how much should the page be offset by so the page opens correctly?",
-        "EnableCaching": "Should this PDF be cached on a player's computer after being opened? This may save bandwidth, but will require storage space on the user's computer."
+        "EnableCaching": "Should this PDF be cached on a player's computer after being opened? This may save bandwidth, but will require storage space on the user's computer.",
+        "PDFType": "See the manual for a description of PDF types."
       },
       "LABEL": {
         "Name": "PDF Name",
@@ -18,6 +19,7 @@
         "URL": "PDF URL",
         "PageOffset": "Page Offset",
         "EnableCaching": "Enable Caching",
+        "PDFType": "PDF Type",
         "TestSettings": "When you click this button, your PDF should open to page 5. If it doesn't, close the PDF, then adjust the page offset until it does."
       },
       "PLACEHOLDER": {
@@ -38,7 +40,9 @@
       "ShowToPlayersTitle": "Press SHIFT to show to ALL players except yourself.",
 
       "SelectPlayers": "Select Players",
-      "SelectPlayersConfirm": "Make it so!"
+      "SelectPlayersConfirm": "Make it so!",
+      "SelectSheet": "Select Sheet",
+      "SelectSheetConfirm": "Make it so!"
     },
     "MANUAL": {
       "Name": "PDFoundry User Manual"
@@ -60,6 +64,26 @@
       "CacheSizeHint": "How many MB of hard drive space should be allowed to be taken up by the PDF cache? Must be between 64 and 1024 inclusive.",
       "ShowInExistingViewerName": "Show Shared PDFs in Existing Viewer",
       "ShowInExistingViewerHint": "If enabled, when another player shows a PDF to you, if you have the PDF open already the page will change instead of opening a new window."
+    },
+    "MISC": {
+      "PDFTYPE": {
+        "Static": "Static",
+        "Fillable": "Form Fillable (Unlinked)",
+        "Actor": "Form Fillable (Actor Sheet)"
+      },
+
+      "CreatePDF": "Create PDF",
+      "NewPDF": "New PDF",
+
+      "Confirm": "Confirm"
+    },
+    "COMMANDS": {
+      "Success": "PDFoundry: $COMMAND_NAME$ complete successfully.",
+      "Failure": "PDFoundry: $COMMAND_NAME$ encountered an error. See the console for additional details.",
+
+      "PurgeCacheSuccess": "PDF cache has been cleared.",
+      "FixMissingTypesSuccess": "Fixed PDFs with missing type definitions.",
+      "FixMissingTypesFailure": "No PDFs with missing type definitions found."
     }
   }
 }

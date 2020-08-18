@@ -13,36 +13,71 @@
  * limitations under the License.
  */
 
-import { getAbsoluteURL, getPDFDataFromItem } from './Util';
-import { PDFItemSheet } from './app/PDFItemSheet';
+import { getAbsoluteURL, getPDFData, isEntityPDF } from './Util';
 import PreloadEvent from './socket/events/PreloadEvent';
 import { Socket } from './socket/Socket';
-import Settings from './settings/Settings';
+import Settings from './Settings';
 import PDFCache from './cache/PDFCache';
-import I18n from './settings/I18n';
 import Api from './Api';
 import HTMLEnricher from './enricher/HTMLEnricher';
 import TinyMCEPlugin from './enricher/TinyMCEPlugin';
+import PDFActorSheetAdapter from './app/PDFActorSheetAdapter';
+import { PDFType } from './common/types/PDFType';
+import { PDFConfig } from './app/PDFConfig';
+import FixMissingTypes from './commands/FixMissingTypes';
+import PurgeCache from './commands/PurgeCache';
+import { legacyMigrationRequired, migrateLegacy } from './migrate/MigrateLegacy';
 
 /**
  * A collection of methods used for setting up the API & system state.
- * @private
+ * @internal
  */
 export default class Setup {
     /**
      * Run setup tasks.
      */
     public static run() {
+        if (hasProperty(ui, 'PDFoundry')) {
+            Hooks.once('init', async () => {
+                let d = new Dialog({
+                    title: 'PDFoundry: Error',
+                    content: [
+                        '<div style="text-align: justify; margin: 0; padding: 0;">',
+                        '<h1 style="color: red">PDFoundry Is Already Installed</h1>',
+                        '<p style="font-weight: bold">You have enabled the module version of PDFoundry, but the system you ' +
+                            'are using already has PDFoundry installed.</p>',
+                        '<p>1. If you installed PDFoundry using a nightly build, uninstall and reinstall your system with the ' +
+                            '"Game Systems" menu in Foundry VTT setup, or simply update the system if an update is available. ' +
+                            'Your world data is safe either way.</p>',
+                        '<p>2. If the system you are using comes with PDFoundry already installed - you must use that version of ' +
+                            'PDFoundry by disabling the module version.</p>',
+                        '<p style="font-weight: bold">The module version of PDFoundry will not function.</p>',
+                        '</div>',
+                    ].join(''),
+                    buttons: {},
+                });
+                d.render(true);
+            });
+            return;
+        }
+
         // Register the PDFoundry APi on the UI
         ui['PDFoundry'] = Api;
 
-        // Register system & css synchronously
-        Setup.registerSystem();
-        Setup.injectStyles();
-
-        // Setup tasks requiring FVTT is loaded
+        // Setup tasks requiring that FVTT is loaded
         Hooks.once('ready', Setup.lateRun);
+
+        Hooks.on('renderJournalDirectory', Setup.createJournalButton);
+        Hooks.on('renderJournalDirectory', Setup.hookListItems);
+
+        // getItemDirectoryEntryContext - Setup context menu for 'Open PDF' links
+        Hooks.on('getJournalDirectoryEntryContext', Setup.getJournalContextOptions);
+
+        // Cogwheel settings menu
+        Hooks.on('renderSettings', Setup.onRenderSettings);
     }
+
+    private static readonly COMMANDS = [new FixMissingTypes(), new PurgeCache()];
 
     /**
      * Late setup tasks happen when the system is loaded
@@ -59,14 +94,21 @@ export default class Setup {
         Hooks.on('renderJournalSheet', HTMLEnricher.HandleEnrich);
         Hooks.on('renderActorSheet', HTMLEnricher.HandleEnrich);
 
+        Hooks.on('chatMessage', Setup.onChatMessage);
+
         // Register TinyMCE drag + drop events
         TinyMCEPlugin.Register();
 
         return new Promise(async () => {
             // Initialize the settings
-            await Settings.initialize();
+            Settings.initialize();
             await PDFCache.initialize();
-            await I18n.initialize();
+
+            if (legacyMigrationRequired()) {
+                migrateLegacy().then(() => {
+                    Settings.set(Settings.SETTINGS_KEY.DATA_VERSION, 'v0.6.0');
+                });
+            }
 
             // PDFoundry is ready
             Setup.userLogin();
@@ -74,57 +116,11 @@ export default class Setup {
     }
 
     /**
-     * Inject the CSS file into the header, so it doesn't have to be referenced in the system.json
-     */
-    public static injectStyles() {
-        const head = $('head');
-        const link = `<link href="systems/${Settings.DIST_PATH}/bundle.css" rel="stylesheet" type="text/css" media="all">`;
-        head.append($(link));
-    }
-
-    /**
-     * Pulls the system name from the script tags.
-     */
-    public static registerSystem() {
-        const scripts = $('script');
-        for (let i = 0; i < scripts.length; i++) {
-            const script = scripts.get(i) as HTMLScriptElement;
-            const folders = script.src.split('/');
-            const distIdx = folders.indexOf(Settings.DIST_NAME);
-            if (distIdx === -1) continue;
-
-            if (folders[distIdx - 1] === 'pdfoundry') break;
-
-            Settings.EXTERNAL_SYSTEM_NAME = folders[distIdx - 1];
-            break;
-        }
-    }
-
-    /**
      * Register the PDF sheet and unregister invalid sheet types from it.
      */
     public static setupSheets() {
-        Items.registerSheet(Settings.INTERNAL_MODULE_NAME, PDFItemSheet, {
-            types: [Settings.PDF_ENTITY_TYPE],
-            makeDefault: true,
-        });
-
-        // Unregister all other item sheets for the PDF entity
-        const pdfoundryKey = `${Settings.INTERNAL_MODULE_NAME}.${PDFItemSheet.name}`;
-        const sheets = CONFIG.Item.sheetClasses[Settings.PDF_ENTITY_TYPE];
-        for (const key of Object.keys(sheets)) {
-            const sheet = sheets[key];
-            // keep the PDFoundry sheet
-            if (sheet.id === pdfoundryKey) {
-                continue;
-            }
-
-            // id is MODULE.CLASS_NAME
-            const [module] = sheet.id.split('.');
-            Items.unregisterSheet(module, sheet.cls, {
-                types: [Settings.PDF_ENTITY_TYPE],
-            });
-        }
+        // Register actor "sheet"
+        Actors.registerSheet(Settings.MODULE_NAME, PDFActorSheetAdapter, { makeDefault: false });
     }
 
     /**
@@ -132,31 +128,27 @@ export default class Setup {
      * @param html
      * @param options
      */
-    public static getItemContextOptions(html, options: any[]) {
-        const getItemFromContext = (html: JQuery<HTMLElement>): Item => {
+    public static getJournalContextOptions(html: JQuery, options: any[]) {
+        const getJournalEntryFromLi = (html: JQuery): JournalEntry => {
             const id = html.data('entity-id');
-            return game.items.get(id);
+            return game.journal.get(id);
+        };
+
+        const shouldAdd = (entityHtml: JQuery) => {
+            const journalEntry = getJournalEntryFromLi(entityHtml);
+            return isEntityPDF(journalEntry) && getPDFData(journalEntry)?.type !== PDFType.Actor;
         };
 
         if (game.user.isGM) {
             options.unshift({
                 name: game.i18n.localize('PDFOUNDRY.CONTEXT.PreloadPDF'),
                 icon: '<i class="fas fa-download fa-fw"></i>',
-                condition: (entityHtml: JQuery<HTMLElement>) => {
-                    const item = getItemFromContext(entityHtml);
-                    if (item.type !== Settings.PDF_ENTITY_TYPE) {
-                        return false;
-                    }
+                condition: shouldAdd,
+                callback: (entityHtml: JQuery) => {
+                    const journalEntry = getJournalEntryFromLi(entityHtml);
+                    const pdf = getPDFData(journalEntry);
 
-                    const { url } = item.data.data;
-                    return url !== '';
-                },
-                callback: (entityHtml: JQuery<HTMLElement>) => {
-                    const item = getItemFromContext(entityHtml);
-                    const pdf = getPDFDataFromItem(item);
-
-                    if (pdf === null) {
-                        //TODO: Error handling
+                    if (pdf === undefined) {
                         return;
                     }
 
@@ -172,25 +164,23 @@ export default class Setup {
         options.unshift({
             name: game.i18n.localize('PDFOUNDRY.CONTEXT.OpenPDF'),
             icon: '<i class="far fa-file-pdf"></i>',
-            condition: (entityHtml: JQuery<HTMLElement>) => {
-                const item = getItemFromContext(entityHtml);
-                if (item.type !== Settings.PDF_ENTITY_TYPE) {
-                    return false;
-                }
+            condition: shouldAdd,
+            callback: (entityHtml: JQuery) => {
+                const journalEntry = getJournalEntryFromLi(entityHtml);
+                const pdf = getPDFData(journalEntry);
 
-                const { url } = item.data.data;
-                return url !== '';
-            },
-            callback: (entityHtml: JQuery<HTMLElement>) => {
-                const item = getItemFromContext(entityHtml);
-                const pdf = getPDFDataFromItem(item);
-
-                if (pdf === null) {
-                    //TODO: Error handling
+                if (pdf === undefined) {
                     return;
                 }
 
-                Api.openPDF(pdf, 1);
+                if (pdf.type === PDFType.Actor) {
+                    throw new Error(`Unhandled PDF context type ${pdf.type}`);
+                } else {
+                    Api.openPDF(pdf, {
+                        page: 1,
+                        entity: journalEntry,
+                    });
+                }
             },
         });
     }
@@ -198,7 +188,7 @@ export default class Setup {
     private static userLogin() {
         let viewed;
         try {
-            viewed = game.user.getFlag(Settings.EXTERNAL_SYSTEM_NAME, Settings.SETTING_KEY.HELP_SEEN);
+            viewed = Settings.get(Settings.SETTINGS_KEY.HELP_SEEN);
         } catch (error) {
             viewed = false;
         } finally {
@@ -208,33 +198,114 @@ export default class Setup {
         }
     }
 
-    /**
-     * Hook handler for default data for a PDF
-     */
-    public static async preCreateItem(entity, ...args) {
-        if (entity.type !== Settings.PDF_ENTITY_TYPE) {
-            return;
+    private static onChatMessage(app, content: string, options) {
+        content = content.toLocaleLowerCase();
+
+        for (let command of Setup.COMMANDS) {
+            if (command.execute(content)) {
+                return false;
+            }
         }
-        entity.img = `systems/${Settings.DIST_PATH}/assets/pdf_icon.svg`;
+        return true;
+        //
+        // if (content === '/pdfoundry convert-items') {
+        //     migrateLegacy();
+        //     return false;
+        // }
     }
 
     /**
      * Hook handler for rendering the settings tab
      */
-    public static onRenderSettings(settings: any, html: JQuery<HTMLElement>, data: any) {
+    public static onRenderSettings(settings: any, html: JQuery, data: any) {
         const icon = '<i class="far fa-file-pdf"></i>';
         const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
         button.on('click', Api.showHelp);
 
         html.find('h2').last().before(button);
     }
+
+    private static async createPDF() {
+        const journalEntry = (await JournalEntry.create({
+            name: game.i18n.localize('PDFOUNDRY.MISC.NewPDF'),
+            [`flags.${Settings.MODULE_NAME}.${Settings.FLAGS_KEY.PDF_DATA}.type`]: PDFType.Static,
+        })) as JournalEntry;
+
+        new PDFConfig(journalEntry).render(true);
+    }
+
+    private static createJournalButton(app: Application, html: JQuery) {
+        const button = $(`<button class="create-pdf"><i class="fas fa-file-pdf"></i> ${game.i18n.localize('PDFOUNDRY.MISC.CreatePDF')}</button>`);
+        button.on('click', () => {
+            Setup.createPDF();
+        });
+
+        let footer = html.find('.directory-footer');
+        if (footer.length === 0) {
+            footer = $(`<footer class="directory-footer"></footer>`);
+            html.append(footer);
+        }
+        footer.append(button);
+    }
+
+    private static hookListItems(app: Application, html: JQuery) {
+        const lis = html.find('li.journal');
+
+        for (const li of lis) {
+            const target = $(li);
+            const id = target.data('entity-id');
+            const journalEntry = game.journal.get(id);
+
+            if (isEntityPDF(journalEntry)) {
+                target.find('h4').on('click', (event) => {
+                    event.stopImmediatePropagation();
+                    Setup.onClickPDFName(journalEntry);
+                });
+
+                const pdfData = getPDFData(journalEntry);
+                if (pdfData) {
+                    const thumbnail = $(`<img class="pdf-thumbnail" src="${Settings.PATH_ASSETS}/pdf_icon.svg" alt="PDF Icon">`);
+                    target.append(thumbnail);
+
+                    switch (pdfData.type) {
+                        case PDFType.Static:
+                        case PDFType.Fillable:
+                            target.find('img').on('click', (event) => {
+                                event.stopImmediatePropagation();
+                                Setup.onClickPDFThumbnail(journalEntry);
+                            });
+                            break;
+                        case PDFType.Actor:
+                            // Actors can't be opened by link
+                            thumbnail.css('filter', 'grayscale(100%)');
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
+    private static onClickPDFName(journalEntry: JournalEntry) {
+        new PDFConfig(journalEntry).render(true);
+    }
+
+    private static onClickPDFThumbnail(journalEntry: JournalEntry) {
+        const pdfData = getPDFData(journalEntry);
+        if (pdfData) {
+            switch (pdfData.type) {
+                case PDFType.Static:
+                    Api.openPDF(pdfData);
+                    break;
+                case PDFType.Fillable:
+                    Api.openPDF(pdfData, {
+                        page: 1,
+                        entity: journalEntry,
+                    });
+                    break;
+                case PDFType.Actor:
+                    // Pass - no functionality
+                    break;
+            }
+        }
+    }
 }
-
-// <editor-fold desc="Persistent Hooks">
-
-// preCreateItem - Setup default values for a new PDFoundry_PDF
-Hooks.on('preCreateItem', Setup.preCreateItem);
-// getItemDirectoryEntryContext - Setup context menu for 'Open PDF' links
-Hooks.on('getItemDirectoryEntryContext', Setup.getItemContextOptions);
-// renderSettings - Inject a 'Open Manual' button into help section
-Hooks.on('renderSettings', Setup.onRenderSettings);

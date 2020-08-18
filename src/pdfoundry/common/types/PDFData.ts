@@ -13,22 +13,30 @@
  * limitations under the License.
  */
 
+import { PDFType } from './PDFType';
+
 /**
- * A data objection containing properties of a user-created PDF file. This is the data contained within a PDFoundry_PDF entity.
+ * A data object containing properties of a user-created PDF file. This is the data filled out by the user
+ *  when they edit a PDF or click the 'Create PDF' button.
+ * @module API
  */
-export type PDFData = {
+export interface PDFData {
     /**
      * The name of the PDF
      */
     name: string;
     /**
-     * The shorthand code PDF
+     * The type of data stored. Used to determine what type of viewer to open.
      */
-    code: string;
+    type: PDFType;
     /**
      * The location of the PDF on the server.
      */
     url: string;
+    /**
+     * The shorthand code PDF
+     */
+    code: string;
     /**
      * Page offset for the PDF vs. represented book page
      */
@@ -37,4 +45,26 @@ export type PDFData = {
      * If the user has requested caching for this PDF
      */
     cache: boolean;
+}
+
+/**
+ * Valid keys for a update/delete map
+ * @internal
+ */
+type PDFDataUpdateKeys = Exclude<keyof PDFData, 'name'>;
+
+/**
+ * Update mapping for a {@link PDFData}
+ * @internal
+ */
+export type PDFDataUpdate = {
+    [P in PDFDataUpdateKeys]: PDFData[P];
+};
+
+/**
+ * Delete mapping for a {@link PDFData}
+ * @internal
+ */
+export type PDFDataDelete = {
+    [P in PDFDataUpdateKeys]: null;
 };

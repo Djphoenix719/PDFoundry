@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-import Settings from '../settings/Settings';
+import Settings from '../Settings';
 
 /**
  * Callback type for player selection
  * @private
  */
-export type PDFPlayerSelectCallback = (ids: []) => void;
+export type PDFPlayerSelectCallback = (ids: string[]) => void;
 
 /**
  * An application that allows selection of players.
@@ -29,7 +29,7 @@ export default class PlayerSelect extends Application {
     static get defaultOptions() {
         const options = super.defaultOptions;
         options.classes = ['sheet', 'item'];
-        options.template = `systems/${Settings.DIST_PATH}/templates/app/pdf-player-select.html`;
+        options.template = `${Settings.PATH_TEMPLATES}/app/pdf-player-select.html`;
         options.width = 'auto';
         options.height = 'auto';
         options.title = game.i18n.localize('PDFOUNDRY.VIEWER.SelectPlayers');
@@ -37,7 +37,7 @@ export default class PlayerSelect extends Application {
     }
 
     private readonly _ids;
-    private readonly _callback;
+    private readonly _callback: PDFPlayerSelectCallback;
 
     constructor(ids: string[], cb: PDFPlayerSelectCallback, options?: ApplicationOptions) {
         super(options);

@@ -13,6 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-
-<iframe class="pdfViewer" src="systems/{{ systemName }}/pdfoundry-dist/pdfjs/web/viewer.html"></iframe>
-<!--<iframe class="pdfViewer" src='systems/{{ systemName }}/pdfoundry-dist/pdfjs/web/viewer.html?file={{ filePath }}#page={{ page }}'></iframe>-->
+<form onsubmit="event.preventDefault()">
+    <iframe class="pdfViewer" src="{{ viewerFramePath }}?renderinteractiveforms=true"></iframe>
+</form>

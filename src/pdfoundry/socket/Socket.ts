@@ -14,9 +14,9 @@
  */
 
 import PreloadEvent from './events/PreloadEvent';
-import Viewer from '../viewer/Viewer';
+import StaticViewer from '../viewer/StaticViewer';
 import Api from '../Api';
-import Settings from '../settings/Settings';
+import Settings from '../Settings';
 import SetViewEvent from './events/SetViewEvent';
 import PDFCache from '../cache/PDFCache';
 
@@ -25,7 +25,6 @@ import PDFCache from '../cache/PDFCache';
  */
 export class Socket {
     public static initialize() {
-        // @ts-ignore
         game.socket.on(Settings.SOCKET_NAME, (event) => {
             try {
                 const { userIds, type, payload } = event;
@@ -53,8 +52,8 @@ export class Socket {
     }
 
     public static handleSetView(data: any) {
-        if (Settings.get(Settings.SETTING_KEY.EXISTING_VIEWER)) {
-            function appIsViewer(app: Application): app is Viewer {
+        if (Settings.get(Settings.SETTINGS_KEY.EXISTING_VIEWER)) {
+            function appIsViewer(app: Application): app is StaticViewer {
                 return app['pdfData'] !== undefined;
             }
 
@@ -71,7 +70,9 @@ export class Socket {
             }
             // App not found, fall through.
         }
-        Api.openPDF(data.pdfData, data.page);
+        Api.openPDF(data.pdfData, {
+            page: data.page,
+        });
     }
 
     public static handlePreloadPDF(data: any) {
