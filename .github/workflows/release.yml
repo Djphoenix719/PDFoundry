@@ -1,0 +1,75 @@
+name: Release Module
+# For releases
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+jobs:
+  build:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Version
+        id: get_version
+        run: |
+          echo ::set-output name=VERSION::${GITHUB_REF#refs/*/}
+          echo ::set-output name=VERSION2::${GITHUB_REF#refs/*/v}
+        shell: bash
+
+      - name: Version
+        run: |
+          echo Version: $VERSION
+          echo Version2: $VERSION2
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Update module.json
+        run: |
+          sed -i '/"version":/c\    "version": "${{ steps.get_version.outputs.VERSION2 }}",' module.json
+          sed -i '/"download":/c\    "download": "https://github.com/Djphoenix719/PDFoundry/releases/download/${{ steps.get_version.outputs.VERSION }}/pdfoundry-${{ steps.get_version.outputs.VERSION }}.zip",' module.json
+          cat module.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build module
+        run: gulp build
+
+      - name: Zip project # This would actually build your project, using zip for an example artifact
+        run: 7z a -tzip pdfoundry-${{ steps.get_version.outputs.VERSION }}.zip pdfoundry
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`.
+      # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+      - name: Upload Release Assets
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./pdfoundry-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_name: pdfoundry-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_content_type: application/zip
+
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v4
+        with:
+          author_name: Github Workflow
+          message: "Github Workflow"
+          ref: 'master'
+          add: module.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
