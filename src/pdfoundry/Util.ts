@@ -103,7 +103,7 @@ export function fileExists(path: string): Promise<boolean> {
  * @module Utilities
  */
 export function isEntityPDF(entity: Entity): boolean {
-    return entity.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.PDF_DATA) !== undefined;
+    return entity !== undefined && entity !== null && entity.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.PDF_DATA) !== undefined;
 }
 
 /**
