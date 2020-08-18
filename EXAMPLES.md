@@ -21,9 +21,13 @@ Hooks.on('renderItemSheet', (sheet, html, ...args) => {
         const sourceString = html.find('#source').val();
         let [code, page] = sourceString.split(' ');
 
-        ui.PDFoundry.openPDFByCode(code, { page });
-    })
-})
+        if (ui.PDFoundry) {
+            ui.PDFoundry.openPDFByCode(code, { page });
+        } else {
+            ui.notifications.warn('PDFoundry must be installed to use source links.');
+        }
+    });
+});
 ```
 
 That's about it. You now support letting your users enter the source for an item, and have a link to open the PDF right to the page. You'll have to decide what input formats you support. Don't forget, you can search for a PDF by name too - so if you want the users to type a full name (or perhaps you want to support both) that's easily possible too.
