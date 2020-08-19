@@ -55,7 +55,7 @@ export type PDFValidator = (data: PDFData) => boolean;
  * @param cache
  * @internal
  */
-export async function _handleOpen(viewer: BaseViewer, url: string, page: number, cache: boolean) {
+export async function _handleOpen(viewer: BaseViewer, url: string, page: number | undefined, cache: boolean) {
     if (cache) {
         const cachedBytes = await PDFCache.getCache(url);
         // If we have a cache hit open the cached data
@@ -80,7 +80,8 @@ export async function _handleOpen(viewer: BaseViewer, url: string, page: number,
  */
 export interface PDFOpenOptions {
     /**
-     * The page to open to, defaults to 1 if not specified.
+     * The page to open to. If not specified, PDFoundry will attempt to open the
+     *  last page the user was viewing.
      */
     page?: number;
     /**
@@ -101,6 +102,7 @@ export default class Api {
      * @category Debug
      */
     public static DEBUG = {
+        // TODO
         /**
          * When set to true, enables the logging event names and arguments to console.
          */
@@ -203,12 +205,7 @@ export default class Api {
      * Helper for {@link findPDFDataByCode} then {@link openPDF}.
      * @category Open
      */
-    public static async openPDFByCode(
-        code: string,
-        options: PDFOpenOptions = {
-            page: 1,
-        },
-    ): Promise<BaseViewer> {
+    public static async openPDFByCode(code: string, options?: PDFOpenOptions): Promise<BaseViewer> {
         const pdf = this.findPDFDataByCode(code);
 
         if (pdf === undefined) {
@@ -227,12 +224,7 @@ export default class Api {
      * Helper for {@link findPDFDataByCode} then {@link openPDF}.
      * @category Open
      */
-    public static async openPDFByName(
-        name: string,
-        options: PDFOpenOptions = {
-            page: 1,
-        },
-    ): Promise<BaseViewer> {
+    public static async openPDFByName(name: string, options?: PDFOpenOptions): Promise<BaseViewer> {
         const pdf = this.findPDFDataByName(name);
 
         if (pdf === undefined) {
@@ -250,29 +242,30 @@ export default class Api {
     /**
      * Open the provided {@link PDFData} to the specified page.
      * @param pdf The PDF to open. See {@link Api.findPDFData}.
-     * @param options The specified options for PDFs
-     * @default {options.page} 1
+     * @param options The specified options for PDFs.
      * @category Open
      */
     public static async openPDF(pdf: PDFData, options?: PDFOpenOptions): Promise<BaseViewer> {
-        let { url, offset, cache } = pdf;
-
         if (options === undefined) {
-            options = {
-                page: 1,
-            };
+            options = {};
         }
 
+        let { url, offset, cache } = pdf;
+
         if (typeof offset === 'string') {
-            offset = parseInt(offset);
+            if (offset === '') {
+                offset = 0;
+            } else {
+                offset = parseInt(offset);
+            }
         }
 
         if (!validateAbsoluteURL(url)) {
             url = getAbsoluteURL(url);
         }
 
-        if (options.page === undefined) {
-            options.page = 1;
+        if (options.page !== undefined) {
+            options.page = options.page + offset;
         }
 
         let viewer: BaseViewer;
@@ -282,7 +275,7 @@ export default class Api {
                 viewer = new StaticViewer(pdf);
                 viewer.render(true);
 
-                await _handleOpen(viewer, url, options.page + offset, cache);
+                await _handleOpen(viewer, url, options.page, cache);
                 break;
             case PDFType.Fillable:
                 if (!(options.entity instanceof JournalEntry)) {
@@ -292,7 +285,7 @@ export default class Api {
                 viewer = new FillableViewer(options.entity, pdf);
                 viewer.render(true);
 
-                await _handleOpen(viewer, url, options.page + offset, cache);
+                await _handleOpen(viewer, url, options.page, cache);
                 break;
             case PDFType.Actor:
                 throw new Error('Actor sheets can only be opened through the actor.sheet accessor.');

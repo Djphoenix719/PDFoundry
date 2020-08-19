@@ -177,7 +177,6 @@ export default class Setup {
                     throw new Error(`Unhandled PDF context type ${pdf.type}`);
                 } else {
                     Api.openPDF(pdf, {
-                        page: 1,
                         entity: journalEntry,
                     });
                 }
@@ -298,7 +297,6 @@ export default class Setup {
                     break;
                 case PDFType.Fillable:
                     Api.openPDF(pdfData, {
-                        page: 1,
                         entity: journalEntry,
                     });
                     break;

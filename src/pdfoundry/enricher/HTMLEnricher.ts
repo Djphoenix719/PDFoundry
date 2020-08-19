@@ -62,9 +62,17 @@ export default class HTMLEnricher {
                 ui.notifications.error(`Unable to find a PDF with a name or code matching ${ref}.`);
                 return;
             }
-            Api.openPDF(pdfData, {
-                page,
-            });
+
+            console.warn(ref);
+            console.warn(page);
+
+            if (page === 0) {
+                Api.openPDF(pdfData);
+            } else {
+                Api.openPDF(pdfData, {
+                    page,
+                });
+            }
         });
     }
 
@@ -110,7 +118,7 @@ export default class HTMLEnricher {
             throw new Error(game.i18n.localize('PDFOUNDRY.ENRICH.EmptyLinkText'));
         }
 
-        let pageNumber = 1;
+        let pageNumber = 0;
         const [nameOrCode, queryString] = options.split('|');
 
         // Getting the PDF without invisible PDFs to check permissions
@@ -129,7 +137,7 @@ export default class HTMLEnricher {
                 }
             }
 
-            if (pageNumber <= 0) {
+            if (pageNumber < 0) {
                 throw new Error('PDFOUNDRY.ERROR.PageMustBePositive');
             }
 

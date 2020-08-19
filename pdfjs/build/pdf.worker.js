@@ -135,8 +135,8 @@ Object.defineProperty(exports, "WorkerMessageHandler", {
 
 var _worker = __w_pdfjs_require__(1);
 
-const pdfjsVersion = '2.6.260';
-const pdfjsBuild = 'ef84d670';
+const pdfjsVersion = '2.6.281';
+const pdfjsBuild = 'c60df3a5';
 
 /***/ }),
 /* 1 */
@@ -231,7 +231,7 @@ class WorkerMessageHandler {
     var WorkerTasks = [];
     const verbosity = (0, _util.getVerbosityLevel)();
     const apiVersion = docParams.apiVersion;
-    const workerVersion = '2.6.260';
+    const workerVersion = '2.6.281';
 
     if (apiVersion !== workerVersion) {
       throw new Error(`The API version "${apiVersion}" does not match ` + `the Worker version "${workerVersion}".`);
@@ -21824,6 +21824,58 @@ class PartialEvaluator {
     return this.buildFormXObject(resources, smaskContent, smaskOptions, operatorList, task, stateManager.state.clone(), localColorSpaceCache);
   }
 
+  handleTransferFunction(tr) {
+    let transferArray;
+
+    if (Array.isArray(tr)) {
+      transferArray = tr;
+    } else if ((0, _function.isPDFFunction)(tr)) {
+      transferArray = [tr];
+    } else {
+      return null;
+    }
+
+    const transferMaps = [];
+    let numFns = 0,
+        numEffectfulFns = 0;
+
+    for (const entry of transferArray) {
+      const transferObj = this.xref.fetchIfRef(entry);
+      numFns++;
+
+      if ((0, _primitives.isName)(transferObj, "Identity")) {
+        transferMaps.push(null);
+        continue;
+      } else if (!(0, _function.isPDFFunction)(transferObj)) {
+        return null;
+      }
+
+      const transferFn = this._pdfFunctionFactory.create(transferObj);
+
+      const transferMap = new Uint8Array(256),
+            tmp = new Float32Array(1);
+
+      for (let j = 0; j < 256; j++) {
+        tmp[0] = j / 255;
+        transferFn(tmp, 0, tmp, 0);
+        transferMap[j] = tmp[0] * 255 | 0;
+      }
+
+      transferMaps.push(transferMap);
+      numEffectfulFns++;
+    }
+
+    if (!(numFns === 1 || numFns === 4)) {
+      return null;
+    }
+
+    if (numEffectfulFns === 0) {
+      return null;
+    }
+
+    return transferMaps;
+  }
+
   handleTilingType(fn, args, resources, pattern, patternDict, operatorList, task) {
     const tilingOpList = new _operator_list.OperatorList();
     const resourcesArray = [patternDict.get("Resources"), resources];
@@ -21968,6 +22020,7 @@ class PartialEvaluator {
           break;
 
         case "Font":
+          isSimpleGState = false;
           promise = promise.then(() => {
             return this.handleSetFont(resources, null, value[0], operatorList, task, stateManager.state).then(function (loadedName) {
               operatorList.addDependency(loadedName);
@@ -21998,6 +22051,11 @@ class PartialEvaluator {
 
           break;
 
+        case "TR":
+          const transferMaps = this.handleTransferFunction(value);
+          gStateObj.push([key, transferMaps]);
+          break;
+
         case "OP":
         case "op":
         case "OPM":
@@ -22005,7 +22063,6 @@ class PartialEvaluator {
         case "BG2":
         case "UCR":
         case "UCR2":
-        case "TR":
         case "TR2":
         case "HT":
         case "SM":
