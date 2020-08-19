@@ -185,6 +185,10 @@ export default class Setup {
     }
 
     private static userLogin() {
+        if (!game.user.isGM) {
+            return;
+        }
+
         let viewed;
         try {
             viewed = Settings.get(Settings.SETTINGS_KEY.HELP_SEEN);
@@ -206,11 +210,6 @@ export default class Setup {
             }
         }
         return true;
-        //
-        // if (content === '/pdfoundry convert-items') {
-        //     migrateLegacy();
-        //     return false;
-        // }
     }
 
     /**
