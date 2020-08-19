@@ -69,6 +69,7 @@ export function validateAbsoluteURL(dataUrl: string): boolean {
 }
 
 /**
+ * TODO: Remove in favor of srcExists
  * Checks if a remote file exists at the specified path. That is, if the URL is valid. This does not guarantee a
  * valid file exists at that location. For example, an HTML file will result in true but not be a valid PDF.
  * @param path The absolute URL to check. Adheres to the {@link DOMAIN_WHITELIST}.
