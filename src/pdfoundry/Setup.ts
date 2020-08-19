@@ -94,7 +94,12 @@ export default class Setup {
         Hooks.on('renderJournalSheet', HTMLEnricher.HandleEnrich);
         Hooks.on('renderActorSheet', HTMLEnricher.HandleEnrich);
 
+        // Chat command processing
         Hooks.on('chatMessage', Setup.onChatMessage);
+
+        // Canvas notes processing
+        Hooks.on('renderNoteConfig', Setup.onNoteConfig);
+        Hooks.on('hoverNote', Setup.onNoteHover);
 
         // Register TinyMCE drag + drop events
         TinyMCEPlugin.Register();
@@ -303,6 +308,64 @@ export default class Setup {
                     // Pass - no functionality
                     break;
             }
+        }
+    }
+
+    private static onNoteConfig(app: NoteConfig, html: JQuery, data: any) {
+        const journalId = data.entryId as string;
+        const journal = game.journal.get(journalId);
+        if (isEntityPDF(journal)) {
+            const container = $(`<div class="form-group"></div>`);
+            const label = $(`<label>${game.i18n.localize('PDFOUNDRY.COMMON.PageNumber')}</label>`);
+
+            let pageNumber = data.object['flags']?.[Settings.MODULE_NAME]?.[Settings.FLAGS_KEY.PAGE_NUMBER];
+            if (pageNumber === undefined) {
+                pageNumber = '';
+            }
+
+            const subContainer = $(`<div class="form-fields"></div>`);
+
+            const input = $(
+                `<input type="number" name="flags.${Settings.MODULE_NAME}.${Settings.FLAGS_KEY.PAGE_NUMBER}" value="${pageNumber}" data-dtype="String">`,
+            );
+
+            subContainer.append(input);
+
+            container.append(label);
+            container.append(subContainer);
+
+            html.find('button[type=submit]').before(container);
+        }
+    }
+
+    private static onNoteHover(note: Note, enter: boolean) {
+        if (!enter) {
+            return;
+        }
+
+        const journal = note.entry as JournalEntry;
+        const pdf = getPDFData(journal);
+        if (isEntityPDF(journal) && pdf) {
+            let pageText = note.data.flags?.[Settings.MODULE_NAME]?.[Settings.FLAGS_KEY.PAGE_NUMBER] as string | undefined;
+            let pageNumber = 0;
+
+            if (typeof pageText === 'string') {
+                try {
+                    pageNumber = parseInt(pageText);
+                } catch (e) {
+                    pageNumber = 0;
+                }
+            }
+
+            note.mouseInteractionManager.callbacks['clickLeft2'] = (event) => {
+                if (pageNumber === 0) {
+                    Api.openPDF(pdf);
+                } else {
+                    Api.openPDF(pdf, {
+                        page: pageNumber,
+                    });
+                }
+            };
         }
     }
 }

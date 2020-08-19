@@ -49,9 +49,13 @@ export default class Settings {
         DATA_VERSION: 'DataVersion',
     };
     public static readonly FLAGS_KEY = {
+        // PDF Data
         PDF_DATA: 'PDFData',
+        // Actor Sheets
         FORM_DATA: 'FormData',
         SHEET_ID: 'ActorSheet',
+        // Canvas Notes
+        PAGE_NUMBER: 'PageNumber',
     };
 
     public static initialize() {
