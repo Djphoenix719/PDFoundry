@@ -160,8 +160,6 @@ export class PDFConfig extends FormApplication {
     }
 
     protected async _updateObject(event: Event | JQuery.Event, formData: any): Promise<void> {
-        console.warn(event);
-        console.warn(formData);
         await this.object.update(formData);
     }
 
