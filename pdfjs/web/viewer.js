@@ -12440,9 +12440,7 @@ document.webL10n = function (window, document, undefined) {
     if (l10nArgs) {
       try {
         args = JSON.parse(l10nArgs);
-      } catch (e) {
-        console.warn('could not parse arguments for #' + l10nId);
-      }
+      } catch (e) {}
     }
 
     return {
@@ -12550,7 +12548,6 @@ document.webL10n = function (window, document, undefined) {
         xhrLoadText(url, function (content) {
           parseRawLines(content, false, callback);
         }, function () {
-          console.warn(url + ' not found.');
           callback();
         });
       }
@@ -12650,8 +12647,6 @@ document.webL10n = function (window, document, undefined) {
 
       this.load = function (lang, callback) {
         parseResource(href, lang, callback, function () {
-          console.warn(href + ' not found.');
-          console.warn('"' + lang + '" resource not found');
           gLanguage = '';
           callback();
         });
@@ -12990,7 +12985,6 @@ document.webL10n = function (window, document, undefined) {
     var index = locales2rules[lang.replace(/-.*$/, '')];
 
     if (!(index in pluralRules)) {
-      console.warn('plural form unknown for [' + lang + ']');
       return function () {
         return 'other';
       };
@@ -13092,7 +13086,6 @@ document.webL10n = function (window, document, undefined) {
     var data = getL10nData(l10n.id, l10n.args);
 
     if (!data) {
-      console.warn('#' + l10n.id + ' is undefined.');
       return;
     }
 
