@@ -58,7 +58,46 @@ export default abstract class BaseViewer extends Application {
     }
 
     // </editor-fold>
-    // <editor-fold desc="Instance Methods"></editor-fold>
+
+    // <editor-fold desc="Instance Methods">
+
+    /**
+     * Finish the download and return the byte array for the file.
+     * @returns A promise that resolves to {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array|Uint8Array}
+     *  of file bytes once that download is finished. You can pass this to a viewer to open it, or do something else with it.
+     */
+    public download(): Promise<Uint8Array> {
+        return new Promise<Uint8Array>(async (resolve) => {
+            const viewer = await this.getViewer();
+            let timeout;
+            const returnOrWait = () => {
+                if (viewer.downloadComplete) {
+                    resolve(viewer.pdfDocument.getData());
+                    return;
+                }
+
+                timeout = setTimeout(returnOrWait, 50);
+            };
+            returnOrWait();
+        });
+    }
+
+    /**
+     * Open a PDF
+     * @param pdfSource A URL or byte array to open.
+     * @param page The initial page to open to
+     */
+    public async open(pdfSource: string | Uint8Array, page?: number) {
+        const pdfjsViewer = await this.getViewer();
+
+        if (page) {
+            pdfjsViewer.initialBookmark = `page=${page}`;
+        }
+
+        await pdfjsViewer.open(pdfSource);
+    }
+
+    // </editor-fold>
 
     // <editor-fold desc="Getters & Setters">
 
@@ -83,6 +122,57 @@ export default abstract class BaseViewer extends Application {
      */
     public get title(): string {
         return game.i18n.localize('PDFOUNDRY.VIEWER.ViewPDF');
+    }
+
+    /**
+     * Wait for the internal PDFjs viewer to be ready and usable.
+     */
+    protected getViewer(): Promise<PDFjsViewer> {
+        if (this._viewer) {
+            return Promise.resolve(this._viewer);
+        }
+
+        return new Promise<any>((resolve) => {
+            let timeout;
+            const returnOrWait = () => {
+                // If our window has finished initializing...
+                if (this._frame) {
+                    // If PDFjs has finished initializing...
+                    if (this._frame.contentWindow && this._frame.contentWindow['PDFViewerApplication']) {
+                        const viewer = this._frame.contentWindow['PDFViewerApplication'];
+                        resolve(viewer);
+                        return;
+                    }
+                }
+
+                // If any ifs fall through, try again in a few ms
+                timeout = setTimeout(returnOrWait, 5);
+            };
+            returnOrWait();
+        });
+    }
+
+    /**
+     * Wait for the internal PDFjs eventBus to be ready and usable.
+     */
+    protected getEventBus(): Promise<PDFjsEventBus> {
+        if (this._eventBus) {
+            return Promise.resolve(this._eventBus);
+        }
+
+        return new Promise<any>((resolve) => {
+            this.getViewer().then((viewer) => {
+                let timeout;
+                const returnOrWait = () => {
+                    if (viewer.eventBus) {
+                        resolve(viewer.eventBus);
+                        return;
+                    }
+                    timeout = setTimeout(returnOrWait, 5);
+                };
+                returnOrWait();
+            });
+        });
     }
 
     // </editor-fold>
@@ -127,6 +217,18 @@ export default abstract class BaseViewer extends Application {
 
         // _getHeaderButtons does not permit title attributes used for tooltips...
         $(html).parents().parents().find('.pdf-sheet-show-players').prop('title', game.i18n.localize('PDFOUNDRY.VIEWER.ShowToPlayersTitle'));
+    }
+
+    /**
+     * Close the application and un-register references to it within UI mappings
+     * This function returns a Promise which resolves once the window closing animation concludes
+     */
+    public async close(): Promise<void> {
+        this.onViewerClosing();
+
+        await super.close();
+
+        this.onViewerClosed();
     }
 
     // </editor-fold>
@@ -262,103 +364,4 @@ export default abstract class BaseViewer extends Application {
     }
 
     // </editor-fold>
-
-    /**
-     * Close the application and un-register references to it within UI mappings
-     * This function returns a Promise which resolves once the window closing animation concludes
-     */
-    public async close(): Promise<void> {
-        this.onViewerClosing();
-
-        await super.close();
-
-        this.onViewerClosed();
-    }
-
-    /**
-     * Wait for the internal PDFjs viewer to be ready and usable.
-     */
-    protected getViewer(): Promise<PDFjsViewer> {
-        if (this._viewer) {
-            return Promise.resolve(this._viewer);
-        }
-
-        return new Promise<any>((resolve) => {
-            let timeout;
-            const returnOrWait = () => {
-                // If our window has finished initializing...
-                if (this._frame) {
-                    // If PDFjs has finished initializing...
-                    if (this._frame.contentWindow && this._frame.contentWindow['PDFViewerApplication']) {
-                        const viewer = this._frame.contentWindow['PDFViewerApplication'];
-                        resolve(viewer);
-                        return;
-                    }
-                }
-
-                // If any ifs fall through, try again in a few ms
-                timeout = setTimeout(returnOrWait, 5);
-            };
-            returnOrWait();
-        });
-    }
-
-    /**
-     * Wait for the internal PDFjs eventBus to be ready and usable.
-     */
-    protected getEventBus(): Promise<PDFjsEventBus> {
-        if (this._eventBus) {
-            return Promise.resolve(this._eventBus);
-        }
-
-        return new Promise<any>((resolve) => {
-            this.getViewer().then((viewer) => {
-                let timeout;
-                const returnOrWait = () => {
-                    if (viewer.eventBus) {
-                        resolve(viewer.eventBus);
-                        return;
-                    }
-                    timeout = setTimeout(returnOrWait, 5);
-                };
-                returnOrWait();
-            });
-        });
-    }
-
-    /**
-     * Finish the download and return the byte array for the file.
-     * @returns A promise that resolves to {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array|Uint8Array}
-     *  of file bytes once that download is finished. You can pass this to a viewer to open it, or do something else with it.
-     */
-    public download(): Promise<Uint8Array> {
-        return new Promise<Uint8Array>(async (resolve) => {
-            const viewer = await this.getViewer();
-            let timeout;
-            const returnOrWait = () => {
-                if (viewer.downloadComplete) {
-                    resolve(viewer.pdfDocument.getData());
-                    return;
-                }
-
-                timeout = setTimeout(returnOrWait, 50);
-            };
-            returnOrWait();
-        });
-    }
-
-    /**
-     * Open a PDF
-     * @param pdfSource A URL or byte array to open.
-     * @param page The initial page to open to
-     */
-    public async open(pdfSource: string | Uint8Array, page?: number) {
-        const pdfjsViewer = await this.getViewer();
-
-        if (page) {
-            pdfjsViewer.initialBookmark = `page=${page}`;
-        }
-
-        await pdfjsViewer.open(pdfSource);
-    }
 }
