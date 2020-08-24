@@ -335,8 +335,8 @@ var _text_layer = __w_pdfjs_require__(20);
 
 var _svg = __w_pdfjs_require__(21);
 
-const pdfjsVersion = '2.6.281';
-const pdfjsBuild = 'c60df3a5';
+const pdfjsVersion = '2.6.318';
+const pdfjsBuild = '5c0053b3';
 {
   const {
     isNodeJS
@@ -1979,7 +1979,7 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
 
   return worker.messageHandler.sendWithPromise("GetDocRequest", {
     docId,
-    apiVersion: '2.6.281',
+    apiVersion: '2.6.318',
     source: {
       data: source.data,
       url: source.url,
@@ -3576,7 +3576,11 @@ class WorkerTransport {
     return this.messageHandler.sendWithPromise("SaveDocument", {
       numPages: this._numPages,
       annotationStorage: annotationStorage && annotationStorage.getAll() || null,
-      filename: this._fullReader.filename
+      filename: this._fullReader ? this._fullReader.filename : null
+    }).finally(() => {
+      if (annotationStorage) {
+        annotationStorage.resetModified();
+      }
     });
   }
 
@@ -3920,9 +3924,9 @@ const InternalRenderTask = function InternalRenderTaskClosure() {
   return InternalRenderTask;
 }();
 
-const version = '2.6.281';
+const version = '2.6.318';
 exports.version = version;
-const build = 'c60df3a5';
+const build = '5c0053b3';
 exports.build = build;
 
 /***/ }),
@@ -4410,6 +4414,9 @@ exports.AnnotationStorage = void 0;
 class AnnotationStorage {
   constructor() {
     this._storage = new Map();
+    this._modified = false;
+    this.onSetModified = null;
+    this.onResetModified = null;
   }
 
   getOrCreateValue(key, defaultValue) {
@@ -4423,6 +4430,10 @@ class AnnotationStorage {
   }
 
   setValue(key, value) {
+    if (this._storage.get(key) !== value) {
+      this._setModified();
+    }
+
     this._storage.set(key, value);
   }
 
@@ -4436,6 +4447,26 @@ class AnnotationStorage {
 
   get size() {
     return this._storage.size;
+  }
+
+  _setModified() {
+    if (!this._modified) {
+      this._modified = true;
+
+      if (typeof this.onSetModified === "function") {
+        this.onSetModified();
+      }
+    }
+  }
+
+  resetModified() {
+    if (this._modified) {
+      this._modified = false;
+
+      if (typeof this.onResetModified === "function") {
+        this.onResetModified();
+      }
+    }
   }
 
 }
@@ -9677,6 +9708,7 @@ class ChoiceWidgetAnnotationElement extends WidgetAnnotationElement {
     this.container.className = "choiceWidgetAnnotation";
     const storage = this.annotationStorage;
     const id = this.data.id;
+    storage.getOrCreateValue(id, this.data.fieldValue.length > 0 ? this.data.fieldValue[0] : null);
     const selectElement = document.createElement("select");
     selectElement.disabled = this.data.readOnly;
     selectElement.name = this.data.fieldName;
@@ -9694,9 +9726,8 @@ class ChoiceWidgetAnnotationElement extends WidgetAnnotationElement {
       optionElement.textContent = option.displayValue;
       optionElement.value = option.exportValue;
 
-      if (this.data.fieldValue.includes(option.displayValue)) {
+      if (this.data.fieldValue.includes(option.exportValue)) {
         optionElement.setAttribute("selected", true);
-        storage.setValue(id, option.displayValue);
       }
 
       selectElement.appendChild(optionElement);
@@ -9704,7 +9735,7 @@ class ChoiceWidgetAnnotationElement extends WidgetAnnotationElement {
 
     selectElement.addEventListener("input", function (event) {
       const options = event.target.options;
-      const value = options[options.selectedIndex].text;
+      const value = options[options.selectedIndex].value;
       storage.setValue(id, value);
     });
     this.container.appendChild(selectElement);
@@ -10240,7 +10271,7 @@ class AnnotationLayer {
         linkService: parameters.linkService,
         downloadManager: parameters.downloadManager,
         imageResourcesPath: parameters.imageResourcesPath || "",
-        renderInteractiveForms: parameters.renderInteractiveForms || false,
+        renderInteractiveForms: typeof parameters.renderInteractiveForms === "boolean" ? parameters.renderInteractiveForms : true,
         svgFactory: new _display_utils.DOMSVGFactory(),
         annotationStorage: parameters.annotationStorage || new _annotation_storage.AnnotationStorage()
       });

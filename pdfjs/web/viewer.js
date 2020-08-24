@@ -937,7 +937,9 @@ const PDFViewerApplication = {
     });
   },
 
-  download() {
+  download({
+    sourceEventType = "download"
+  }) {
     function downloadByUrl() {
       downloadManager.downloadUrl(url, filename);
     }
@@ -959,11 +961,13 @@ const PDFViewerApplication = {
       const blob = new Blob([data], {
         type: "application/pdf"
       });
-      downloadManager.download(blob, url, filename);
+      downloadManager.download(blob, url, filename, sourceEventType);
     }).catch(downloadByUrl);
   },
 
-  save() {
+  save({
+    sourceEventType = "download"
+  }) {
     if (this._saveInProgress) {
       return;
     }
@@ -977,7 +981,9 @@ const PDFViewerApplication = {
     };
 
     if (!this.pdfDocument || !this.downloadComplete) {
-      this.download();
+      this.download({
+        sourceEventType
+      });
       return;
     }
 
@@ -986,9 +992,11 @@ const PDFViewerApplication = {
       const blob = new Blob([data], {
         type: "application/pdf"
       });
-      downloadManager.download(blob, url, filename);
+      downloadManager.download(blob, url, filename, sourceEventType);
     }).catch(() => {
-      this.download();
+      this.download({
+        sourceEventType
+      });
     }).finally(() => {
       this._saveInProgress = false;
     });
@@ -1145,6 +1153,16 @@ const PDFViewerApplication = {
     baseDocumentUrl = null;
     this.pdfLinkService.setDocument(pdfDocument, baseDocumentUrl);
     this.pdfDocumentProperties.setDocument(pdfDocument, this.url);
+    const annotationStorage = pdfDocument.annotationStorage;
+
+    annotationStorage.onSetModified = function () {
+      window.addEventListener("beforeunload", beforeUnload);
+    };
+
+    annotationStorage.onResetModified = function () {
+      window.removeEventListener("beforeunload", beforeUnload);
+    };
+
     const pdfViewer = this.pdfViewer;
     pdfViewer.setDocument(pdfDocument);
     const {
@@ -1584,6 +1602,10 @@ const PDFViewerApplication = {
     if (this.printService) {
       this.printService.destroy();
       this.printService = null;
+
+      if (this.pdfDocument) {
+        this.pdfDocument.annotationStorage.resetModified();
+      }
     }
 
     this.forceRendering();
@@ -1645,6 +1667,8 @@ const PDFViewerApplication = {
     eventBus._on("print", webViewerPrint);
 
     eventBus._on("download", webViewerDownload);
+
+    eventBus._on("save", webViewerSave);
 
     eventBus._on("firstpage", webViewerFirstPage);
 
@@ -1775,6 +1799,8 @@ const PDFViewerApplication = {
     eventBus._off("print", webViewerPrint);
 
     eventBus._off("download", webViewerDownload);
+
+    eventBus._off("save", webViewerSave);
 
     eventBus._off("firstpage", webViewerFirstPage);
 
@@ -2276,12 +2302,24 @@ function webViewerPrint() {
   window.print();
 }
 
-function webViewerDownload() {
+function webViewerDownloadOrSave(sourceEventType) {
   if (PDFViewerApplication.pdfDocument && PDFViewerApplication.pdfDocument.annotationStorage.size > 0) {
-    PDFViewerApplication.save();
+    PDFViewerApplication.save({
+      sourceEventType
+    });
   } else {
-    PDFViewerApplication.download();
+    PDFViewerApplication.download({
+      sourceEventType
+    });
   }
+}
+
+function webViewerDownload() {
+  webViewerDownloadOrSave("download");
+}
+
+function webViewerSave() {
+  webViewerDownloadOrSave("save");
 }
 
 function webViewerFirstPage() {
@@ -2387,13 +2425,15 @@ function webViewerUpdateFindMatchesCount({
 function webViewerUpdateFindControlState({
   state,
   previous,
-  matchesCount
+  matchesCount,
+  rawQuery
 }) {
   if (PDFViewerApplication.supportsIntegratedFind) {
     PDFViewerApplication.externalServices.updateFindControlState({
       result: state,
       findPrevious: previous,
-      matchesCount
+      matchesCount,
+      rawQuery
     });
   } else {
     PDFViewerApplication.findBar.updateUIState(state, previous, matchesCount);
@@ -2820,6 +2860,12 @@ function webViewerKeyDown(evt) {
   if (handled) {
     evt.preventDefault();
   }
+}
+
+function beforeUnload(evt) {
+  evt.preventDefault();
+  evt.returnValue = "";
+  return false;
 }
 
 function apiPageLayoutToSpreadMode(layout) {
@@ -6359,7 +6405,8 @@ class PDFFindController {
       source: this,
       state,
       previous,
-      matchesCount: this._requestMatchesCount()
+      matchesCount: this._requestMatchesCount(),
+      rawQuery: this._state ? this._state.query : null
     });
   }
 
@@ -9073,7 +9120,7 @@ class BaseViewer {
     this.removePageBorders = options.removePageBorders || false;
     this.textLayerMode = Number.isInteger(options.textLayerMode) ? options.textLayerMode : _ui_utils.TextLayerMode.ENABLE;
     this.imageResourcesPath = options.imageResourcesPath || "";
-    this.renderInteractiveForms = options.renderInteractiveForms || params.renderinteractiveforms === "true";
+    this.renderInteractiveForms = typeof options.renderInteractiveForms === "boolean" ? options.renderInteractiveForms : true;
     this.enablePrintAutoRotate = options.enablePrintAutoRotate || false;
     this.renderer = options.renderer || _ui_utils.RendererType.CANVAS;
     this.enableWebGL = options.enableWebGL || false;
@@ -10127,7 +10174,7 @@ class AnnotationLayerBuilder {
     downloadManager,
     annotationStorage = null,
     imageResourcesPath = "",
-    renderInteractiveForms = false,
+    renderInteractiveForms = true,
     l10n = _ui_utils.NullL10n
   }) {
     this.pageDiv = pageDiv;
@@ -10200,7 +10247,7 @@ class AnnotationLayerBuilder {
 exports.AnnotationLayerBuilder = AnnotationLayerBuilder;
 
 class DefaultAnnotationLayerFactory {
-  createAnnotationLayerBuilder(pageDiv, pdfPage, annotationStorage = null, imageResourcesPath = "", renderInteractiveForms = false, l10n = _ui_utils.NullL10n) {
+  createAnnotationLayerBuilder(pageDiv, pdfPage, annotationStorage = null, imageResourcesPath = "", renderInteractiveForms = true, l10n = _ui_utils.NullL10n) {
     return new AnnotationLayerBuilder({
       pageDiv,
       pdfPage,
@@ -10254,7 +10301,7 @@ class PDFPageView {
     this.hasRestrictedScaling = false;
     this.textLayerMode = Number.isInteger(options.textLayerMode) ? options.textLayerMode : _ui_utils.TextLayerMode.ENABLE;
     this.imageResourcesPath = options.imageResourcesPath || "";
-    this.renderInteractiveForms = options.renderInteractiveForms || false;
+    this.renderInteractiveForms = typeof options.renderInteractiveForms === "boolean" ? options.renderInteractiveForms : true;
     this.useOnlyCssZoom = options.useOnlyCssZoom || false;
     this.maxCanvasPixels = options.maxCanvasPixels || MAX_CANVAS_PIXELS;
     this.eventBus = options.eventBus;
@@ -11909,7 +11956,7 @@ class Toolbar {
     }
 
     const overflow = SCALE_SELECT_WIDTH - SCALE_SELECT_CONTAINER_WIDTH;
-    maxWidth += 1.5 * overflow;
+    maxWidth += 2 * overflow;
 
     if (maxWidth > SCALE_SELECT_CONTAINER_WIDTH) {
       items.scaleSelect.style.width = `${maxWidth + overflow}px`;
@@ -12283,7 +12330,7 @@ class DownloadManager {
     download(blobUrl, filename);
   }
 
-  download(blob, url, filename) {
+  download(blob, url, filename, sourceEventType = "download") {
     if (navigator.msSaveBlob) {
       if (!navigator.msSaveBlob(blob, filename)) {
         this.downloadUrl(url, filename);
