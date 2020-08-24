@@ -63,9 +63,6 @@ export default class HTMLEnricher {
                 return;
             }
 
-            console.warn(ref);
-            console.warn(page);
-
             if (page === 0) {
                 Api.openPDF(pdfData);
             } else {

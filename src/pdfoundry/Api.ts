@@ -258,6 +258,8 @@ export default class Api {
             } else {
                 offset = parseInt(offset);
             }
+        } else if (offset === null) {
+            offset = 0;
         }
 
         if (!validateAbsoluteURL(url)) {

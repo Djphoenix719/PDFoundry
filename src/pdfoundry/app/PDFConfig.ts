@@ -23,7 +23,7 @@ import { BUTTON_GITHUB, BUTTON_HELP } from '../common/helpers/header';
  * Extends the base ItemSheet for linked PDF viewing.
  * @private
  */
-export class PDFConfig extends Application {
+export class PDFConfig extends FormApplication {
     // <editor-fold desc="Static Properties">
 
     static get defaultOptions() {
@@ -39,26 +39,25 @@ export class PDFConfig extends Application {
     // <editor-fold desc="Static Methods"></editor-fold>
     // <editor-fold desc="Properties">
 
-    private readonly journalEntry: JournalEntry;
+    public readonly object: JournalEntry;
+    private picker: FilePicker;
 
     // </editor-fold>
     // <editor-fold desc="Constructor & Initialization">
 
     constructor(journalEntry: JournalEntry, options?: ApplicationOptions) {
-        super(options);
-
-        this.journalEntry = journalEntry;
+        super(journalEntry, options);
     }
 
     // </editor-fold>
     // <editor-fold desc="Getters & Setters">
 
     public get title(): string {
-        return this.journalEntry.name;
+        return this.object.name;
     }
 
     public get id(): string {
-        return `pdf-${this.journalEntry.id}`;
+        return `pdf-${this.object.id}`;
     }
 
     protected _getHeaderButtons(): any[] {
@@ -66,6 +65,10 @@ export class PDFConfig extends Application {
         buttons.unshift(BUTTON_HELP);
         buttons.unshift(BUTTON_GITHUB);
         return buttons;
+    }
+
+    get isEditable(): boolean {
+        return this.object.hasPerm(game.user, 'OWNER');
     }
 
     // </editor-fold>
@@ -77,33 +80,49 @@ export class PDFConfig extends Application {
         const urlInput = html.find('#data-url');
         const offsetInput = html.find('#data-offset');
 
-        // Block enter from displaying the PDF
-        html.find('input').on('keypress', function (event) {
+        // Default behavior opens the file picker in this form setup, override
+        html.find('input').on('keypress', (event) => {
             if (event.key === 'Enter') {
-                event.preventDefault();
+                this._onSubmit(event, { preventClose: true });
             }
+        });
+        html.find('input, select').on('input', (event) => {
+            this._onSubmit(event, { preventClose: true });
         });
 
         // Browse button
-        html.find('#pdf-browse').on('click', async function (event) {
+        html.find('#pdf-browse').on('click', async (event) => {
             event.preventDefault();
+            event.stopImmediatePropagation();
 
-            const picker = new FilePicker({});
-            // @ts-ignore TODO: foundry-pc-types
-            picker.extensions = ['.pdf'];
-            picker.field = urlInput[0];
+            this.picker =
+                this.picker ??
+                new FilePicker({
+                    callback: () => {
+                        this._onSubmit(new Event('input'), { preventClose: true });
+                    },
+                });
+
+            // @ts-ignore TODO: Foundry Types
+            this.picker.extensions = ['.pdf'];
+            this.picker.field = urlInput[0];
+
+            if (!this.filepickers.includes(this.picker)) {
+                this.filepickers.push(this.picker);
+            }
 
             let urlValue = urlInput.val();
             if (urlValue !== undefined) {
-                await picker.browse(urlValue.toString().trim());
+                await this.picker.browse(urlValue.toString().trim());
             }
 
-            picker.render(true);
+            this.picker.render(true);
         });
 
-        // Test button
-        html.find('#pdf-test').on('click', function (event) {
+        // Test pdf settings button
+        html.find('#pdf-test').on('click', (event) => {
             event.preventDefault();
+            event.stopImmediatePropagation();
 
             let urlValue = urlInput.val();
             let offsetValue = offsetInput.val();
@@ -112,7 +131,6 @@ export class PDFConfig extends Application {
             if (offsetValue === null || offsetValue === undefined) return;
 
             urlValue = urlValue.toString();
-
             urlValue = getAbsoluteURL(urlValue);
 
             if (offsetValue.toString().trim() === '') {
@@ -122,14 +140,9 @@ export class PDFConfig extends Application {
 
             Api.openURL(urlValue, 5 + offsetValue, false);
         });
-
-        html.on('change', async (event) => {
-            await this.submit();
-            this.render();
-        });
     }
 
-    public getData(): ItemSheetData {
+    public getData(): object {
         const data = super.getData();
 
         data['types'] = Object.entries(PDFType).map(([key]) => {
@@ -140,36 +153,20 @@ export class PDFConfig extends Application {
         });
 
         data['dataPath'] = `flags.${Settings.MODULE_NAME}.${Settings.FLAGS_KEY.PDF_DATA}`;
-        data['flags'] = getPDFData(this.journalEntry);
-        data['name'] = this.journalEntry.data.name;
+        data['flags'] = getPDFData(this.object);
+        data['name'] = this.object.data.name;
 
         return data;
     }
 
-    public async submit(): Promise<void> {
-        const form = $(this.element).find('form');
-        const formData = form.serializeArray();
-        const updateData: { [name: string]: any } = {};
-        for (const field of formData) {
-            updateData[field.name] = field.value;
-        }
-
-        const checks = form.find('input[type=checkbox]') as JQuery<HTMLInputElement>;
-        for (const checkbox of checks) {
-            const name = checkbox.getAttribute('name');
-            if (name === null) {
-                continue;
-            }
-
-            updateData[name] = checkbox.checked;
-        }
-        await this.journalEntry.update(updateData);
-        game.journal.render();
+    protected async _updateObject(event: Event | JQuery.Event, formData: any): Promise<void> {
+        console.warn(event);
+        console.warn(formData);
+        await this.object.update(formData);
     }
 
-    public async close(): Promise<any> {
-        await this.submit();
-        return super.close();
+    submit({ updateData }: { updateData?: any }): FormApplication {
+        return super.submit({ updateData });
     }
 
     // </editor-fold>

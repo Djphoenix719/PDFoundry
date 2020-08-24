@@ -63,6 +63,7 @@
             name="{{ dataPath }}.offset"
             class="grow"
             value="{{ flags.offset }}"
+            data-dtype="Number"
             placeholder="{{ localize 'PDFOUNDRY.PDFSHEET.PLACEHOLDER.PageOffset' }}"
             autocomplete="off"
         />
@@ -70,7 +71,7 @@
 
     <div class="flex" title="{{ localize 'PDFOUNDRY.PDFSHEET.TOOLTIP.EnableCaching' }}">
         <label class="grow" for="data-cache">{{ localize 'PDFOUNDRY.PDFSHEET.LABEL.EnableCaching' }}</label>
-        <input type="checkbox" id="data-cache" name="{{ dataPath }}.cache" class="shrink" {{#if flags.cache}}checked{{/if}}>
+        <input type="checkbox" id="data-cache" name="{{ dataPath }}.cache" class="shrink" data-dtype="Boolean" {{#if flags.cache}}checked{{/if}}>
     </div>
 
     <div class="flex" title="{{ localize 'PDFOUNDRY.PDFSHEET.TOOLTIP.PDFType' }}">
