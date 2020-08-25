@@ -37,9 +37,6 @@ jobs:
       - name: Build module
         run: gulp build
 
-      - name: Build documentation
-        run: gulp docs
-
       - name: Zip project # This would actually build your project, using zip for an example artifact
         run: 7z a -tzip pdfoundry-${{ steps.get_version.outputs.VERSION }}.zip pdfoundry
 
@@ -73,6 +70,6 @@ jobs:
           author_name: Github Workflow
           message: "Github Workflow"
           ref: 'master'
-          add: module.json docs docs/**/*
+          add: module.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
