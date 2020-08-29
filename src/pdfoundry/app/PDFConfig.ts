@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import Settings from '../Settings';
+import Settings from '../settings/Settings';
 import Api from '../Api';
 import { getAbsoluteURL, getPDFData } from '../Util';
 import { PDFType } from '../common/types/PDFType';

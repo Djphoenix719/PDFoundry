@@ -16,7 +16,7 @@
 import { PDFData } from '../common/types/PDFData';
 import { PDFType } from '../common/types/PDFType';
 import { setPDFData } from '../Util';
-import Settings from '../Settings';
+import Settings from '../settings/Settings';
 
 /**
  * Should this migration run

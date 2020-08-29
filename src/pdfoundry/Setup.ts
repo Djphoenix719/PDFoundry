@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-import { getAbsoluteURL, getPDFData, isEntityPDF } from './Util';
+import { getAbsoluteURL, getFilesInServerPath, getPDFData, isEntityPDF } from './Util';
 import PreloadEvent from './socket/events/PreloadEvent';
 import { Socket } from './socket/Socket';
-import Settings from './Settings';
+import Settings from './settings/Settings';
 import PDFCache from './cache/PDFCache';
 import Api from './Api';
 import HTMLEnricher from './enricher/HTMLEnricher';
@@ -114,6 +114,8 @@ export default class Setup {
                     Settings.set(Settings.SETTINGS_KEY.DATA_VERSION, 'v0.6.0');
                 });
             }
+
+            await Setup.loadThemes();
 
             // PDFoundry is ready
             Setup.userLogin();
@@ -370,6 +372,21 @@ export default class Setup {
                     });
                 }
             };
+        }
+    }
+
+    private static async loadThemes() {
+        let files = await getFilesInServerPath(`${Settings.PATH_MODULE}/themes`);
+        files = files.filter((file) => file.endsWith('.css'));
+
+        for (const filePath of files) {
+            let [pathNoExtension] = filePath.split('.');
+            let folders = pathNoExtension.split('/');
+
+            const id = folders[folders.length - 1];
+            const name = id.capitalize();
+
+            await Api.registerTheme(id, name, filePath);
         }
     }
 }

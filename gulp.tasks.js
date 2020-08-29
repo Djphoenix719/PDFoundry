@@ -205,12 +205,18 @@ async function watch() {
  * SASS
  */
 async function buildSass() {
-    return gulp
+    await gulp
         .src('src/css/bundle.scss')
         .pipe(gulpsass().on('error', gulpsass.logError))
         .pipe(sourcemaps.init({ loadMaps: true }))
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(destFolder));
+    await gulp
+        .src('src/css/themes/*.scss')
+        .pipe(gulpsass().on('error', gulpsass.logError))
+        .pipe(sourcemaps.init({ loadMaps: true }))
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest(path.resolve(destFolder, 'themes')));
 }
 
 /**

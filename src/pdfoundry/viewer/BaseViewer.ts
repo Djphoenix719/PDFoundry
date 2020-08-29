@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import Settings from '../Settings';
+import Settings from '../settings/Settings';
 import EventStore from '../common/helpers/events';
 import { PDFViewerEvent } from '../common/types/PDFHooks';
 import { PDFjsViewer } from '../common/types/PDFjsViewer';
@@ -42,6 +42,7 @@ export default abstract class BaseViewer extends Application {
     }
 
     // </editor-fold>
+
     // <editor-fold desc="Properties">
 
     protected _frame: HTMLIFrameElement;
@@ -50,6 +51,7 @@ export default abstract class BaseViewer extends Application {
     protected _eventStore: EventStore<PDFViewerEvent>;
 
     // </editor-fold>
+
     // <editor-fold desc="Constructor & Initialization">
 
     protected constructor(options?: ApplicationOptions) {

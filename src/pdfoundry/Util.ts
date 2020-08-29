@@ -21,7 +21,7 @@
  */
 
 import { PDFData, PDFDataDelete, PDFDataUpdate } from './common/types/PDFData';
-import Settings from './Settings';
+import Settings from './settings/Settings';
 import { PDFType } from './common/types/PDFType';
 import { DOMAIN_WHITELIST } from './common/Whitelist';
 
@@ -73,6 +73,17 @@ export function validateAbsoluteURL(dataUrl: string): boolean {
     }
 
     return dataUrl.startsWith(window.origin);
+}
+
+/**
+ * Gets a list of file names from a folder on the server. Intended for use for querying
+ *  config files to build run-time lists of available configs. Only works for the data
+ *  directory.
+ * @param path The path to query.
+ */
+export async function getFilesInServerPath(path: string): Promise<string[]> {
+    const picker = await FilePicker.browse('data', path);
+    return picker.files;
 }
 
 // </editor-fold>

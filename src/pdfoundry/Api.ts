@@ -33,7 +33,7 @@ import {
 } from './Util';
 import StaticViewer from './viewer/StaticViewer';
 import { PDFData } from './common/types/PDFData';
-import Settings from './Settings';
+import Settings from './settings/Settings';
 import PDFCache from './cache/PDFCache';
 import BaseViewer from './viewer/BaseViewer';
 import { PDFType } from './common/types/PDFType';
@@ -91,6 +91,15 @@ export interface PDFOpenOptions {
 }
 
 /**
+ * A definition for a viewer theme.
+ */
+export interface ViewerTheme {
+    id: string;
+    name: string;
+    filePath: string;
+}
+
+/**
  * The PDFoundry API
  *
  * You can access the API with `ui.PDFoundry`.
@@ -108,6 +117,30 @@ export default class Api {
          */
         EVENTS: false,
     };
+
+    // <editor-fold desc="Static Methods">
+
+    private static _registeredThemes: ViewerTheme[] = [];
+
+    public static async registerTheme(id: string, name: string, filePath: string) {
+        if (!filePath.endsWith('.css')) {
+            throw new Error('You may only register css files as themes.');
+        }
+
+        for (let theme of this._registeredThemes) {
+            if (theme.id === id) {
+                throw new Error(`A theme with the id of ${id} is already registered.`);
+            }
+        }
+
+        this._registeredThemes.push({
+            id,
+            name,
+            filePath,
+        });
+    }
+
+    // </editor-fold>
 
     /**
      * A reference to the unclassified utility functions.
