@@ -15,14 +15,16 @@ limitations under the License.
 -->
 
 <div class="{{ cssClass }}">
-    <table>
+    <table class="pdf-inspect-data">
         <thead>
+            <td></td>
             <td>Path</td>
             <td>Value</td>
         </thead>
         <tbody>
             {{#each paths as |path|}}
-            <tr>
+            <tr class="danger-{{path.danger}}">
+                <td><span title="{{path.tooltip}}" class="danger-tooltip">{{{path.icon}}}</span></td>
                 <td>{{path.key}}</td>
                 <td>{{path.value}}</td>
             </tr>

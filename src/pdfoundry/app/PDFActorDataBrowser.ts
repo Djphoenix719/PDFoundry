@@ -26,6 +26,7 @@ export default class PDFActorDataBrowser extends Application {
         options.template = `${Settings.PATH_TEMPLATES}/app/pdf-actor-data-browser.html`;
         options.width = 600;
         options.height = 400;
+        options.resizable = true;
 
         return options;
     }
@@ -45,33 +46,138 @@ export default class PDFActorDataBrowser extends Application {
     getData(options?: any): any {
         const data = super.getData(options);
 
-        data['paths'] = [];
-        const flattened = flattenObject({ data: this.actor.data.data });
-        for (const [k, v] of Object.entries(flattened)) {
-            if (Array.isArray(v)) {
-                data['paths'].push({
-                    key: k,
-                    value: `$$UNSUPPORTED TYPE: Array$$`,
-                });
-            } else if (typeof v === 'object') {
-                data['paths'].push({
-                    key: k,
-                    value: `$$EMPTY OBJECT$$`,
+        enum DangerLevel {
+            Safe = 0,
+            Low = 1,
+            High = 2,
+            Critical = 3,
+        }
+        type DataPath = { key: string; value: string; danger: DangerLevel };
+        const flatten = (data: object, current: string = '', danger: DangerLevel = DangerLevel.Safe): DataPath[] => {
+            let results: DataPath[] = [];
+
+            window['actorData'] = this.actor.data.data;
+
+            const path = (curr: string, ...next: (string | number)[]) => {
+                if (curr.length > 0) {
+                    for (let i = 0; i < next.length; i++) {
+                        curr = `${curr}.${next[i]}`;
+                    }
+                    return curr;
+                } else {
+                    return `${next}`;
+                }
+            };
+
+            const wrap = (value: string) => {
+                return `\{\{${value}\}\}`;
+            };
+
+            const boundDanger = (curr: DangerLevel, next: DangerLevel) => {
+                if (curr < next) {
+                    return next;
+                }
+                return curr;
+            };
+
+            if (typeof data === 'object') {
+                for (const [key, value] of Object.entries(data)) {
+                    if (Array.isArray(value)) {
+                        // Case 1 : The value is an array
+                        if (value.length === 0) {
+                            results.push({
+                                key: path(current, key),
+                                danger: DangerLevel.Critical,
+                                value: wrap('Empty Array, do not use!'),
+                            });
+                        } else {
+                            for (let i = 0; i < value.length; i++) {
+                                const next = value[i];
+                                results = [...results, ...flatten(next, path(current, key, i), boundDanger(danger, DangerLevel.High))];
+                            }
+                        }
+                    } else if (typeof value === 'object') {
+                        // Case 2 : The value is an object
+                        if (value === null || value === undefined) {
+                            results.push({
+                                key: path(current, key),
+                                danger: DangerLevel.Critical,
+                                value: wrap('Null/Undefined, do not use!'),
+                            });
+                        } else if (isObjectEmpty(value)) {
+                            results.push({
+                                key: path(current, key),
+                                danger: DangerLevel.Critical,
+                                value: wrap('Empty Object, do not use!'),
+                            });
+                        } else {
+                            for (let [key2, value2] of Object.entries(value)) {
+                                results = [...results, ...flatten(value2 as any, path(current, key, key2), boundDanger(danger, DangerLevel.Low))];
+                            }
+                        }
+                    } else if (typeof value === 'function') {
+                        // Case 3 : Base Case : The value is a function
+                        results.push({
+                            key: path(current, key),
+                            danger: boundDanger(danger, DangerLevel.Critical),
+                            value: wrap('Function, do not use!'),
+                        });
+                    } else {
+                        // Case 4 : Base Case : The value is a primitive
+                        results.push({
+                            key: path(current, key),
+                            danger: boundDanger(danger, DangerLevel.Safe),
+                            value: (value as any).toString(),
+                        });
+                    }
+                }
+            } else if (typeof data === 'function') {
+                // Case 3 : Base Case : The value is a function
+                results.push({
+                    key: current,
+                    danger: boundDanger(danger, DangerLevel.Critical),
+                    value: wrap('Function, do not use!'),
                 });
             } else {
-                data['paths'].push({
-                    key: k,
-                    value: v,
+                // Case 4 : Base Case : The value is a primitive
+                results.push({
+                    key: current,
+                    danger: boundDanger(danger, DangerLevel.Safe),
+                    value: data,
                 });
             }
-        }
-        data['paths'].sort();
+
+            return results;
+        };
+
+        const icons = {
+            [DangerLevel.Safe]: '<i class="fas fa-check-circle"></i>',
+            [DangerLevel.Low]: '<i class="fas fa-question-circle"></i>',
+            [DangerLevel.High]: '<i class="fas fa-exclamation-triangle"></i>',
+            [DangerLevel.Critical]: '<i class="fas fa-radiation-alt"></i>',
+        };
+        const tooltips = {
+            [DangerLevel.Safe]: game.i18n.localize('PDFOUNDRY.MISC.DANGER.Safe'),
+            [DangerLevel.Low]: game.i18n.localize('PDFOUNDRY.MISC.DANGER.Low'),
+            [DangerLevel.High]: game.i18n.localize('PDFOUNDRY.MISC.DANGER.High'),
+            [DangerLevel.Critical]: game.i18n.localize('PDFOUNDRY.MISC.DANGER.Critical'),
+        };
+
+        data['paths'] = flatten(this.actor.data.data, 'data');
+        data['paths'].sort((a: DataPath, b: DataPath) => a.key.localeCompare(b.key));
+        data['paths'] = data['paths'].map((element) => {
+            return {
+                ...element,
+                icon: icons[element.danger],
+                tooltip: tooltips[element.danger],
+            };
+        });
 
         return data;
     }
 
     render(force?: boolean, options?: RenderOptions): Application {
-        this.timeout = setTimeout(this.render.bind(this), 1000);
+        // this.timeout = setTimeout(this.render.bind(this), 1000);
         return super.render(force, options);
     }
 

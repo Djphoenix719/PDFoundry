@@ -75,6 +75,13 @@
         "Actor": "Form Fillable (Actor Sheet)"
       },
 
+      "DANGER": {
+        "Safe": "This path is likely to be safe to use.",
+        "Low": "This path is unlikely to be dangerous, but you should use caution.",
+        "High": "This path is very likely to cause issues if used.",
+        "Critical": "You should never use this path under any circumstances!"
+      },
+
       "CreatePDF": "Create PDF",
       "NewPDF": "New PDF",
 

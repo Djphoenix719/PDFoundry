@@ -88,6 +88,45 @@ div.pdf-app {
     }
 }
 
+table.pdf-inspect-data {
+    tbody {
+        td:first-child {
+            background: black;
+            color: white;
+        }
+        td:not(:last-child) {
+            border-right: 1px solid black;
+        }
+        tr:not(:last-child) {
+            border-bottom: 1px solid black;
+        }
+    }
+
+    td:not(:first-child) {
+        padding: 0 0.5em;
+    }
+
+    tr.danger-0 {
+        background: lightgreen;
+    }
+    tr.danger-1 {
+        background: lightyellow;
+    }
+    tr.danger-2 {
+        background: lightsalmon;
+    }
+    tr.danger-3 {
+        background: darkred;
+        color: white;
+    }
+
+    i {
+        display: block;
+        text-align: center;
+        cursor: help;
+    }
+}
+
 // TODO: Refactor all below into re-usable CSS
 a.pdf-sheet-manual {
     color: orangered;
