@@ -14,7 +14,7 @@
  */
 
 import Api from '../../Api';
-import Settings from '../../settings/Settings';
+import Settings from '../../Settings';
 
 /**
  * @internal

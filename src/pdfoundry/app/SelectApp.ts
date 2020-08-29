@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import Settings from '../settings/Settings';
+import Settings from '../Settings';
 
 /**
  * Callback type for select apps

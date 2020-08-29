@@ -21,7 +21,6 @@ div.pdf-app {
         input,
         textarea {
             max-width: 100%;
-            border: 0;
         }
     }
 
@@ -74,6 +73,8 @@ div.pdf-app {
         -moz-user-select: text;
         -ms-user-select: text;
         user-select: text;
+        border: 1px solid #7a7971;
+        border-radius: 3px;
     }
 }
 

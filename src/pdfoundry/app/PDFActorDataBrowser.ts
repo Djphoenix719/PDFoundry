@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import Settings from '../settings/Settings';
+import Settings from '../Settings';
 
 /**
  * Basic app to allow the user to see data keys for actor sheets

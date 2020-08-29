@@ -33,7 +33,7 @@ import {
 } from './Util';
 import StaticViewer from './viewer/StaticViewer';
 import { PDFData } from './common/types/PDFData';
-import Settings from './settings/Settings';
+import Settings from './Settings';
 import PDFCache from './cache/PDFCache';
 import BaseViewer from './viewer/BaseViewer';
 import { PDFType } from './common/types/PDFType';
@@ -120,24 +120,35 @@ export default class Api {
 
     // <editor-fold desc="Static Methods">
 
-    private static _registeredThemes: ViewerTheme[] = [];
+    private static _availableThemes: { [id: string]: ViewerTheme } = {};
+
+    public static get activeTheme(): ViewerTheme {
+        const id = Settings.get(Settings.SETTINGS_KEY.VIEWER_THEME);
+        return Api._availableThemes[id];
+    }
+
+    public static get availableThemes() {
+        const themesMap = {};
+        for (const key of Object.keys(Api._availableThemes)) {
+            themesMap[key] = Api._availableThemes[key].name;
+        }
+        return themesMap;
+    }
 
     public static async registerTheme(id: string, name: string, filePath: string) {
         if (!filePath.endsWith('.css')) {
             throw new Error('You may only register css files as themes.');
         }
 
-        for (let theme of this._registeredThemes) {
-            if (theme.id === id) {
-                throw new Error(`A theme with the id of ${id} is already registered.`);
-            }
+        if (Api._availableThemes.hasOwnProperty(id)) {
+            console.warn(`PDFoundry theme with id of "${id}" is already registered!`);
         }
 
-        this._registeredThemes.push({
+        this._availableThemes[id] = {
             id,
             name,
             filePath,
-        });
+        };
     }
 
     // </editor-fold>

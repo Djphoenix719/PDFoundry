@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+import Api from './Api';
+
 /**
  * Internal settings and helper methods for PDFoundry.
  * @internal
@@ -42,9 +44,12 @@ export default class Settings {
 
     public static readonly CSS_CLASS = 'pdf-app';
 
+    public static readonly MENU_KEY = 'PDFoundrySettings';
+
     public static readonly SETTINGS_KEY = {
         EXISTING_VIEWER: 'ShowInExistingViewer',
         CACHE_SIZE: 'CacheSize',
+        VIEWER_THEME: 'ViewerTheme',
         HELP_SEEN: 'HelpSeen',
         DATA_VERSION: 'DataVersion',
     };
@@ -61,12 +66,16 @@ export default class Settings {
     public static initialize() {
         Settings.register(Settings.SETTINGS_KEY.CACHE_SIZE, {
             name: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeName'),
+            hint: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeHint'),
             scope: 'user',
             type: Number,
-            hint: game.i18n.localize('PDFOUNDRY.SETTINGS.CacheSizeHint'),
             default: 256,
             config: true,
             onChange: async (mb) => {
+                if (Settings.get(Settings.SETTINGS_KEY.CACHE_SIZE) === mb) {
+                    return;
+                }
+
                 mb = Math.round(mb);
                 mb = Math.max(mb, 64);
                 mb = Math.min(mb, 1024);
@@ -76,10 +85,20 @@ export default class Settings {
 
         Settings.register(Settings.SETTINGS_KEY.EXISTING_VIEWER, {
             name: game.i18n.localize('PDFOUNDRY.SETTINGS.ShowInExistingViewerName'),
+            hint: game.i18n.localize('PDFOUNDRY.SETTINGS.ShowInExistingViewerHint'),
             scope: 'user',
             type: Boolean,
-            hint: game.i18n.localize('PDFOUNDRY.SETTINGS.ShowInExistingViewerHint'),
             default: true,
+            config: true,
+        });
+
+        Settings.register(Settings.SETTINGS_KEY.VIEWER_THEME, {
+            name: game.i18n.localize('PDFOUNDRY.SETTINGS.ViewerThemeName'),
+            hint: game.i18n.localize('PDFOUNDRY.SETTINGS.ViewerThemeHint'),
+            scope: 'user',
+            type: String,
+            default: 'light',
+            choices: Api.availableThemes,
             config: true,
         });
 

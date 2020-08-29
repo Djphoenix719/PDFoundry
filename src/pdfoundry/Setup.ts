@@ -16,7 +16,7 @@
 import { getAbsoluteURL, getFilesInServerPath, getPDFData, isEntityPDF } from './Util';
 import PreloadEvent from './socket/events/PreloadEvent';
 import { Socket } from './socket/Socket';
-import Settings from './settings/Settings';
+import Settings from './Settings';
 import PDFCache from './cache/PDFCache';
 import Api from './Api';
 import HTMLEnricher from './enricher/HTMLEnricher';
@@ -105,6 +105,9 @@ export default class Setup {
         TinyMCEPlugin.Register();
 
         return new Promise(async () => {
+            // Load base themes
+            await Setup.loadThemes();
+
             // Initialize the settings
             Settings.initialize();
             await PDFCache.initialize();
@@ -114,8 +117,6 @@ export default class Setup {
                     Settings.set(Settings.SETTINGS_KEY.DATA_VERSION, 'v0.6.0');
                 });
             }
-
-            await Setup.loadThemes();
 
             // PDFoundry is ready
             Setup.userLogin();

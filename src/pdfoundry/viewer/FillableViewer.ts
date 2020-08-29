@@ -14,7 +14,7 @@
  */
 
 import BaseViewer from './BaseViewer';
-import Settings from '../settings/Settings';
+import Settings from '../Settings';
 import { PDFData } from '../common/types/PDFData';
 
 /**

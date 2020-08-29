@@ -21,7 +21,7 @@
  */
 
 import { PDFData, PDFDataDelete, PDFDataUpdate } from './common/types/PDFData';
-import Settings from './settings/Settings';
+import Settings from './Settings';
 import { PDFType } from './common/types/PDFType';
 import { DOMAIN_WHITELIST } from './common/Whitelist';
 
