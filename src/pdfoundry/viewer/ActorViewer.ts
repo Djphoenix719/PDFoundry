@@ -95,7 +95,7 @@ export default class ActorViewer extends FillableViewer {
             buttons.unshift({
                 class: 'configure-token',
                 icon: 'fas fa-user-circle',
-                label: this.entity.token ? 'Token' : 'Prototype Token',
+                label: game.i18n.localize(this.entity.token ? 'Token' : 'TOKEN.TitlePrototype'),
                 onclick: async () => {
                     const token = this.entity.token || new Token(this.entity.data.token);
                     new TokenConfig(token, {
@@ -107,7 +107,7 @@ export default class ActorViewer extends FillableViewer {
             buttons.unshift({
                 class: 'configure-sheet',
                 icon: 'fas fa-cog',
-                label: 'Settings',
+                label: game.i18n.localize('Sheet'),
                 onclick: async () => {
                     new EntitySheetConfig(this.entity).render(true);
                 },
@@ -116,7 +116,7 @@ export default class ActorViewer extends FillableViewer {
             buttons.unshift({
                 class: 'pdf-sheet-select',
                 icon: 'fas fa-user-cog',
-                label: 'Sheet Select',
+                label: game.i18n.localize('PDFOUNDRY.VIEWER.SelectSheet'),
                 onclick: () => {
                     new ActorSheetSelect(async (id) => {
                         await this.setSheetId(id);
@@ -129,7 +129,7 @@ export default class ActorViewer extends FillableViewer {
             buttons.unshift({
                 class: 'pdf-browse-data',
                 icon: 'fas fa-search',
-                label: 'Inspect Data',
+                label: game.i18n.localize('PDFOUNDRY.VIEWER.InspectData'),
                 onclick: () => {
                     new PDFActorDataBrowser(this.entity).render(true);
                 },
