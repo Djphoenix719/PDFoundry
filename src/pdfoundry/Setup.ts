@@ -225,7 +225,11 @@ export default class Setup {
         const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
         button.on('click', Api.showHelp);
 
-        html.find('h2').last().before(button);
+        if (game.data.version === '0.6.6') {
+            html.find('#settings-documentation').append(button);
+        } else {
+            html.find('h2').last().before(button);
+        }
     }
 
     private static async createPDF() {
