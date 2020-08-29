@@ -31,6 +31,13 @@ import { DOMAIN_WHITELIST } from './common/Whitelist';
 // <editor-fold desc='URL Helpers">
 
 /**
+ * Check that a remote file exists by performing a head request.
+ * @param path The filepath to check.
+ * @internal
+ */
+export declare function srcExists(path: string): Promise<boolean>;
+
+/**
  * Convert a relative URL to a absolute URL by prepending the window origin to the relative URL.
  * If the URL is of a white listed domain, will simply return the provided URL.
  * @param dataUrl A url to be validated.
@@ -66,28 +73,6 @@ export function validateAbsoluteURL(dataUrl: string): boolean {
     }
 
     return dataUrl.startsWith(window.origin);
-}
-
-/**
- * TODO: Remove in favor of srcExists
- * Checks if a remote file exists at the specified path. That is, if the URL is valid. This does not guarantee a
- * valid file exists at that location. For example, an HTML file will result in true but not be a valid PDF.
- * @param path The absolute URL to check. Adheres to the {@link DOMAIN_WHITELIST}.
- * @see {@link Api.Utilities}
- * @module Utilities
- */
-export function fileExists(path: string): Promise<boolean> {
-    return new Promise<boolean>((resolve) => {
-        $.ajax(path, {
-            type: 'HEAD',
-            success: () => {
-                resolve(true);
-            },
-            error: () => {
-                resolve(false);
-            },
-        });
-    });
 }
 
 // </editor-fold>

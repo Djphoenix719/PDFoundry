@@ -23,12 +23,12 @@
 import {
     canOpenPDF,
     deletePDFData,
-    fileExists,
     getAbsoluteURL,
     getPDFData,
     getUserIdsExceptMe,
     isEntityPDF,
     setPDFData,
+    srcExists,
     validateAbsoluteURL,
 } from './Util';
 import StaticViewer from './viewer/StaticViewer';
@@ -117,7 +117,6 @@ export default class Api {
         return {
             getAbsoluteURL,
             validateAbsoluteURL,
-            fileExists,
             isEntityPDF,
             getPDFData,
             setPDFData,
@@ -328,7 +327,7 @@ export default class Api {
 
         const lang = game.i18n.lang;
         let manualPath = `${window.origin}/${Settings.PATH_ASSETS}/manual/${lang}/manual.pdf`;
-        const manualExists = await fileExists(manualPath);
+        const manualExists = await srcExists(manualPath);
 
         if (!manualExists) {
             manualPath = `${window.origin}/${Settings.PATH_ASSETS}/manual/en/manual.pdf`;

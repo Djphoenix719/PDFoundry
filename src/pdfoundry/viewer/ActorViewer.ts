@@ -160,6 +160,9 @@ export default class ActorViewer extends FillableViewer {
         try {
             await super.open(pdfSource, page);
         } catch (error) {
+            ui.notifications.error(game.i18n.localize('PDFOUNDRY.ERROR.FileNotFound'));
+
+            await this.setSheetId(undefined);
             await this.actorSheet.close();
             new PDFActorSheetAdapter(this.entity, this.options).render(true);
         }

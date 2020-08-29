@@ -51,7 +51,8 @@
     "ERROR": {
       "NoPDFWithCode": "Unable to find PDF with specified code.",
       "NoPDFWithName": "Unable to find PDF with specified name.",
-      "PageMustBePositive": "Page must be greater than or equal to 1."
+      "PageMustBePositive": "Page must be greater than or equal to 1.",
+      "FileNotFound": "Error opening PDF: The file was not found on the server."
     },
     "ENRICH": {
       "InvalidFormat": "Invalid format for @PDF tag.",
