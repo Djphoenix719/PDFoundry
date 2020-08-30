@@ -236,7 +236,7 @@ async function docs() {
                 out: 'docs/',
                 mode: 'modules',
                 plugins: ['@convergencelabs/typedoc-plugin-custom-modules'],
-                exclude: ['./src/pdfoundry/util.ts'],
+                exclude: ['./src/pdfoundry/Util.ts'],
                 readme: './EXAMPLES.md',
                 excludePrivate: true,
                 excludeProtected: true,
