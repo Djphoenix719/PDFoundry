@@ -389,6 +389,11 @@ export default class Setup {
                 filePath: `${Settings.PATH_MODULE}/themes/default-light.css`,
             },
             {
+                id: 'net-runner-dark',
+                name: 'Net Runner',
+                filePath: `${Settings.PATH_MODULE}/themes/net-runner.css`,
+            },
+            {
                 id: 'pride-light',
                 name: 'Pride (Light)',
                 filePath: `${Settings.PATH_MODULE}/themes/pride-light.css`,

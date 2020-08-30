@@ -1,3 +1,18 @@
+/* Copyright 2020 Andrew Cuccinello
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 :root {
     --toolbar-icon-opacity: 0.7;
     --doorhanger-icon-opacity: 0.9;
@@ -6,8 +21,6 @@
     --body-bg-color: rgba(237, 237, 240, 1);
     --errorWrapper-bg-color: rgba(255, 74, 74, 1);
     --progressBar-color: rgba(10, 132, 255, 1);
-    --scrollbar-color: auto;
-    --scrollbar-bg-color: auto;
 
     --sidebar-bg-color: rgba(245, 246, 247, 1);
     --toolbar-bg-color: rgba(249, 249, 250, 1);
@@ -66,12 +79,12 @@
     --secondaryToolbarButton-spreadOdd-icon: url(images/secondaryToolbarButton-spreadOdd.svg);
     --secondaryToolbarButton-spreadEven-icon: url(images/secondaryToolbarButton-spreadEven.svg);
     --secondaryToolbarButton-documentProperties-icon: url(images/secondaryToolbarButton-documentProperties.svg);
-
-    // Full css is allowed - but it is recommended to stay away from anything that changes layout.
-    // Open up the inspector and have fun! :)
 }
 
-#viewerContainer {
+#viewerContainer,
+#thumbnailView,
+#outlineView,
+#attachmentsView {
     &::-webkit-scrollbar {
         background: var(--doorhanger-bg-color);
     }
@@ -82,9 +95,9 @@
     &::-webkit-scrollbar-thumb {
         -webkit-transition: background-color 0.2s;
         transition: background-color 0.2s;
-        background: rgba(242, 242, 242, 1);
+        background: var(--outline-active-bg-color);
     }
     &::-webkit-scrollbar-thumb:hover {
-        background: rgba(200, 200, 200, 1);
+        background: var(--outline-hover-color);
     }
 }
