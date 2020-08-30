@@ -38,7 +38,7 @@ That's about it. You now support letting your users enter the source for an item
 Custom themes are very easy to create and register. Package up a single CSS file containing your theme style, and a JavaScript file containing a single line (or submit a pull request with your theme in SCSS if you think it's particularly snazzy).
 
 ```javascript
-Html.on('setup', ui.PDFoundry.registerTheme('your-theme-id', 'Your Theme Name', 'path/to/my/theme/css/from/data/root.css'))
+Hooks.on('setup', ui.PDFoundry.registerTheme('your-theme-id', 'Your Theme Name', 'path/to/my/theme/css/from/data/root.css'))
 ```
 
 Note your theme will be injected into the viewer at runtime. You will not be able to style any Foundry elements (although you could style them with another CSS file referenced from your `module.json`). You can use the inspector to find classes assigned to DOM elements with a PDF open, and there are some simple themes that come packed with the module.
