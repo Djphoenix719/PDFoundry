@@ -14,12 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-<div class="{{ cssClass }}">
+<div class="pdf-inspect">
+    <p>{{localize "PDFOUNDRY.VIEWER.InspectDataHelp1"}}</p>
+    <p>{{localize "PDFOUNDRY.VIEWER.InspectDataHelp2"}}</p>
+    <p>{{localize "PDFOUNDRY.VIEWER.InspectDataHelp3"}}</p>
     <table class="pdf-inspect-data">
         <thead>
-            <td></td>
+            <td>?</td>
             <td>Path</td>
             <td>Value</td>
+            <td></td>
+            <td></td>
         </thead>
         <tbody>
             {{#each paths as |path|}}
@@ -27,6 +32,8 @@ limitations under the License.
                 <td><span title="{{path.tooltip}}" class="danger-tooltip">{{{path.icon}}}</span></td>
                 <td>{{path.key}}</td>
                 <td>{{path.value}}</td>
+                <td><i class="fas fa-copy copy" data-value="{{path.key}}" title="{{localize "PDFOUNDRY.MISC.CopyDataPath"}}"></i></td>
+                <td><i class="fas fa-dice-d20 copy" data-value="{{path.roll}}" title="{{localize "PDFOUNDRY.MISC.CopyRollPath"}}"></i></td>
             </tr>
             {{/each}}
         </tbody>

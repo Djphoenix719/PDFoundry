@@ -126,14 +126,16 @@ export default class ActorViewer extends FillableViewer {
                 },
             });
 
-            buttons.unshift({
-                class: 'pdf-browse-data',
-                icon: 'fas fa-search',
-                label: game.i18n.localize('PDFOUNDRY.VIEWER.InspectData'),
-                onclick: () => {
-                    new PDFActorDataBrowser(this.entity).render(true);
-                },
-            });
+            if (game.user.isGM) {
+                buttons.unshift({
+                    class: 'pdf-browse-data',
+                    icon: 'fas fa-search',
+                    label: game.i18n.localize('PDFOUNDRY.VIEWER.InspectData'),
+                    onclick: () => {
+                        new PDFActorDataBrowser(this.entity).render(true);
+                    },
+                });
+            }
         }
 
         return buttons;

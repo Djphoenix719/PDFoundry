@@ -43,7 +43,10 @@
       "SelectPlayersConfirm": "Make it so!",
       "SelectSheet": "Select PDF",
       "SelectSheetConfirm": "Make it so!",
-      "InspectData": "Inspect Data"
+      "InspectData": "Inspect Data",
+      "InspectDataHelp1": "You may leave this window open and return the sheet to your system sheet if you so wish. The window will refresh every 10 seconds to reflect changes made to the actor, but you may also refresh it manually with the 'Refresh' button located on the header.",
+      "InspectDataHelp2": "You should be very careful when using these data paths in a PDF. The color coding is a 'best guess', and while it will usually be correct some systems may have exceptions or cause changes you enter into the sheet to be overridden by the system for certain data paths.",
+      "InspectDataHelp3": "While the button to copy /roll syntax is provided for convenience, data may be purposefully omitted or changed by the system during a roll. If a /roll syntax does not produce the expected result, this is not a bug."
     },
     "MANUAL": {
       "Name": "PDFoundry User Manual"
@@ -91,7 +94,11 @@
       "CreatePDF": "Create PDF",
       "NewPDF": "New PDF",
 
-      "Confirm": "Confirm"
+      "Confirm": "Confirm",
+      "Refresh": "Refresh",
+      "CopiedToClipboard": "Copied!",
+      "CopyDataPath": "Copy data path to clipboard.",
+      "CopyRollPath": "Copy /roll syntax path to clipboard."
     },
     "COMMANDS": {
       "Success": "PDFoundry: $COMMAND_NAME$ complete successfully.",

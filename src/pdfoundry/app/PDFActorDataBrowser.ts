@@ -14,6 +14,7 @@
  */
 
 import Settings from '../Settings';
+import { BUTTON_GITHUB, BUTTON_KOFI } from '../common/helpers/header';
 
 /**
  * Basic app to allow the user to see data keys for actor sheets
@@ -40,7 +41,20 @@ export default class PDFActorDataBrowser extends Application {
     }
 
     get title(): string {
-        return `Data Paths for ${this.actor.name}`;
+        return `${this.actor.name}`;
+    }
+
+    protected _getHeaderButtons(): any[] {
+        const buttons = super._getHeaderButtons();
+        buttons.unshift(BUTTON_GITHUB);
+        buttons.unshift(BUTTON_KOFI);
+        buttons.unshift({
+            class: 'pdf-sheet-refresh',
+            icon: 'fas fa-sync',
+            label: game.i18n.localize('PDFOUNDRY.MISC.Refresh'),
+            onclick: () => this.render(),
+        });
+        return buttons;
     }
 
     getData(options?: any): any {
@@ -101,8 +115,8 @@ export default class PDFActorDataBrowser extends Application {
                         if (value === null || value === undefined) {
                             results.push({
                                 key: path(current, key),
-                                danger: DangerLevel.Critical,
-                                value: wrap('Null/Undefined, do not use!'),
+                                danger: DangerLevel.High,
+                                value: wrap('Null/Undefined, be cautious!'),
                             });
                         } else if (isObjectEmpty(value)) {
                             results.push({
@@ -166,9 +180,13 @@ export default class PDFActorDataBrowser extends Application {
         data['paths'] = flatten(this.actor.data.data, 'data');
         data['paths'].sort((a: DataPath, b: DataPath) => a.key.localeCompare(b.key));
         data['paths'] = data['paths'].map((element) => {
+            let splitRoll = element['key'].split('.') as string[];
+            splitRoll.shift();
+
             return {
                 ...element,
                 icon: icons[element.danger],
+                roll: `@${splitRoll.join('.')}`,
                 tooltip: tooltips[element.danger],
             };
         });
@@ -176,8 +194,24 @@ export default class PDFActorDataBrowser extends Application {
         return data;
     }
 
+    protected activateListeners(html: JQuery) {
+        super.activateListeners(html);
+
+        html.find('i.copy').on('click', async (event) => {
+            const target = $(event.currentTarget);
+
+            await navigator.clipboard.writeText(target.data('value') as string);
+
+            ui.notifications.info(game.i18n.localize('PDFOUNDRY.MISC.CopiedToClipboard'));
+        });
+    }
+
     render(force?: boolean, options?: RenderOptions): Application {
-        // this.timeout = setTimeout(this.render.bind(this), 1000);
+        if (this.timeout) {
+            clearTimeout(this.timeout);
+        }
+
+        this.timeout = setTimeout(this.render.bind(this), 10000);
         return super.render(force, options);
     }
 
