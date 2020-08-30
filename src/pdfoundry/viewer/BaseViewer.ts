@@ -18,7 +18,7 @@ import EventStore from '../common/helpers/events';
 import { PDFViewerEvent } from '../common/types/PDFHooks';
 import { PDFjsViewer } from '../common/types/PDFjsViewer';
 import { PDFjsEventBus } from '../common/types/PDFjsEventBus';
-import { BUTTON_GITHUB } from '../common/helpers/header';
+import { BUTTON_GITHUB, BUTTON_KOFI } from '../common/helpers/header';
 import Api from '../Api';
 
 /**
@@ -190,6 +190,7 @@ export default abstract class BaseViewer extends Application {
     protected _getHeaderButtons(): any[] {
         const buttons = super._getHeaderButtons();
         buttons.unshift(BUTTON_GITHUB);
+        buttons.unshift(BUTTON_KOFI);
         return buttons;
     }
 

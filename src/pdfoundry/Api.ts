@@ -28,7 +28,6 @@ import {
     getUserIdsExceptMe,
     isEntityPDF,
     setPDFData,
-    srcExists,
     validateAbsoluteURL,
 } from './Util';
 import StaticViewer from './viewer/StaticViewer';
@@ -395,6 +394,7 @@ export default class Api {
 
         const lang = game.i18n.lang;
         let manualPath = `${window.origin}/${Settings.PATH_ASSETS}/manual/${lang}/manual.pdf`;
+        // @ts-ignore
         const manualExists = await srcExists(manualPath);
 
         if (!manualExists) {

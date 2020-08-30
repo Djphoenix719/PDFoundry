@@ -36,3 +36,14 @@ export const BUTTON_HELP = {
     label: 'Help',
     onclick: () => Api.showHelp(),
 };
+
+/**
+ * Shameless shill link
+ * @internal
+ */
+export const BUTTON_KOFI = {
+    class: 'pdf-sheet-kofi',
+    icon: 'fas fa-coffee',
+    label: '',
+    onclick: () => window.open('https://ko-fi.com/djsmods', '_blank'),
+};

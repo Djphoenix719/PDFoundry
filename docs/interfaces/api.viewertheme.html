@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>PDFType | PDFoundry</title>
+	<title>ViewerTheme | PDFoundry</title>
 	<meta name="description" content="Documentation for PDFoundry">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -59,10 +59,10 @@
 					<a href="../modules/api.html">API</a>
 				</li>
 				<li>
-					<a href="api.pdftype.html">PDFType</a>
+					<a href="api.viewertheme.html">ViewerTheme</a>
 				</li>
 			</ul>
-			<h1>Enumeration PDFType</h1>
+			<h1>Interface ViewerTheme</h1>
 		</div>
 	</div>
 </header>
@@ -72,71 +72,64 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>The type of PDF file, as specified by the user.</p>
+						<p>A definition for a viewer theme.</p>
 					</div>
 				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">ViewerTheme</span>
+					</li>
+				</ul>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Enumeration members</h3>
+							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="api.pdftype.html#actor" class="tsd-kind-icon">Actor</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="api.pdftype.html#fillable" class="tsd-kind-icon">Fillable</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="api.pdftype.html#static" class="tsd-kind-icon">Static</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api.viewertheme.html#filepath" class="tsd-kind-icon">file<wbr>Path</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api.viewertheme.html#id" class="tsd-kind-icon">id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="api.viewertheme.html#name" class="tsd-kind-icon">name</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Enumeration members</h2>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="actor" class="tsd-anchor"></a>
-					<h3>Actor</h3>
-					<div class="tsd-signature tsd-kind-icon">Actor<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;actor&quot;</span></div>
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="filepath" class="tsd-anchor"></a>
+					<h3>file<wbr>Path</h3>
+					<div class="tsd-signature tsd-kind-icon">file<wbr>Path<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/common/types/PDFType.ts#L32">src/pdfoundry/common/types/PDFType.ts:32</a></li>
+							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/Api.ts#L93">src/pdfoundry/Api.ts:93</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Actor-linked PDFs store their data on the actor, so they can represent actors.</p>
-						</div>
-					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="fillable" class="tsd-anchor"></a>
-					<h3>Fillable</h3>
-					<div class="tsd-signature tsd-kind-icon">Fillable<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;fillable&quot;</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="id" class="tsd-anchor"></a>
+					<h3>id</h3>
+					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/common/types/PDFType.ts#L28">src/pdfoundry/common/types/PDFType.ts:28</a></li>
+							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/Api.ts#L91">src/pdfoundry/Api.ts:91</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Fillable PDFs are not linked to actor sheets, but do contain form fillable elements.</p>
-						</div>
-					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="static" class="tsd-anchor"></a>
-					<h3>Static</h3>
-					<div class="tsd-signature tsd-kind-icon">Static<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;static&quot;</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="name" class="tsd-anchor"></a>
+					<h3>name</h3>
+					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/common/types/PDFType.ts#L24">src/pdfoundry/common/types/PDFType.ts:24</a></li>
+							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/Api.ts#L92">src/pdfoundry/Api.ts:92</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Static PDFs contain no form fillable elements.</p>
-						</div>
-					</div>
 				</section>
 			</section>
 		</div>
@@ -159,24 +152,9 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-enum tsd-parent-kind-module">
-						<a href="api.pdftype.html" class="tsd-kind-icon">PDFType</a>
-						<ul>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="api.pdftype.html#actor" class="tsd-kind-icon">Actor</a>
-							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="api.pdftype.html#fillable" class="tsd-kind-icon">Fillable</a>
-							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="api.pdftype.html#static" class="tsd-kind-icon">Static</a>
-							</li>
-						</ul>
+					<li class=" tsd-kind-enum tsd-parent-kind-module">
+						<a href="../enums/api.pdftype.html" class="tsd-kind-icon">PDFType</a>
 					</li>
-				</ul>
-				<ul class="after-current">
 					<li class=" tsd-kind-class tsd-parent-kind-module">
 						<a href="../classes/api.actorviewer.html" class="tsd-kind-icon">Actor<wbr>Viewer</a>
 					</li>
@@ -193,14 +171,29 @@
 						<a href="../classes/api.staticviewer.html" class="tsd-kind-icon">Static<wbr>Viewer</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/api.pdfdata.html" class="tsd-kind-icon">PDFData</a>
+						<a href="api.pdfdata.html" class="tsd-kind-icon">PDFData</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/api.pdfopenoptions.html" class="tsd-kind-icon">PDFOpen<wbr>Options</a>
+						<a href="api.pdfopenoptions.html" class="tsd-kind-icon">PDFOpen<wbr>Options</a>
 					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/api.viewertheme.html" class="tsd-kind-icon">Viewer<wbr>Theme</a>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface tsd-parent-kind-module">
+						<a href="api.viewertheme.html" class="tsd-kind-icon">Viewer<wbr>Theme</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api.viewertheme.html#filepath" class="tsd-kind-icon">file<wbr>Path</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api.viewertheme.html#id" class="tsd-kind-icon">id</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="api.viewertheme.html#name" class="tsd-kind-icon">name</a>
+							</li>
+						</ul>
 					</li>
+				</ul>
+				<ul class="after-current">
 					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
 						<a href="../modules/api.html#pdfvalidator" class="tsd-kind-icon">PDFValidator</a>
 					</li>
@@ -218,10 +211,11 @@
 				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>

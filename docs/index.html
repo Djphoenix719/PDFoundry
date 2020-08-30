@@ -90,8 +90,18 @@
         }
     });
 });</code></pre>
-				<p>That&#39;s about it. You now support letting your users enter the source for an item, and have a link to open the PDF right to the page. You&#39;ll have to decide what input formats you support. Don&#39;t forget, you can search for a PDF by name too - so if you want the users to type a full name (or perhaps you want to support both) that&#39;s easily possible too.</p>
-				<p>Check out the API at... actually you&#39;re looking at it. The directory is on the right.</p>
+				<p>That&#39;s about it. You now support letting your users enter the source for an item, and have a link to open the PDF right to the page. You&#39;ll have to decide what input formats you support. Don&#39;t forget, you can search for a PDF by name too - so if you want the users to type a full name (or perhaps you want to support both) that&#39;s easily possible too. You can also see <a href="https://github.com/Djphoenix719/FVTT-PDFoundryPF2E">this repository</a> for an albeit sloppy example.</p>
+				<a href="#custom-themes" id="custom-themes" style="color: inherit; text-decoration: none;">
+					<h3>Custom Themes</h3>
+				</a>
+				<p>Custom themes are very easy to create and register. Package up a single CSS file containing your theme style, and a JavaScript file containing a single line (or submit a pull request with your theme in SCSS if you think it&#39;s particularly snazzy).</p>
+				<pre><code class="language-javascript">Html.on(<span class="hljs-string">&#x27;setup&#x27;</span>, ui.PDFoundry.registerTheme(<span class="hljs-string">&#x27;your-theme-id&#x27;</span>, <span class="hljs-string">&#x27;Your Theme Name&#x27;</span>, <span class="hljs-string">&#x27;path/to/my/theme/css/from/data/root.css&#x27;</span>))</code></pre>
+				<p>Note your theme will be injected into the viewer at runtime. You will not be able to style any Foundry elements (although you could style them with another CSS file referenced from your <code>module.json</code>). You can use the inspector to find classes assigned to DOM elements with a PDF open, and there are some simple themes that come packed with the module.</p>
+				<p>Don&#39;t forget to include a reference to your script in the <code>module.json</code> for your module.</p>
+				<a href="#further-reading" id="further-reading" style="color: inherit; text-decoration: none;">
+					<h3>Further Reading</h3>
+				</a>
+				<p>Check out the rest of the API on the right.</p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">

@@ -17,7 +17,7 @@ import Settings from '../Settings';
 import Api from '../Api';
 import { getAbsoluteURL, getPDFData } from '../Util';
 import { PDFType } from '../common/types/PDFType';
-import { BUTTON_GITHUB, BUTTON_HELP } from '../common/helpers/header';
+import { BUTTON_GITHUB, BUTTON_HELP, BUTTON_KOFI } from '../common/helpers/header';
 
 /**
  * Extends the base ItemSheet for linked PDF viewing.
@@ -62,8 +62,9 @@ export class PDFConfig extends FormApplication {
 
     protected _getHeaderButtons(): any[] {
         const buttons = super._getHeaderButtons();
-        buttons.unshift(BUTTON_HELP);
         buttons.unshift(BUTTON_GITHUB);
+        buttons.unshift(BUTTON_KOFI);
+        buttons.unshift(BUTTON_HELP);
         return buttons;
     }
 

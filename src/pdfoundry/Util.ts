@@ -31,13 +31,6 @@ import { DOMAIN_WHITELIST } from './common/Whitelist';
 // <editor-fold desc='URL Helpers">
 
 /**
- * Check that a remote file exists by performing a head request.
- * @param path The filepath to check.
- * @internal
- */
-export declare function srcExists(path: string): Promise<boolean>;
-
-/**
  * Convert a relative URL to a absolute URL by prepending the window origin to the relative URL.
  * If the URL is of a white listed domain, will simply return the provided URL.
  * @param dataUrl A url to be validated.
@@ -73,17 +66,6 @@ export function validateAbsoluteURL(dataUrl: string): boolean {
     }
 
     return dataUrl.startsWith(window.origin);
-}
-
-/**
- * Gets a list of file names from a folder on the server. Intended for use for querying
- *  config files to build run-time lists of available configs. Only works for the data
- *  directory.
- * @param path The path to query.
- */
-export async function getFilesInServerPath(path: string): Promise<string[]> {
-    const picker = await FilePicker.browse('data', path);
-    return picker.files;
 }
 
 // </editor-fold>

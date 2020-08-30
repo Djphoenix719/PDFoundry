@@ -90,6 +90,11 @@
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
+							<h3>Other Accessors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-static"><a href="api.api-1.html#activetheme" class="tsd-kind-icon">active<wbr>Theme</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-static"><a href="api.api-1.html#availablethemes" class="tsd-kind-icon">available<wbr>Themes</a></li>
+							</ul>
 							<h3>Utility Accessors</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-static"><a href="api.api-1.html#utilities" class="tsd-kind-icon">Utilities</a></li>
@@ -102,6 +107,11 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="api.api-1.html#openpdfbycode" class="tsd-kind-icon">openPDFBy<wbr>Code</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="api.api-1.html#openpdfbyname" class="tsd-kind-icon">openPDFBy<wbr>Name</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="api.api-1.html#openurl" class="tsd-kind-icon">openURL</a></li>
+							</ul>
+							<h3>Other Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="api.api-1.html#gettheme" class="tsd-kind-icon">get<wbr>Theme</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="api.api-1.html#registertheme" class="tsd-kind-icon">register<wbr>Theme</a></li>
 							</ul>
 							<h3>PDFData Methods</h3>
 							<ul class="tsd-index-list">
@@ -125,18 +135,67 @@
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Utility Accessors</h2>
+				<h2>Other Accessors</h2>
 				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
-					<a name="utilities" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> Utilities</h3>
+					<a name="activetheme" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> active<wbr>Theme</h3>
 					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> Utilities<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>canOpenPDF<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#canopenpdf" class="tsd-signature-type">canOpenPDF</a><span class="tsd-signature-symbol">; </span>deletePDFData<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#deletepdfdata" class="tsd-signature-type">deletePDFData</a><span class="tsd-signature-symbol">; </span>fileExists<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#fileexists" class="tsd-signature-type">fileExists</a><span class="tsd-signature-symbol">; </span>getAbsoluteURL<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#getabsoluteurl" class="tsd-signature-type">getAbsoluteURL</a><span class="tsd-signature-symbol">; </span>getPDFData<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#getpdfdata" class="tsd-signature-type">getPDFData</a><span class="tsd-signature-symbol">; </span>getUserIdsExceptMe<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#getuseridsexceptme" class="tsd-signature-type">getUserIdsExceptMe</a><span class="tsd-signature-symbol">; </span>isEntityPDF<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#isentitypdf" class="tsd-signature-type">isEntityPDF</a><span class="tsd-signature-symbol">; </span>setPDFData<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#setpdfdata" class="tsd-signature-type">setPDFData</a><span class="tsd-signature-symbol">; </span>validateAbsoluteURL<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#validateabsoluteurl" class="tsd-signature-type">validateAbsoluteURL</a><span class="tsd-signature-symbol"> }</span></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> activeTheme<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/api.viewertheme.html" class="tsd-signature-type">ViewerTheme</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/2c6fe22/src/pdfoundry/Api.ts#L116">src/pdfoundry/Api.ts:116</a></li>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/Api.ts#L130">src/pdfoundry/Api.ts:130</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get the currently enabled theme id.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/api.viewertheme.html" class="tsd-signature-type">ViewerTheme</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
+					<a name="availablethemes" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> available<wbr>Themes</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> availableThemes<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{}</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/Api.ts#L138">src/pdfoundry/Api.ts:138</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get a map of themes available for use.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{}</span></h4>
+							<ul class="tsd-parameters">
+							</ul>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Utility Accessors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
+					<a name="utilities" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> Utilities</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> Utilities<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>canOpenPDF<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#canopenpdf" class="tsd-signature-type">canOpenPDF</a><span class="tsd-signature-symbol">; </span>deletePDFData<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#deletepdfdata" class="tsd-signature-type">deletePDFData</a><span class="tsd-signature-symbol">; </span>getAbsoluteURL<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#getabsoluteurl" class="tsd-signature-type">getAbsoluteURL</a><span class="tsd-signature-symbol">; </span>getPDFData<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#getpdfdata" class="tsd-signature-type">getPDFData</a><span class="tsd-signature-symbol">; </span>getUserIdsExceptMe<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#getuseridsexceptme" class="tsd-signature-type">getUserIdsExceptMe</a><span class="tsd-signature-symbol">; </span>isEntityPDF<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#isentitypdf" class="tsd-signature-type">isEntityPDF</a><span class="tsd-signature-symbol">; </span>setPDFData<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#setpdfdata" class="tsd-signature-type">setPDFData</a><span class="tsd-signature-symbol">; </span>validateAbsoluteURL<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#validateabsoluteurl" class="tsd-signature-type">validateAbsoluteURL</a><span class="tsd-signature-symbol"> }</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/Api.ts#L174">src/pdfoundry/Api.ts:174</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -149,16 +208,13 @@
 									</dd>
 								</dl>
 							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>canOpenPDF<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#canopenpdf" class="tsd-signature-type">canOpenPDF</a><span class="tsd-signature-symbol">; </span>deletePDFData<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#deletepdfdata" class="tsd-signature-type">deletePDFData</a><span class="tsd-signature-symbol">; </span>fileExists<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#fileexists" class="tsd-signature-type">fileExists</a><span class="tsd-signature-symbol">; </span>getAbsoluteURL<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#getabsoluteurl" class="tsd-signature-type">getAbsoluteURL</a><span class="tsd-signature-symbol">; </span>getPDFData<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#getpdfdata" class="tsd-signature-type">getPDFData</a><span class="tsd-signature-symbol">; </span>getUserIdsExceptMe<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#getuseridsexceptme" class="tsd-signature-type">getUserIdsExceptMe</a><span class="tsd-signature-symbol">; </span>isEntityPDF<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#isentitypdf" class="tsd-signature-type">isEntityPDF</a><span class="tsd-signature-symbol">; </span>setPDFData<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#setpdfdata" class="tsd-signature-type">setPDFData</a><span class="tsd-signature-symbol">; </span>validateAbsoluteURL<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#validateabsoluteurl" class="tsd-signature-type">validateAbsoluteURL</a><span class="tsd-signature-symbol"> }</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>canOpenPDF<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#canopenpdf" class="tsd-signature-type">canOpenPDF</a><span class="tsd-signature-symbol">; </span>deletePDFData<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#deletepdfdata" class="tsd-signature-type">deletePDFData</a><span class="tsd-signature-symbol">; </span>getAbsoluteURL<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#getabsoluteurl" class="tsd-signature-type">getAbsoluteURL</a><span class="tsd-signature-symbol">; </span>getPDFData<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#getpdfdata" class="tsd-signature-type">getPDFData</a><span class="tsd-signature-symbol">; </span>getUserIdsExceptMe<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#getuseridsexceptme" class="tsd-signature-type">getUserIdsExceptMe</a><span class="tsd-signature-symbol">; </span>isEntityPDF<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#isentitypdf" class="tsd-signature-type">isEntityPDF</a><span class="tsd-signature-symbol">; </span>setPDFData<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#setpdfdata" class="tsd-signature-type">setPDFData</a><span class="tsd-signature-symbol">; </span>validateAbsoluteURL<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#validateabsoluteurl" class="tsd-signature-type">validateAbsoluteURL</a><span class="tsd-signature-symbol"> }</span></h4>
 							<ul class="tsd-parameters">
 								<li class="tsd-parameter">
 									<h5>can<wbr>OpenPDF<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#canopenpdf" class="tsd-signature-type">canOpenPDF</a></h5>
 								</li>
 								<li class="tsd-parameter">
 									<h5>deletePDFData<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#deletepdfdata" class="tsd-signature-type">deletePDFData</a></h5>
-								</li>
-								<li class="tsd-parameter">
-									<h5>file<wbr>Exists<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#fileexists" class="tsd-signature-type">fileExists</a></h5>
 								</li>
 								<li class="tsd-parameter">
 									<h5>get<wbr>AbsoluteURL<span class="tsd-signature-symbol">: </span><a href="../modules/utilities.html#getabsoluteurl" class="tsd-signature-type">getAbsoluteURL</a></h5>
@@ -195,7 +251,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/2c6fe22/src/pdfoundry/Api.ts#L248">src/pdfoundry/Api.ts:248</a></li>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/Api.ts#L305">src/pdfoundry/Api.ts:305</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -232,7 +288,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/2c6fe22/src/pdfoundry/Api.ts#L208">src/pdfoundry/Api.ts:208</a></li>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/Api.ts#L265">src/pdfoundry/Api.ts:265</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -264,7 +320,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/2c6fe22/src/pdfoundry/Api.ts#L227">src/pdfoundry/Api.ts:227</a></li>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/Api.ts#L284">src/pdfoundry/Api.ts:284</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -296,7 +352,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/2c6fe22/src/pdfoundry/Api.ts#L305">src/pdfoundry/Api.ts:305</a></li>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/Api.ts#L362">src/pdfoundry/Api.ts:362</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -331,6 +387,83 @@
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Other Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="gettheme" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> get<wbr>Theme</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Theme<span class="tsd-signature-symbol">(</span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/api.viewertheme.html" class="tsd-signature-type">ViewerTheme</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/Api.ts#L123">src/pdfoundry/Api.ts:123</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get a full theme definition by id.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>id: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The unique id of the theme to lookup.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/api.viewertheme.html" class="tsd-signature-type">ViewerTheme</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="registertheme" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> register<wbr>Theme</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">register<wbr>Theme<span class="tsd-signature-symbol">(</span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, filePath<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/Api.ts#L152">src/pdfoundry/Api.ts:152</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Register a theme for use with PDFoundry. You must register a theme before <code>ready</code>. Do so in <code>setup</code>.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>id: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The unique id of the theme. Providing an already existing id will over-write the existing theme.</p>
+									</div>
+								</li>
+								<li>
+									<h5>name: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The user-facing display name of the theme.</p>
+									</div>
+								</li>
+								<li>
+									<h5>filePath: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The relative path of the theme css file</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>PDFData Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
 					<a name="findpdfdata" class="tsd-anchor"></a>
@@ -342,7 +475,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/2c6fe22/src/pdfoundry/Api.ts#L190">src/pdfoundry/Api.ts:190</a></li>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/Api.ts#L247">src/pdfoundry/Api.ts:247</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -379,7 +512,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/2c6fe22/src/pdfoundry/Api.ts#L159">src/pdfoundry/Api.ts:159</a></li>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/Api.ts#L216">src/pdfoundry/Api.ts:216</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -416,7 +549,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/2c6fe22/src/pdfoundry/Api.ts#L172">src/pdfoundry/Api.ts:172</a></li>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/Api.ts#L229">src/pdfoundry/Api.ts:229</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -459,7 +592,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/2c6fe22/src/pdfoundry/Api.ts#L138">src/pdfoundry/Api.ts:138</a></li>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/Api.ts#L195">src/pdfoundry/Api.ts:195</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -499,7 +632,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/2c6fe22/src/pdfoundry/Api.ts#L326">src/pdfoundry/Api.ts:326</a></li>
+									<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/Api.ts#L383">src/pdfoundry/Api.ts:383</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -520,7 +653,7 @@
 					<div class="tsd-signature tsd-kind-icon">DEBUG<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/2c6fe22/src/pdfoundry/Api.ts#L104">src/pdfoundry/Api.ts:104</a></li>
+							<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/Api.ts#L107">src/pdfoundry/Api.ts:107</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -534,7 +667,7 @@
 						<div class="tsd-signature tsd-kind-icon">EVENTS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/2c6fe22/src/pdfoundry/Api.ts#L109">src/pdfoundry/Api.ts:109</a></li>
+								<li>Defined in <a href="https://github.com/Djphoenix719/PDFoundry/blob/87f30ee/src/pdfoundry/Api.ts#L112">src/pdfoundry/Api.ts:112</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -579,6 +712,12 @@
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
 								<a href="api.api-1.html#utilities" class="tsd-kind-icon">Utilities</a>
 							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
+								<a href="api.api-1.html#activetheme" class="tsd-kind-icon">active<wbr>Theme</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-static">
+								<a href="api.api-1.html#availablethemes" class="tsd-kind-icon">available<wbr>Themes</a>
+							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
 								<a href="api.api-1.html#findpdfdata" class="tsd-kind-icon">findPDFData</a>
 							</li>
@@ -592,6 +731,9 @@
 								<a href="api.api-1.html#findpdfentity" class="tsd-kind-icon">findPDFEntity</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="api.api-1.html#gettheme" class="tsd-kind-icon">get<wbr>Theme</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
 								<a href="api.api-1.html#openpdf" class="tsd-kind-icon">openPDF</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
@@ -602,6 +744,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
 								<a href="api.api-1.html#openurl" class="tsd-kind-icon">openURL</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="api.api-1.html#registertheme" class="tsd-kind-icon">register<wbr>Theme</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
 								<a href="api.api-1.html#showhelp" class="tsd-kind-icon">show<wbr>Help</a>
@@ -627,6 +772,9 @@
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
 						<a href="../interfaces/api.pdfopenoptions.html" class="tsd-kind-icon">PDFOpen<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="../interfaces/api.viewertheme.html" class="tsd-kind-icon">Viewer<wbr>Theme</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
 						<a href="../modules/api.html#pdfvalidator" class="tsd-kind-icon">PDFValidator</a>
