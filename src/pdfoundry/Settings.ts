@@ -97,7 +97,7 @@ export default class Settings {
             hint: game.i18n.localize('PDFOUNDRY.SETTINGS.ViewerThemeHint'),
             scope: 'user',
             type: String,
-            default: 'default-light',
+            default: 'fantasy',
             choices: Api.availableThemes,
             config: true,
         });

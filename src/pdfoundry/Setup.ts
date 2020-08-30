@@ -379,13 +379,18 @@ export default class Setup {
     private static registerThemes() {
         const themes: ViewerTheme[] = [
             {
-                id: 'default-dark',
-                name: 'Default (Dark)',
+                id: 'fantasy',
+                name: 'Fantasy (Default)',
+                filePath: `${Settings.PATH_MODULE}/themes/fantasy.css`,
+            },
+            {
+                id: 'dark',
+                name: 'Dark',
                 filePath: `${Settings.PATH_MODULE}/themes/default-dark.css`,
             },
             {
-                id: 'default-light',
-                name: 'Default (Light)',
+                id: 'light',
+                name: 'Light',
                 filePath: `${Settings.PATH_MODULE}/themes/default-light.css`,
             },
             {
@@ -393,6 +398,7 @@ export default class Setup {
                 name: 'Net Runner',
                 filePath: `${Settings.PATH_MODULE}/themes/net-runner.css`,
             },
+
             {
                 id: 'gay-pride-light',
                 name: 'Gay Pride (Light)',

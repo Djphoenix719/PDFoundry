@@ -144,10 +144,6 @@ export default abstract class BaseViewer extends Application {
                     if (this._frame.contentWindow && this._frame.contentWindow['PDFViewerApplication']) {
                         const viewer = this._frame.contentWindow['PDFViewerApplication'];
 
-                        const theme = Api.activeTheme;
-                        const head = $(this._frame.contentDocument as Document).find('head');
-                        head.append($(`<link href="/${theme.filePath}" rel="stylesheet" type="text/css" media="all">`));
-
                         resolve(viewer);
                         return;
                     }
@@ -210,6 +206,11 @@ export default abstract class BaseViewer extends Application {
         this._frame = html.parent().find('iframe.pdfViewer').get(0) as HTMLIFrameElement;
         this.getViewer().then(async (viewer) => {
             this._viewer = viewer;
+
+            const theme = Api.activeTheme;
+            const frameDocument = $(this._frame.contentDocument as Document);
+            const head = frameDocument.find('head');
+            head.append($(`<link href="/${theme.filePath}" rel="stylesheet" type="text/css" media="all">`));
 
             this.onViewerOpened();
 
