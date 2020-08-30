@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-import { getAbsoluteURL, getFilesInServerPath, getPDFData, isEntityPDF } from './Util';
+import { getAbsoluteURL, getPDFData, isEntityPDF } from './Util';
 import PreloadEvent from './socket/events/PreloadEvent';
 import { Socket } from './socket/Socket';
 import Settings from './Settings';
 import PDFCache from './cache/PDFCache';
-import Api from './Api';
+import Api, { ViewerTheme } from './Api';
 import HTMLEnricher from './enricher/HTMLEnricher';
 import TinyMCEPlugin from './enricher/TinyMCEPlugin';
 import PDFActorSheetAdapter from './app/PDFActorSheetAdapter';
@@ -75,6 +75,9 @@ export default class Setup {
 
         // Cogwheel settings menu
         Hooks.on('renderSettings', Setup.onRenderSettings);
+
+        // Load base themes
+        Setup.registerThemes();
     }
 
     private static readonly COMMANDS = [new FixMissingTypes(), new PurgeCache()];
@@ -105,9 +108,6 @@ export default class Setup {
         TinyMCEPlugin.Register();
 
         return new Promise(async () => {
-            // Load base themes
-            await Setup.loadThemes();
-
             // Initialize the settings
             Settings.initialize();
             await PDFCache.initialize();
@@ -376,18 +376,52 @@ export default class Setup {
         }
     }
 
-    private static async loadThemes() {
-        let files = await getFilesInServerPath(`${Settings.PATH_MODULE}/themes`);
-        files = files.filter((file) => file.endsWith('.css'));
+    private static registerThemes() {
+        const themes: ViewerTheme[] = [
+            {
+                id: 'default-dark',
+                name: 'Default (Dark)',
+                filePath: `${Settings.PATH_MODULE}/themes/default-dark.css`,
+            },
+            {
+                id: 'default-light',
+                name: 'Default (Light)',
+                filePath: `${Settings.PATH_MODULE}/themes/default-light.css`,
+            },
+            {
+                id: 'pride-light',
+                name: 'Pride (Light)',
+                filePath: `${Settings.PATH_MODULE}/themes/pride-light.css`,
+            },
+            {
+                id: 'pride-dark',
+                name: 'Pride (Dark)',
+                filePath: `${Settings.PATH_MODULE}/themes/pride-dark.css`,
+            },
+            {
+                id: 'trans-light',
+                name: 'Trans (Light)',
+                filePath: `${Settings.PATH_MODULE}/themes/trans-light.css`,
+            },
+            {
+                id: 'trans-dark',
+                name: 'Trans (Dark)',
+                filePath: `${Settings.PATH_MODULE}/themes/trans-dark.css`,
+            },
+            {
+                id: 'enby-light',
+                name: 'Enby (Light)',
+                filePath: `${Settings.PATH_MODULE}/themes/enby-light.css`,
+            },
+            {
+                id: 'enby-dark',
+                name: 'Enby (Dark)',
+                filePath: `${Settings.PATH_MODULE}/themes/enby-dark.css`,
+            },
+        ];
 
-        for (const filePath of files) {
-            let [pathNoExtension] = filePath.split('.');
-            let folders = pathNoExtension.split('/');
-
-            const id = folders[folders.length - 1];
-            const name = id.capitalize();
-
-            await Api.registerTheme(id, name, filePath);
+        for (const theme of themes) {
+            Api.registerTheme(theme.id, theme.name, theme.filePath);
         }
     }
 }

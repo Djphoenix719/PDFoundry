@@ -19,6 +19,7 @@ import { PDFViewerEvent } from '../common/types/PDFHooks';
 import { PDFjsViewer } from '../common/types/PDFjsViewer';
 import { PDFjsEventBus } from '../common/types/PDFjsEventBus';
 import { BUTTON_GITHUB } from '../common/helpers/header';
+import Api from '../Api';
 
 /**
  * The base viewer class from which all other types of viewers inherit.
@@ -142,6 +143,11 @@ export default abstract class BaseViewer extends Application {
                     // If PDFjs has finished initializing...
                     if (this._frame.contentWindow && this._frame.contentWindow['PDFViewerApplication']) {
                         const viewer = this._frame.contentWindow['PDFViewerApplication'];
+
+                        const theme = Api.activeTheme;
+                        const head = $(this._frame.contentDocument as Document).find('head');
+                        head.append($(`<link href="/${theme.filePath}" rel="stylesheet" type="text/css" media="all">`));
+
                         resolve(viewer);
                         return;
                     }

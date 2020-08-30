@@ -135,7 +135,7 @@ export default class Api {
         return themesMap;
     }
 
-    public static async registerTheme(id: string, name: string, filePath: string) {
+    public static registerTheme(id: string, name: string, filePath: string) {
         if (!filePath.endsWith('.css')) {
             throw new Error('You may only register css files as themes.');
         }
