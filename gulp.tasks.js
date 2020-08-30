@@ -101,8 +101,9 @@ async function cleanDist() {
 
 async function cleanDocs() {
     const files = fs.readdirSync(docsFolder);
+    logger.info(docsFolder);
     for (const file of files) {
-        await del(path.resolve(destFolder, file), { force: true });
+        await del(path.resolve(docsFolder, file), { force: true });
     }
 }
 

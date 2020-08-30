@@ -36,5 +36,4 @@ gulp.task('install', (resolve) => {
     return tasks.install({ type: process.argv[3], filepath: process.argv[4], copyDist: true });
 });
 gulp.task('docs', tasks.docs);
-gulp.task('release', tasks.release);
 exports.default = tasks.build;
