@@ -92,8 +92,12 @@ export interface PDFOpenOptions {
 
 /**
  * A definition for a viewer theme.
+ * @module API
  */
 export interface ViewerTheme {
+    /**
+     *
+     */
     id: string;
     name: string;
     filePath: string;
@@ -122,11 +126,25 @@ export default class Api {
 
     private static _availableThemes: { [id: string]: ViewerTheme } = {};
 
+    /**
+     * Get a full theme definition by id.
+     * @param id The unique id of the theme to lookup.
+     */
+    public static getTheme(id: string): ViewerTheme | null {
+        return Api._availableThemes[id] ?? null;
+    }
+
+    /**
+     * Get the currently enabled theme id.
+     */
     public static get activeTheme(): ViewerTheme {
         const id = Settings.get(Settings.SETTINGS_KEY.VIEWER_THEME);
         return Api._availableThemes[id];
     }
 
+    /**
+     * Get a map of themes available for use.
+     */
     public static get availableThemes() {
         const themesMap = {};
         for (const key of Object.keys(Api._availableThemes)) {
@@ -135,6 +153,12 @@ export default class Api {
         return themesMap;
     }
 
+    /**
+     * Register a theme for use with PDFoundry. You must register a theme before `ready`. Do so in `setup`.
+     * @param id The unique id of the theme. Providing an already existing id will over-write the existing theme.
+     * @param name The user-facing display name of the theme.
+     * @param filePath The relative path of the theme css file
+     */
     public static registerTheme(id: string, name: string, filePath: string) {
         if (!filePath.endsWith('.css')) {
             throw new Error('You may only register css files as themes.');
