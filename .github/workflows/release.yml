@@ -34,6 +34,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build docs
+        run: gulp docs
+
       - name: Build module
         run: gulp build
 
@@ -68,8 +71,8 @@ jobs:
         uses: EndBug/add-and-commit@v4
         with:
           author_name: Github Workflow
-          message: "Github Workflow"
+          message: "Deploy Release ${{ steps.get_version.outputs.VERSION }}"
           ref: 'master'
-          add: module.json
+          add: module.json docs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
