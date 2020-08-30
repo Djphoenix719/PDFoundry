@@ -59,9 +59,7 @@ export default class PDFActorSheetAdapter extends ActorSheet {
     }
 
     getData(): ActorSheetData {
-        const data = mergeObject(super.getData(), this._viewer.getData());
-        console.warn(data);
-        return data;
+        return mergeObject(super.getData(), this._viewer.getData());
     }
 
     protected _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
