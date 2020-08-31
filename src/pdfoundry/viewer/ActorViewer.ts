@@ -121,7 +121,13 @@ export default class ActorViewer extends FillableViewer {
                     new ActorSheetSelect(async (id) => {
                         await this.setSheetId(id);
                         await this.actorSheet.close();
-                        await this.open(id);
+                        const sheet = this.getSheetPdf();
+                        if (sheet) {
+                            const url = getAbsoluteURL(sheet.url);
+                            await this.open(url);
+                        } else {
+                            await this.setSheetId(undefined);
+                        }
                     }, this.getSheetId()).render(true);
                 },
             });
@@ -162,9 +168,12 @@ export default class ActorViewer extends FillableViewer {
         try {
             await super.open(pdfSource, page);
         } catch (error) {
-            ui.notifications.error(game.i18n.localize('PDFOUNDRY.ERROR.FileNotFound'));
+            // @ts-ignore TODO: THIS IS SUPER FUCKING HACK AND THE WHOLE FLOW NEEDS TO BE ANALYZED
+            if (!(await srcExists(pdfSource))) {
+                ui.notifications.error(game.i18n.localize('PDFOUNDRY.ERROR.FileNotFound'));
+                await this.setSheetId(undefined);
+            }
 
-            await this.setSheetId(undefined);
             await this.actorSheet.close();
             new PDFActorSheetAdapter(this.entity, this.options).render(true);
         }
