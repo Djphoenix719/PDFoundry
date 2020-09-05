@@ -20,6 +20,7 @@ import { PDFjsViewer } from '../common/types/PDFjsViewer';
 import { PDFjsEventBus } from '../common/types/PDFjsEventBus';
 import { BUTTON_GITHUB, BUTTON_KOFI } from '../common/helpers/header';
 import Api from '../Api';
+import { getAbsoluteURL } from '../Util';
 
 /**
  * The base viewer class from which all other types of viewers inherit.
@@ -210,7 +211,7 @@ export default abstract class BaseViewer extends Application {
             const theme = Api.activeTheme;
             const frameDocument = $(this._frame.contentDocument as Document);
             const head = frameDocument.find('head');
-            head.append($(`<link href="/${theme.filePath}" rel="stylesheet" type="text/css" media="all">`));
+            head.append($(`<link href="${getAbsoluteURL(theme.filePath)}" rel="stylesheet" type="text/css" media="all">`));
 
             this.onViewerOpened();
 

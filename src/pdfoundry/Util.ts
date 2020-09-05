@@ -31,6 +31,16 @@ import { DOMAIN_WHITELIST } from './common/Whitelist';
 // <editor-fold desc='URL Helpers">
 
 /**
+ * Gets the correct route prefix used to support servers using a route prefix.
+ * Appended to all window.location paths.
+ */
+export function getRoutePrefix(): string {
+    let prefixArr = window.location.pathname.split('/');
+    prefixArr.pop(); // don't want the 'game' at the end
+    return prefixArr.join('/');
+}
+
+/**
  * Convert a relative URL to a absolute URL by prepending the window origin to the relative URL.
  * If the URL is of a white listed domain, will simply return the provided URL.
  * @param dataUrl A url to be validated.
@@ -46,7 +56,7 @@ export function getAbsoluteURL(dataUrl: string): string {
         }
     }
 
-    return `${window.origin}/${dataUrl}`;
+    return `${window.origin}${getRoutePrefix()}/${dataUrl}`;
 }
 
 /**
