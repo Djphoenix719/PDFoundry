@@ -33,6 +33,7 @@ import { DOMAIN_WHITELIST } from './common/Whitelist';
 /**
  * Gets the correct route prefix used to support servers using a route prefix.
  * Appended to all window.location paths.
+ * @module Utilities
  */
 export function getRoutePrefix(): string {
     let prefixArr = window.location.pathname.split('/');

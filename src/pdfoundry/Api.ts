@@ -25,6 +25,7 @@ import {
     deletePDFData,
     getAbsoluteURL,
     getPDFData,
+    getRoutePrefix,
     getUserIdsExceptMe,
     isEntityPDF,
     setPDFData,
@@ -182,6 +183,7 @@ export default class Api {
      */
     public static get Utilities() {
         return {
+            getRoutePrefix,
             getAbsoluteURL,
             validateAbsoluteURL,
             isEntityPDF,
