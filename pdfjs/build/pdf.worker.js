@@ -135,8 +135,8 @@ Object.defineProperty(exports, "WorkerMessageHandler", {
 
 var _worker = __w_pdfjs_require__(1);
 
-const pdfjsVersion = '2.6.320';
-const pdfjsBuild = 'bfbef604';
+const pdfjsVersion = '2.7.25';
+const pdfjsBuild = '72a76007';
 
 /***/ }),
 /* 1 */
@@ -231,7 +231,7 @@ class WorkerMessageHandler {
     var WorkerTasks = [];
     const verbosity = (0, _util.getVerbosityLevel)();
     const apiVersion = docParams.apiVersion;
-    const workerVersion = '2.6.320';
+    const workerVersion = '2.7.25';
 
     if (apiVersion !== workerVersion) {
       throw new Error(`The API version "${apiVersion}" does not match ` + `the Worker version "${workerVersion}".`);
@@ -496,11 +496,12 @@ class WorkerMessageHandler {
         });
       });
     });
-    handler.on("GetPageIndex", function wphSetupGetPageIndex(data) {
-      var ref = _primitives.Ref.get(data.ref.num, data.ref.gen);
+    handler.on("GetPageIndex", function wphSetupGetPageIndex({
+      ref
+    }) {
+      const pageRef = _primitives.Ref.get(ref.num, ref.gen);
 
-      var catalog = pdfManager.pdfDocument.catalog;
-      return catalog.getPageIndex(ref);
+      return pdfManager.ensureCatalog("getPageIndex", [pageRef]);
     });
     handler.on("GetDestinations", function wphSetupGetDestinations(data) {
       return pdfManager.ensureCatalog("destinations");
@@ -548,7 +549,7 @@ class WorkerMessageHandler {
       });
     });
     handler.on("GetStats", function wphSetupGetStats(data) {
-      return pdfManager.pdfDocument.xref.stats;
+      return pdfManager.ensureXRef("stats");
     });
     handler.on("GetAnnotations", function ({
       pageIndex,
@@ -1773,26 +1774,75 @@ var Dict = function DictClosure() {
   };
   Dict.empty = new Dict(null);
 
-  Dict.merge = function (xref, dictArray) {
+  Dict.merge = function ({
+    xref,
+    dictArray,
+    mergeSubDicts = false
+  }) {
     const mergedDict = new Dict(xref);
 
-    for (let i = 0, ii = dictArray.length; i < ii; i++) {
-      const dict = dictArray[i];
-
-      if (!isDict(dict)) {
-        continue;
-      }
-
-      for (const keyName in dict._map) {
-        if (mergedDict._map[keyName] !== undefined) {
+    if (!mergeSubDicts) {
+      for (const dict of dictArray) {
+        if (!(dict instanceof Dict)) {
           continue;
         }
 
-        mergedDict._map[keyName] = dict._map[keyName];
+        for (const [key, value] of Object.entries(dict._map)) {
+          if (mergedDict._map[key] === undefined) {
+            mergedDict._map[key] = value;
+          }
+        }
+      }
+
+      return mergedDict.size > 0 ? mergedDict : Dict.empty;
+    }
+
+    const properties = new Map();
+
+    for (const dict of dictArray) {
+      if (!(dict instanceof Dict)) {
+        continue;
+      }
+
+      for (const [key, value] of Object.entries(dict._map)) {
+        let property = properties.get(key);
+
+        if (property === undefined) {
+          property = [];
+          properties.set(key, property);
+        }
+
+        property.push(value);
       }
     }
 
-    return mergedDict;
+    for (const [name, values] of properties) {
+      if (values.length === 1 || !(values[0] instanceof Dict)) {
+        mergedDict._map[name] = values[0];
+        continue;
+      }
+
+      const subDict = new Dict(xref);
+
+      for (const dict of values) {
+        if (!(dict instanceof Dict)) {
+          continue;
+        }
+
+        for (const [key, value] of Object.entries(dict._map)) {
+          if (subDict._map[key] === undefined) {
+            subDict._map[key] = value;
+          }
+        }
+      }
+
+      if (subDict.size > 0) {
+        mergedDict._map[name] = subDict;
+      }
+    }
+
+    properties.clear();
+    return mergedDict.size > 0 ? mergedDict : Dict.empty;
   };
 
   return Dict;
@@ -2988,7 +3038,10 @@ class Page {
       return value[0];
     }
 
-    return _primitives.Dict.merge(this.xref, value);
+    return _primitives.Dict.merge({
+      xref: this.xref,
+      dictArray: value
+    });
   }
 
   get content() {
@@ -3348,6 +3401,7 @@ class PDFDocument {
     this.stream = stream;
     this.xref = new _obj.XRef(stream, pdfManager);
     this._pagePromises = [];
+    this._version = null;
     const idCounters = {
       font: 0
     };
@@ -3368,45 +3422,11 @@ class PDFDocument {
   }
 
   parse(recoveryMode) {
-    this.setup(recoveryMode);
-    const version = this.catalog.catDict.get("Version");
+    this.xref.parse(recoveryMode);
+    this.catalog = new _obj.Catalog(this.pdfManager, this.xref);
 
-    if ((0, _primitives.isName)(version)) {
-      this.pdfFormatVersion = version.name;
-    }
-
-    try {
-      this.acroForm = this.catalog.catDict.get("AcroForm");
-
-      if (this.acroForm) {
-        this.xfa = this.acroForm.get("XFA");
-        const fields = this.acroForm.get("Fields");
-
-        if ((!Array.isArray(fields) || fields.length === 0) && !this.xfa) {
-          this.acroForm = null;
-        }
-      }
-    } catch (ex) {
-      if (ex instanceof _core_utils.MissingDataException) {
-        throw ex;
-      }
-
-      (0, _util.info)("Cannot fetch AcroForm entry; assuming no AcroForms are present");
-      this.acroForm = null;
-    }
-
-    try {
-      const collection = this.catalog.catDict.get("Collection");
-
-      if ((0, _primitives.isDict)(collection) && collection.size > 0) {
-        this.collection = collection;
-      }
-    } catch (ex) {
-      if (ex instanceof _core_utils.MissingDataException) {
-        throw ex;
-      }
-
-      (0, _util.info)("Cannot fetch Collection dictionary.");
+    if (this.catalog.version) {
+      this._version = this.catalog.version;
     }
   }
 
@@ -3500,8 +3520,8 @@ class PDFDocument {
       version += String.fromCharCode(ch);
     }
 
-    if (!this.pdfFormatVersion) {
-      this.pdfFormatVersion = version.substring(5);
+    if (!this._version) {
+      this._version = version.substring(5);
     }
   }
 
@@ -3509,15 +3529,64 @@ class PDFDocument {
     this.xref.setStartXRef(this.startXRef);
   }
 
-  setup(recoveryMode) {
-    this.xref.parse(recoveryMode);
-    this.catalog = new _obj.Catalog(this.pdfManager, this.xref);
-  }
-
   get numPages() {
     const linearization = this.linearization;
     const num = linearization ? linearization.numPages : this.catalog.numPages;
     return (0, _util.shadow)(this, "numPages", num);
+  }
+
+  _hasOnlyDocumentSignatures(fields, recursionDepth = 0) {
+    const RECURSION_LIMIT = 10;
+    return fields.every(field => {
+      field = this.xref.fetchIfRef(field);
+
+      if (field.has("Kids")) {
+        if (++recursionDepth > RECURSION_LIMIT) {
+          (0, _util.warn)("_hasOnlyDocumentSignatures: maximum recursion depth reached");
+          return false;
+        }
+
+        return this._hasOnlyDocumentSignatures(field.get("Kids"), recursionDepth);
+      }
+
+      const isSignature = (0, _primitives.isName)(field.get("FT"), "Sig");
+      const rectangle = field.get("Rect");
+      const isInvisible = Array.isArray(rectangle) && rectangle.every(value => value === 0);
+      return isSignature && isInvisible;
+    });
+  }
+
+  get formInfo() {
+    const formInfo = {
+      hasAcroForm: false,
+      hasXfa: false
+    };
+    const acroForm = this.catalog.acroForm;
+
+    if (!acroForm) {
+      return (0, _util.shadow)(this, "formInfo", formInfo);
+    }
+
+    try {
+      const xfa = acroForm.get("XFA");
+      const hasXfa = Array.isArray(xfa) && xfa.length > 0 || (0, _primitives.isStream)(xfa) && !xfa.isEmpty;
+      formInfo.hasXfa = hasXfa;
+      const fields = acroForm.get("Fields");
+      const hasFields = Array.isArray(fields) && fields.length > 0;
+      const sigFlags = acroForm.get("SigFlags");
+
+      const hasOnlyDocumentSignatures = !!(sigFlags & 0x1) && this._hasOnlyDocumentSignatures(fields);
+
+      formInfo.hasAcroForm = hasFields && !hasOnlyDocumentSignatures;
+    } catch (ex) {
+      if (ex instanceof _core_utils.MissingDataException) {
+        throw ex;
+      }
+
+      (0, _util.info)("Cannot fetch form information.");
+    }
+
+    return (0, _util.shadow)(this, "formInfo", formInfo);
   }
 
   get documentInfo() {
@@ -3532,7 +3601,7 @@ class PDFDocument {
       ModDate: _util.isString,
       Trapped: _primitives.isName
     };
-    let version = this.pdfFormatVersion;
+    let version = this._version;
 
     if (typeof version !== "string" || !PDF_HEADER_VERSION_REGEXP.test(version)) {
       (0, _util.warn)(`Invalid PDF header version number: ${version}`);
@@ -3542,9 +3611,9 @@ class PDFDocument {
     const docInfo = {
       PDFFormatVersion: version,
       IsLinearized: !!this.linearization,
-      IsAcroFormPresent: !!this.acroForm,
-      IsXFAPresent: !!this.xfa,
-      IsCollectionPresent: !!this.collection
+      IsAcroFormPresent: this.formInfo.hasAcroForm,
+      IsXFAPresent: this.formInfo.hasXfa,
+      IsCollectionPresent: !!this.catalog.collection
     };
     let infoDict;
 
@@ -3717,9 +3786,9 @@ class Catalog {
   constructor(pdfManager, xref) {
     this.pdfManager = pdfManager;
     this.xref = xref;
-    this.catDict = xref.getCatalogObj();
+    this._catDict = xref.getCatalogObj();
 
-    if (!(0, _primitives.isDict)(this.catDict)) {
+    if (!(0, _primitives.isDict)(this._catDict)) {
       throw new _util.FormatError("Catalog object is not a dictionary.");
     }
 
@@ -3729,8 +3798,58 @@ class Catalog {
     this.pageKidsCountCache = new _primitives.RefSetCache();
   }
 
+  get version() {
+    const version = this._catDict.get("Version");
+
+    if (!(0, _primitives.isName)(version)) {
+      return (0, _util.shadow)(this, "version", null);
+    }
+
+    return (0, _util.shadow)(this, "version", version.name);
+  }
+
+  get collection() {
+    let collection = null;
+
+    try {
+      const obj = this._catDict.get("Collection");
+
+      if ((0, _primitives.isDict)(obj) && obj.size > 0) {
+        collection = obj;
+      }
+    } catch (ex) {
+      if (ex instanceof _core_utils.MissingDataException) {
+        throw ex;
+      }
+
+      (0, _util.info)("Cannot fetch Collection entry; assuming no collection is present.");
+    }
+
+    return (0, _util.shadow)(this, "collection", collection);
+  }
+
+  get acroForm() {
+    let acroForm = null;
+
+    try {
+      const obj = this._catDict.get("AcroForm");
+
+      if ((0, _primitives.isDict)(obj) && obj.size > 0) {
+        acroForm = obj;
+      }
+    } catch (ex) {
+      if (ex instanceof _core_utils.MissingDataException) {
+        throw ex;
+      }
+
+      (0, _util.info)("Cannot fetch AcroForm entry; assuming no forms are present.");
+    }
+
+    return (0, _util.shadow)(this, "acroForm", acroForm);
+  }
+
   get metadata() {
-    const streamRef = this.catDict.getRaw("Metadata");
+    const streamRef = this._catDict.getRaw("Metadata");
 
     if (!(0, _primitives.isRef)(streamRef)) {
       return (0, _util.shadow)(this, "metadata", null);
@@ -3761,7 +3880,7 @@ class Catalog {
   }
 
   get toplevelPagesDict() {
-    const pagesObj = this.catDict.get("Pages");
+    const pagesObj = this._catDict.get("Pages");
 
     if (!(0, _primitives.isDict)(pagesObj)) {
       throw new _util.FormatError("Invalid top-level pages dictionary.");
@@ -3787,7 +3906,7 @@ class Catalog {
   }
 
   _readDocumentOutline() {
-    let obj = this.catDict.get("Outlines");
+    let obj = this._catDict.get("Outlines");
 
     if (!(0, _primitives.isDict)(obj)) {
       return null;
@@ -3926,7 +4045,7 @@ class Catalog {
     let config = null;
 
     try {
-      const properties = this.catDict.get("OCProperties");
+      const properties = this._catDict.get("OCProperties");
 
       if (!properties) {
         return (0, _util.shadow)(this, "optionalContentConfig", null);
@@ -3993,12 +4112,92 @@ class Catalog {
       return onParsed;
     }
 
+    function parseOrder(refs, nestedLevels = 0) {
+      if (!Array.isArray(refs)) {
+        return null;
+      }
+
+      const order = [];
+
+      for (const value of refs) {
+        if ((0, _primitives.isRef)(value) && contentGroupRefs.includes(value)) {
+          parsedOrderRefs.put(value);
+          order.push(value.toString());
+          continue;
+        }
+
+        const nestedOrder = parseNestedOrder(value, nestedLevels);
+
+        if (nestedOrder) {
+          order.push(nestedOrder);
+        }
+      }
+
+      if (nestedLevels > 0) {
+        return order;
+      }
+
+      const hiddenGroups = [];
+
+      for (const groupRef of contentGroupRefs) {
+        if (parsedOrderRefs.has(groupRef)) {
+          continue;
+        }
+
+        hiddenGroups.push(groupRef.toString());
+      }
+
+      if (hiddenGroups.length) {
+        order.push({
+          name: null,
+          order: hiddenGroups
+        });
+      }
+
+      return order;
+    }
+
+    function parseNestedOrder(ref, nestedLevels) {
+      if (++nestedLevels > MAX_NESTED_LEVELS) {
+        (0, _util.warn)("parseNestedOrder - reached MAX_NESTED_LEVELS.");
+        return null;
+      }
+
+      const value = xref.fetchIfRef(ref);
+
+      if (!Array.isArray(value)) {
+        return null;
+      }
+
+      const nestedName = xref.fetchIfRef(value[0]);
+
+      if (typeof nestedName !== "string") {
+        return null;
+      }
+
+      const nestedOrder = parseOrder(value.slice(1), nestedLevels);
+
+      if (!nestedOrder || !nestedOrder.length) {
+        return null;
+      }
+
+      return {
+        name: (0, _util.stringToPDFString)(nestedName),
+        order: nestedOrder
+      };
+    }
+
+    const xref = this.xref,
+          parsedOrderRefs = new _primitives.RefSet(),
+          MAX_NESTED_LEVELS = 10;
     return {
       name: (0, _util.isString)(config.get("Name")) ? (0, _util.stringToPDFString)(config.get("Name")) : null,
       creator: (0, _util.isString)(config.get("Creator")) ? (0, _util.stringToPDFString)(config.get("Creator")) : null,
       baseState: (0, _primitives.isName)(config.get("BaseState")) ? config.get("BaseState").name : null,
       on: parseOnOff(config.get("ON")),
-      off: parseOnOff(config.get("OFF"))
+      off: parseOnOff(config.get("OFF")),
+      order: parseOrder(config.get("Order")),
+      groups: null
     };
   }
 
@@ -4044,12 +4243,12 @@ class Catalog {
   }
 
   _readDests() {
-    const obj = this.catDict.get("Names");
+    const obj = this._catDict.get("Names");
 
     if (obj && obj.has("Dests")) {
       return new NameTree(obj.getRaw("Dests"), this.xref);
-    } else if (this.catDict.has("Dests")) {
-      return this.catDict.get("Dests");
+    } else if (this._catDict.has("Dests")) {
+      return this._catDict.get("Dests");
     }
 
     return undefined;
@@ -4072,7 +4271,7 @@ class Catalog {
   }
 
   _readPageLabels() {
-    const obj = this.catDict.getRaw("PageLabels");
+    const obj = this._catDict.getRaw("PageLabels");
 
     if (!obj) {
       return null;
@@ -4178,7 +4377,8 @@ class Catalog {
   }
 
   get pageLayout() {
-    const obj = this.catDict.get("PageLayout");
+    const obj = this._catDict.get("PageLayout");
+
     let pageLayout = "";
 
     if ((0, _primitives.isName)(obj)) {
@@ -4197,7 +4397,8 @@ class Catalog {
   }
 
   get pageMode() {
-    const obj = this.catDict.get("PageMode");
+    const obj = this._catDict.get("PageMode");
+
     let pageMode = "UseNone";
 
     if ((0, _primitives.isName)(obj)) {
@@ -4235,7 +4436,9 @@ class Catalog {
       PrintPageRange: Array.isArray,
       NumCopies: Number.isInteger
     };
-    const obj = this.catDict.get("ViewerPreferences");
+
+    const obj = this._catDict.get("ViewerPreferences");
+
     let prefs = null;
 
     if ((0, _primitives.isDict)(obj)) {
@@ -4376,7 +4579,8 @@ class Catalog {
   }
 
   get openAction() {
-    const obj = this.catDict.get("OpenAction");
+    const obj = this._catDict.get("OpenAction");
+
     let openAction = null;
 
     if ((0, _primitives.isDict)(obj)) {
@@ -4417,7 +4621,8 @@ class Catalog {
   }
 
   get attachments() {
-    const obj = this.catDict.get("Names");
+    const obj = this._catDict.get("Names");
+
     let attachments = null;
 
     if (obj && obj.has("EmbeddedFiles")) {
@@ -4439,7 +4644,8 @@ class Catalog {
   }
 
   get javaScript() {
-    const obj = this.catDict.get("Names");
+    const obj = this._catDict.get("Names");
+
     let javaScript = null;
 
     function appendIfJavaScriptDict(jsDict) {
@@ -4477,7 +4683,7 @@ class Catalog {
       }
     }
 
-    const openAction = this.catDict.get("OpenAction");
+    const openAction = this._catDict.get("OpenAction");
 
     if ((0, _primitives.isDict)(openAction) && (0, _primitives.isName)(openAction.get("S"), "JavaScript")) {
       appendIfJavaScriptDict(openAction);
@@ -4523,7 +4729,7 @@ class Catalog {
 
   getPageDict(pageIndex) {
     const capability = (0, _util.createPromiseCapability)();
-    const nodesToVisit = [this.catDict.getRaw("Pages")];
+    const nodesToVisit = [this._catDict.getRaw("Pages")];
     const visitedNodes = new _primitives.RefSet();
     const xref = this.xref,
           pageKidsCountCache = this.pageKidsCountCache;
@@ -18847,7 +19053,7 @@ var _writer = __w_pdfjs_require__(27);
 
 class AnnotationFactory {
   static create(xref, ref, pdfManager, idFactory) {
-    return pdfManager.ensureDoc("acroForm").then(acroForm => {
+    return pdfManager.ensureCatalog("acroForm").then(acroForm => {
       return pdfManager.ensure(this, "_create", [xref, ref, pdfManager, idFactory, acroForm]);
     });
   }
@@ -19831,6 +20037,10 @@ class ButtonWidgetAnnotation extends WidgetAnnotation {
   }
 
   getOperatorList(evaluator, task, renderForms, annotationStorage) {
+    if (this.data.pushButton) {
+      return super.getOperatorList(evaluator, task, false, annotationStorage);
+    }
+
     if (annotationStorage) {
       const value = annotationStorage[this.data.id] || false;
       let appearance;
@@ -21890,9 +22100,11 @@ class PartialEvaluator {
 
   handleTilingType(fn, args, resources, pattern, patternDict, operatorList, task) {
     const tilingOpList = new _operator_list.OperatorList();
-    const resourcesArray = [patternDict.get("Resources"), resources];
 
-    const patternResources = _primitives.Dict.merge(this.xref, resourcesArray);
+    const patternResources = _primitives.Dict.merge({
+      xref: this.xref,
+      dictArray: [patternDict.get("Resources"), resources]
+    });
 
     return this.getOperatorList({
       stream: pattern,
@@ -27248,7 +27460,7 @@ var Font = function FontClosure() {
             continue;
           }
 
-          if (platformId === 0 && encodingId === 0) {
+          if (platformId === 0 && (encodingId === 0 || encodingId === 1 || encodingId === 3)) {
             useTable = true;
           } else if (platformId === 1 && encodingId === 0) {
             useTable = true;
@@ -28328,14 +28540,13 @@ var Font = function FontClosure() {
         var cmapEncodingId = cmapTable.encodingId;
         var cmapMappings = cmapTable.mappings;
         var cmapMappingsLength = cmapMappings.length;
+        let baseEncoding = [];
 
-        if (properties.hasEncoding && (cmapPlatformId === 3 && cmapEncodingId === 1 || cmapPlatformId === 1 && cmapEncodingId === 0) || cmapPlatformId === -1 && cmapEncodingId === -1 && !!(0, _encodings.getEncoding)(properties.baseEncodingName)) {
-          var baseEncoding = [];
+        if (properties.hasEncoding && (properties.baseEncodingName === "MacRomanEncoding" || properties.baseEncodingName === "WinAnsiEncoding")) {
+          baseEncoding = (0, _encodings.getEncoding)(properties.baseEncodingName);
+        }
 
-          if (properties.baseEncodingName === "MacRomanEncoding" || properties.baseEncodingName === "WinAnsiEncoding") {
-            baseEncoding = (0, _encodings.getEncoding)(properties.baseEncodingName);
-          }
-
+        if (properties.hasEncoding && !this.isSymbolicFont && (cmapPlatformId === 3 && cmapEncodingId === 1 || cmapPlatformId === 1 && cmapEncodingId === 0)) {
           var glyphsUnicodeMap = (0, _glyphlist.getGlyphsUnicode)();
 
           for (let charCode = 0; charCode < 256; charCode++) {
@@ -28362,31 +28573,16 @@ var Font = function FontClosure() {
               unicodeOrCharCode = _encodings.MacRomanEncoding.indexOf(standardGlyphName);
             }
 
-            var found = false;
-
             for (let i = 0; i < cmapMappingsLength; ++i) {
               if (cmapMappings[i].charCode !== unicodeOrCharCode) {
                 continue;
               }
 
               charCodeToGlyphId[charCode] = cmapMappings[i].glyphId;
-              found = true;
               break;
             }
-
-            if (!found && properties.glyphNames) {
-              var glyphId = properties.glyphNames.indexOf(glyphName);
-
-              if (glyphId === -1 && standardGlyphName !== glyphName) {
-                glyphId = properties.glyphNames.indexOf(standardGlyphName);
-              }
-
-              if (glyphId > 0 && hasGlyph(glyphId)) {
-                charCodeToGlyphId[charCode] = glyphId;
-              }
-            }
           }
-        } else if (cmapPlatformId === 0 && cmapEncodingId === 0) {
+        } else if (cmapPlatformId === 0) {
           for (let i = 0; i < cmapMappingsLength; ++i) {
             charCodeToGlyphId[cmapMappings[i].charCode] = cmapMappings[i].glyphId;
           }
@@ -28399,6 +28595,19 @@ var Font = function FontClosure() {
             }
 
             charCodeToGlyphId[charCode] = cmapMappings[i].glyphId;
+          }
+        }
+
+        if (properties.glyphNames && baseEncoding.length) {
+          for (let i = 0; i < 256; ++i) {
+            if (charCodeToGlyphId[i] === undefined && baseEncoding[i]) {
+              glyphName = baseEncoding[i];
+              const glyphId = properties.glyphNames.indexOf(glyphName);
+
+              if (glyphId > 0 && hasGlyph(glyphId)) {
+                charCodeToGlyphId[i] = glyphId;
+              }
+            }
           }
         }
       }
@@ -39564,7 +39773,9 @@ var Type1CharString = function Type1CharStringClosure() {
 
             case (12 << 8) + 6:
               if (seacAnalysisEnabled) {
+                const asb = this.stack[this.stack.length - 5];
                 this.seac = this.stack.splice(-4, 4);
+                this.seac[0] += this.lsb - asb;
                 error = this.executeCommand(0, COMMAND_MAP.endchar);
               } else {
                 error = this.executeCommand(4, COMMAND_MAP.endchar);

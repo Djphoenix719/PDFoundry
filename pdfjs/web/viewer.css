@@ -22,7 +22,7 @@
   bottom: 0;
   overflow: hidden;
   opacity: 0.2;
-  line-height: 1.0;
+  line-height: 1;
 }
 
 .textLayer > span {
@@ -169,7 +169,7 @@
 .annotationLayer .buttonWidgetAnnotation.checkBox input:checked:after,
 .annotationLayer .buttonWidgetAnnotation.radioButton input:checked:before {
   background-color: rgba(0, 0, 0, 1);
-  content: '';
+  content: "";
   display: block;
   position: absolute;
 }
@@ -309,13 +309,16 @@
   border: none;
 }
 
-.pdfViewer.scrollHorizontal, .pdfViewer.scrollWrapped, .spread {
+.pdfViewer.scrollHorizontal,
+.pdfViewer.scrollWrapped,
+.spread {
   margin-left: 3.5px;
   margin-right: 3.5px;
   text-align: center;
 }
 
-.pdfViewer.scrollHorizontal, .spread {
+.pdfViewer.scrollHorizontal,
+.spread {
   white-space: nowrap;
 }
 
@@ -365,7 +368,7 @@
   top: 0;
   right: 0;
   bottom: 0;
-  background: url('images/loading-icon.gif') center no-repeat;
+  background: url("images/loading-icon.gif") center no-repeat;
 }
 
 .pdfPresentationMode .pdfViewer {
@@ -415,6 +418,8 @@
   --body-bg-color: rgba(237, 237, 240, 1);
   --errorWrapper-bg-color: rgba(255, 74, 74, 1);
   --progressBar-color: rgba(10, 132, 255, 1);
+  --progressBar-indeterminate-bg-color: rgba(221, 221, 222, 1);
+  --progressBar-indeterminate-blend-color: rgba(116, 177, 239, 1);
   --scrollbar-color: auto;
   --scrollbar-bg-color: auto;
 
@@ -459,6 +464,7 @@
   --toolbarButton-viewThumbnail-icon: url(images/toolbarButton-viewThumbnail.svg);
   --toolbarButton-viewOutline-icon: url(images/toolbarButton-viewOutline.svg);
   --toolbarButton-viewAttachments-icon: url(images/toolbarButton-viewAttachments.svg);
+  --toolbarButton-viewLayers-icon: url(images/toolbarButton-viewLayers.svg);
   --toolbarButton-search-icon: url(images/toolbarButton-search.svg);
   --findbarButton-previous-icon: url(images/findbarButton-previous.svg);
   --findbarButton-next-icon: url(images/findbarButton-next.svg);
@@ -483,6 +489,8 @@
     --body-bg-color: rgba(42, 42, 46, 1);
     --errorWrapper-bg-color: rgba(199, 17, 17, 1);
     --progressBar-color: rgba(0, 96, 223, 1);
+    --progressBar-indeterminate-bg-color: rgba(40, 40, 43, 1);
+    --progressBar-indeterminate-blend-color: rgba(20, 68, 133, 1);
     --scrollbar-color: rgba(121, 121, 123, 1);
     --scrollbar-bg-color: rgba(35, 35, 39, 1);
 
@@ -527,6 +535,7 @@
     --toolbarButton-viewThumbnail-icon: url(images/toolbarButton-viewThumbnail-dark.svg);
     --toolbarButton-viewOutline-icon: url(images/toolbarButton-viewOutline-dark.svg);
     --toolbarButton-viewAttachments-icon: url(images/toolbarButton-viewAttachments-dark.svg);
+    --toolbarButton-viewLayers-icon: url(images/toolbarButton-viewLayers-dark.svg);
     --toolbarButton-search-icon: url(images/toolbarButton-search-dark.svg);
     --findbarButton-previous-icon: url(images/findbarButton-previous-dark.svg);
     --findbarButton-next-icon: url(images/findbarButton-next-dark.svg);
@@ -860,12 +869,12 @@ select {
   transition-timing-function: ease;
   transition-timing-function: var(--sidebar-transition-timing-function);
 }
-html[dir='ltr'] #sidebarContainer {
+html[dir="ltr"] #sidebarContainer {
   transition-property: left;
   left: -200px;
   left: calc(0px - var(--sidebar-width));
 }
-html[dir='rtl'] #sidebarContainer {
+html[dir="rtl"] #sidebarContainer {
   transition-property: right;
   right: -200px;
   right: calc(0px - var(--sidebar-width));
@@ -889,10 +898,10 @@ html[dir='rtl'] #sidebarContainer {
 #outerContainer.sidebarOpen #sidebarContainer {
   visibility: visible;
 }
-html[dir='ltr'] #outerContainer.sidebarOpen #sidebarContainer {
+html[dir="ltr"] #outerContainer.sidebarOpen #sidebarContainer {
   left: 0px;
 }
-html[dir='rtl'] #outerContainer.sidebarOpen #sidebarContainer {
+html[dir="rtl"] #outerContainer.sidebarOpen #sidebarContainer {
   right: 0px;
 }
 
@@ -914,11 +923,11 @@ html[dir='rtl'] #outerContainer.sidebarOpen #sidebarContainer {
   width: 100%;
   background-color: rgba(0, 0, 0, 0.1);
 }
-html[dir='ltr'] #sidebarContent {
+html[dir="ltr"] #sidebarContent {
   left: 0;
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25);
 }
-html[dir='rtl'] #sidebarContent {
+html[dir="rtl"] #sidebarContent {
   right: 0;
   box-shadow: inset 1px 0 0 rgba(0, 0, 0, 0.25);
 }
@@ -945,12 +954,16 @@ html[dir='rtl'] #sidebarContent {
   transition-duration: 0s;
 }
 
-html[dir='ltr'] #outerContainer.sidebarOpen #viewerContainer:not(.pdfPresentationMode) {
+html[dir="ltr"]
+  #outerContainer.sidebarOpen
+  #viewerContainer:not(.pdfPresentationMode) {
   transition-property: left;
   left: 200px;
   left: var(--sidebar-width);
 }
-html[dir='rtl'] #outerContainer.sidebarOpen #viewerContainer:not(.pdfPresentationMode) {
+html[dir="rtl"]
+  #outerContainer.sidebarOpen
+  #viewerContainer:not(.pdfPresentationMode) {
   transition-property: right;
   right: 200px;
   right: var(--sidebar-width);
@@ -982,21 +995,19 @@ html[dir='rtl'] #outerContainer.sidebarOpen #viewerContainer:not(.pdfPresentatio
   background-color: var(--sidebar-bg-color);
   }
 }
-html[dir='ltr'] #toolbarSidebar {
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25),
-    0 1px 0 rgba(0, 0, 0, 0.15),
+html[dir="ltr"] #toolbarSidebar {
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25), 0 1px 0 rgba(0, 0, 0, 0.15),
     0 0 1px rgba(0, 0, 0, 0.1);
 }
-html[dir='rtl'] #toolbarSidebar {
-  box-shadow: inset 1px 0 0 rgba(0, 0, 0, 0.25),
-    0 1px 0 rgba(0, 0, 0, 0.15),
+html[dir="rtl"] #toolbarSidebar {
+  box-shadow: inset 1px 0 0 rgba(0, 0, 0, 0.25), 0 1px 0 rgba(0, 0, 0, 0.15),
     0 0 1px rgba(0, 0, 0, 0.1);
 }
 
-html[dir='ltr'] #toolbarSidebar .toolbarButton {
+html[dir="ltr"] #toolbarSidebar .toolbarButton {
   margin-right: 2px !important;
 }
-html[dir='rtl'] #toolbarSidebar .toolbarButton {
+html[dir="rtl"] #toolbarSidebar .toolbarButton {
   margin-left: 2px !important;
 }
 
@@ -1008,10 +1019,10 @@ html[dir='rtl'] #toolbarSidebar .toolbarButton {
   z-index: 200;
   cursor: ew-resize;
 }
-html[dir='ltr'] #sidebarResizer {
+html[dir="ltr"] #sidebarResizer {
   right: -6px;
 }
-html[dir='rtl'] #sidebarResizer {
+html[dir="rtl"] #sidebarResizer {
   left: -6px;
 }
 
@@ -1059,13 +1070,13 @@ html[dir='rtl'] #sidebarResizer {
   background-color: var(--toolbar-bg-color);
   }
 }
-html[dir='ltr'] #toolbarContainer {
+html[dir="ltr"] #toolbarContainer {
   box-shadow: 0 1px 0 rgba(204, 204, 204, 1);
   box-shadow: 0 1px 0 var(--toolbar-border-color);
 }
 @media (prefers-color-scheme: dark) {
 
-  html[dir='ltr'] #toolbarContainer {
+  html[dir="ltr"] #toolbarContainer {
   box-shadow: 0 1px 0 rgba(12, 12, 13, 1);
   box-shadow: 0 1px 0 var(--toolbar-border-color);
   }
@@ -1092,13 +1103,13 @@ html[dir='ltr'] #toolbarContainer {
   box-shadow: 0 1px 0 var(--toolbar-border-color);
   }
 }
-html[dir='rtl'] #toolbarContainer {
+html[dir="rtl"] #toolbarContainer {
   box-shadow: 0 1px 0 rgba(204, 204, 204, 1);
   box-shadow: 0 1px 0 var(--toolbar-border-color);
 }
 @media (prefers-color-scheme: dark) {
 
-  html[dir='rtl'] #toolbarContainer {
+  html[dir="rtl"] #toolbarContainer {
   box-shadow: 0 1px 0 rgba(12, 12, 13, 1);
   box-shadow: 0 1px 0 var(--toolbar-border-color);
   }
@@ -1136,15 +1147,15 @@ html[dir='rtl'] #toolbarContainer {
   height: 4px;
   background-color: rgba(237, 237, 240, 1);
   background-color: var(--body-bg-color);
-  border-top: 1px solid rgba(204, 204, 204, 1);
-  border-top: 1px solid var(--toolbar-border-color);
+  border-bottom: 1px solid rgba(204, 204, 204, 1);
+  border-bottom: 1px solid var(--toolbar-border-color);
 }
 
 @media (prefers-color-scheme: dark) {
 
   #loadingBar {
-  border-top: 1px solid rgba(12, 12, 13, 1);
-  border-top: 1px solid var(--toolbar-border-color);
+  border-bottom: 1px solid rgba(12, 12, 13, 1);
+  border-bottom: 1px solid var(--toolbar-border-color);
   }
 }
 
@@ -1177,26 +1188,34 @@ html[dir='rtl'] #toolbarContainer {
 }
 
 @-webkit-keyframes progressIndeterminate {
-  0% { left: -142px; }
-  100% { left: 0; }
+  0% {
+    left: -142px;
+  }
+  100% {
+    left: 0;
+  }
 }
 
 @keyframes progressIndeterminate {
-  0% { left: -142px; }
-  100% { left: 0; }
+  0% {
+    left: -142px;
+  }
+  100% {
+    left: 0;
+  }
 }
 
 #loadingBar .progress.indeterminate {
-  background-color: rgba(10, 132, 255, 1);
-  background-color: var(--progressBar-color);
+  background-color: rgba(221, 221, 222, 1);
+  background-color: var(--progressBar-indeterminate-bg-color);
   transition: none;
 }
 
 @media (prefers-color-scheme: dark) {
 
   #loadingBar .progress.indeterminate {
-  background-color: rgba(0, 96, 223, 1);
-  background-color: var(--progressBar-color);
+  background-color: rgba(40, 40, 43, 1);
+  background-color: var(--progressBar-indeterminate-bg-color);
   }
 }
 
@@ -1206,15 +1225,246 @@ html[dir='rtl'] #toolbarContainer {
   left: 0;
   height: 100%;
   width: calc(100% + 150px);
-  background: repeating-linear-gradient(135deg,
-                                        rgba(187, 187, 187, 1) 0, rgba(153, 153, 153, 1) 5px,
-                                        rgba(153, 153, 153, 1) 45px, rgba(221, 221, 221, 1) 55px,
-                                        rgba(221, 221, 221, 1) 95px, rgba(187, 187, 187, 1) 100px);
-  -webkit-animation: progressIndeterminate 950ms linear infinite;
-          animation: progressIndeterminate 950ms linear infinite;
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(116, 177, 239, 1) 0,
+    rgba(221, 221, 222, 1) 5px,
+    rgba(221, 221, 222, 1) 45px,
+    rgba(10, 132, 255, 1) 55px,
+    rgba(10, 132, 255, 1) 95px,
+    rgba(116, 177, 239, 1) 100px
+  );
+  background: repeating-linear-gradient(
+    135deg,
+    var(--progressBar-indeterminate-blend-color) 0,
+    var(--progressBar-indeterminate-bg-color) 5px,
+    var(--progressBar-indeterminate-bg-color) 45px,
+    var(--progressBar-color) 55px,
+    var(--progressBar-color) 95px,
+    var(--progressBar-indeterminate-blend-color) 100px
+  );
+  -webkit-animation: progressIndeterminate 1s linear infinite;
+          animation: progressIndeterminate 1s linear infinite;
 }
 
-.findbar, .secondaryToolbar {
+@media (prefers-color-scheme: dark) {
+
+  #loadingBar .progress.indeterminate .glimmer {
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(20, 68, 133, 1) 0,
+    rgba(40, 40, 43, 1) 5px,
+    rgba(40, 40, 43, 1) 45px,
+    rgba(0, 96, 223, 1) 55px,
+    rgba(0, 96, 223, 1) 95px,
+    rgba(20, 68, 133, 1) 100px
+  );
+  background: repeating-linear-gradient(
+    135deg,
+    var(--progressBar-indeterminate-blend-color) 0,
+    var(--progressBar-indeterminate-bg-color) 5px,
+    var(--progressBar-indeterminate-bg-color) 45px,
+    var(--progressBar-color) 55px,
+    var(--progressBar-color) 95px,
+    var(--progressBar-indeterminate-blend-color) 100px
+  );
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+
+  #loadingBar .progress.indeterminate .glimmer {
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(20, 68, 133, 1) 0,
+    rgba(40, 40, 43, 1) 5px,
+    rgba(40, 40, 43, 1) 45px,
+    rgba(0, 96, 223, 1) 55px,
+    rgba(0, 96, 223, 1) 95px,
+    rgba(20, 68, 133, 1) 100px
+  );
+  background: repeating-linear-gradient(
+    135deg,
+    var(--progressBar-indeterminate-blend-color) 0,
+    var(--progressBar-indeterminate-bg-color) 5px,
+    var(--progressBar-indeterminate-bg-color) 45px,
+    var(--progressBar-color) 55px,
+    var(--progressBar-color) 95px,
+    var(--progressBar-indeterminate-blend-color) 100px
+  );
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+
+  #loadingBar .progress.indeterminate .glimmer {
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(20, 68, 133, 1) 0,
+    rgba(40, 40, 43, 1) 5px,
+    rgba(40, 40, 43, 1) 45px,
+    rgba(0, 96, 223, 1) 55px,
+    rgba(0, 96, 223, 1) 95px,
+    rgba(20, 68, 133, 1) 100px
+  );
+  background: repeating-linear-gradient(
+    135deg,
+    var(--progressBar-indeterminate-blend-color) 0,
+    var(--progressBar-indeterminate-bg-color) 5px,
+    var(--progressBar-indeterminate-bg-color) 45px,
+    var(--progressBar-color) 55px,
+    var(--progressBar-color) 95px,
+    var(--progressBar-indeterminate-blend-color) 100px
+  );
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+
+  #loadingBar .progress.indeterminate .glimmer {
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(20, 68, 133, 1) 0,
+    rgba(40, 40, 43, 1) 5px,
+    rgba(40, 40, 43, 1) 45px,
+    rgba(0, 96, 223, 1) 55px,
+    rgba(0, 96, 223, 1) 95px,
+    rgba(20, 68, 133, 1) 100px
+  );
+  background: repeating-linear-gradient(
+    135deg,
+    var(--progressBar-indeterminate-blend-color) 0,
+    var(--progressBar-indeterminate-bg-color) 5px,
+    var(--progressBar-indeterminate-bg-color) 45px,
+    var(--progressBar-color) 55px,
+    var(--progressBar-color) 95px,
+    var(--progressBar-indeterminate-blend-color) 100px
+  );
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+
+  #loadingBar .progress.indeterminate .glimmer {
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(20, 68, 133, 1) 0,
+    rgba(40, 40, 43, 1) 5px,
+    rgba(40, 40, 43, 1) 45px,
+    rgba(0, 96, 223, 1) 55px,
+    rgba(0, 96, 223, 1) 95px,
+    rgba(20, 68, 133, 1) 100px
+  );
+  background: repeating-linear-gradient(
+    135deg,
+    var(--progressBar-indeterminate-blend-color) 0,
+    var(--progressBar-indeterminate-bg-color) 5px,
+    var(--progressBar-indeterminate-bg-color) 45px,
+    var(--progressBar-color) 55px,
+    var(--progressBar-color) 95px,
+    var(--progressBar-indeterminate-blend-color) 100px
+  );
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+
+  #loadingBar .progress.indeterminate .glimmer {
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(20, 68, 133, 1) 0,
+    rgba(40, 40, 43, 1) 5px,
+    rgba(40, 40, 43, 1) 45px,
+    rgba(0, 96, 223, 1) 55px,
+    rgba(0, 96, 223, 1) 95px,
+    rgba(20, 68, 133, 1) 100px
+  );
+  background: repeating-linear-gradient(
+    135deg,
+    var(--progressBar-indeterminate-blend-color) 0,
+    var(--progressBar-indeterminate-bg-color) 5px,
+    var(--progressBar-indeterminate-bg-color) 45px,
+    var(--progressBar-color) 55px,
+    var(--progressBar-color) 95px,
+    var(--progressBar-indeterminate-blend-color) 100px
+  );
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+
+  #loadingBar .progress.indeterminate .glimmer {
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(20, 68, 133, 1) 0,
+    rgba(40, 40, 43, 1) 5px,
+    rgba(40, 40, 43, 1) 45px,
+    rgba(0, 96, 223, 1) 55px,
+    rgba(0, 96, 223, 1) 95px,
+    rgba(20, 68, 133, 1) 100px
+  );
+  background: repeating-linear-gradient(
+    135deg,
+    var(--progressBar-indeterminate-blend-color) 0,
+    var(--progressBar-indeterminate-bg-color) 5px,
+    var(--progressBar-indeterminate-bg-color) 45px,
+    var(--progressBar-color) 55px,
+    var(--progressBar-color) 95px,
+    var(--progressBar-indeterminate-blend-color) 100px
+  );
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+
+  #loadingBar .progress.indeterminate .glimmer {
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(20, 68, 133, 1) 0,
+    rgba(40, 40, 43, 1) 5px,
+    rgba(40, 40, 43, 1) 45px,
+    rgba(0, 96, 223, 1) 55px,
+    rgba(0, 96, 223, 1) 95px,
+    rgba(20, 68, 133, 1) 100px
+  );
+  background: repeating-linear-gradient(
+    135deg,
+    var(--progressBar-indeterminate-blend-color) 0,
+    var(--progressBar-indeterminate-bg-color) 5px,
+    var(--progressBar-indeterminate-bg-color) 45px,
+    var(--progressBar-color) 55px,
+    var(--progressBar-color) 95px,
+    var(--progressBar-indeterminate-blend-color) 100px
+  );
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+
+  #loadingBar .progress.indeterminate .glimmer {
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(20, 68, 133, 1) 0,
+    rgba(40, 40, 43, 1) 5px,
+    rgba(40, 40, 43, 1) 45px,
+    rgba(0, 96, 223, 1) 55px,
+    rgba(0, 96, 223, 1) 95px,
+    rgba(20, 68, 133, 1) 100px
+  );
+  background: repeating-linear-gradient(
+    135deg,
+    var(--progressBar-indeterminate-blend-color) 0,
+    var(--progressBar-indeterminate-bg-color) 5px,
+    var(--progressBar-indeterminate-bg-color) 45px,
+    var(--progressBar-color) 55px,
+    var(--progressBar-color) 95px,
+    var(--progressBar-indeterminate-blend-color) 100px
+  );
+  }
+}
+
+.findbar,
+.secondaryToolbar {
   top: 32px;
   position: absolute;
   z-index: 10000;
@@ -1251,19 +1501,19 @@ html[dir='rtl'] #toolbarContainer {
 .findbar.wrapContainers > div#findbarMessageContainer {
   height: auto;
 }
-html[dir='ltr'] .findbar {
-  left: 63px;
+html[dir="ltr"] .findbar {
+  left: 64px;
 }
-html[dir='rtl'] .findbar {
-  right: 63px;
+html[dir="rtl"] .findbar {
+  right: 64px;
 }
 
-html[dir='ltr'] .findbar .splitToolbarButton {
+html[dir="ltr"] .findbar .splitToolbarButton {
   margin-left: 0px;
   margin-top: 3px;
 }
 
-html[dir='rtl'] .findbar .splitToolbarButton {
+html[dir="rtl"] .findbar .splitToolbarButton {
   margin-right: 0px;
   margin-top: 3px;
 }
@@ -1272,27 +1522,27 @@ html[dir='rtl'] .findbar .splitToolbarButton {
   width: 29px;
 }
 
-html[dir='ltr'] .findbar .splitToolbarButton .findNext {
+html[dir="ltr"] .findbar .splitToolbarButton .findNext {
   border-right: 1px solid rgba(187, 187, 188, 1);
   border-right: 1px solid var(--field-border-color);
 }
 
 @media (prefers-color-scheme: dark) {
 
-  html[dir='ltr'] .findbar .splitToolbarButton .findNext {
+  html[dir="ltr"] .findbar .splitToolbarButton .findNext {
   border-right: 1px solid rgba(115, 115, 115, 1);
   border-right: 1px solid var(--field-border-color);
   }
 }
 
-html[dir='rtl'] .findbar .splitToolbarButton .findNext {
+html[dir="rtl"] .findbar .splitToolbarButton .findNext {
   border-left: 1px solid rgba(187, 187, 188, 1);
   border-left: 1px solid var(--field-border-color);
 }
 
 @media (prefers-color-scheme: dark) {
 
-  html[dir='rtl'] .findbar .splitToolbarButton .findNext {
+  html[dir="rtl"] .findbar .splitToolbarButton .findNext {
   border-left: 1px solid rgba(115, 115, 115, 1);
   border-left: 1px solid var(--field-border-color);
   }
@@ -1337,24 +1587,28 @@ html[dir='rtl'] .findbar .splitToolbarButton .findNext {
   top: 5px;
 }
 
-html[dir='ltr'] .findbar .splitToolbarButton > .findPrevious {
+html[dir="ltr"] .findbar .splitToolbarButton > .findPrevious {
   border-radius: 0;
 }
-html[dir='ltr'] .findbar .splitToolbarButton > .findNext {
+html[dir="ltr"] .findbar .splitToolbarButton > .findNext {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 2px;
   border-top-left-radius: 0;
   border-top-right-radius: 2px;
 }
 
-html[dir='rtl'] .findbar .splitToolbarButton > .findPrevious {
+html[dir="rtl"] .findbar .splitToolbarButton > .findPrevious {
   border-radius: 0;
 }
-html[dir='rtl'] .findbar .splitToolbarButton > .findNext {
+html[dir="rtl"] .findbar .splitToolbarButton > .findNext {
   border-bottom-left-radius: 2px;
   border-bottom-right-radius: 0;
   border-top-left-radius: 2px;
   border-top-right-radius: 0;
+}
+
+.findbar input[type="checkbox"] {
+  pointer-events: none;
 }
 
 .findbar label {
@@ -1362,19 +1616,6 @@ html[dir='rtl'] .findbar .splitToolbarButton > .findNext {
      -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
-}
-
-.findbar .toolbarLabel:hover {
-  background-color: rgba(221, 222, 223, 1);
-  background-color: var(--button-hover-color);
-}
-
-@media (prefers-color-scheme: dark) {
-
-  .findbar .toolbarLabel:hover {
-  background-color: rgba(102, 102, 103, 1);
-  background-color: var(--button-hover-color);
-  }
 }
 
 .findbar label:hover {
@@ -1403,12 +1644,12 @@ html[dir='rtl'] .findbar .splitToolbarButton > .findNext {
   }
 }
 
-html[dir='ltr'] #findInput {
+html[dir="ltr"] #findInput {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
 
-html[dir='rtl'] #findInput {
+html[dir="rtl"] #findInput {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
@@ -1457,7 +1698,7 @@ html[dir='rtl'] #findInput {
   background-image: var(--loading-icon);
   }
 }
-html[dir='rtl'] #findInput[data-status="pending"] {
+html[dir="rtl"] #findInput[data-status="pending"] {
   background-position: 3px;
 }
 
@@ -1476,11 +1717,11 @@ html[dir='rtl'] #findInput[data-status="pending"] {
   background-color: var(--doorhanger-bg-color);
   }
 }
-html[dir='ltr'] .secondaryToolbar {
-  right: 3px;
+html[dir="ltr"] .secondaryToolbar {
+  right: 4px;
 }
-html[dir='rtl'] .secondaryToolbar {
-  left: 3px;
+html[dir="rtl"] .secondaryToolbar {
+  left: 4px;
 }
 
 #secondaryToolbarButtonContainer {
@@ -1498,33 +1739,43 @@ html[dir='rtl'] .secondaryToolbar {
 
 .doorHanger {
   border-radius: 2px;
-  box-shadow: 0 1px 5px rgba(12, 12, 13, 0.2), 0 0 0 1px rgba(12, 12, 13, 0.2);
-  box-shadow: 0 1px 5px var(--doorhanger-border-color), 0 0 0 1px var(--doorhanger-border-color);
+  box-shadow: 0 1px 5px rgba(12, 12, 13, 0.2),
+    0 0 0 1px rgba(12, 12, 13, 0.2);
+  box-shadow: 0 1px 5px var(--doorhanger-border-color),
+    0 0 0 1px var(--doorhanger-border-color);
 }
 
 @media (prefers-color-scheme: dark) {
 
   .doorHanger {
-  box-shadow: 0 1px 5px rgba(39, 39, 43, 1), 0 0 0 1px rgba(39, 39, 43, 1);
-  box-shadow: 0 1px 5px var(--doorhanger-border-color), 0 0 0 1px var(--doorhanger-border-color);
+  box-shadow: 0 1px 5px rgba(39, 39, 43, 1),
+    0 0 0 1px rgba(39, 39, 43, 1);
+  box-shadow: 0 1px 5px var(--doorhanger-border-color),
+    0 0 0 1px var(--doorhanger-border-color);
   }
 }
 
 .doorHangerRight {
   border-radius: 2px;
-  box-shadow: 0 1px 5px rgba(12, 12, 13, 0.2), 0 0 0 1px rgba(12, 12, 13, 0.2);
-  box-shadow: 0 1px 5px var(--doorhanger-border-color), 0 0 0 1px var(--doorhanger-border-color);
+  box-shadow: 0 1px 5px rgba(12, 12, 13, 0.2),
+    0 0 0 1px rgba(12, 12, 13, 0.2);
+  box-shadow: 0 1px 5px var(--doorhanger-border-color),
+    0 0 0 1px var(--doorhanger-border-color);
 }
 
 @media (prefers-color-scheme: dark) {
 
   .doorHangerRight {
-  box-shadow: 0 1px 5px rgba(39, 39, 43, 1), 0 0 0 1px rgba(39, 39, 43, 1);
-  box-shadow: 0 1px 5px var(--doorhanger-border-color), 0 0 0 1px var(--doorhanger-border-color);
+  box-shadow: 0 1px 5px rgba(39, 39, 43, 1),
+    0 0 0 1px rgba(39, 39, 43, 1);
+  box-shadow: 0 1px 5px var(--doorhanger-border-color),
+    0 0 0 1px var(--doorhanger-border-color);
   }
 }
-.doorHanger:after, .doorHanger:before,
-.doorHangerRight:after, .doorHangerRight:before {
+.doorHanger:after,
+.doorHanger:before,
+.doorHangerRight:after,
+.doorHangerRight:before {
   bottom: 100%;
   border: solid rgba(0, 0, 0, 0);
   content: " ";
@@ -1584,26 +1835,26 @@ html[dir='rtl'] .secondaryToolbar {
   }
 }
 
-html[dir='ltr'] .doorHanger:after,
-html[dir='rtl'] .doorHangerRight:after {
+html[dir="ltr"] .doorHanger:after,
+html[dir="rtl"] .doorHangerRight:after {
   left: 10px;
   margin-left: -8px;
 }
 
-html[dir='ltr'] .doorHanger:before,
-html[dir='rtl'] .doorHangerRight:before {
+html[dir="ltr"] .doorHanger:before,
+html[dir="rtl"] .doorHangerRight:before {
   left: 10px;
   margin-left: -9px;
 }
 
-html[dir='rtl'] .doorHanger:after,
-html[dir='ltr'] .doorHangerRight:after {
+html[dir="rtl"] .doorHanger:after,
+html[dir="ltr"] .doorHangerRight:after {
   right: 10px;
   margin-right: -8px;
 }
 
-html[dir='rtl'] .doorHanger:before,
-html[dir='ltr'] .doorHangerRight:before {
+html[dir="rtl"] .doorHanger:before,
+html[dir="ltr"] .doorHangerRight:before {
   right: 10px;
   margin-right: -9px;
 }
@@ -1635,42 +1886,42 @@ html[dir='ltr'] .doorHangerRight:before {
   float: left;
 }
 
-html[dir='ltr'] #toolbarViewerLeft,
-html[dir='rtl'] #toolbarViewerRight {
+html[dir="ltr"] #toolbarViewerLeft,
+html[dir="rtl"] #toolbarViewerRight {
   float: left;
 }
-html[dir='ltr'] #toolbarViewerRight,
-html[dir='rtl'] #toolbarViewerLeft {
+html[dir="ltr"] #toolbarViewerRight,
+html[dir="rtl"] #toolbarViewerLeft {
   float: right;
 }
-html[dir='ltr'] #toolbarViewerLeft > *,
-html[dir='ltr'] #toolbarViewerMiddle > *,
-html[dir='ltr'] #toolbarViewerRight > *,
-html[dir='ltr'] .findbar * {
+html[dir="ltr"] #toolbarViewerLeft > *,
+html[dir="ltr"] #toolbarViewerMiddle > *,
+html[dir="ltr"] #toolbarViewerRight > *,
+html[dir="ltr"] .findbar * {
   position: relative;
   float: left;
 }
-html[dir='rtl'] #toolbarViewerLeft > *,
-html[dir='rtl'] #toolbarViewerMiddle > *,
-html[dir='rtl'] #toolbarViewerRight > *,
-html[dir='rtl'] .findbar * {
+html[dir="rtl"] #toolbarViewerLeft > *,
+html[dir="rtl"] #toolbarViewerMiddle > *,
+html[dir="rtl"] #toolbarViewerRight > *,
+html[dir="rtl"] .findbar * {
   position: relative;
   float: right;
 }
 
-html[dir='ltr'] .splitToolbarButton {
+html[dir="ltr"] .splitToolbarButton {
   margin: 2px 2px 0;
   display: inline-block;
 }
-html[dir='rtl'] .splitToolbarButton {
+html[dir="rtl"] .splitToolbarButton {
   margin: 2px 2px 0;
   display: inline-block;
 }
-html[dir='ltr'] .splitToolbarButton > .toolbarButton {
+html[dir="ltr"] .splitToolbarButton > .toolbarButton {
   border-radius: 2px;
   float: left;
 }
-html[dir='rtl'] .splitToolbarButton > .toolbarButton {
+html[dir="rtl"] .splitToolbarButton > .toolbarButton {
   border-radius: 2px;
   float: right;
 }
@@ -1731,7 +1982,7 @@ html[dir='rtl'] .splitToolbarButton > .toolbarButton {
 .toolbarButton[disabled],
 .secondaryToolbarButton[disabled],
 .overlayButton[disabled] {
-  opacity: .5;
+  opacity: 0.5;
 }
 
 .splitToolbarButton.toggled .toolbarButton {
@@ -1810,13 +2061,13 @@ html[dir='rtl'] .splitToolbarButton > .toolbarButton {
 .splitToolbarButton > .toolbarButton {
   position: relative;
 }
-html[dir='ltr'] .splitToolbarButton > .toolbarButton:first-child,
-html[dir='rtl'] .splitToolbarButton > .toolbarButton:last-child {
+html[dir="ltr"] .splitToolbarButton > .toolbarButton:first-child,
+html[dir="rtl"] .splitToolbarButton > .toolbarButton:last-child {
   position: relative;
   margin: 0;
 }
-html[dir='ltr'] .splitToolbarButton > .toolbarButton:last-child,
-html[dir='rtl'] .splitToolbarButton > .toolbarButton:first-child {
+html[dir="ltr"] .splitToolbarButton > .toolbarButton:last-child,
+html[dir="rtl"] .splitToolbarButton > .toolbarButton:first-child {
   position: relative;
   margin: 0;
 }
@@ -1852,10 +2103,10 @@ html[dir='rtl'] .splitToolbarButton > .toolbarButton:first-child {
   }
 }
 
-html[dir='ltr'] .splitToolbarButtonSeparator {
+html[dir="ltr"] .splitToolbarButtonSeparator {
   float: left;
 }
-html[dir='rtl'] .splitToolbarButtonSeparator {
+html[dir="rtl"] .splitToolbarButtonSeparator {
   float: right;
 }
 
@@ -1963,24 +2214,24 @@ html[dir='rtl'] .splitToolbarButtonSeparator {
   }
 }
 
-html[dir='ltr'] .toolbarButton,
-html[dir='ltr'] .overlayButton,
-html[dir='ltr'] .dropdownToolbarButton {
+html[dir="ltr"] .toolbarButton,
+html[dir="ltr"] .overlayButton,
+html[dir="ltr"] .dropdownToolbarButton {
   margin: 2px 1px;
 }
-html[dir='rtl'] .toolbarButton,
-html[dir='rtl'] .overlayButton,
-html[dir='rtl'] .dropdownToolbarButton {
+html[dir="rtl"] .toolbarButton,
+html[dir="rtl"] .overlayButton,
+html[dir="rtl"] .dropdownToolbarButton {
   margin: 2px 1px;
 }
 
-html[dir='ltr'] #toolbarViewerLeft > .toolbarButton:first-child,
-html[dir='rtl'] #toolbarViewerRight > .toolbarButton:last-child {
+html[dir="ltr"] #toolbarViewerLeft > .toolbarButton:first-child,
+html[dir="rtl"] #toolbarViewerRight > .toolbarButton:last-child {
   margin-left: 2px;
 }
 
-html[dir='ltr'] #toolbarViewerRight > .toolbarButton:last-child,
-html[dir='rtl'] #toolbarViewerLeft > .toolbarButton:first-child {
+html[dir="ltr"] #toolbarViewerRight > .toolbarButton:last-child,
+html[dir="rtl"] #toolbarViewerLeft > .toolbarButton:first-child {
   margin-right: 2px;
 }
 .toolbarButton:hover {
@@ -2105,10 +2356,10 @@ html[dir='rtl'] #toolbarViewerLeft > .toolbarButton:first-child {
   content: var(--toolbarButton-menuArrow-icon);
   }
 }
-html[dir='ltr'] .dropdownToolbarButton::after {
+html[dir="ltr"] .dropdownToolbarButton::after {
   right: 7px;
 }
-html[dir='rtl'] .dropdownToolbarButton::after {
+html[dir="rtl"] .dropdownToolbarButton::after {
   left: 7px;
 }
 
@@ -2140,10 +2391,10 @@ html[dir='rtl'] .dropdownToolbarButton::after {
   color: var(--main-color);
   }
 }
-html[dir='ltr'] .dropdownToolbarButton > select {
+html[dir="ltr"] .dropdownToolbarButton > select {
   padding-left: 4px;
 }
-html[dir='rtl'] .dropdownToolbarButton > select {
+html[dir="rtl"] .dropdownToolbarButton > select {
   padding-right: 4px;
 }
 .dropdownToolbarButton > select:hover {
@@ -2198,17 +2449,17 @@ html[dir='rtl'] .dropdownToolbarButton > select {
   height: 1px;
 }
 
-html[dir='ltr'] #findPrevious {
+html[dir="ltr"] #findPrevious {
   margin-left: 0;
 }
-html[dir='ltr'] #findNext {
+html[dir="ltr"] #findNext {
   margin-right: 3px;
 }
 
-html[dir='rtl'] #findPrevious {
+html[dir="rtl"] #findPrevious {
   margin-right: 0;
 }
-html[dir='rtl'] #findNext {
+html[dir="rtl"] #findNext {
   margin-left: 3px;
 }
 
@@ -2253,7 +2504,7 @@ html[dir="rtl"] .secondaryToolbarButton::before {
   content: var(--toolbarButton-sidebarToggle-icon);
   }
 }
-html[dir='rtl'] .toolbarButton#sidebarToggle::before {
+html[dir="rtl"] .toolbarButton#sidebarToggle::before {
   transform: scaleX(-1);
 }
 
@@ -2269,7 +2520,7 @@ html[dir='rtl'] .toolbarButton#sidebarToggle::before {
   content: var(--toolbarButton-secondaryToolbarToggle-icon);
   }
 }
-html[dir='rtl'] .toolbarButton#secondaryToolbarToggle::before {
+html[dir="rtl"] .toolbarButton#secondaryToolbarToggle::before {
   transform: scaleX(-1);
 }
 
@@ -2285,7 +2536,7 @@ html[dir='rtl'] .toolbarButton#secondaryToolbarToggle::before {
   content: var(--findbarButton-previous-icon);
   }
 }
-html[dir='rtl'] .toolbarButton.findPrevious::before {
+html[dir="rtl"] .toolbarButton.findPrevious::before {
   transform: scaleX(-1);
 }
 
@@ -2301,7 +2552,7 @@ html[dir='rtl'] .toolbarButton.findPrevious::before {
   content: var(--findbarButton-next-icon);
   }
 }
-html[dir='rtl'] .toolbarButton.findNext::before {
+html[dir="rtl"] .toolbarButton.findNext::before {
   transform: scaleX(-1);
 }
 
@@ -2317,7 +2568,7 @@ html[dir='rtl'] .toolbarButton.findNext::before {
   content: var(--toolbarButton-pageUp-icon);
   }
 }
-html[dir='rtl'] .toolbarButton.pageUp::before {
+html[dir="rtl"] .toolbarButton.pageUp::before {
   transform: scaleX(-1);
 }
 
@@ -2333,7 +2584,7 @@ html[dir='rtl'] .toolbarButton.pageUp::before {
   content: var(--toolbarButton-pageDown-icon);
   }
 }
-html[dir='rtl'] .toolbarButton.pageDown::before {
+html[dir="rtl"] .toolbarButton.pageDown::before {
   transform: scaleX(-1);
 }
 
@@ -2472,8 +2723,8 @@ html[dir='rtl'] .toolbarButton.pageDown::before {
   text-decoration: none;
 }
 
-.bookmark[href='#'] {
-  opacity: .5;
+.bookmark[href="#"] {
+  opacity: 0.5;
   pointer-events: none;
 }
 
@@ -2545,6 +2796,19 @@ html[dir="rtl"] #viewOutline.toolbarButton::before {
   }
 }
 
+#viewLayers.toolbarButton::before {
+  content: url(images/toolbarButton-viewLayers.svg);
+  content: var(--toolbarButton-viewLayers-icon);
+}
+
+@media (prefers-color-scheme: dark) {
+
+  #viewLayers.toolbarButton::before {
+  content: url(images/toolbarButton-viewLayers-dark.svg);
+  content: var(--toolbarButton-viewLayers-icon);
+  }
+}
+
 #viewFind.toolbarButton::before {
   content: url(images/toolbarButton-search.svg);
   content: var(--toolbarButton-search-icon);
@@ -2563,16 +2827,16 @@ html[dir="rtl"] #viewOutline.toolbarButton::before {
   display: inline-block;
   top: 1px;
   /* Create a filled circle, with a diameter of 9 pixels, using only CSS: */
-  content: '';
+  content: "";
   background-color: rgba(112, 219, 85, 1);
   height: 9px;
   width: 9px;
   border-radius: 50%;
 }
-html[dir='ltr'] .toolbarButton.pdfSidebarNotification::after {
+html[dir="ltr"] .toolbarButton.pdfSidebarNotification::after {
   left: 17px;
 }
-html[dir='rtl'] .toolbarButton.pdfSidebarNotification::after {
+html[dir="rtl"] .toolbarButton.pdfSidebarNotification::after {
   right: 17px;
 }
 
@@ -2697,7 +2961,7 @@ html[dir="rtl"] .secondaryToolbarButton > span {
 
 .secondaryToolbarButton.scrollHorizontal::before {
   content: url(images/secondaryToolbarButton-scrollHorizontal.svg);
-  content: var(--secondaryToolbarButton-scrollHorizontal-icon)
+  content: var(--secondaryToolbarButton-scrollHorizontal-icon);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -2789,10 +3053,10 @@ html[dir="rtl"] .secondaryToolbarButton > span {
   background-color: var(--separator-color);
   }
 }
-html[dir='ltr'] .verticalToolbarSeparator {
+html[dir="ltr"] .verticalToolbarSeparator {
   margin-left: 2px;
 }
-html[dir='rtl'] .verticalToolbarSeparator {
+html[dir="rtl"] .verticalToolbarSeparator {
   margin-right: 2px;
 }
 
@@ -2856,17 +3120,17 @@ html[dir='rtl'] .verticalToolbarSeparator {
   }
 }
 
-.toolbarField[type=checkbox] {
+.toolbarField[type="checkbox"] {
   opacity: 0;
   position: absolute !important;
   left: 0;
 }
 
-html[dir='ltr'] .toolbarField[type=checkbox] {
+html[dir="ltr"] .toolbarField[type="checkbox"] {
   margin: 10px 0 3px 7px;
 }
 
-html[dir='rtl'] .toolbarField[type=checkbox] {
+html[dir="rtl"] .toolbarField[type="checkbox"] {
   margin: 10px 7px 3px 0;
 }
 
@@ -2928,10 +3192,10 @@ html[dir='rtl'] .toolbarField[type=checkbox] {
   }
 }
 
-html[dir='ltr'] #numPages.toolbarLabel {
+html[dir="ltr"] #numPages.toolbarLabel {
   padding-left: 2px;
 }
-html[dir='rtl'] #numPages.toolbarLabel {
+html[dir="rtl"] #numPages.toolbarLabel {
   padding-right: 2px;
 }
 
@@ -2953,10 +3217,10 @@ html[dir='rtl'] #numPages.toolbarLabel {
 .thumbnail {
   margin: 0 10px 5px 10px;
 }
-html[dir='ltr'] .thumbnail {
+html[dir="ltr"] .thumbnail {
   float: left;
 }
-html[dir='rtl'] .thumbnail {
+html[dir="rtl"] .thumbnail {
   float: right;
 }
 
@@ -2989,7 +3253,7 @@ html[dir='rtl'] .thumbnail {
 
 a:focus > .thumbnail > .thumbnailSelectionRing > .thumbnailImage,
 .thumbnail:hover > .thumbnailSelectionRing > .thumbnailImage {
-  opacity: .9;
+  opacity: 0.9;
 }
 
 a:focus > .thumbnail > .thumbnailSelectionRing {
@@ -3042,7 +3306,8 @@ a:focus > .thumbnail > .thumbnailSelectionRing {
 }
 
 #outlineView,
-#attachmentsView {
+#attachmentsView,
+#layersView {
   position: absolute;
   width: calc(100% - 8px);
   top: 0;
@@ -3056,13 +3321,13 @@ a:focus > .thumbnail > .thumbnailSelectionRing {
           user-select: none;
 }
 
-html[dir='ltr'] .treeWithDeepNesting > .treeItem,
-html[dir='ltr'] .treeItem > .treeItems {
+html[dir="ltr"] .treeWithDeepNesting > .treeItem,
+html[dir="ltr"] .treeItem > .treeItems {
   margin-left: 20px;
 }
 
-html[dir='rtl'] .treeWithDeepNesting > .treeItem,
-html[dir='rtl'] .treeItem > .treeItems {
+html[dir="rtl"] .treeWithDeepNesting > .treeItem,
+html[dir="rtl"] .treeItem > .treeItems {
   margin-right: 20px;
 }
 
@@ -3070,8 +3335,8 @@ html[dir='rtl'] .treeItem > .treeItems {
   text-decoration: none;
   display: inline-block;
   min-width: 95%;
-  min-width: calc(100% - 4px); /* Subtract the right padding (left, in RTL mode)
-                                  of the container. */
+  /* Subtract the right padding (left, in RTL mode) of the container: */
+  min-width: calc(100% - 4px);
   height: auto;
   margin-bottom: 1px;
   border-radius: 2px;
@@ -3094,11 +3359,21 @@ html[dir='rtl'] .treeItem > .treeItems {
   color: var(--outline-color);
   }
 }
-html[dir='ltr'] .treeItem > a {
+html[dir="ltr"] .treeItem > a {
   padding: 2px 0 5px 4px;
 }
-html[dir='rtl'] .treeItem > a {
+html[dir="rtl"] .treeItem > a {
   padding: 2px 4px 5px 0;
+}
+
+#layersView .treeItem > a > * {
+  cursor: pointer;
+}
+html[dir="ltr"] #layersView .treeItem > a > label {
+  padding-left: 4px;
+}
+html[dir="rtl"] #layersView .treesItem > a > label {
+  padding-right: 4px;
 }
 
 .treeItemToggler {
@@ -3133,22 +3408,22 @@ html[dir='rtl'] .treeItem > a {
   content: var(--treeitem-collapsed-icon);
   }
 }
-html[dir='rtl'] .treeItemToggler.treeItemsHidden::before {
+html[dir="rtl"] .treeItemToggler.treeItemsHidden::before {
   transform: scaleX(-1);
 }
 .treeItemToggler.treeItemsHidden ~ .treeItems {
   display: none;
 }
-html[dir='ltr'] .treeItemToggler {
+html[dir="ltr"] .treeItemToggler {
   float: left;
 }
-html[dir='rtl'] .treeItemToggler {
+html[dir="rtl"] .treeItemToggler {
   float: right;
 }
-html[dir='ltr'] .treeItemToggler::before {
+html[dir="ltr"] .treeItemToggler::before {
   right: 4px;
 }
-html[dir='rtl'] .treeItemToggler::before {
+html[dir="rtl"] .treeItemToggler::before {
   left: 4px;
 }
 
@@ -3475,10 +3750,10 @@ html[dir='rtl'] .treeItemToggler::before {
 #documentPropertiesOverlay .row > * {
   min-width: 100px;
 }
-html[dir='ltr'] #documentPropertiesOverlay .row > * {
+html[dir="ltr"] #documentPropertiesOverlay .row > * {
   text-align: left;
 }
-html[dir='rtl'] #documentPropertiesOverlay .row > * {
+html[dir="rtl"] #documentPropertiesOverlay .row > * {
   text-align: right;
 }
 #documentPropertiesOverlay .row > span {
@@ -3558,7 +3833,7 @@ html[dir='rtl'] #documentPropertiesOverlay .row > * {
 }
 
 #viewer.textLayer-visible .textLayer {
-  opacity: 1.0;
+  opacity: 1;
 }
 
 #viewer.textLayer-visible .canvasWrapper {
@@ -3591,7 +3866,8 @@ html[dir='rtl'] #documentPropertiesOverlay .row > * {
   cursor: -webkit-grab !important;
   cursor: grab !important;
 }
-.grab-to-pan-grab *:not(input):not(textarea):not(button):not(select):not(:link) {
+.grab-to-pan-grab
+  *:not(input):not(textarea):not(button):not(select):not(:link) {
   cursor: inherit !important;
 }
 .grab-to-pan-grab:active,
@@ -3625,14 +3901,22 @@ html[dir='rtl'] #documentPropertiesOverlay .row > * {
   }
 
   /* Rules for browsers that don't support mozPrintCallback. */
-  #sidebarContainer, #secondaryToolbar, .toolbar, #loadingBox, #errorWrapper, .textLayer {
+  #sidebarContainer,
+  #secondaryToolbar,
+  .toolbar,
+  #loadingBox,
+  #errorWrapper,
+  .textLayer {
     display: none;
   }
   #viewerContainer {
     overflow: visible;
   }
 
-  #mainContainer, #viewerContainer, .page, .page canvas {
+  #mainContainer,
+  #viewerContainer,
+  .page,
+  .page canvas {
     position: static;
     padding: 0;
     margin: 0;
@@ -3705,10 +3989,10 @@ html[dir='rtl'] #documentPropertiesOverlay .row > * {
     background-color: rgba(0, 0, 0, 0.7);
   }
 
-  html[dir='ltr'] #outerContainer.sidebarOpen #viewerContainer {
+  html[dir="ltr"] #outerContainer.sidebarOpen #viewerContainer {
     left: 0px !important;
   }
-  html[dir='rtl'] #outerContainer.sidebarOpen #viewerContainer {
+  html[dir="rtl"] #outerContainer.sidebarOpen #viewerContainer {
     right: 0px !important;
   }
 
@@ -3741,7 +4025,8 @@ html[dir='rtl'] #documentPropertiesOverlay .row > * {
 }
 
 @media all and (max-width: 640px) {
-  .hiddenSmallView, .hiddenSmallView * {
+  .hiddenSmallView,
+  .hiddenSmallView * {
     display: none;
   }
   .visibleSmallView {
@@ -3750,11 +4035,11 @@ html[dir='rtl'] #documentPropertiesOverlay .row > * {
   .toolbarButtonSpacer {
     width: 0;
   }
-  html[dir='ltr'] .findbar {
-    left: 38px;
+  html[dir="ltr"] .findbar {
+    left: 34px;
   }
-  html[dir='rtl'] .findbar {
-    right: 38px;
+  html[dir="rtl"] .findbar {
+    right: 34px;
   }
 }
 
