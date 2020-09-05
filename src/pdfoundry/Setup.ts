@@ -245,6 +245,10 @@ export default class Setup {
     }
 
     private static createJournalButton(app: Application, html: JQuery) {
+        if (!game.user.isGM) {
+            return;
+        }
+
         const button = $(`<button class="create-pdf"><i class="fas fa-file-pdf"></i> ${game.i18n.localize('PDFOUNDRY.MISC.CreatePDF')}</button>`);
         button.on('click', () => {
             Setup.createPDF();
