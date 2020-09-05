@@ -91,14 +91,25 @@ export default abstract class BaseViewer extends Application {
      * @param pdfSource A URL or byte array to open.
      * @param page The initial page to open to
      */
-    public async open(pdfSource: string | Uint8Array, page?: number) {
+    public async open(pdfSource: string | Uint8Array, page?: number | string) {
         const pdfjsViewer = await this.getViewer();
+
+        if (typeof page === 'string') {
+            page = parseInt(page);
+        }
 
         if (page) {
             pdfjsViewer.initialBookmark = `page=${page}`;
         }
 
+        await pdfjsViewer.initializedPromise;
         await pdfjsViewer.open(pdfSource);
+        await pdfjsViewer.pdfViewer.pagesPromise;
+
+        // See #19 - fixes other scroll modes not loading with initial bookmark
+        if (page && pdfjsViewer.page !== page) {
+            pdfjsViewer.page = page;
+        }
     }
 
     // </editor-fold>
