@@ -178,6 +178,12 @@ export default class PDFActorDataBrowser extends Application {
         };
 
         data['paths'] = flatten(this.actor.data.data, 'data');
+        data['paths'].push({
+            key: 'name',
+            value: this.actor.name,
+            danger: DangerLevel.Safe,
+        });
+
         data['paths'].sort((a: DataPath, b: DataPath) => a.key.localeCompare(b.key));
         data['paths'] = data['paths'].map((element) => {
             let splitRoll = element['key'].split('.') as string[];
