@@ -395,12 +395,12 @@ export default class Api {
         await Settings.set(Settings.SETTINGS_KEY.HELP_SEEN, true);
 
         const lang = game.i18n.lang;
-        let manualPath = `${window.origin}/${Settings.PATH_ASSETS}/manual/${lang}/manual.pdf`;
+        let manualPath = getAbsoluteURL(`${Settings.PATH_ASSETS}/manual/${lang}/manual.pdf`);
         // @ts-ignore
         const manualExists = await srcExists(manualPath);
 
         if (!manualExists) {
-            manualPath = `${window.origin}/${Settings.PATH_ASSETS}/manual/en/manual.pdf`;
+            manualPath = getAbsoluteURL(`${Settings.PATH_ASSETS}/manual/en/manual.pdf`);
         }
 
         const pdfData: PDFData = {
