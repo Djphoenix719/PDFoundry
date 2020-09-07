@@ -8,7 +8,7 @@
 ![GitHub All Releases](https://img.shields.io/github/downloads/Djphoenix719/PDFoundry/total)
 ![GitHub Releases](https://img.shields.io/github/downloads/Djphoenix719/PDFoundry/latest/total)
 
-PDFoundry is a *fully featured* PDF viewer for FoundryVTT!  PDFoundry supports a full suite of features for viewing PDFs right in Foundry VTT. Fillable forms, bookmarks, page links in journals and LOTS more. You can even use a form fillable PDF character sheet for an actor!
+PDFoundry (pronounced *Pee-Dee-Foundry*/*pi di ˈfaʊndri*) is a *fully featured* PDF viewer for FoundryVTT!  PDFoundry supports a full suite of features for viewing PDFs right in Foundry VTT. Fillable forms, bookmarks, page links in journals and LOTS more. You can even use a form fillable PDF character sheet for an actor!
 
 [Please consider supporting me on Ko-Fi](https://ko-fi.com/djsmods)
 
