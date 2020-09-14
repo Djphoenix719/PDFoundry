@@ -17,6 +17,74 @@ import BaseViewer from './BaseViewer';
 import Settings from '../Settings';
 import { PDFData } from '../common/types/PDFData';
 
+// TODO: Move to wrapped input model to standardize inputs.
+//  Current code is insane and has too much branching.
+//  Factory should be used to create the wrapped inputs.
+// /**
+//  * Wraps an input to standardize operations over various HTML elements.
+//  * @internal
+//  */
+// abstract class FormInput<TElement extends HTMLElement, TValue> {
+//     protected _element: TElement;
+//     protected _name: string;
+//     protected _value: TValue;
+//
+//     public static IsOfType(element: HTMLElement) {
+//         return false;
+//     }
+//
+//     /**
+//      * Return the HTML element for this input.
+//      */
+//     public get element() {
+//         return this._element;
+//     }
+//
+//     /**
+//      * Return the name of this input.
+//      */
+//     public get name() {
+//         return this._name;
+//     }
+//
+//     protected constructor(name: string, element: TElement, value: TValue) {
+//         this._name = name;
+//         this._element = element;
+//         this._value = value;
+//
+//         $(this._element).attr('name', this._name);
+//     }
+//
+//     /**
+//      * Get the value of this input.
+//      */
+//     public abstract get value();
+//
+//     /**
+//      * Set the value of this input.
+//      * @param newValue The value to set to.
+//      */
+//     public abstract set value(newValue: TValue);
+//
+//     public abstract onInputChanged(event: JQuery.ChangeEvent);
+// }
+//
+// class InputInput extends FormInput<HTMLInputElement, string> {
+//     public static IsOfType(element: HTMLElement): element is HTMLInputElement {
+//         return element.tagName === 'INPUT';
+//     }
+//
+//     onInputChanged(event: JQuery.ChangeEvent) {}
+//
+//     public get value() {
+//         return this._value;
+//     }
+//
+//     public set value(newValue: string) {
+//         this._value = newValue;
+//     }
+// }
+
 /**
  * Handles base form fillable support, can be used as a stand alone form fillable viewer.
  * @module API
@@ -143,9 +211,13 @@ export default class FillableViewer extends BaseViewer {
         return element.tagName === 'INPUT' || element.tagName === 'TEXTAREA';
     }
 
+    protected elementIsSelect(element: HTMLElement): element is HTMLSelectElement {
+        return element.tagName === 'SELECT';
+    }
+
     protected onPageRendered(event) {
         const container = $(event.source.div);
-        const elements = container.find('input, textarea') as JQuery<HTMLInputElement | HTMLTextAreaElement>;
+        const elements = container.find('input, textarea, select') as JQuery<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
 
         if (this.container === undefined || this.container.length === 0) {
             this.container = $(container.parents().find('#viewerContainer'));
@@ -177,6 +249,8 @@ export default class FillableViewer extends BaseViewer {
             value = this.getCheckInputValue($(element));
         } else if (this.elementIsInput(element)) {
             value = this.getTextInputValue($(element as HTMLInputElement | HTMLTextAreaElement));
+        } else if (this.elementIsSelect(element)) {
+            value = this.getTextInputValue($(element as HTMLSelectElement));
         }
 
         this.update(
@@ -204,6 +278,8 @@ export default class FillableViewer extends BaseViewer {
             if (this.elementIsCheckbox(element)) {
                 write = this.initializeCheckInput($(element), key, newData) || write;
             } else if (this.elementIsInput(element)) {
+                write = this.initializeTextInput($(element), key, newData) || write;
+            } else if (this.elementIsSelect(element)) {
                 write = this.initializeTextInput($(element), key, newData) || write;
             } else {
                 console.error('Unsupported input type in PDF.');
@@ -260,7 +336,11 @@ export default class FillableViewer extends BaseViewer {
         return this.entity.update(expandObject(delta));
     }
 
-    protected initializeTextInput(input: JQuery<HTMLInputElement | HTMLTextAreaElement>, key: string, data: Record<string, string>): boolean {
+    protected initializeTextInput(
+        input: JQuery<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+        key: string,
+        data: Record<string, string>,
+    ): boolean {
         let value = data[key];
         if (value === undefined) {
             // If value does not exist on actor yet, load from sheet
@@ -292,7 +372,7 @@ export default class FillableViewer extends BaseViewer {
         return false;
     }
 
-    protected setTextInput(input: JQuery<HTMLInputElement | HTMLTextAreaElement>, value: string) {
+    protected setTextInput(input: JQuery<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>, value: string) {
         input.val(value);
     }
 
@@ -304,7 +384,7 @@ export default class FillableViewer extends BaseViewer {
         }
     }
 
-    protected getTextInputValue(input: JQuery<HTMLInputElement | HTMLTextAreaElement>): string {
+    protected getTextInputValue(input: JQuery<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>): string {
         const value = input.val();
         if (!value) {
             return '';
