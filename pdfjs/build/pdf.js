@@ -335,8 +335,8 @@ var _text_layer = __w_pdfjs_require__(20);
 
 var _svg = __w_pdfjs_require__(21);
 
-const pdfjsVersion = '2.7.25';
-const pdfjsBuild = '72a76007';
+const pdfjsVersion = '2.7.91';
+const pdfjsBuild = '2ca3ad303';
 {
   const {
     isNodeJS
@@ -920,6 +920,7 @@ exports.assert = assert;
 exports.bytesToString = bytesToString;
 exports.createPromiseCapability = createPromiseCapability;
 exports.escapeString = escapeString;
+exports.encodeToXmlString = encodeToXmlString;
 exports.getModificationDate = getModificationDate;
 exports.getVerbosityLevel = getVerbosityLevel;
 exports.info = info;
@@ -1641,7 +1642,15 @@ function stringToPDFString(str) {
 }
 
 function escapeString(str) {
-  return str.replace(/([\(\)\\])/g, "\\$1");
+  return str.replace(/([\(\)\\\n\r])/g, match => {
+    if (match === "\n") {
+      return "\\n";
+    } else if (match === "\r") {
+      return "\\r";
+    }
+
+    return `\\${match}`;
+  });
 }
 
 function stringToUTF8String(str) {
@@ -1678,8 +1687,8 @@ function isArrayEqual(arr1, arr2) {
   });
 }
 
-function getModificationDate(date = new Date(Date.now())) {
-  const buffer = [date.getUTCFullYear().toString(), (date.getUTCMonth() + 1).toString().padStart(2, "0"), (date.getUTCDate() + 1).toString().padStart(2, "0"), date.getUTCHours().toString().padStart(2, "0"), date.getUTCMinutes().toString().padStart(2, "0"), date.getUTCSeconds().toString().padStart(2, "0")];
+function getModificationDate(date = new Date()) {
+  const buffer = [date.getUTCFullYear().toString(), (date.getUTCMonth() + 1).toString().padStart(2, "0"), date.getUTCDate().toString().padStart(2, "0"), date.getUTCHours().toString().padStart(2, "0"), date.getUTCMinutes().toString().padStart(2, "0"), date.getUTCSeconds().toString().padStart(2, "0")];
   return buffer.join("");
 }
 
@@ -1734,6 +1743,57 @@ const createObjectURL = function createObjectURLClosure() {
 }();
 
 exports.createObjectURL = createObjectURL;
+const XMLEntities = {
+  0x3c: "&lt;",
+  0x3e: "&gt;",
+  0x26: "&amp;",
+  0x22: "&quot;",
+  0x27: "&apos;"
+};
+
+function encodeToXmlString(str) {
+  const buffer = [];
+  let start = 0;
+
+  for (let i = 0, ii = str.length; i < ii; i++) {
+    const char = str.codePointAt(i);
+
+    if (0x20 <= char && char <= 0x7e) {
+      const entity = XMLEntities[char];
+
+      if (entity) {
+        if (start < i) {
+          buffer.push(str.substring(start, i));
+        }
+
+        buffer.push(entity);
+        start = i + 1;
+      }
+    } else {
+      if (start < i) {
+        buffer.push(str.substring(start, i));
+      }
+
+      buffer.push(`&#x${char.toString(16).toUpperCase()};`);
+
+      if (char > 0xd7ff && (char < 0xe000 || char > 0xfffd)) {
+        i++;
+      }
+
+      start = i + 1;
+    }
+  }
+
+  if (buffer.length === 0) {
+    return str;
+  }
+
+  if (start < str.length) {
+    buffer.push(str.substring(start, str.length));
+  }
+
+  return buffer.join("");
+}
 
 /***/ }),
 /* 3 */
@@ -1979,7 +2039,7 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
 
   return worker.messageHandler.sendWithPromise("GetDocRequest", {
     docId,
-    apiVersion: '2.7.25',
+    apiVersion: '2.7.91',
     source: {
       data: source.data,
       url: source.url,
@@ -3924,9 +3984,9 @@ const InternalRenderTask = function InternalRenderTaskClosure() {
   return InternalRenderTask;
 }();
 
-const version = '2.7.25';
+const version = '2.7.91';
 exports.version = version;
-const build = '72a76007';
+const build = '2ca3ad303';
 exports.build = build;
 
 /***/ }),
@@ -5353,8 +5413,8 @@ var CanvasGraphics = function CanvasGraphicsClosure() {
       }
     },
     endDrawing: function CanvasGraphics_endDrawing() {
-      if (this.current.activeSMask !== null) {
-        this.endSMaskGroup();
+      while (this.stateStack.length || this.current.activeSMask !== null) {
+        this.restore();
       }
 
       this.ctx.restore();
@@ -5514,7 +5574,7 @@ var CanvasGraphics = function CanvasGraphicsClosure() {
       groupCtx.clearRect(0, 0, groupCtx.canvas.width, groupCtx.canvas.height);
       groupCtx.restore();
     },
-    resumeSMaskGroup: function CanvasGraphics_endSMaskGroup() {
+    resumeSMaskGroup: function CanvasGraphics_resumeSMaskGroup() {
       var groupCtx = this.current.resumeSMaskCtx;
       var currentCtx = this.ctx;
       this.ctx = groupCtx;
@@ -5554,6 +5614,8 @@ var CanvasGraphics = function CanvasGraphicsClosure() {
         this.ctx.restore();
         this.pendingClip = null;
         this._cachedGetSinglePixelWidth = null;
+      } else {
+        this.current.activeSMask = null;
       }
     },
     transform: function CanvasGraphics_transform(a, b, c, d, e, f) {
@@ -7843,7 +7905,10 @@ exports.Metadata = Metadata;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.SimpleXMLParser = void 0;
+exports.SimpleXMLParser = exports.SimpleDOMNode = void 0;
+
+var _util = __w_pdfjs_require__(2);
+
 const XMLParserErrorCode = {
   NoError: 0,
   EndOfDocument: -1,
@@ -7877,9 +7942,9 @@ class XMLParserBase {
   _resolveEntities(s) {
     return s.replace(/&([^;]+);/g, (all, entity) => {
       if (entity.substring(0, 2) === "#x") {
-        return String.fromCharCode(parseInt(entity.substring(2), 16));
+        return String.fromCodePoint(parseInt(entity.substring(2), 16));
       } else if (entity.substring(0, 1) === "#") {
-        return String.fromCharCode(parseInt(entity.substring(1), 10));
+        return String.fromCodePoint(parseInt(entity.substring(1), 10));
       }
 
       switch (entity) {
@@ -8184,14 +8249,107 @@ class SimpleDOMNode {
     return this.childNodes && this.childNodes.length > 0;
   }
 
+  searchNode(paths, pos) {
+    if (pos >= paths.length) {
+      return this;
+    }
+
+    const component = paths[pos];
+    const stack = [];
+    let node = this;
+
+    while (true) {
+      if (component.name === node.nodeName) {
+        if (component.pos === 0) {
+          const res = node.searchNode(paths, pos + 1);
+
+          if (res !== null) {
+            return res;
+          }
+        } else if (stack.length === 0) {
+          return null;
+        } else {
+          const [parent] = stack.pop();
+          let siblingPos = 0;
+
+          for (const child of parent.childNodes) {
+            if (component.name === child.nodeName) {
+              if (siblingPos === component.pos) {
+                return child.searchNode(paths, pos + 1);
+              }
+
+              siblingPos++;
+            }
+          }
+
+          return node.searchNode(paths, pos + 1);
+        }
+      }
+
+      if (node.childNodes && node.childNodes.length !== 0) {
+        stack.push([node, 0]);
+        node = node.childNodes[0];
+      } else if (stack.length === 0) {
+        return null;
+      } else {
+        while (stack.length !== 0) {
+          const [parent, currentPos] = stack.pop();
+          const newPos = currentPos + 1;
+
+          if (newPos < parent.childNodes.length) {
+            stack.push([parent, newPos]);
+            node = parent.childNodes[newPos];
+            break;
+          }
+        }
+
+        if (stack.length === 0) {
+          return null;
+        }
+      }
+    }
+  }
+
+  dump(buffer) {
+    if (this.nodeName === "#text") {
+      buffer.push((0, _util.encodeToXmlString)(this.nodeValue));
+      return;
+    }
+
+    buffer.push(`<${this.nodeName}`);
+
+    if (this.attributes) {
+      for (const attribute of this.attributes) {
+        buffer.push(` ${attribute.name}=\"${(0, _util.encodeToXmlString)(attribute.value)}\"`);
+      }
+    }
+
+    if (this.hasChildNodes()) {
+      buffer.push(">");
+
+      for (const child of this.childNodes) {
+        child.dump(buffer);
+      }
+
+      buffer.push(`</${this.nodeName}>`);
+    } else if (this.nodeValue) {
+      buffer.push(`>${(0, _util.encodeToXmlString)(this.nodeValue)}</${this.nodeName}>`);
+    } else {
+      buffer.push("/>");
+    }
+  }
+
 }
 
+exports.SimpleDOMNode = SimpleDOMNode;
+
 class SimpleXMLParser extends XMLParserBase {
-  constructor() {
+  constructor(hasAttributes = false) {
     super();
     this._currentFragment = null;
     this._stack = null;
     this._errorCode = XMLParserErrorCode.NoError;
+    this._hasAttributes = hasAttributes;
   }
 
   parseFromString(data) {
@@ -8243,6 +8401,10 @@ class SimpleXMLParser extends XMLParserBase {
   onBeginElement(name, attributes, isEmpty) {
     const node = new SimpleDOMNode(name);
     node.childNodes = [];
+
+    if (this._hasAttributes) {
+      node.attributes = attributes;
+    }
 
     this._currentFragment.push(node);
 
@@ -9594,6 +9756,9 @@ class TextWidgetAnnotationElement extends WidgetAnnotationElement {
 
       element.addEventListener("input", function (event) {
         storage.setValue(id, event.target.value);
+      });
+      element.addEventListener("blur", function (event) {
+        event.target.setSelectionRange(0, 0);
       });
       element.disabled = this.data.readOnly;
       element.name = this.data.fieldName;

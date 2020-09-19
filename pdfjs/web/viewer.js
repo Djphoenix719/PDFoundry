@@ -753,9 +753,9 @@ const PDFViewerApplication = {
   get supportsFullscreen() {
     let support;
     const doc = document.documentElement;
-    support = !!(doc.requestFullscreen || doc.mozRequestFullScreen || doc.webkitRequestFullScreen || doc.msRequestFullscreen);
+    support = !!(doc.requestFullscreen || doc.mozRequestFullScreen || doc.webkitRequestFullScreen);
 
-    if (document.fullscreenEnabled === false || document.mozFullScreenEnabled === false || document.webkitFullscreenEnabled === false || document.msFullscreenEnabled === false) {
+    if (document.fullscreenEnabled === false || document.mozFullScreenEnabled === false || document.webkitFullscreenEnabled === false) {
       support = false;
     }
 
@@ -2977,7 +2977,6 @@ exports.isValidRotation = isValidRotation;
 exports.isValidScrollMode = isValidScrollMode;
 exports.isValidSpreadMode = isValidSpreadMode;
 exports.isPortraitOrientation = isPortraitOrientation;
-exports.clamp = clamp;
 exports.getPDFFileNameFromURL = getPDFFileNameFromURL;
 exports.noContextMenuHandler = noContextMenuHandler;
 exports.parseQueryString = parseQueryString;
@@ -3013,6 +3012,7 @@ const SCROLLBAR_PADDING = 40;
 exports.SCROLLBAR_PADDING = SCROLLBAR_PADDING;
 const VERTICAL_PADDING = 5;
 exports.VERTICAL_PADDING = VERTICAL_PADDING;
+const LOADINGBAR_END_OFFSET_VAR = "--loadingBar-end-offset";
 const PresentationModeState = {
   UNKNOWN: 0,
   NORMAL: 1,
@@ -3078,7 +3078,7 @@ exports.NullL10n = NullL10n;
 
 function getOutputScale(ctx) {
   const devicePixelRatio = window.devicePixelRatio || 1;
-  const backingStoreRatio = ctx.webkitBackingStorePixelRatio || ctx.mozBackingStorePixelRatio || ctx.msBackingStorePixelRatio || ctx.oBackingStorePixelRatio || ctx.backingStorePixelRatio || 1;
+  const backingStoreRatio = ctx.webkitBackingStorePixelRatio || ctx.mozBackingStorePixelRatio || ctx.backingStorePixelRatio || 1;
   const pixelRatio = devicePixelRatio / backingStoreRatio;
   return {
     sx: pixelRatio,
@@ -3657,7 +3657,8 @@ class ProgressBar {
     const scrollbarWidth = container.offsetWidth - viewer.offsetWidth;
 
     if (scrollbarWidth > 0) {
-      this.bar.style.width = `calc(100% - ${scrollbarWidth}px)`;
+      const doc = document.documentElement;
+      doc.style.setProperty(LOADINGBAR_END_OFFSET_VAR, `${scrollbarWidth}px`);
     }
   }
 
@@ -3668,7 +3669,6 @@ class ProgressBar {
 
     this.visible = false;
     this.bar.classList.add("hidden");
-    document.body.classList.remove("loadingInProgress");
   }
 
   show() {
@@ -3677,7 +3677,6 @@ class ProgressBar {
     }
 
     this.visible = true;
-    document.body.classList.add("loadingInProgress");
     this.bar.classList.remove("hidden");
   }
 
@@ -3973,12 +3972,11 @@ const compatibilityParams = Object.create(null);
   const platform = typeof navigator !== "undefined" && navigator.platform || "";
   const maxTouchPoints = typeof navigator !== "undefined" && navigator.maxTouchPoints || 1;
   const isAndroid = /Android/.test(userAgent);
-  const isIE = /Trident/.test(userAgent);
   const isIOS = /\b(iPad|iPhone|iPod)(?=;)/.test(userAgent) || platform === "MacIntel" && maxTouchPoints > 1;
   const isIOSChrome = /CriOS/.test(userAgent);
 
   (function checkOnBlobSupport() {
-    if (isIE || isIOSChrome) {
+    if (isIOSChrome) {
       compatibilityParams.disableCreateObjectURL = true;
     }
   })();
@@ -4266,7 +4264,7 @@ GrabToPan.prototype = {
   }
 };
 let matchesSelector;
-["webkitM", "mozM", "msM", "oM", "m"].some(function (prefix) {
+["webkitM", "mozM", "m"].some(function (prefix) {
   let name = prefix + "atches";
 
   if (name in document.documentElement) {
@@ -8066,8 +8064,6 @@ class PDFPresentationMode {
       this.container.mozRequestFullScreen();
     } else if (this.container.webkitRequestFullscreen) {
       this.container.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-    } else if (this.container.msRequestFullscreen) {
-      this.container.msRequestFullscreen();
     } else {
       return false;
     }
@@ -8113,7 +8109,7 @@ class PDFPresentationMode {
   }
 
   get isFullscreen() {
-    return !!(document.fullscreenElement || document.mozFullScreen || document.webkitIsFullScreen || document.msFullscreenElement);
+    return !!(document.fullscreenElement || document.mozFullScreen || document.webkitIsFullScreen);
   }
 
   _goToPreviousPage() {
@@ -8375,14 +8371,12 @@ class PDFPresentationMode {
     window.addEventListener("fullscreenchange", this.fullscreenChangeBind);
     window.addEventListener("mozfullscreenchange", this.fullscreenChangeBind);
     window.addEventListener("webkitfullscreenchange", this.fullscreenChangeBind);
-    window.addEventListener("MSFullscreenChange", this.fullscreenChangeBind);
   }
 
   _removeFullscreenChangeListeners() {
     window.removeEventListener("fullscreenchange", this.fullscreenChangeBind);
     window.removeEventListener("mozfullscreenchange", this.fullscreenChangeBind);
     window.removeEventListener("webkitfullscreenchange", this.fullscreenChangeBind);
-    window.removeEventListener("MSFullscreenChange", this.fullscreenChangeBind);
     delete this.fullscreenChangeBind;
   }
 
@@ -8410,7 +8404,6 @@ const SIDEBAR_RESIZING_CLASS = "sidebarResizing";
 
 class PDFSidebarResizer {
   constructor(options, eventBus, l10n = _ui_utils.NullL10n) {
-    this.enabled = false;
     this.isRTL = false;
     this.sidebarOpen = false;
     this.doc = document.documentElement;
@@ -8420,16 +8413,7 @@ class PDFSidebarResizer {
     this.outerContainer = options.outerContainer;
     this.resizer = options.resizer;
     this.eventBus = eventBus;
-    this.l10n = l10n;
-
-    if (typeof CSS === "undefined" || typeof CSS.supports !== "function" || !CSS.supports(SIDEBAR_WIDTH_VAR, `calc(-1 * ${SIDEBAR_MIN_WIDTH}px)`)) {
-      console.warn("PDFSidebarResizer: " + "The browser does not support resizing of the sidebar.");
-      return;
-    }
-
-    this.enabled = true;
-    this.resizer.classList.remove("hidden");
-    this.l10n.getDirection().then(dir => {
+    l10n.getDirection().then(dir => {
       this.isRTL = dir === "rtl";
     });
 
@@ -8445,18 +8429,22 @@ class PDFSidebarResizer {
   }
 
   _updateWidth(width = 0) {
-    if (!this.enabled) {
+    const maxWidth = Math.floor(this.outerContainerWidth / 2);
+
+    if (width > maxWidth) {
+      width = maxWidth;
+    }
+
+    if (width < SIDEBAR_MIN_WIDTH) {
+      width = SIDEBAR_MIN_WIDTH;
+    }
+
+    if (width === this._width) {
       return false;
     }
 
-    const newWidth = (0, _ui_utils.clamp)(width, SIDEBAR_MIN_WIDTH, Math.floor(this.outerContainerWidth / 2));
-
-    if (newWidth === this._width) {
-      return false;
-    }
-
-    this._width = newWidth;
-    this.doc.style.setProperty(SIDEBAR_WIDTH_VAR, `${newWidth}px`);
+    this._width = width;
+    this.doc.style.setProperty(SIDEBAR_WIDTH_VAR, `${width}px`);
     return true;
   }
 
@@ -8481,10 +8469,6 @@ class PDFSidebarResizer {
   }
 
   _addEventListeners() {
-    if (!this.enabled) {
-      return;
-    }
-
     const _boundEvents = this._boundEvents;
     _boundEvents.mouseMove = this._mouseMove.bind(this);
     _boundEvents.mouseUp = this._mouseUp.bind(this);
@@ -9420,8 +9404,12 @@ class BaseViewer {
     this.container = options.container;
     this.viewer = options.viewer || options.container.firstElementChild;
 
-    if (!(this.container instanceof HTMLDivElement && this.viewer instanceof HTMLDivElement)) {
+    if (!(this.container && this.container.tagName.toUpperCase() === "DIV" && this.viewer && this.viewer.tagName.toUpperCase() === "DIV")) {
       throw new Error("Invalid `container` and/or `viewer` option.");
+    }
+
+    if (getComputedStyle(this.container).position !== "absolute") {
+      throw new Error("The `container` must be absolutely positioned.");
     }
 
     this.eventBus = options.eventBus;
@@ -10041,6 +10029,8 @@ class BaseViewer {
         if (y === null && this._location) {
           x = this._location.left;
           y = this._location.top;
+        } else if (typeof y !== "number") {
+          y = pageHeight;
         }
 
         break;
@@ -12678,26 +12668,11 @@ class DownloadManager {
   }
 
   downloadData(data, filename, contentType) {
-    if (navigator.msSaveBlob) {
-      navigator.msSaveBlob(new Blob([data], {
-        type: contentType
-      }), filename);
-      return;
-    }
-
     const blobUrl = (0, _pdfjsLib.createObjectURL)(data, contentType, _viewer_compatibility.viewerCompatibilityParams.disableCreateObjectURL);
     download(blobUrl, filename);
   }
 
   download(blob, url, filename, sourceEventType = "download") {
-    if (navigator.msSaveBlob) {
-      if (!navigator.msSaveBlob(blob, filename)) {
-        this.downloadUrl(url, filename);
-      }
-
-      return;
-    }
-
     if (_viewer_compatibility.viewerCompatibilityParams.disableCreateObjectURL) {
       this.downloadUrl(url, filename);
       return;
@@ -13759,41 +13734,7 @@ PDFPrintService.prototype = {
 };
 const print = window.print;
 
-window.print = function () {
-  if (activeService) {
-    console.warn("Ignored window.print() because of a pending print job.");
-    return;
-  }
-
-  ensureOverlay().then(function () {
-    if (activeService) {
-      overlayManager.open("printServiceOverlay");
-    }
-  });
-
-  try {
-    dispatchEvent("beforeprint");
-  } finally {
-    if (!activeService) {
-      console.error("Expected print service to be initialized.");
-      ensureOverlay().then(function () {
-        if (overlayManager.active === "printServiceOverlay") {
-          overlayManager.close("printServiceOverlay");
-        }
-      });
-      return;
-    }
-
-    const activeServiceOnEntry = activeService;
-    activeService.renderPages().then(function () {
-      return activeServiceOnEntry.performPrint();
-    }).catch(function () {}).then(function () {
-      if (activeServiceOnEntry.active) {
-        abort();
-      }
-    });
-  }
-};
+window.print = function () {};
 
 function dispatchEvent(eventType) {
   const event = document.createEvent("CustomEvent");

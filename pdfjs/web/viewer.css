@@ -387,16 +387,17 @@
   margin-right: auto;
 }
 
-.pdfPresentationMode:-ms-fullscreen .pdfViewer .page {
-  margin-bottom: 100% !important;
-}
-
 .pdfPresentationMode:-webkit-full-screen .pdfViewer .page {
   margin-bottom: 100%;
   border: 0;
 }
 
 .pdfPresentationMode:-moz-full-screen .pdfViewer .page {
+  margin-bottom: 100%;
+  border: 0;
+}
+
+.pdfPresentationMode:-ms-fullscreen .pdfViewer .page {
   margin-bottom: 100%;
   border: 0;
 }
@@ -410,6 +411,7 @@
   --sidebar-width: 200px;
   --sidebar-transition-duration: 200ms;
   --sidebar-transition-timing-function: ease;
+  --loadingBar-end-offset: 0;
 
   --toolbar-icon-opacity: 0.7;
   --doorhanger-icon-opacity: 0.9;
@@ -434,10 +436,10 @@
   --field-bg-color: rgba(255, 255, 255, 1);
   --field-border-color: rgba(187, 187, 188, 1);
   --findbar-nextprevious-btn-bg-color: rgba(227, 228, 230, 1);
-  --outline-color: rgba(0, 0, 0, 0.8);
-  --outline-hover-color: rgba(0, 0, 0, 0.9);
-  --outline-active-color: rgba(0, 0, 0, 0.08);
-  --outline-active-bg-color: rgba(0, 0, 0, 1);
+  --treeitem-color: rgba(0, 0, 0, 0.8);
+  --treeitem-hover-color: rgba(0, 0, 0, 0.9);
+  --treeitem-active-color: rgba(0, 0, 0, 0.08);
+  --treeitem-active-bg-color: rgba(0, 0, 0, 1);
   --sidebaritem-bg-color: rgba(0, 0, 0, 0.15);
   --doorhanger-bg-color: rgba(255, 255, 255, 1);
   --doorhanger-border-color: rgba(12, 12, 13, 0.2);
@@ -505,10 +507,10 @@
     --field-bg-color: rgba(64, 64, 68, 1);
     --field-border-color: rgba(115, 115, 115, 1);
     --findbar-nextprevious-btn-bg-color: rgba(89, 89, 89, 1);
-    --outline-color: rgba(255, 255, 255, 0.8);
-    --outline-hover-color: rgba(255, 255, 255, 0.9);
-    --outline-active-color: rgba(255, 255, 255, 0.08);
-    --outline-active-bg-color: rgba(255, 255, 255, 1);
+    --treeitem-color: rgba(255, 255, 255, 0.8);
+    --treeitem-hover-color: rgba(255, 255, 255, 0.9);
+    --treeitem-active-color: rgba(255, 255, 255, 0.08);
+    --treeitem-active-bg-color: rgba(255, 255, 255, 1);
     --sidebaritem-bg-color: rgba(255, 255, 255, 0.15);
     --doorhanger-bg-color: rgba(74, 74, 79, 1);
     --doorhanger-border-color: rgba(39, 39, 43, 1);
@@ -753,15 +755,6 @@ select {
   cursor: not-allowed;
 }
 
-#viewerContainer.pdfPresentationMode:-ms-fullscreen {
-  top: 0px !important;
-  overflow: hidden !important;
-}
-
-#viewerContainer.pdfPresentationMode:-ms-fullscreen::-ms-backdrop {
-  background-color: rgba(0, 0, 0, 1);
-}
-
 #viewerContainer.pdfPresentationMode:-webkit-full-screen {
   top: 0px;
   border-top: 2px solid rgba(0, 0, 0, 0);
@@ -878,10 +871,6 @@ html[dir="rtl"] #sidebarContainer {
   transition-property: right;
   right: -200px;
   right: calc(0px - var(--sidebar-width));
-}
-
-.loadingInProgress #sidebarContainer {
-  top: 36px;
 }
 
 #outerContainer.sidebarResizing #sidebarContainer {
@@ -1142,13 +1131,18 @@ html[dir="rtl"] #toolbarContainer {
 }
 
 #loadingBar {
-  position: relative;
-  width: 100%;
+  position: absolute;
   height: 4px;
   background-color: rgba(237, 237, 240, 1);
   background-color: var(--body-bg-color);
   border-bottom: 1px solid rgba(204, 204, 204, 1);
   border-bottom: 1px solid var(--toolbar-border-color);
+
+  transition-duration: 200ms;
+
+  transition-duration: var(--sidebar-transition-duration);
+  transition-timing-function: ease;
+  transition-timing-function: var(--sidebar-transition-timing-function);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -1165,6 +1159,32 @@ html[dir="rtl"] #toolbarContainer {
   background-color: rgba(42, 42, 46, 1);
   background-color: var(--body-bg-color);
   }
+}
+html[dir="ltr"] #loadingBar {
+  transition-property: left;
+  left: 0;
+  right: 0;
+  right: var(--loadingBar-end-offset);
+}
+html[dir="rtl"] #loadingBar {
+  transition-property: right;
+  left: 0;
+  left: var(--loadingBar-end-offset);
+  right: 0;
+}
+
+html[dir="ltr"] #outerContainer.sidebarOpen #loadingBar {
+  left: 200px;
+  left: var(--sidebar-width);
+}
+html[dir="rtl"] #outerContainer.sidebarOpen #loadingBar {
+  right: 200px;
+  right: var(--sidebar-width);
+}
+
+#outerContainer.sidebarResizing #loadingBar {
+  /* Improve responsiveness and avoid visual glitches when the sidebar is resized. */
+  transition-duration: 0s;
 }
 
 #loadingBar .progress {
@@ -2123,7 +2143,6 @@ html[dir="rtl"] .splitToolbarButtonSeparator {
      -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
-  /* Opera does not support user-select, use <... unselectable="on"> instead */
   cursor: default;
   box-sizing: border-box;
 }
@@ -2149,7 +2168,6 @@ html[dir="rtl"] .splitToolbarButtonSeparator {
      -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
-  /* Opera does not support user-select, use <... unselectable="on"> instead */
   cursor: default;
   box-sizing: border-box;
 }
@@ -2175,7 +2193,6 @@ html[dir="rtl"] .splitToolbarButtonSeparator {
      -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
-  /* Opera does not support user-select, use <... unselectable="on"> instead */
   cursor: default;
   box-sizing: border-box;
 }
@@ -2201,7 +2218,6 @@ html[dir="rtl"] .splitToolbarButtonSeparator {
      -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
-  /* Opera does not support user-select, use <... unselectable="on"> instead */
   cursor: default;
   box-sizing: border-box;
 }
@@ -3341,7 +3357,7 @@ html[dir="rtl"] .treeItem > .treeItems {
   margin-bottom: 1px;
   border-radius: 2px;
   color: rgba(0, 0, 0, 0.8);
-  color: var(--outline-color);
+  color: var(--treeitem-color);
   font-size: 13px;
   line-height: 15px;
   -webkit-user-select: none;
@@ -3356,7 +3372,7 @@ html[dir="rtl"] .treeItem > .treeItems {
 
   .treeItem > a {
   color: rgba(255, 255, 255, 0.8);
-  color: var(--outline-color);
+  color: var(--treeitem-color);
   }
 }
 html[dir="ltr"] .treeItem > a {
@@ -3433,14 +3449,14 @@ html[dir="rtl"] .treeItemToggler::before {
   background-clip: padding-box;
   border-radius: 2px;
   color: rgba(0, 0, 0, 0.9);
-  color: var(--outline-hover-color);
+  color: var(--treeitem-hover-color);
 }
 
 @media (prefers-color-scheme: dark) {
 
   .treeItemToggler:hover {
   color: rgba(255, 255, 255, 0.9);
-  color: var(--outline-hover-color);
+  color: var(--treeitem-hover-color);
   }
 }
 
@@ -3458,14 +3474,14 @@ html[dir="rtl"] .treeItemToggler::before {
   background-clip: padding-box;
   border-radius: 2px;
   color: rgba(0, 0, 0, 0.9);
-  color: var(--outline-hover-color);
+  color: var(--treeitem-hover-color);
 }
 
 @media (prefers-color-scheme: dark) {
 
   .treeItemToggler:hover + a {
   color: rgba(255, 255, 255, 0.9);
-  color: var(--outline-hover-color);
+  color: var(--treeitem-hover-color);
   }
 }
 
@@ -3483,14 +3499,14 @@ html[dir="rtl"] .treeItemToggler::before {
   background-clip: padding-box;
   border-radius: 2px;
   color: rgba(0, 0, 0, 0.9);
-  color: var(--outline-hover-color);
+  color: var(--treeitem-hover-color);
 }
 
 @media (prefers-color-scheme: dark) {
 
   .treeItemToggler:hover ~ .treeItems {
   color: rgba(255, 255, 255, 0.9);
-  color: var(--outline-hover-color);
+  color: var(--treeitem-hover-color);
   }
 }
 
@@ -3508,14 +3524,14 @@ html[dir="rtl"] .treeItemToggler::before {
   background-clip: padding-box;
   border-radius: 2px;
   color: rgba(0, 0, 0, 0.9);
-  color: var(--outline-hover-color);
+  color: var(--treeitem-hover-color);
 }
 
 @media (prefers-color-scheme: dark) {
 
   .treeItem > a:hover {
   color: rgba(255, 255, 255, 0.9);
-  color: var(--outline-hover-color);
+  color: var(--treeitem-hover-color);
   }
 }
 
@@ -3529,17 +3545,17 @@ html[dir="rtl"] .treeItemToggler::before {
 
 .treeItem.selected {
   background-color: rgba(0, 0, 0, 1);
-  background-color: var(--outline-active-bg-color);
+  background-color: var(--treeitem-active-bg-color);
   background-clip: padding-box;
   color: rgba(0, 0, 0, 0.08);
-  color: var(--outline-active-color);
+  color: var(--treeitem-active-color);
 }
 
 @media (prefers-color-scheme: dark) {
 
   .treeItem.selected {
   color: rgba(255, 255, 255, 0.08);
-  color: var(--outline-active-color);
+  color: var(--treeitem-active-color);
   }
 }
 
@@ -3547,7 +3563,7 @@ html[dir="rtl"] .treeItemToggler::before {
 
   .treeItem.selected {
   background-color: rgba(255, 255, 255, 1);
-  background-color: var(--outline-active-bg-color);
+  background-color: var(--treeitem-active-bg-color);
   }
 }
 
@@ -3594,9 +3610,6 @@ html[dir="rtl"] .treeItemToggler::before {
   background: none repeat scroll 0 0 rgba(199, 17, 17, 1);
   background: none repeat scroll 0 0 var(--errorWrapper-bg-color);
   }
-}
-.loadingInProgress #errorWrapper {
-  top: 37px;
 }
 
 #errorMessageLeft {
