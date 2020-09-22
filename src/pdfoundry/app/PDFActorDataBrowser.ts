@@ -94,6 +94,9 @@ export default class PDFActorDataBrowser extends Application {
                 return curr;
             };
 
+            if (data === null) return results;
+            if (data === undefined) return results;
+
             if (typeof data === 'object') {
                 for (const [key, value] of Object.entries(data)) {
                     if (Array.isArray(value)) {
