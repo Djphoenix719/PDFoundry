@@ -1,0 +1,112 @@
+{
+  "PDFOUNDRY": {
+    "CONTEXT": {
+      "OpenPDF": "Abrir PDF",
+      "PreloadPDF": "Precargar PDF"
+    },
+    "PDFSHEET": {
+      "TOOLTIP": {
+        "Name": "¿Cuál es el nombre largo legible de este PDF?",
+        "Code": "¿Cuál será el código abreviado (short code) que se usará para abrir este PDF?",
+        "URL": "¿Qué fichero PDF debe abrirse?",
+        "PageOffset": "Cuando le pide al sistema que abra una página, ¿de cuánto es la compensación de página para que se abra la página correcta?",
+        "EnableCaching": "¿Se debe almacenar el PDF en la caché del jugador tras abrirse? Ahorrará ancho de banda, pero requerirá que el usuario tenga suficiente espacio de almacenamiento.",
+        "PDFType": "Consulte el manual para ver una descripción de los tipos de PDF."
+      },
+      "LABEL": {
+        "Name": "Nombre del PDF",
+        "Code": "Código del PDF",
+        "URL": "URL del PDF",
+        "PageOffset": "Compensación de Página",
+        "EnableCaching": "Activar Caché",
+        "PDFType": "Tipo de PDF",
+        "TestSettings": "Cuando pulse este botón, su PDF debería abrirse por la página 5. Si no es así, cierre el PDF y ajuste la compensación de página hasta que la página coincida."
+      },
+      "PLACEHOLDER": {
+        "Name": "¡La Guía del Saqueo!",
+        "Code": "LGDS",
+        "URL": "Ruta relativa al directorio de datos.",
+        "PageOffset": "0, 3, -5, ..."
+      },
+      "BUTTON": {
+        "TestSettings": "Probar los Ajustes",
+        "Browse": "Explorar"
+      }
+    },
+    "VIEWER": {
+      "ViewPDF": "Ver PDF",
+
+      "ShowToPlayersText": "Mostrar a …",
+      "ShowToPlayersTitle": "Pulse MAYÚS para mostrar a TODOS los jugadores excepto a ti mismo.",
+
+      "SelectPlayers": "Seleccione Jugadores",
+      "SelectPlayersConfirm": "¡Proceder!",
+      "SelectSheet": "Seleccione PDF",
+      "SelectSheetConfirm": "¡Proceder!",
+      "InspectData": "Inspeccionar Datos",
+      "InspectDataHelp1": "Puede dejar esta ventana abierta y devolver la hoja a las hojas de sistema si así lo desea. La ventana se refrescará cada 10 segundos para reflejar los cambios que se hagan al actor, aunque también puede refrescar manualmente con el botón 'Refrescar' situado en la cabecera.",
+      "InspectDataHelp2": "Tenga cuidado cuando use las rutas de datos en un PDF. La codificación por colores se realiza por 'mejor suposición', y aunque por lo general funcionará correctamente, en algunos sistemas pueden ocurrir excepciones o provocar que el sistema sobrescriba, para determinadas rutas de datos, los cambios que realice en una hoja.",
+      "InspectDataHelp3": "Aunque por comodidad se proporciona el botón de copiar sintaxis de /roll (tiradas), es posible que el sistema omita o cambie datos a propósito al realizar una tirada. Por lo tanto, si una sintaxis de /roll no produce el resultado esperado, no se trata de un error."
+    },
+    "MANUAL": {
+      "Name": "Manual de Usuario de PDFoundry"
+    },
+    "ERROR": {
+      "NoPDFWithCode": "No se ha podido encontrar un PDF con el código especificado.",
+      "NoPDFWithName": "No se ha podido encontrar un PDF con el nombre especificado.",
+      "PageMustBePositive": "La página debe ser mayor o igual a 1.",
+      "FileNotFound": "Error al abrir el PDF: No se ha encontrado el archivo en este servidor."
+    },
+    "ENRICH": {
+      "InvalidFormat": "Formato inválido de etiqueta @PDF.",
+      "EmptyLinkText": "Las etiquetas @PDF necesitan texto de enlace.",
+      "LinkTitleOpen": "Abrir",
+      "LinkTitlePage": "p."
+    },
+    "SETTINGS": {
+      "WindowTitle": "Ajustes de PDFoundry",
+      "SettingsMenuButtonLabel": "Configurar PDFoundry",
+      "OpenHelp": "Abrir Manual de PDFoundry",
+      "CacheSizeName": "Tamaño de Caché PDF",
+      "CacheSizeHint": "¿Cuantos MB de espacio en el disco duro permite que utilice la caché PDF? Debe estar entre 64 y 1024, ambos inclusive.",
+      "ViewerThemeName": "Tema del Visor",
+      "ViewerThemeHint": "¿Qué tema debe usar el visor? Los cambios solo tendrán efecto en los visores que abra posteriormente.",
+      "ShowInExistingViewerName": "Mostrar los PDFs compartidos en el Visor Existente",
+      "ShowInExistingViewerHint": "Cuando se habilita, si ya tienes un PDF abierto y otro jugador te muestra un PDF, se cambiará la página en lugar de abrir una ventana nueva."
+    },
+    "COMMON": {
+      "PageNumber": "Número de Página"
+    },
+    "MISC": {
+      "PDFTYPE": {
+        "Static": "Estático",
+        "Fillable": "Formulario Rellenable (No Vinculado)",
+        "Actor": "Formulario Rellenable (Hoja del Actor)"
+      },
+
+      "DANGER": {
+        "Safe": "Probablemente sea seguro usar esta ruta.",
+        "Low": "Es probable que esta ruta no sea peligrosa, pero debería usarla con precaución.",
+        "High": "Si se usa esta ruta, es muy posible que cause problemas.",
+        "Critical": "¡En ningún caso debería utilizar esta ruta!"
+      },
+
+      "CreatePDF": "Crear PDF",
+      "NewPDF": "Nuevo PDF",
+
+      "Confirm": "Confirmar",
+      "Refresh": "Refrescar",
+      "CopiedToClipboard": "¡Copiado!",
+      "CopyDataPath": "Copiar ruta de datos al portapapeles.",
+      "CopyRollPath": "Copiar ruta de sintaxis /roll al portapapeles."
+    },
+    "COMMANDS": {
+      "Success": "PDFoundry: $COMMAND_NAME$ completado con éxito.",
+      "Failure": "PDFoundry: $COMMAND_NAME$ ha producido un error. Consulte la consola para ver más detalles.",
+
+      "PurgeCacheSuccess": "Se ha vaciado la caché PDF.",
+      "FixMissingTypesSuccess": "Se han arreglado PDFs a los que les faltaban definiciones de tipo.",
+      "FixMissingTypesFailure": "No se ha encontrado ningún PDF al que le falte definiciones de tipo."
+    }
+  }
+}
