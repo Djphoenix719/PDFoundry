@@ -113,6 +113,8 @@
 "use strict";
 
 
+const pdfjsVersion = '2.7.153';
+const pdfjsBuild = '4346ae552';
 ;
 let pdfjsWebApp, pdfjsWebAppOptions;
 {
@@ -742,10 +744,6 @@ const PDFViewerApplication = {
     this.pdfViewer.currentPageNumber = val;
   },
 
-  get printing() {
-    return !!this.printService;
-  },
-
   get supportsPrinting() {
     return PDFPrintServiceFactory.instance.supportsPrinting;
   },
@@ -927,7 +925,7 @@ const PDFViewerApplication = {
         return undefined;
       }
 
-      const message = exception && exception.message;
+      const message = exception == null ? void 0 : exception.message;
       let loadingErrorMessage;
 
       if (exception instanceof _pdfjsLib.InvalidPDFException) {
@@ -1347,13 +1345,9 @@ const PDFViewerApplication = {
       }
     }
 
-    if (!this.supportsPrinting) {
-      return;
-    }
-
     if (triggerAutoPrint) {
-      setTimeout(function () {
-        window.print();
+      setTimeout(() => {
+        this.triggerPrinting();
       });
     }
   },
@@ -1582,7 +1576,7 @@ const PDFViewerApplication = {
   },
 
   forceRendering() {
-    this.pdfRenderingQueue.printing = this.printing;
+    this.pdfRenderingQueue.printing = !!this.printService;
     this.pdfRenderingQueue.isThumbnailViewEnabled = this.pdfSidebar.isThumbnailViewVisible;
     this.pdfRenderingQueue.renderHighestPriority();
   },
@@ -1649,6 +1643,14 @@ const PDFViewerApplication = {
     }
 
     this.pdfPresentationMode.request();
+  },
+
+  triggerPrinting() {
+    if (!this.supportsPrinting) {
+      return;
+    }
+
+    window.print();
   },
 
   bindEvents() {
@@ -1734,6 +1736,14 @@ const PDFViewerApplication = {
     eventBus._on("updatefindmatchescount", webViewerUpdateFindMatchesCount);
 
     eventBus._on("updatefindcontrolstate", webViewerUpdateFindControlState);
+
+    if (_app_options.AppOptions.get("pdfBug")) {
+      _boundEvents.reportPageStatsPDFBug = reportPageStatsPDFBug;
+
+      eventBus._on("pagerendered", _boundEvents.reportPageStatsPDFBug);
+
+      eventBus._on("pagechanging", _boundEvents.reportPageStatsPDFBug);
+    }
 
     eventBus._on("fileinputchange", webViewerFileInputChange);
 
@@ -1869,6 +1879,14 @@ const PDFViewerApplication = {
 
     eventBus._off("updatefindcontrolstate", webViewerUpdateFindControlState);
 
+    if (_boundEvents.reportPageStatsPDFBug) {
+      eventBus._off("pagerendered", _boundEvents.reportPageStatsPDFBug);
+
+      eventBus._off("pagechanging", _boundEvents.reportPageStatsPDFBug);
+
+      _boundEvents.reportPageStatsPDFBug = null;
+    }
+
     eventBus._off("fileinputchange", webViewerFileInputChange);
 
     eventBus._off("openfile", webViewerOpenFile);
@@ -1966,6 +1984,23 @@ function loadAndEnablePDFBug(enabledTabs) {
       OPS: _pdfjsLib.OPS
     }, appConfig.mainContainer);
   });
+}
+
+function reportPageStatsPDFBug({
+  pageNumber
+}) {
+  if (typeof Stats === "undefined" || !Stats.enabled) {
+    return;
+  }
+
+  const pageView = PDFViewerApplication.pdfViewer.getPageView(pageNumber - 1);
+  const pageStats = pageView && pageView.pdfPage && pageView.pdfPage.stats;
+
+  if (!pageStats) {
+    return;
+  }
+
+  Stats.add(pageNumber, pageStats);
 }
 
 function webViewerInitialized() {
@@ -2093,37 +2128,33 @@ function webViewerResetPermissions() {
   appConfig.viewerContainer.classList.remove(ENABLE_PERMISSIONS_CLASS);
 }
 
-function webViewerPageRendered(evt) {
-  const pageNumber = evt.pageNumber;
-  const pageIndex = pageNumber - 1;
-  const pageView = PDFViewerApplication.pdfViewer.getPageView(pageIndex);
-
+function webViewerPageRendered({
+  pageNumber,
+  timestamp,
+  error
+}) {
   if (pageNumber === PDFViewerApplication.page) {
     PDFViewerApplication.toolbar.updateLoadingIndicatorState(false);
   }
 
-  if (!pageView) {
-    return;
-  }
-
   if (PDFViewerApplication.pdfSidebar.isThumbnailViewVisible) {
-    const thumbnailView = PDFViewerApplication.pdfThumbnailViewer.getThumbnail(pageIndex);
-    thumbnailView.setImage(pageView);
+    const pageView = PDFViewerApplication.pdfViewer.getPageView(pageNumber - 1);
+    const thumbnailView = PDFViewerApplication.pdfThumbnailViewer.getThumbnail(pageNumber - 1);
+
+    if (pageView && thumbnailView) {
+      thumbnailView.setImage(pageView);
+    }
   }
 
-  if (typeof Stats !== "undefined" && Stats.enabled && pageView.stats) {
-    Stats.add(pageNumber, pageView.stats);
-  }
-
-  if (pageView.error) {
+  if (error) {
     PDFViewerApplication.l10n.get("rendering_error", null, "An error occurred while rendering the page.").then(msg => {
-      PDFViewerApplication.error(msg, pageView.error);
+      PDFViewerApplication.error(msg, error);
     });
   }
 
   PDFViewerApplication.externalServices.reportTelemetry({
     type: "pageInfo",
-    timestamp: evt.timestamp
+    timestamp
   });
   PDFViewerApplication.pdfDocument.getStats().then(function (stats) {
     PDFViewerApplication.externalServices.reportTelemetry({
@@ -2182,10 +2213,7 @@ function webViewerNamedAction(evt) {
       break;
 
     case "Print":
-      if (PDFViewerApplication.supportsPrinting) {
-        webViewerPrint();
-      }
-
+      PDFViewerApplication.triggerPrinting();
       break;
 
     case "SaveAs":
@@ -2236,7 +2264,7 @@ function webViewerUpdateViewarea(evt) {
   PDFViewerApplication.appConfig.toolbar.viewBookmark.href = href;
   PDFViewerApplication.appConfig.secondaryToolbar.viewBookmarkButton.href = href;
   const currentPage = PDFViewerApplication.pdfViewer.getPageView(PDFViewerApplication.page - 1);
-  const loading = currentPage.renderingState !== _pdf_rendering_queue.RenderingStates.FINISHED;
+  const loading = (currentPage && currentPage.renderingState) !== _pdf_rendering_queue.RenderingStates.FINISHED;
   PDFViewerApplication.toolbar.updateLoadingIndicatorState(loading);
 }
 
@@ -2339,7 +2367,7 @@ function webViewerPresentationMode() {
 }
 
 function webViewerPrint() {
-  window.print();
+  PDFViewerApplication.triggerPrinting();
 }
 
 function webViewerDownloadOrSave(sourceEventType) {
@@ -2495,21 +2523,15 @@ function webViewerRotationChanging(evt) {
   PDFViewerApplication.pdfViewer.currentPageNumber = evt.pageNumber;
 }
 
-function webViewerPageChanging(evt) {
-  const page = evt.pageNumber;
-  PDFViewerApplication.toolbar.setPageNumber(page, evt.pageLabel || null);
-  PDFViewerApplication.secondaryToolbar.setPageNumber(page);
+function webViewerPageChanging({
+  pageNumber,
+  pageLabel
+}) {
+  PDFViewerApplication.toolbar.setPageNumber(pageNumber, pageLabel);
+  PDFViewerApplication.secondaryToolbar.setPageNumber(pageNumber);
 
   if (PDFViewerApplication.pdfSidebar.isThumbnailViewVisible) {
-    PDFViewerApplication.pdfThumbnailViewer.scrollThumbnailIntoView(page);
-  }
-
-  if (typeof Stats !== "undefined" && Stats.enabled) {
-    const pageView = PDFViewerApplication.pdfViewer.getPageView(page - 1);
-
-    if (pageView && pageView.stats) {
-      Stats.add(page, pageView.stats);
-    }
+    PDFViewerApplication.pdfThumbnailViewer.scrollThumbnailIntoView(pageNumber);
   }
 }
 
@@ -2628,7 +2650,7 @@ function webViewerKeyDown(evt) {
   if (cmd === 1 || cmd === 8 || cmd === 5 || cmd === 12) {
     switch (evt.keyCode) {
       case 70:
-        if (!PDFViewerApplication.supportsIntegratedFind) {
+        if (!PDFViewerApplication.supportsIntegratedFind && !evt.shiftKey) {
           PDFViewerApplication.findBar.open();
           handled = true;
         }
@@ -2738,7 +2760,7 @@ function webViewerKeyDown(evt) {
     return;
   }
 
-  const curElement = document.activeElement || document.querySelector(":focus");
+  const curElement = (0, _ui_utils.getActiveOrFocusedElement)();
   const curElementTagName = curElement && curElement.tagName.toUpperCase();
 
   if (curElementTagName === "INPUT" || curElementTagName === "TEXTAREA" || curElementTagName === "SELECT" || curElement && curElement.isContentEditable) {
@@ -2993,6 +3015,7 @@ exports.normalizeWheelEventDirection = normalizeWheelEventDirection;
 exports.normalizeWheelEventDelta = normalizeWheelEventDelta;
 exports.waitOnEventOrTimeout = waitOnEventOrTimeout;
 exports.moveToEndOfArray = moveToEndOfArray;
+exports.getActiveOrFocusedElement = getActiveOrFocusedElement;
 exports.WaitOnType = exports.animationStarted = exports.ProgressBar = exports.EventBus = exports.NullL10n = exports.SpreadMode = exports.ScrollMode = exports.TextLayerMode = exports.RendererType = exports.PresentationModeState = exports.VERTICAL_PADDING = exports.SCROLLBAR_PADDING = exports.MAX_AUTO_SCALE = exports.UNKNOWN_SCALE = exports.MAX_SCALE = exports.MIN_SCALE = exports.DEFAULT_SCALE = exports.DEFAULT_SCALE_VALUE = exports.CSS_UNITS = exports.AutoPrintRegExp = void 0;
 const CSS_UNITS = 96.0 / 72.0;
 exports.CSS_UNITS = CSS_UNITS;
@@ -3703,6 +3726,18 @@ function moveToEndOfArray(arr, condition) {
   }
 }
 
+function getActiveOrFocusedElement() {
+  let curRoot = document;
+  let curActiveOrFocused = curRoot.activeElement || curRoot.querySelector(":focus");
+
+  while (curActiveOrFocused && curActiveOrFocused.shadowRoot) {
+    curRoot = curActiveOrFocused.shadowRoot;
+    curActiveOrFocused = curRoot.activeElement || curRoot.querySelector(":focus");
+  }
+
+  return curActiveOrFocused;
+}
+
 /***/ }),
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -4307,6 +4342,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.PDFRenderingQueue = exports.RenderingStates = void 0;
+
+var _pdfjsLib = __webpack_require__(5);
+
 const CLEANUP_TIMEOUT = 30000;
 const RenderingStates = {
   INITIAL: 0,
@@ -4420,6 +4458,10 @@ class PDFRenderingQueue {
         view.draw().finally(() => {
           this.renderHighestPriority();
         }).catch(reason => {
+          if (reason instanceof _pdfjsLib.RenderingCancelledException) {
+            return;
+          }
+
           console.error(`renderView: "${reason}"`);
         });
         break;
@@ -8808,9 +8850,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.PDFThumbnailView = void 0;
 
-var _pdfjsLib = __webpack_require__(5);
-
 var _ui_utils = __webpack_require__(2);
+
+var _pdfjsLib = __webpack_require__(5);
 
 var _pdf_rendering_queue = __webpack_require__(8);
 
@@ -9064,15 +9106,13 @@ class PDFThumbnailView {
     }
 
     this.renderingState = _pdf_rendering_queue.RenderingStates.RUNNING;
-    const renderCapability = (0, _pdfjsLib.createPromiseCapability)();
 
-    const finishRenderTask = error => {
+    const finishRenderTask = async (error = null) => {
       if (renderTask === this.renderTask) {
         this.renderTask = null;
       }
 
       if (error instanceof _pdfjsLib.RenderingCancelledException) {
-        renderCapability.resolve(undefined);
         return;
       }
 
@@ -9080,10 +9120,8 @@ class PDFThumbnailView {
 
       this._convertCanvasToImage();
 
-      if (!error) {
-        renderCapability.resolve(undefined);
-      } else {
-        renderCapability.reject(error);
+      if (error) {
+        throw error;
       }
     };
 
@@ -9115,12 +9153,12 @@ class PDFThumbnailView {
     };
     const renderTask = this.renderTask = pdfPage.render(renderContext);
     renderTask.onContinue = renderContinueCallback;
-    renderTask.promise.then(function () {
+    const resultPromise = renderTask.promise.then(function () {
       finishRenderTask(null);
     }, function (error) {
       finishRenderTask(error);
     });
-    return renderCapability.promise;
+    return resultPromise;
   }
 
   setImage(pageView) {
@@ -10659,7 +10697,7 @@ class PDFPageView {
     this.paintedViewportMap = new WeakMap();
     this.renderingState = _pdf_rendering_queue.RenderingStates.INITIAL;
     this.resume = null;
-    this.error = null;
+    this._renderError = null;
     this.annotationLayer = null;
     this.textLayer = null;
     this.zoomLayer = null;
@@ -10680,7 +10718,6 @@ class PDFPageView {
       scale: this.scale * _ui_utils.CSS_UNITS,
       rotation: totalRotation
     });
-    this.stats = pdfPage.stats;
     this.reset();
   }
 
@@ -10798,7 +10835,8 @@ class PDFPageView {
         source: this,
         pageNumber: this.id,
         cssTransform: true,
-        timestamp: performance.now()
+        timestamp: performance.now(),
+        error: this._renderError
       });
       return;
     }
@@ -10820,7 +10858,8 @@ class PDFPageView {
           source: this,
           pageNumber: this.id,
           cssTransform: true,
-          timestamp: performance.now()
+          timestamp: performance.now(),
+          error: this._renderError
         });
         return;
       }
@@ -10873,8 +10912,7 @@ class PDFPageView {
       scaleY = width / height;
     }
 
-    const cssTransform = "rotate(" + relativeRotation + "deg) " + "scale(" + scaleX + "," + scaleY + ")";
-    target.style.transform = cssTransform;
+    target.style.transform = `rotate(${relativeRotation}deg) scale(${scaleX}, ${scaleY})`;
 
     if (this.textLayer) {
       const textLayerViewport = this.textLayer.viewport;
@@ -10914,7 +10952,7 @@ class PDFPageView {
           break;
       }
 
-      textLayerDiv.style.transform = "rotate(" + textAbsRotation + "deg) " + "scale(" + scale + ", " + scale + ") " + "translate(" + transX + ", " + transY + ")";
+      textLayerDiv.style.transform = `rotate(${textAbsRotation}deg) ` + `scale(${scale}) ` + `translate(${transX}, ${transY})`;
       textLayerDiv.style.transformOrigin = "0% 0%";
     }
 
@@ -11006,16 +11044,17 @@ class PDFPageView {
       };
     }
 
-    const finishPaintTask = async error => {
+    const finishPaintTask = async (error = null) => {
       if (paintTask === this.paintTask) {
         this.paintTask = null;
       }
 
       if (error instanceof _pdfjsLib.RenderingCancelledException) {
-        this.error = null;
+        this._renderError = null;
         return;
       }
 
+      this._renderError = error;
       this.renderingState = _pdf_rendering_queue.RenderingStates.FINISHED;
 
       if (this.loadingIconDiv) {
@@ -11025,13 +11064,12 @@ class PDFPageView {
 
       this._resetZoomLayer(true);
 
-      this.error = error;
-      this.stats = pdfPage.stats;
       this.eventBus.dispatch("pagerendered", {
         source: this,
         pageNumber: this.id,
         cssTransform: false,
-        timestamp: performance.now()
+        timestamp: performance.now(),
+        error: this._renderError
       });
 
       if (error) {

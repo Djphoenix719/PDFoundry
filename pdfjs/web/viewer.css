@@ -1699,9 +1699,6 @@ html[dir="rtl"] #findInput {
 #findInput:-ms-input-placeholder {
   font-style: normal;
 }
-#findInput::-ms-input-placeholder {
-  font-style: normal;
-}
 #findInput::placeholder {
   font-style: normal;
 }

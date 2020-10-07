@@ -135,8 +135,8 @@ Object.defineProperty(exports, "WorkerMessageHandler", {
 
 var _worker = __w_pdfjs_require__(1);
 
-const pdfjsVersion = '2.7.91';
-const pdfjsBuild = '2ca3ad303';
+const pdfjsVersion = '2.7.153';
+const pdfjsBuild = '4346ae552';
 
 /***/ }),
 /* 1 */
@@ -231,7 +231,7 @@ class WorkerMessageHandler {
     var WorkerTasks = [];
     const verbosity = (0, _util.getVerbosityLevel)();
     const apiVersion = docParams.apiVersion;
-    const workerVersion = '2.7.91';
+    const workerVersion = '2.7.153';
 
     if (apiVersion !== workerVersion) {
       throw new Error(`The API version "${apiVersion}" does not match ` + `the Worker version "${workerVersion}".`);
@@ -20298,6 +20298,7 @@ class ButtonWidgetAnnotation extends WidgetAnnotation {
     this.data.checkBox = !this.hasFieldFlag(_util.AnnotationFieldFlag.RADIO) && !this.hasFieldFlag(_util.AnnotationFieldFlag.PUSHBUTTON);
     this.data.radioButton = this.hasFieldFlag(_util.AnnotationFieldFlag.RADIO) && !this.hasFieldFlag(_util.AnnotationFieldFlag.PUSHBUTTON);
     this.data.pushButton = this.hasFieldFlag(_util.AnnotationFieldFlag.PUSHBUTTON);
+    this.data.isTooltipOnly = false;
 
     if (this.data.checkBox) {
       this._processCheckBox(params);
@@ -20488,6 +20489,12 @@ class ButtonWidgetAnnotation extends WidgetAnnotation {
     this.data.exportValue = exportValues[0] === "Off" ? exportValues[1] : exportValues[0];
     this.checkedAppearance = normalAppearance.get(this.data.exportValue);
     this.uncheckedAppearance = normalAppearance.get("Off") || null;
+
+    this._streams.push(this.checkedAppearance);
+
+    if (this.uncheckedAppearance) {
+      this._streams.push(this.uncheckedAppearance);
+    }
   }
 
   _processRadioButton(params) {
@@ -20524,13 +20531,21 @@ class ButtonWidgetAnnotation extends WidgetAnnotation {
 
     this.checkedAppearance = normalAppearance.get(this.data.buttonValue);
     this.uncheckedAppearance = normalAppearance.get("Off") || null;
+
+    this._streams.push(this.checkedAppearance);
+
+    if (this.uncheckedAppearance) {
+      this._streams.push(this.uncheckedAppearance);
+    }
   }
 
   _processPushButton(params) {
-    if (!params.dict.has("A")) {
+    if (!params.dict.has("A") && !this.data.alternativeText) {
       (0, _util.warn)("Push buttons without action dictionaries are not supported");
       return;
     }
+
+    this.data.isTooltipOnly = !params.dict.has("A");
 
     _obj.Catalog.parseDestDictionary({
       destDict: params.dict,
@@ -20707,8 +20722,12 @@ class PolylineAnnotation extends MarkupAnnotation {
   constructor(parameters) {
     super(parameters);
     this.data.annotationType = _util.AnnotationType.POLYLINE;
-    const rawVertices = parameters.dict.getArray("Vertices");
     this.data.vertices = [];
+    const rawVertices = parameters.dict.getArray("Vertices");
+
+    if (!Array.isArray(rawVertices)) {
+      return;
+    }
 
     for (let i = 0, ii = rawVertices.length; i < ii; i += 2) {
       this.data.vertices.push({
@@ -20740,17 +20759,22 @@ class InkAnnotation extends MarkupAnnotation {
   constructor(parameters) {
     super(parameters);
     this.data.annotationType = _util.AnnotationType.INK;
-    const xref = parameters.xref;
-    const originalInkLists = parameters.dict.getArray("InkList");
     this.data.inkLists = [];
+    const rawInkLists = parameters.dict.getArray("InkList");
 
-    for (let i = 0, ii = originalInkLists.length; i < ii; ++i) {
+    if (!Array.isArray(rawInkLists)) {
+      return;
+    }
+
+    const xref = parameters.xref;
+
+    for (let i = 0, ii = rawInkLists.length; i < ii; ++i) {
       this.data.inkLists.push([]);
 
-      for (let j = 0, jj = originalInkLists[i].length; j < jj; j += 2) {
+      for (let j = 0, jj = rawInkLists[i].length; j < jj; j += 2) {
         this.data.inkLists[i].push({
-          x: xref.fetchIfRef(originalInkLists[i][j]),
-          y: xref.fetchIfRef(originalInkLists[i][j + 1])
+          x: xref.fetchIfRef(rawInkLists[i][j]),
+          y: xref.fetchIfRef(rawInkLists[i][j + 1])
         });
       }
     }
@@ -27623,7 +27647,7 @@ var Font = function FontClosure() {
         (0, _util.warn)('Font file is empty in "' + name + '" (' + this.loadedName + ")");
       }
 
-      this.fallbackToSystemFont();
+      this.fallbackToSystemFont(properties);
       return;
     }
 
@@ -27666,7 +27690,7 @@ var Font = function FontClosure() {
       }
     } catch (e) {
       (0, _util.warn)(e);
-      this.fallbackToSystemFont();
+      this.fallbackToSystemFont(properties);
       return;
     }
 
@@ -28177,7 +28201,7 @@ var Font = function FontClosure() {
       return data;
     },
 
-    fallbackToSystemFont: function Font_fallbackToSystemFont() {
+    fallbackToSystemFont(properties) {
       this.missingFile = true;
       var name = this.name;
       var type = this.type;
@@ -28193,7 +28217,8 @@ var Font = function FontClosure() {
       this.remeasure = Object.keys(this.widths).length > 0;
 
       if (isStandardFont && type === "CIDFontType2" && this.cidEncoding.startsWith("Identity-")) {
-        const GlyphMapForStandardFonts = (0, _standard_fonts.getGlyphMapForStandardFonts)();
+        const GlyphMapForStandardFonts = (0, _standard_fonts.getGlyphMapForStandardFonts)(),
+              cidToGidMap = properties.cidToGidMap;
         const map = [];
 
         for (const charCode in GlyphMapForStandardFonts) {
@@ -28211,6 +28236,16 @@ var Font = function FontClosure() {
 
           for (const charCode in SupplementalGlyphMapForCalibri) {
             map[+charCode] = SupplementalGlyphMapForCalibri[charCode];
+          }
+        }
+
+        if (cidToGidMap) {
+          for (const charCode in map) {
+            const cid = map[charCode];
+
+            if (cidToGidMap[cid] !== undefined) {
+              map[+charCode] = cidToGidMap[cid];
+            }
           }
         }
 
@@ -28266,6 +28301,7 @@ var Font = function FontClosure() {
       this.loadedName = fontName.split("-")[0];
       this.fontType = getFontType(type, subtype);
     },
+
     checkAndRepair: function Font_checkAndRepair(name, font, properties) {
       const VALID_TABLES = ["OS/2", "cmap", "head", "hhea", "hmtx", "maxp", "name", "post", "loca", "glyf", "fpgm", "prep", "cvt ", "CFF "];
 
@@ -31783,6 +31819,12 @@ class CFFCompiler {
           subDict.setByName("FontMatrix", matrix);
         }
       }
+    }
+
+    const xuid = cff.topDict.getByName("XUID");
+
+    if (xuid && xuid.length > 16) {
+      cff.topDict.removeByName("XUID");
     }
 
     cff.topDict.setByName("charset", 0);
