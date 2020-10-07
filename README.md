@@ -4,6 +4,7 @@
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Djphoenix719/PDFoundry/Release%20Module)
 [![GitHub issues](https://img.shields.io/github/issues/Djphoenix719/PDFoundry)](https://github.com/Djphoenix719/PDFoundry/issues)
 [![GitHub license](https://img.shields.io/github/license/Djphoenix719/PDFoundry)](https://github.com/Djphoenix719/PDFoundry/blob/master/LICENSE)
+[![GitHub pull requests](https://img.shields.io/badge/pull%20requests-welcome-green)](https://github.com/Djphoenix719/PDFoundry/compare)
 
 ![GitHub All Releases](https://img.shields.io/github/downloads/Djphoenix719/PDFoundry/total)
 ![GitHub Releases](https://img.shields.io/github/downloads/Djphoenix719/PDFoundry/latest/total)
