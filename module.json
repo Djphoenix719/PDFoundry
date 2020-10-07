@@ -20,7 +20,7 @@
     "esmodules": ["./bundle.js"],
     "styles": ["./bundle.css"],
     "socket": true,
-    "compatibleCoreVersion": "0.6.6",
+    "compatibleCoreVersion": "0.7.3",
     "minimumCoreVersion": "0.6.0",
     "manifest": "https://raw.githubusercontent.com/Djphoenix719/PDFoundry/master/module.json",
     "download": "https://github.com/Djphoenix719/PDFoundry/releases/download/v0.7.5/pdfoundry-v0.7.5.zip",
