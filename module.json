@@ -11,7 +11,7 @@
             "name": "English",
             "path": "locale/en/config.json"
         },
-		{
+        {
             "lang": "es",
             "name": "Spanish",
             "path": "locale/es/config.json"

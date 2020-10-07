@@ -12,6 +12,9 @@ PDFoundry (pronounced *Pee-Dee-Foundry*/*pi di ˈfaʊndri*) is a *fully featured
 
 [Please consider supporting me on Ko-Fi](https://ko-fi.com/djsmods)
 
+#### Thanks to
+Spanish localization: [José E. Lozano (lozalojo)](https://github.com/lozalojo)
+
 ## Community Resources
 [Tutorials and resources created by users of PDFoundry can be found here](https://github.com/Djphoenix719/PDFoundry/wiki/Community-Resources)
 
