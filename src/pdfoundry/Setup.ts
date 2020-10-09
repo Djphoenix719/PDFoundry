@@ -228,7 +228,8 @@ export default class Setup {
         const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
         button.on('click', Api.showHelp);
 
-        if (game.data.version === '0.6.6') {
+        // TODO: Remove <0.6.6 method once stable hits
+        if (['0.6.6', '0.7.3', '0.7.4'].includes(game.data.version)) {
             html.find('#settings-documentation').append(button);
         } else {
             html.find('h2').last().before(button);

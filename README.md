@@ -4,6 +4,7 @@
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Djphoenix719/PDFoundry/Release%20Module)
 [![GitHub issues](https://img.shields.io/github/issues/Djphoenix719/PDFoundry)](https://github.com/Djphoenix719/PDFoundry/issues)
 [![GitHub license](https://img.shields.io/github/license/Djphoenix719/PDFoundry)](https://github.com/Djphoenix719/PDFoundry/blob/master/LICENSE)
+[![GitHub pull requests](https://img.shields.io/badge/pull%20requests-welcome-green)](https://github.com/Djphoenix719/PDFoundry/compare)
 
 ![GitHub All Releases](https://img.shields.io/github/downloads/Djphoenix719/PDFoundry/total)
 ![GitHub Releases](https://img.shields.io/github/downloads/Djphoenix719/PDFoundry/latest/total)
@@ -11,6 +12,9 @@
 PDFoundry (pronounced *Pee-Dee-Foundry*/*pi di ˈfaʊndri*) is a *fully featured* PDF viewer for FoundryVTT!  PDFoundry supports a full suite of features for viewing PDFs right in Foundry VTT. Fillable forms, bookmarks, page links in journals and LOTS more. You can even use a form fillable PDF character sheet for an actor!
 
 [Please consider supporting me on Ko-Fi](https://ko-fi.com/djsmods)
+
+#### Thanks to
+Spanish localization: [José E. Lozano (lozalojo)](https://github.com/lozalojo)
 
 ## Community Resources
 [Tutorials and resources created by users of PDFoundry can be found here](https://github.com/Djphoenix719/PDFoundry/wiki/Community-Resources)
