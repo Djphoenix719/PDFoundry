@@ -358,18 +358,20 @@ export default class Setup {
         const journal = note.entry as JournalEntry;
         const pdf = getPDFData(journal);
         if (isEntityPDF(journal) && pdf) {
-            let pageText = note.data.flags?.[Settings.MODULE_NAME]?.[Settings.FLAGS_KEY.PAGE_NUMBER] as string | undefined;
-            let pageNumber = 0;
+            note.mouseInteractionManager.callbacks['clickLeft2'] = () => {
+                let pageText: string | number | undefined = note.data.flags?.[Settings.MODULE_NAME]?.[Settings.FLAGS_KEY.PAGE_NUMBER];
+                let pageNumber = 0;
 
-            if (typeof pageText === 'string') {
-                try {
-                    pageNumber = parseInt(pageText);
-                } catch (e) {
-                    pageNumber = 0;
+                if (typeof pageText === 'string') {
+                    try {
+                        pageNumber = parseInt(pageText);
+                    } catch (e) {
+                        pageNumber = 0;
+                    }
+                } else if (typeof pageText === 'number') {
+                    pageNumber = pageText;
                 }
-            }
 
-            note.mouseInteractionManager.callbacks['clickLeft2'] = (event) => {
                 if (pageNumber === 0) {
                     Api.openPDF(pdf);
                 } else {
