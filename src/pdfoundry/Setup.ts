@@ -64,6 +64,9 @@ export default class Setup {
         // Register the PDFoundry APi on the UI
         ui['PDFoundry'] = Api;
 
+        // Register the PDF sheet with the class picker
+        Setup.setupSheets();
+
         // Setup tasks requiring that FVTT is loaded
         Hooks.once('ready', Setup.lateRun);
 
@@ -86,8 +89,6 @@ export default class Setup {
      * Late setup tasks happen when the system is loaded
      */
     public static lateRun() {
-        // Register the PDF sheet with the class picker
-        Setup.setupSheets();
         // Register socket event handlers
         Socket.initialize();
 
@@ -128,7 +129,7 @@ export default class Setup {
      */
     public static setupSheets() {
         // Register actor "sheet"
-        Actors.registerSheet(Settings.MODULE_NAME, PDFActorSheetAdapter, { makeDefault: false });
+        Actors.registerSheet(Settings.MODULE_NAME, PDFActorSheetAdapter);
     }
 
     /**
