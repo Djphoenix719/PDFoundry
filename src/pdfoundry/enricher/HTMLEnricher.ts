@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { PDFConfig } from '../app/PDFConfig';
 import Api from '../Api';
 
 /**
@@ -21,30 +20,29 @@ import Api from '../Api';
  * Enriches TinyMCE editor content
  */
 export default class HTMLEnricher {
-    public static HandleEnrich(app: Application, html: JQuery, data: any) {
-        if (app instanceof PDFConfig) return;
+    public static patchEnrich() {
+        const handler = {
+            get: function (target, prop, receiver) {
+                if (prop === 'enrichHTML') {
+                    return function () {
+                        let [html, options] = arguments;
 
-        HTMLEnricher.EnrichHTML(html);
-        HTMLEnricher.BindClicks(html);
-    }
+                        while (html.includes('@PDF')) {
+                            html = new HTMLEnricher(html).enrich();
+                        }
 
-    private static EnrichHTML(html: JQuery) {
-        // Enrich HTML
-        for (const element of html.find('div.editor-content > *, p')) {
-            try {
-                // We replace one at a time until done
-                while (element.innerText.includes('@PDF')) {
-                    element.innerHTML = new HTMLEnricher($(element), element.innerHTML).enrich();
+                        return target[prop].apply(this, [html, options]);
+                    };
                 }
-            } catch (error) {
-                // Errors get propagated from instance for proper error modeling
-                ui.notifications.error(error.message);
-                console.error(error);
-            }
-        }
+                return target[prop];
+            },
+        };
+
+        // @ts-ignore
+        TextEditor = new Proxy(TextEditor, handler);
     }
 
-    private static BindClicks(html: JQuery) {
+    public static bindRichTextLinks(html: JQuery) {
         html.find('a.pdfoundry-link').on('click', (event) => {
             event.preventDefault();
 
@@ -76,10 +74,8 @@ export default class HTMLEnricher {
     private readonly _sPos: number;
     private readonly _ePos: number;
     private readonly _text: string;
-    private readonly _element: JQuery;
 
-    constructor(p: JQuery, text: string) {
-        this._element = p;
+    constructor(text: string) {
         this._text = text;
 
         this._sPos = this._text.indexOf('@');

@@ -81,6 +81,12 @@ export default class Setup {
 
         // Load base themes
         Setup.registerThemes();
+
+        // Patch the TextEnricher with a proxy
+        HTMLEnricher.patchEnrich();
+        // Bind click handlers to renderers
+        Hooks.on('renderApplication', (app: Application, html: JQuery) => HTMLEnricher.bindRichTextLinks(html));
+        Hooks.on('renderChatMessage', (app: Application, html: JQuery) => HTMLEnricher.bindRichTextLinks(html));
     }
 
     private static readonly COMMANDS = [new FixMissingTypes(), new PurgeCache()];
@@ -91,12 +97,6 @@ export default class Setup {
     public static lateRun() {
         // Register socket event handlers
         Socket.initialize();
-
-        // Bind always-run event handlers
-        // Enrich Journal & Item Sheet rich text links
-        Hooks.on('renderItemSheet', HTMLEnricher.HandleEnrich);
-        Hooks.on('renderJournalSheet', HTMLEnricher.HandleEnrich);
-        Hooks.on('renderActorSheet', HTMLEnricher.HandleEnrich);
 
         // Chat command processing
         Hooks.on('chatMessage', Setup.onChatMessage);
