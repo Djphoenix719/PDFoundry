@@ -21,25 +21,14 @@ import Api from '../Api';
  */
 export default class HTMLEnricher {
     public static patchEnrich() {
-        const handler = {
-            get: function (target, prop, receiver) {
-                if (prop === 'enrichHTML') {
-                    return function () {
-                        let [html, options] = arguments;
-
-                        while (html.includes('@PDF')) {
-                            html = new HTMLEnricher(html).enrich();
-                        }
-
-                        return target[prop].apply(this, [html, options]);
-                    };
-                }
-                return target[prop];
-            },
-        };
+        const oldEnrich = TextEditor.enrichHTML;
 
         // @ts-ignore
-        TextEditor = new Proxy(TextEditor, handler);
+        TextEditor.enrichHTML = function (html: string, options: any) {
+            html = String(html);
+            html = HTMLEnricher.enrichAll(html);
+            return oldEnrich.apply(this, [html, options]);
+        };
     }
 
     public static bindRichTextLinks(html: JQuery) {
@@ -71,19 +60,15 @@ export default class HTMLEnricher {
         });
     }
 
-    private readonly _sPos: number;
-    private readonly _ePos: number;
-    private readonly _text: string;
+    /**
+     * Replace the first @PDF link in the text with a rich link.
+     * @param text
+     */
+    public static enrich(text: string): string {
+        const sPos = text.indexOf('@');
+        const ePos = text.indexOf('}', sPos);
 
-    constructor(text: string) {
-        this._text = text;
-
-        this._sPos = this._text.indexOf('@');
-        this._ePos = this._text.indexOf('}', this._sPos + 1);
-    }
-
-    public enrich(): string {
-        const enrichMe = this._text.slice(this._sPos, this._ePos + 1);
+        const enrichMe = text.slice(sPos, ePos + 1);
 
         const lBracket = enrichMe.indexOf('[');
         const rBracket = enrichMe.indexOf(']');
@@ -139,10 +124,22 @@ export default class HTMLEnricher {
             const linkTitle = `${i18nOpen} ${nameOrCode} ${i18nPage} ${pageNumber}`;
             const result = `<a class="pdfoundry-link" title="${linkTitle}" data-ref="${nameOrCode}" data-page="${pageNumber}">${linkText}</a>`;
 
-            return this._text.slice(0, this._sPos) + result + this._text.slice(this._ePos + 1);
+            return text.slice(0, sPos) + result + text.slice(ePos + 1);
         } else {
             // Case 2 - User does not have permissions to see the PDF
-            return this._text.slice(0, this._sPos) + linkText + this._text.slice(this._ePos + 1);
+            return text.slice(0, sPos) + linkText + text.slice(ePos + 1);
         }
+    }
+
+    /**
+     * Replace all rich text markup with appropriate rich text HTML in the specified text.
+     * @param text
+     */
+    public static enrichAll(text: string): string {
+        while (text.includes('@PDF')) {
+            text = HTMLEnricher.enrich(text);
+        }
+
+        return text;
     }
 }
