@@ -50,6 +50,7 @@ export default class PDFActorSheetAdapter extends ActorSheet {
 
     protected activateListeners(html: JQuery | HTMLElement) {
         $(this.element).css('display', 'none');
+        this.form = $(html).first().get(0);
         super.activateListeners(html);
     }
 
