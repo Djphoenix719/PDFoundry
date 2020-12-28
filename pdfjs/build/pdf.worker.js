@@ -50,8 +50,8 @@ Object.defineProperty(exports, "WorkerMessageHandler", ({
 
 var _worker = __w_pdfjs_require__(1);
 
-const pdfjsVersion = '2.7.261';
-const pdfjsBuild = '303f2d9d0';
+const pdfjsVersion = '2.7.461';
+const pdfjsBuild = '2c9258e92';
 
 /***/ }),
 /* 1 */
@@ -145,7 +145,7 @@ class WorkerMessageHandler {
     var WorkerTasks = [];
     const verbosity = (0, _util.getVerbosityLevel)();
     const apiVersion = docParams.apiVersion;
-    const workerVersion = '2.7.261';
+    const workerVersion = '2.7.461';
 
     if (apiVersion !== workerVersion) {
       throw new Error(`The API version "${apiVersion}" does not match ` + `the Worker version "${workerVersion}".`);
@@ -444,6 +444,16 @@ class WorkerMessageHandler {
     handler.on("GetJavaScript", function wphSetupGetJavaScript(data) {
       return pdfManager.ensureCatalog("javaScript");
     });
+    handler.on("GetDocJSActions", function wphSetupGetDocJSActions(data) {
+      return pdfManager.ensureCatalog("jsActions");
+    });
+    handler.on("GetPageJSActions", function ({
+      pageIndex
+    }) {
+      return pdfManager.getPage(pageIndex).then(function (page) {
+        return page.jsActions;
+      });
+    });
     handler.on("GetOutline", function wphSetupGetOutline(data) {
       return pdfManager.ensureCatalog("documentOutline");
     });
@@ -729,7 +739,7 @@ exports.stringToUTF8String = stringToUTF8String;
 exports.utf8StringToString = utf8StringToString;
 exports.warn = warn;
 exports.unreachable = unreachable;
-exports.IsEvalSupportedCached = exports.IsLittleEndianCached = exports.createObjectURL = exports.FormatError = exports.Util = exports.UnknownErrorException = exports.UnexpectedResponseException = exports.TextRenderingMode = exports.StreamType = exports.PermissionFlag = exports.PasswordResponses = exports.PasswordException = exports.MissingPDFException = exports.InvalidPDFException = exports.AbortException = exports.CMapCompressionType = exports.ImageKind = exports.FontType = exports.AnnotationType = exports.AnnotationStateModelType = exports.AnnotationReviewState = exports.AnnotationReplyType = exports.AnnotationMarkedState = exports.AnnotationFlag = exports.AnnotationFieldFlag = exports.AnnotationBorderStyleType = exports.AnnotationActionEventType = exports.UNSUPPORTED_FEATURES = exports.VerbosityLevel = exports.OPS = exports.IDENTITY_MATRIX = exports.FONT_IDENTITY_MATRIX = exports.BaseException = void 0;
+exports.IsEvalSupportedCached = exports.IsLittleEndianCached = exports.createObjectURL = exports.FormatError = exports.Util = exports.UnknownErrorException = exports.UnexpectedResponseException = exports.TextRenderingMode = exports.StreamType = exports.PermissionFlag = exports.PasswordResponses = exports.PasswordException = exports.PageActionEventType = exports.MissingPDFException = exports.InvalidPDFException = exports.AbortException = exports.DocumentActionEventType = exports.CMapCompressionType = exports.ImageKind = exports.FontType = exports.AnnotationType = exports.AnnotationStateModelType = exports.AnnotationReviewState = exports.AnnotationReplyType = exports.AnnotationMarkedState = exports.AnnotationFlag = exports.AnnotationFieldFlag = exports.AnnotationBorderStyleType = exports.AnnotationActionEventType = exports.UNSUPPORTED_FEATURES = exports.VerbosityLevel = exports.OPS = exports.IDENTITY_MATRIX = exports.FONT_IDENTITY_MATRIX = exports.BaseException = void 0;
 
 __w_pdfjs_require__(3);
 
@@ -876,14 +886,22 @@ const AnnotationActionEventType = {
   K: "Keystroke",
   F: "Format",
   V: "Validate",
-  C: "Calculate",
+  C: "Calculate"
+};
+exports.AnnotationActionEventType = AnnotationActionEventType;
+const DocumentActionEventType = {
   WC: "WillClose",
   WS: "WillSave",
   DS: "DidSave",
   WP: "WillPrint",
   DP: "DidPrint"
 };
-exports.AnnotationActionEventType = AnnotationActionEventType;
+exports.DocumentActionEventType = DocumentActionEventType;
+const PageActionEventType = {
+  O: "PageOpen",
+  C: "PageClose"
+};
+exports.PageActionEventType = PageActionEventType;
 const StreamType = {
   UNKNOWN: "UNKNOWN",
   FLATE: "FLATE",
@@ -2869,6 +2887,7 @@ exports.ChunkedStreamManager = ChunkedStreamManager;
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
+exports.collectActions = collectActions;
 exports.escapePDFName = escapePDFName;
 exports.getLookupTableFactory = getLookupTableFactory;
 exports.getArrayLookupTableFactory = getArrayLookupTableFactory;
@@ -2883,6 +2902,8 @@ exports.isWhiteSpace = isWhiteSpace;
 exports.XRefParseException = exports.XRefEntryException = exports.MissingDataException = void 0;
 
 var _util = __w_pdfjs_require__(2);
+
+var _primitives = __w_pdfjs_require__(5);
 
 function getLookupTableFactory(initializer) {
   let lookup;
@@ -3063,6 +3084,93 @@ function escapePDFName(str) {
   }
 
   return buffer.join("");
+}
+
+function _collectJS(entry, xref, list, parents) {
+  if (!entry) {
+    return;
+  }
+
+  let parent = null;
+
+  if ((0, _primitives.isRef)(entry)) {
+    if (parents.has(entry)) {
+      return;
+    }
+
+    parent = entry;
+    parents.put(parent);
+    entry = xref.fetch(entry);
+  }
+
+  if (Array.isArray(entry)) {
+    for (const element of entry) {
+      _collectJS(element, xref, list, parents);
+    }
+  } else if (entry instanceof _primitives.Dict) {
+    if ((0, _primitives.isName)(entry.get("S"), "JavaScript") && entry.has("JS")) {
+      const js = entry.get("JS");
+      let code;
+
+      if ((0, _primitives.isStream)(js)) {
+        code = (0, _util.bytesToString)(js.getBytes());
+      } else {
+        code = js;
+      }
+
+      code = (0, _util.stringToPDFString)(code);
+
+      if (code) {
+        list.push(code);
+      }
+    }
+
+    _collectJS(entry.getRaw("Next"), xref, list, parents);
+  }
+
+  if (parent) {
+    parents.remove(parent);
+  }
+}
+
+function collectActions(xref, dict, eventType) {
+  const actions = Object.create(null);
+
+  if (dict.has("AA")) {
+    const additionalActions = dict.get("AA");
+
+    for (const key of additionalActions.getKeys()) {
+      const action = eventType[key];
+
+      if (!action) {
+        continue;
+      }
+
+      const actionDict = additionalActions.getRaw(key);
+      const parents = new _primitives.RefSet();
+      const list = [];
+
+      _collectJS(actionDict, xref, list, parents);
+
+      if (list.length > 0) {
+        actions[action] = list;
+      }
+    }
+  }
+
+  if (dict.has("A")) {
+    const actionDict = dict.get("A");
+    const parents = new _primitives.RefSet();
+    const list = [];
+
+    _collectJS(actionDict, xref, list, parents);
+
+    if (list.length > 0) {
+      actions.Action = list;
+    }
+  }
+
+  return (0, _util.objectSize)(actions) > 0 ? actions : null;
 }
 
 /***/ }),
@@ -3417,7 +3525,9 @@ class Page {
   }
 
   get annotations() {
-    return (0, _util.shadow)(this, "annotations", this._getInheritableProperty("Annots") || []);
+    const annots = this._getInheritableProperty("Annots");
+
+    return (0, _util.shadow)(this, "annotations", Array.isArray(annots) ? annots : []);
   }
 
   get _parsedAnnotations() {
@@ -3436,6 +3546,11 @@ class Page {
       });
     });
     return (0, _util.shadow)(this, "_parsedAnnotations", parsedAnnotations);
+  }
+
+  get jsActions() {
+    const actions = (0, _core_utils.collectActions)(this.xref, this.pageDict, _util.PageActionEventType);
+    return (0, _util.shadow)(this, "jsActions", actions);
   }
 
 }
@@ -3888,7 +4003,7 @@ class PDFDocument {
       }
     }
 
-    if (!(name in promises)) {
+    if (!promises.has(name)) {
       promises.set(name, []);
     }
 
@@ -3953,6 +4068,11 @@ class PDFDocument {
     }
 
     const ids = calculationOrder.filter(_primitives.isRef).map(ref => ref.toString());
+
+    if (ids.length === 0) {
+      return (0, _util.shadow)(this, "calculationOrderIds", null);
+    }
+
     return (0, _util.shadow)(this, "calculationOrderIds", ids);
   }
 
@@ -3975,9 +4095,9 @@ var _util = __w_pdfjs_require__(2);
 
 var _primitives = __w_pdfjs_require__(5);
 
-var _parser = __w_pdfjs_require__(11);
-
 var _core_utils = __w_pdfjs_require__(8);
+
+var _parser = __w_pdfjs_require__(11);
 
 var _crypto = __w_pdfjs_require__(22);
 
@@ -4885,12 +5005,12 @@ class Catalog {
     return (0, _util.shadow)(this, "attachments", attachments);
   }
 
-  get javaScript() {
+  _collectJavaScript() {
     const obj = this._catDict.get("Names");
 
     let javaScript = null;
 
-    function appendIfJavaScriptDict(jsDict) {
+    function appendIfJavaScriptDict(name, jsDict) {
       const type = jsDict.get("S");
 
       if (!(0, _primitives.isName)(type, "JavaScript")) {
@@ -4905,11 +5025,11 @@ class Catalog {
         return;
       }
 
-      if (!javaScript) {
-        javaScript = [];
+      if (javaScript === null) {
+        javaScript = Object.create(null);
       }
 
-      javaScript.push((0, _util.stringToPDFString)(js));
+      javaScript[name] = (0, _util.stringToPDFString)(js);
     }
 
     if (obj && obj.has("JavaScript")) {
@@ -4920,7 +5040,7 @@ class Catalog {
         const jsDict = names[name];
 
         if ((0, _primitives.isDict)(jsDict)) {
-          appendIfJavaScriptDict(jsDict);
+          appendIfJavaScriptDict(name, jsDict);
         }
       }
     }
@@ -4928,10 +5048,38 @@ class Catalog {
     const openAction = this._catDict.get("OpenAction");
 
     if ((0, _primitives.isDict)(openAction) && (0, _primitives.isName)(openAction.get("S"), "JavaScript")) {
-      appendIfJavaScriptDict(openAction);
+      appendIfJavaScriptDict("OpenAction", openAction);
     }
 
-    return (0, _util.shadow)(this, "javaScript", javaScript);
+    return javaScript;
+  }
+
+  get javaScript() {
+    const javaScript = this._collectJavaScript();
+
+    return (0, _util.shadow)(this, "javaScript", javaScript ? Object.values(javaScript) : null);
+  }
+
+  get jsActions() {
+    const js = this._collectJavaScript();
+
+    let actions = (0, _core_utils.collectActions)(this.xref, this._catDict, _util.DocumentActionEventType);
+
+    if (!actions && js) {
+      actions = Object.create(null);
+    }
+
+    if (actions && js) {
+      for (const [key, val] of Object.entries(js)) {
+        if (key in actions) {
+          actions[key].push(val);
+        } else {
+          actions[key] = [val];
+        }
+      }
+    }
+
+    return (0, _util.shadow)(this, "jsActions", actions);
   }
 
   fontFallback(id, handler) {
@@ -14434,15 +14582,15 @@ var JpxImage = function JpxImageClosure() {
               parseTilePackets(context, data, position, length);
               break;
 
+            case 0xff53:
+              (0, _util.warn)("JPX: Codestream code 0xFF53 (COC) is not implemented.");
+
             case 0xff55:
             case 0xff57:
             case 0xff58:
             case 0xff64:
               length = (0, _core_utils.readUint16)(data, position);
               break;
-
-            case 0xff53:
-              throw new Error("Codestream code 0xFF53 (COC) is not implemented");
 
             default:
               throw new Error("Unknown codestream code: " + code.toString(16));
@@ -19320,11 +19468,11 @@ var _util = __w_pdfjs_require__(2);
 
 var _obj = __w_pdfjs_require__(10);
 
+var _core_utils = __w_pdfjs_require__(8);
+
 var _primitives = __w_pdfjs_require__(5);
 
 var _colorspace = __w_pdfjs_require__(23);
-
-var _core_utils = __w_pdfjs_require__(8);
 
 var _operator_list = __w_pdfjs_require__(26);
 
@@ -19478,7 +19626,22 @@ function getQuadPoints(dict, rect) {
     }
   }
 
-  return quadPointsLists;
+  return quadPointsLists.map(quadPointsList => {
+    const [minX, maxX, minY, maxY] = quadPointsList.reduce(([mX, MX, mY, MY], quadPoint) => [Math.min(mX, quadPoint.x), Math.max(MX, quadPoint.x), Math.min(mY, quadPoint.y), Math.max(MY, quadPoint.y)], [Number.MAX_VALUE, Number.MIN_VALUE, Number.MAX_VALUE, Number.MIN_VALUE]);
+    return [{
+      x: minX,
+      y: maxY
+    }, {
+      x: maxX,
+      y: maxY
+    }, {
+      x: minX,
+      y: minY
+    }, {
+      x: maxX,
+      y: minY
+    }];
+  });
 }
 
 function getTransformMatrix(rect, bbox, matrix) {
@@ -19984,7 +20147,7 @@ class WidgetAnnotation extends Annotation {
     this.ref = params.ref;
     data.annotationType = _util.AnnotationType.WIDGET;
     data.fieldName = this._constructFieldName(dict);
-    data.actions = this._collectActions(params.xref, dict);
+    data.actions = (0, _core_utils.collectActions)(params.xref, dict, _util.AnnotationActionEventType);
     const fieldValue = (0, _core_utils.getInheritableProperty)({
       dict,
       key: "V",
@@ -19998,10 +20161,11 @@ class WidgetAnnotation extends Annotation {
     });
     data.defaultFieldValue = this._decodeFormValue(defaultFieldValue);
     data.alternativeText = (0, _util.stringToPDFString)(dict.get("TU") || "");
-    data.defaultAppearance = (0, _core_utils.getInheritableProperty)({
+    const defaultAppearance = (0, _core_utils.getInheritableProperty)({
       dict,
       key: "DA"
     }) || params.acroForm.get("DA") || "";
+    data.defaultAppearance = (0, _util.isString)(defaultAppearance) ? defaultAppearance : "";
     const fieldType = (0, _core_utils.getInheritableProperty)({
       dict,
       key: "FT"
@@ -20215,6 +20379,11 @@ class WidgetAnnotation extends Annotation {
     const hPadding = defaultPadding;
     const totalHeight = this.data.rect[3] - this.data.rect[1];
     const totalWidth = this.data.rect[2] - this.data.rect[0];
+
+    if (!this.data.defaultAppearance) {
+      this.data.defaultAppearance = "/Helvetica 0 Tf 0 g";
+    }
+
     const fontInfo = await this._getFontData(evaluator, task);
     const [font, fontName] = fontInfo;
 
@@ -20346,93 +20515,6 @@ class WidgetAnnotation extends Annotation {
     }
 
     return localResources || _primitives.Dict.empty;
-  }
-
-  _collectJS(entry, xref, list, parents) {
-    if (!entry) {
-      return;
-    }
-
-    let parent = null;
-
-    if ((0, _primitives.isRef)(entry)) {
-      if (parents.has(entry)) {
-        return;
-      }
-
-      parent = entry;
-      parents.put(parent);
-      entry = xref.fetch(entry);
-    }
-
-    if (Array.isArray(entry)) {
-      for (const element of entry) {
-        this._collectJS(element, xref, list, parents);
-      }
-    } else if (entry instanceof _primitives.Dict) {
-      if ((0, _primitives.isName)(entry.get("S"), "JavaScript") && entry.has("JS")) {
-        const js = entry.get("JS");
-        let code;
-
-        if ((0, _primitives.isStream)(js)) {
-          code = (0, _util.bytesToString)(js.getBytes());
-        } else {
-          code = js;
-        }
-
-        code = (0, _util.stringToPDFString)(code);
-
-        if (code) {
-          list.push(code);
-        }
-      }
-
-      this._collectJS(entry.getRaw("Next"), xref, list, parents);
-    }
-
-    if (parent) {
-      parents.remove(parent);
-    }
-  }
-
-  _collectActions(xref, dict) {
-    const actions = Object.create(null);
-
-    if (dict.has("AA")) {
-      const additionalActions = dict.get("AA");
-
-      for (const key of additionalActions.getKeys()) {
-        const action = _util.AnnotationActionEventType[key];
-
-        if (!action) {
-          continue;
-        }
-
-        const actionDict = additionalActions.getRaw(key);
-        const parents = new _primitives.RefSet();
-        const list = [];
-
-        this._collectJS(actionDict, xref, list, parents);
-
-        if (list.length > 0) {
-          actions[action] = list;
-        }
-      }
-    }
-
-    if (dict.has("A")) {
-      const actionDict = dict.get("A");
-      const parents = new _primitives.RefSet();
-      const list = [];
-
-      this._collectJS(actionDict, xref, list, parents);
-
-      if (list.length > 0) {
-        actions.Action = list;
-      }
-    }
-
-    return (0, _util.objectSize)(actions) > 0 ? actions : null;
   }
 
   getFieldObject() {
@@ -20870,20 +20952,21 @@ class ButtonWidgetAnnotation extends WidgetAnnotation {
 
   getFieldObject() {
     let type = "button";
-    let value = null;
+    let exportValues;
 
     if (this.data.checkBox) {
       type = "checkbox";
-      value = this.data.fieldValue && this.data.fieldValue !== "Off";
+      exportValues = this.data.exportValue;
     } else if (this.data.radioButton) {
       type = "radiobutton";
-      value = this.data.fieldValue === this.data.buttonValue;
+      exportValues = this.data.buttonValue;
     }
 
     return {
       id: this.data.id,
-      value,
+      value: this.data.fieldValue || null,
       defaultValue: this.data.defaultFieldValue,
+      exportValues,
       editable: !this.data.readOnly,
       name: this.data.fieldName,
       rect: this.data.rect,
@@ -20947,6 +21030,7 @@ class ChoiceWidgetAnnotation extends WidgetAnnotation {
       editable: !this.data.readOnly,
       name: this.data.fieldName,
       rect: this.data.rect,
+      numItems: this.data.fieldValue.length,
       multipleSelection: this.data.multiSelect,
       hidden: this.data.hidden,
       actions: this.data.actions,
@@ -26000,7 +26084,7 @@ class TranslatedFont {
     var charProcOperatorList = Object.create(null);
 
     for (const key of charProcs.getKeys()) {
-      loadCharProcsPromise = loadCharProcsPromise.then(function () {
+      loadCharProcsPromise = loadCharProcsPromise.then(() => {
         var glyphStream = charProcs.get(key);
         var operatorList = new _operator_list.OperatorList();
         return type3Evaluator.getOperatorList({
@@ -26008,7 +26092,11 @@ class TranslatedFont {
           task,
           resources: fontResources,
           operatorList
-        }).then(function () {
+        }).then(() => {
+          if (operatorList.fnArray[0] === _util.OPS.setCharWidthAndBounds) {
+            this._removeType3ColorOperators(operatorList);
+          }
+
           charProcOperatorList[key] = operatorList.getIR();
 
           for (const dependency of operatorList.dependencies) {
@@ -26026,6 +26114,62 @@ class TranslatedFont {
       translatedFont.charProcOperatorList = charProcOperatorList;
     });
     return this.type3Loaded;
+  }
+
+  _removeType3ColorOperators(operatorList) {
+    let i = 1,
+        ii = operatorList.length;
+
+    while (i < ii) {
+      switch (operatorList.fnArray[i]) {
+        case _util.OPS.setStrokeColorSpace:
+        case _util.OPS.setFillColorSpace:
+        case _util.OPS.setStrokeColor:
+        case _util.OPS.setStrokeColorN:
+        case _util.OPS.setFillColor:
+        case _util.OPS.setFillColorN:
+        case _util.OPS.setStrokeGray:
+        case _util.OPS.setFillGray:
+        case _util.OPS.setStrokeRGBColor:
+        case _util.OPS.setFillRGBColor:
+        case _util.OPS.setStrokeCMYKColor:
+        case _util.OPS.setFillCMYKColor:
+        case _util.OPS.shadingFill:
+        case _util.OPS.setRenderingIntent:
+          operatorList.fnArray.splice(i, 1);
+          operatorList.argsArray.splice(i, 1);
+          ii--;
+          continue;
+
+        case _util.OPS.setGState:
+          const gStateObj = operatorList.argsArray[i];
+          let j = 0,
+              jj = gStateObj.length;
+
+          while (j < jj) {
+            const [gStateKey] = gStateObj[j];
+
+            switch (gStateKey) {
+              case "TR":
+              case "TR2":
+              case "HT":
+              case "BG":
+              case "BG2":
+              case "UCR":
+              case "UCR2":
+                gStateObj.splice(j, 1);
+                jj--;
+                continue;
+            }
+
+            j++;
+          }
+
+          break;
+      }
+
+      i++;
+    }
   }
 
 }
@@ -28599,14 +28743,15 @@ var Font = function FontClosure() {
       let fontName = name.replace(/[,_]/g, "-").replace(/\s/g, "");
       var stdFontMap = (0, _standard_fonts.getStdFontMap)(),
           nonStdFontMap = (0, _standard_fonts.getNonStdFontMap)();
-      var isStandardFont = !!stdFontMap[fontName] || !!(nonStdFontMap[fontName] && stdFontMap[nonStdFontMap[fontName]]);
+      const isStandardFont = !!stdFontMap[fontName];
+      const isMappedToStandardFont = !!(nonStdFontMap[fontName] && stdFontMap[nonStdFontMap[fontName]]);
       fontName = stdFontMap[fontName] || nonStdFontMap[fontName] || fontName;
       this.bold = fontName.search(/bold/gi) !== -1;
       this.italic = fontName.search(/oblique/gi) !== -1 || fontName.search(/italic/gi) !== -1;
       this.black = name.search(/Black/g) !== -1;
-      this.remeasure = Object.keys(this.widths).length > 0;
+      this.remeasure = !isStandardFont && Object.keys(this.widths).length > 0;
 
-      if (isStandardFont && type === "CIDFontType2" && this.cidEncoding.startsWith("Identity-")) {
+      if ((isStandardFont || isMappedToStandardFont) && type === "CIDFontType2" && this.cidEncoding.startsWith("Identity-")) {
         const GlyphMapForStandardFonts = (0, _standard_fonts.getGlyphMapForStandardFonts)(),
               cidToGidMap = properties.cidToGidMap;
         const map = [];

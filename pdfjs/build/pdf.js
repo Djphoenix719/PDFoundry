@@ -246,30 +246,30 @@ var _api_compatibility = __w_pdfjs_require__(9);
 
 var _worker_options = __w_pdfjs_require__(12);
 
-var _text_layer = __w_pdfjs_require__(20);
+var _text_layer = __w_pdfjs_require__(21);
 
-var _svg = __w_pdfjs_require__(21);
+var _svg = __w_pdfjs_require__(22);
 
-const pdfjsVersion = '2.7.261';
-const pdfjsBuild = '303f2d9d0';
+const pdfjsVersion = '2.7.461';
+const pdfjsBuild = '2c9258e92';
 {
   const {
     isNodeJS
   } = __w_pdfjs_require__(4);
 
   if (isNodeJS) {
-    const PDFNodeStream = __w_pdfjs_require__(22).PDFNodeStream;
+    const PDFNodeStream = __w_pdfjs_require__(23).PDFNodeStream;
 
     (0, _api.setPDFNetworkStreamFactory)(params => {
       return new PDFNodeStream(params);
     });
   } else {
-    const PDFNetworkStream = __w_pdfjs_require__(25).PDFNetworkStream;
+    const PDFNetworkStream = __w_pdfjs_require__(26).PDFNetworkStream;
 
     let PDFFetchStream;
 
     if ((0, _display_utils.isFetchSupported)()) {
-      PDFFetchStream = __w_pdfjs_require__(26).PDFFetchStream;
+      PDFFetchStream = __w_pdfjs_require__(27).PDFFetchStream;
     }
 
     (0, _api.setPDFNetworkStreamFactory)(params => {
@@ -750,11 +750,18 @@ function isValidFetchUrl(url, baseUrl) {
   }
 }
 
-function loadScript(src) {
+function loadScript(src, removeScriptElement = false) {
   return new Promise((resolve, reject) => {
     const script = document.createElement("script");
     script.src = src;
-    script.onload = resolve;
+
+    script.onload = function (evt) {
+      if (removeScriptElement) {
+        script.remove();
+      }
+
+      resolve(evt);
+    };
 
     script.onerror = function () {
       reject(new Error(`Cannot load script at: ${script.src}`));
@@ -856,7 +863,7 @@ exports.stringToUTF8String = stringToUTF8String;
 exports.utf8StringToString = utf8StringToString;
 exports.warn = warn;
 exports.unreachable = unreachable;
-exports.IsEvalSupportedCached = exports.IsLittleEndianCached = exports.createObjectURL = exports.FormatError = exports.Util = exports.UnknownErrorException = exports.UnexpectedResponseException = exports.TextRenderingMode = exports.StreamType = exports.PermissionFlag = exports.PasswordResponses = exports.PasswordException = exports.MissingPDFException = exports.InvalidPDFException = exports.AbortException = exports.CMapCompressionType = exports.ImageKind = exports.FontType = exports.AnnotationType = exports.AnnotationStateModelType = exports.AnnotationReviewState = exports.AnnotationReplyType = exports.AnnotationMarkedState = exports.AnnotationFlag = exports.AnnotationFieldFlag = exports.AnnotationBorderStyleType = exports.AnnotationActionEventType = exports.UNSUPPORTED_FEATURES = exports.VerbosityLevel = exports.OPS = exports.IDENTITY_MATRIX = exports.FONT_IDENTITY_MATRIX = exports.BaseException = void 0;
+exports.IsEvalSupportedCached = exports.IsLittleEndianCached = exports.createObjectURL = exports.FormatError = exports.Util = exports.UnknownErrorException = exports.UnexpectedResponseException = exports.TextRenderingMode = exports.StreamType = exports.PermissionFlag = exports.PasswordResponses = exports.PasswordException = exports.PageActionEventType = exports.MissingPDFException = exports.InvalidPDFException = exports.AbortException = exports.DocumentActionEventType = exports.CMapCompressionType = exports.ImageKind = exports.FontType = exports.AnnotationType = exports.AnnotationStateModelType = exports.AnnotationReviewState = exports.AnnotationReplyType = exports.AnnotationMarkedState = exports.AnnotationFlag = exports.AnnotationFieldFlag = exports.AnnotationBorderStyleType = exports.AnnotationActionEventType = exports.UNSUPPORTED_FEATURES = exports.VerbosityLevel = exports.OPS = exports.IDENTITY_MATRIX = exports.FONT_IDENTITY_MATRIX = exports.BaseException = void 0;
 
 __w_pdfjs_require__(3);
 
@@ -1003,14 +1010,22 @@ const AnnotationActionEventType = {
   K: "Keystroke",
   F: "Format",
   V: "Validate",
-  C: "Calculate",
+  C: "Calculate"
+};
+exports.AnnotationActionEventType = AnnotationActionEventType;
+const DocumentActionEventType = {
   WC: "WillClose",
   WS: "WillSave",
   DS: "DidSave",
   WP: "WillPrint",
   DP: "DidPrint"
 };
-exports.AnnotationActionEventType = AnnotationActionEventType;
+exports.DocumentActionEventType = DocumentActionEventType;
+const PageActionEventType = {
+  O: "PageOpen",
+  C: "PageClose"
+};
+exports.PageActionEventType = PageActionEventType;
 const StreamType = {
   UNKNOWN: "UNKNOWN",
   FLATE: "FLATE",
@@ -1978,7 +1993,7 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
 
   return worker.messageHandler.sendWithPromise("GetDocRequest", {
     docId,
-    apiVersion: '2.7.261',
+    apiVersion: '2.7.461',
     source: {
       data: source.data,
       url: source.url,
@@ -2175,6 +2190,10 @@ class PDFDocumentProxy {
     return this._transport.getJavaScript();
   }
 
+  getJSActions() {
+    return this._transport.getDocJSActions();
+  }
+
   getOutline() {
     return this._transport.getOutline();
   }
@@ -2305,6 +2324,14 @@ class PDFPageProxy {
     }
 
     return this.annotationsPromise;
+  }
+
+  getJSActions() {
+    if (!this._jsActionsPromise) {
+      this._jsActionsPromise = this._transport.getPageJSActions(this._pageIndex);
+    }
+
+    return this._jsActionsPromise;
   }
 
   render({
@@ -2566,6 +2593,7 @@ class PDFPageProxy {
 
     this.objs.clear();
     this.annotationsPromise = null;
+    this._jsActionsPromise = null;
     this.pendingCleanup = false;
     return Promise.all(waitOn);
   }
@@ -2593,6 +2621,7 @@ class PDFPageProxy {
 
     this.objs.clear();
     this.annotationsPromise = null;
+    this._jsActionsPromise = null;
 
     if (resetStats && this._stats) {
       this._stats = new _display_utils.StatTimer();
@@ -3172,6 +3201,10 @@ class WorkerTransport {
     this.setupMessageHandler();
   }
 
+  get loadingTaskSettled() {
+    return this.loadingTask._capability.settled;
+  }
+
   destroy() {
     if (this.destroyCapability) {
       return this.destroyCapability.promise;
@@ -3194,6 +3227,16 @@ class WorkerTransport {
     this.pagePromises.length = 0;
     const terminated = this.messageHandler.sendWithPromise("Terminate", null);
     waitOn.push(terminated);
+
+    if (this.loadingTaskSettled) {
+      const annotationStorageResetModified = this.loadingTask.promise.then(pdfDocument => {
+        if (pdfDocument.hasOwnProperty("annotationStorage")) {
+          pdfDocument.annotationStorage.resetModified();
+        }
+      }).catch(() => {});
+      waitOn.push(annotationStorageResetModified);
+    }
+
     Promise.all(waitOn).then(() => {
       this.commonObjs.clear();
       this.fontLoader.clear();
@@ -3653,6 +3696,16 @@ class WorkerTransport {
     return this.messageHandler.sendWithPromise("GetJavaScript", null);
   }
 
+  getDocJSActions() {
+    return this.messageHandler.sendWithPromise("GetDocJSActions", null);
+  }
+
+  getPageJSActions(pageIndex) {
+    return this.messageHandler.sendWithPromise("GetPageJSActions", {
+      pageIndex
+    });
+  }
+
   getOutline() {
     return this.messageHandler.sendWithPromise("GetOutline", null);
   }
@@ -3957,9 +4010,9 @@ const InternalRenderTask = function InternalRenderTaskClosure() {
   return InternalRenderTask;
 }();
 
-const version = '2.7.261';
+const version = '2.7.461';
 exports.version = version;
-const build = '303f2d9d0';
+const build = '2c9258e92';
 exports.build = build;
 
 /***/ }),
@@ -9390,6 +9443,8 @@ var _util = __w_pdfjs_require__(2);
 
 var _annotation_storage = __w_pdfjs_require__(8);
 
+var _scripting_utils = __w_pdfjs_require__(20);
+
 class AnnotationElementFactory {
   static create(parameters) {
     const subtype = parameters.data.annotationType;
@@ -9476,7 +9531,11 @@ class AnnotationElementFactory {
 }
 
 class AnnotationElement {
-  constructor(parameters, isRenderable = false, ignoreBorder = false) {
+  constructor(parameters, {
+    isRenderable = false,
+    ignoreBorder = false,
+    createQuadrilaterals = false
+  } = {}) {
     this.isRenderable = isRenderable;
     this.data = parameters.data;
     this.layer = parameters.layer;
@@ -9490,9 +9549,14 @@ class AnnotationElement {
     this.annotationStorage = parameters.annotationStorage;
     this.enableScripting = parameters.enableScripting;
     this.hasJSActions = parameters.hasJSActions;
+    this._mouseState = parameters.mouseState;
 
     if (isRenderable) {
       this.container = this._createContainer(ignoreBorder);
+    }
+
+    if (createQuadrilaterals) {
+      this.quadrilaterals = this._createQuadrilaterals(ignoreBorder);
     }
   }
 
@@ -9611,6 +9675,13 @@ class AnnotationElement {
     container.appendChild(popup);
   }
 
+  _renderQuadrilaterals(className) {
+    this.quadrilaterals.forEach(quadrilateral => {
+      quadrilateral.className = className;
+    });
+    return this.quadrilaterals;
+  }
+
   render() {
     (0, _util.unreachable)("Abstract method `AnnotationElement.render` called");
   }
@@ -9619,12 +9690,14 @@ class AnnotationElement {
 
 class LinkAnnotationElement extends AnnotationElement {
   constructor(parameters) {
-    const isRenderable = !!(parameters.data.url || parameters.data.dest || parameters.data.action || parameters.data.isTooltipOnly);
-    super(parameters, isRenderable);
+    const isRenderable = !!(parameters.data.url || parameters.data.dest || parameters.data.action || parameters.data.isTooltipOnly || parameters.data.actions && (parameters.data.actions.Action || parameters.data.actions.MouseUp || parameters.data.actions.MouseDown));
+    super(parameters, {
+      isRenderable,
+      createQuadrilaterals: true
+    });
   }
 
   render() {
-    this.container.className = "linkAnnotation";
     const {
       data,
       linkService
@@ -9642,10 +9715,21 @@ class LinkAnnotationElement extends AnnotationElement {
       this._bindNamedAction(link, data.action);
     } else if (data.dest) {
       this._bindLink(link, data.dest);
+    } else if (data.actions && (data.actions.Action || data.actions.MouseUp || data.actions.MouseDown) && this.enableScripting && this.hasJSActions) {
+      this._bindJSAction(link, data);
     } else {
       this._bindLink(link, "");
     }
 
+    if (this.quadrilaterals) {
+      return this._renderQuadrilaterals("linkAnnotation").map((quadrilateral, index) => {
+        const linkElement = index === 0 ? link : link.cloneNode();
+        quadrilateral.appendChild(linkElement);
+        return quadrilateral;
+      });
+    }
+
+    this.container.className = "linkAnnotation";
     this.container.appendChild(link);
     return this.container;
   }
@@ -9677,12 +9761,40 @@ class LinkAnnotationElement extends AnnotationElement {
     link.className = "internalLink";
   }
 
+  _bindJSAction(link, data) {
+    link.href = this.linkService.getAnchorUrl("");
+    const map = new Map([["Action", "onclick"], ["MouseUp", "onmouseup"], ["MouseDown", "onmousedown"]]);
+
+    for (const name of Object.keys(data.actions)) {
+      const jsName = map.get(name);
+
+      if (!jsName) {
+        continue;
+      }
+
+      link[jsName] = () => {
+        this.linkService.eventBus?.dispatch("dispatcheventinsandbox", {
+          source: this,
+          detail: {
+            id: data.id,
+            name
+          }
+        });
+        return false;
+      };
+    }
+
+    link.className = "internalLink";
+  }
+
 }
 
 class TextAnnotationElement extends AnnotationElement {
   constructor(parameters) {
     const isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    super(parameters, isRenderable);
+    super(parameters, {
+      isRenderable
+    });
   }
 
   render() {
@@ -9716,12 +9828,60 @@ class WidgetAnnotationElement extends AnnotationElement {
     return this.container;
   }
 
+  _getKeyModifier(event) {
+    return navigator.platform.includes("Win") && event.ctrlKey || navigator.platform.includes("Mac") && event.metaKey;
+  }
+
+  _setEventListener(element, baseName, eventName, valueGetter) {
+    if (this.data.actions[eventName.replace(" ", "")] === undefined) {
+      return;
+    }
+
+    if (baseName.includes("mouse")) {
+      element.addEventListener(baseName, event => {
+        this.linkService.eventBus?.dispatch("dispatcheventinsandbox", {
+          source: this,
+          detail: {
+            id: this.data.id,
+            name: eventName,
+            value: valueGetter(event),
+            shift: event.shiftKey,
+            modifier: this._getKeyModifier(event)
+          }
+        });
+      });
+    } else {
+      element.addEventListener(baseName, event => {
+        this.linkService.eventBus?.dispatch("dispatcheventinsandbox", {
+          source: this,
+          detail: {
+            id: this.data.id,
+            name: eventName,
+            value: event.target.checked
+          }
+        });
+      });
+    }
+  }
+
+  _setEventListeners(element, names, getter) {
+    if (!this.data.actions) {
+      return;
+    }
+
+    for (const [baseName, eventName] of names) {
+      this._setEventListener(element, baseName, eventName, getter);
+    }
+  }
+
 }
 
 class TextWidgetAnnotationElement extends WidgetAnnotationElement {
   constructor(parameters) {
     const isRenderable = parameters.renderInteractiveForms || !parameters.data.hasAppearance && !!parameters.data.fieldValue;
-    super(parameters, isRenderable);
+    super(parameters, {
+      isRenderable
+    });
   }
 
   render() {
@@ -9741,6 +9901,12 @@ class TextWidgetAnnotationElement extends WidgetAnnotationElement {
       const textContent = storage.getOrCreateValue(id, {
         value: this.data.fieldValue
       }).value;
+      const elementData = {
+        userValue: null,
+        formattedValue: null,
+        beforeInputSelectionRange: null,
+        beforeInputValue: null
+      };
 
       if (this.data.multiLine) {
         element = document.createElement("textarea");
@@ -9751,106 +9917,190 @@ class TextWidgetAnnotationElement extends WidgetAnnotationElement {
         element.setAttribute("value", textContent);
       }
 
-      element.userValue = textContent;
+      elementData.userValue = textContent;
       element.setAttribute("id", id);
       element.addEventListener("input", function (event) {
         storage.setValue(id, {
           value: event.target.value
         });
       });
-      element.addEventListener("blur", function (event) {
+
+      let blurListener = event => {
+        if (elementData.formattedValue) {
+          event.target.value = elementData.formattedValue;
+        }
+
         event.target.setSelectionRange(0, 0);
-      });
+        elementData.beforeInputSelectionRange = null;
+      };
 
       if (this.enableScripting && this.hasJSActions) {
         element.addEventListener("focus", event => {
-          if (event.target.userValue) {
-            event.target.value = event.target.userValue;
+          if (elementData.userValue) {
+            event.target.value = elementData.userValue;
           }
+        });
+        element.addEventListener("updatefromsandbox", function (event) {
+          const {
+            detail
+          } = event;
+          const actions = {
+            value() {
+              elementData.userValue = detail.value || "";
+              storage.setValue(id, {
+                value: elementData.userValue.toString()
+              });
+
+              if (!elementData.formattedValue) {
+                event.target.value = elementData.userValue;
+              }
+            },
+
+            valueAsString() {
+              elementData.formattedValue = detail.valueAsString || "";
+
+              if (event.target !== document.activeElement) {
+                event.target.value = elementData.formattedValue;
+              }
+
+              storage.setValue(id, {
+                formattedValue: elementData.formattedValue
+              });
+            },
+
+            focus() {
+              setTimeout(() => event.target.focus({
+                preventScroll: false
+              }), 0);
+            },
+
+            userName() {
+              event.target.title = detail.userName;
+            },
+
+            hidden() {
+              event.target.style.visibility = detail.hidden ? "hidden" : "visible";
+              storage.setValue(id, {
+                hidden: detail.hidden
+              });
+            },
+
+            editable() {
+              event.target.disabled = !detail.editable;
+            },
+
+            selRange() {
+              const [selStart, selEnd] = detail.selRange;
+
+              if (selStart >= 0 && selEnd < event.target.value.length) {
+                event.target.setSelectionRange(selStart, selEnd);
+              }
+            },
+
+            strokeColor() {
+              const color = detail.strokeColor;
+              event.target.style.color = _scripting_utils.ColorConverters[`${color[0]}_HTML`](color.slice(1));
+            }
+
+          };
+          Object.keys(detail).filter(name => name in actions).forEach(name => actions[name]());
         });
 
         if (this.data.actions) {
-          element.addEventListener("updateFromSandbox", function (event) {
-            const detail = event.detail;
-            const actions = {
-              value() {
-                const value = detail.value;
+          element.addEventListener("keydown", event => {
+            elementData.beforeInputValue = event.target.value;
+            let commitKey = -1;
 
-                if (value === undefined || value === null) {
-                  event.target.userValue = "";
-                } else {
-                  event.target.userValue = value;
-                }
-              },
+            if (event.key === "Escape") {
+              commitKey = 0;
+            } else if (event.key === "Enter") {
+              commitKey = 2;
+            } else if (event.key === "Tab") {
+              commitKey = 3;
+            }
 
-              valueAsString() {
-                const value = detail.valueAsString;
+            if (commitKey === -1) {
+              return;
+            }
 
-                if (value === undefined || value === null) {
-                  event.target.value = "";
-                } else {
-                  event.target.value = value;
-                }
-
-                storage.setValue(id, event.target.value);
-              },
-
-              focus() {
-                event.target.focus({
-                  preventScroll: false
-                });
-              },
-
-              userName() {
-                const tooltip = detail.userName;
-                event.target.title = tooltip;
-              },
-
-              hidden() {
-                event.target.style.display = detail.hidden ? "none" : "block";
-              },
-
-              editable() {
-                event.target.disabled = !detail.editable;
-              },
-
-              selRange() {
-                const [selStart, selEnd] = detail.selRange;
-
-                if (selStart >= 0 && selEnd < event.target.value.length) {
-                  event.target.setSelectionRange(selStart, selEnd);
-                }
+            elementData.userValue = event.target.value;
+            this.linkService.eventBus?.dispatch("dispatcheventinsandbox", {
+              source: this,
+              detail: {
+                id,
+                name: "Keystroke",
+                value: event.target.value,
+                willCommit: true,
+                commitKey,
+                selStart: event.target.selectionStart,
+                selEnd: event.target.selectionEnd
               }
+            });
+          });
+          const _blurListener = blurListener;
+          blurListener = null;
+          element.addEventListener("blur", event => {
+            if (this._mouseState.isDown) {
+              elementData.userValue = event.target.value;
+              this.linkService.eventBus?.dispatch("dispatcheventinsandbox", {
+                source: this,
+                detail: {
+                  id,
+                  name: "Keystroke",
+                  value: event.target.value,
+                  willCommit: true,
+                  commitKey: 1,
+                  selStart: event.target.selectionStart,
+                  selEnd: event.target.selectionEnd
+                }
+              });
+            }
 
-            };
-
-            for (const name of Object.keys(detail)) {
-              if (name in actions) {
-                actions[name]();
-              }
+            _blurListener(event);
+          });
+          element.addEventListener("mousedown", event => {
+            elementData.beforeInputValue = event.target.value;
+            elementData.beforeInputSelectionRange = null;
+          });
+          element.addEventListener("keyup", event => {
+            if (event.target.selectionStart === event.target.selectionEnd) {
+              elementData.beforeInputSelectionRange = null;
             }
           });
+          element.addEventListener("select", event => {
+            elementData.beforeInputSelectionRange = [event.target.selectionStart, event.target.selectionEnd];
+          });
 
-          for (const eventType of Object.keys(this.data.actions)) {
-            switch (eventType) {
-              case "Format":
-                element.addEventListener("change", function (event) {
-                  window.dispatchEvent(new CustomEvent("dispatchEventInSandbox", {
-                    detail: {
-                      id,
-                      name: "Keystroke",
-                      value: event.target.value,
-                      willCommit: true,
-                      commitKey: 1,
-                      selStart: event.target.selectionStart,
-                      selEnd: event.target.selectionEnd
-                    }
-                  }));
-                });
-                break;
-            }
+          if ("Keystroke" in this.data.actions) {
+            element.addEventListener("input", event => {
+              let selStart = -1;
+              let selEnd = -1;
+
+              if (elementData.beforeInputSelectionRange) {
+                [selStart, selEnd] = elementData.beforeInputSelectionRange;
+              }
+
+              this.linkService.eventBus?.dispatch("dispatcheventinsandbox", {
+                source: this,
+                detail: {
+                  id,
+                  name: "Keystroke",
+                  value: elementData.beforeInputValue,
+                  change: event.data,
+                  willCommit: false,
+                  selStart,
+                  selEnd
+                }
+              });
+            });
           }
+
+          this._setEventListeners(element, [["focus", "Focus"], ["blur", "Blur"], ["mousedown", "Mouse Down"], ["mouseenter", "Mouse Enter"], ["mouseleave", "Mouse Exit"], ["mouseup", "MouseUp"]], event => event.target.value);
         }
+      }
+
+      if (blurListener) {
+        element.addEventListener("blur", blurListener);
       }
 
       element.disabled = this.data.readOnly;
@@ -9923,7 +10173,9 @@ class TextWidgetAnnotationElement extends WidgetAnnotationElement {
 
 class CheckboxWidgetAnnotationElement extends WidgetAnnotationElement {
   constructor(parameters) {
-    super(parameters, parameters.renderInteractiveForms);
+    super(parameters, {
+      isRenderable: parameters.renderInteractiveForms
+    });
   }
 
   render() {
@@ -9943,11 +10195,61 @@ class CheckboxWidgetAnnotationElement extends WidgetAnnotationElement {
       element.setAttribute("checked", true);
     }
 
+    element.setAttribute("id", id);
     element.addEventListener("change", function (event) {
+      const name = event.target.name;
+
+      for (const checkbox of document.getElementsByName(name)) {
+        if (checkbox !== event.target) {
+          checkbox.checked = false;
+          storage.setValue(checkbox.parentNode.getAttribute("data-annotation-id"), {
+            value: false
+          });
+        }
+      }
+
       storage.setValue(id, {
         value: event.target.checked
       });
     });
+
+    if (this.enableScripting && this.hasJSActions) {
+      element.addEventListener("updatefromsandbox", event => {
+        const {
+          detail
+        } = event;
+        const actions = {
+          value() {
+            event.target.checked = detail.value !== "Off";
+            storage.setValue(id, {
+              value: event.target.checked
+            });
+          },
+
+          focus() {
+            setTimeout(() => event.target.focus({
+              preventScroll: false
+            }), 0);
+          },
+
+          hidden() {
+            event.target.style.visibility = detail.hidden ? "hidden" : "visible";
+            storage.setValue(id, {
+              hidden: detail.hidden
+            });
+          },
+
+          editable() {
+            event.target.disabled = !detail.editable;
+          }
+
+        };
+        Object.keys(detail).filter(name => name in actions).forEach(name => actions[name]());
+      });
+
+      this._setEventListeners(element, [["change", "Validate"], ["change", "Action"], ["focus", "Focus"], ["blur", "Blur"], ["mousedown", "Mouse Down"], ["mouseenter", "Mouse Enter"], ["mouseleave", "Mouse Exit"], ["mouseup", "MouseUp"]], event => event.target.checked);
+    }
+
     this.container.appendChild(element);
     return this.container;
   }
@@ -9956,7 +10258,9 @@ class CheckboxWidgetAnnotationElement extends WidgetAnnotationElement {
 
 class RadioButtonWidgetAnnotationElement extends WidgetAnnotationElement {
   constructor(parameters) {
-    super(parameters, parameters.renderInteractiveForms);
+    super(parameters, {
+      isRenderable: parameters.renderInteractiveForms
+    });
   }
 
   render() {
@@ -9976,21 +10280,75 @@ class RadioButtonWidgetAnnotationElement extends WidgetAnnotationElement {
       element.setAttribute("checked", true);
     }
 
+    element.setAttribute("pdfButtonValue", data.buttonValue);
+    element.setAttribute("id", id);
     element.addEventListener("change", function (event) {
-      const name = event.target.name;
+      const {
+        target
+      } = event;
 
-      for (const radio of document.getElementsByName(name)) {
-        if (radio !== event.target) {
-          storage.setValue(radio.parentNode.getAttribute("data-annotation-id"), {
+      for (const radio of document.getElementsByName(target.name)) {
+        if (radio !== target) {
+          storage.setValue(radio.getAttribute("id"), {
             value: false
           });
         }
       }
 
       storage.setValue(id, {
-        value: event.target.checked
+        value: target.checked
       });
     });
+
+    if (this.enableScripting && this.hasJSActions) {
+      element.addEventListener("updatefromsandbox", event => {
+        const {
+          detail
+        } = event;
+        const actions = {
+          value() {
+            const fieldValue = detail.value;
+
+            for (const radio of document.getElementsByName(event.target.name)) {
+              const radioId = radio.getAttribute("id");
+
+              if (fieldValue === radio.getAttribute("pdfButtonValue")) {
+                radio.setAttribute("checked", true);
+                storage.setValue(radioId, {
+                  value: true
+                });
+              } else {
+                storage.setValue(radioId, {
+                  value: false
+                });
+              }
+            }
+          },
+
+          focus() {
+            setTimeout(() => event.target.focus({
+              preventScroll: false
+            }), 0);
+          },
+
+          hidden() {
+            event.target.style.visibility = detail.hidden ? "hidden" : "visible";
+            storage.setValue(id, {
+              hidden: detail.hidden
+            });
+          },
+
+          editable() {
+            event.target.disabled = !detail.editable;
+          }
+
+        };
+        Object.keys(detail).filter(name => name in actions).forEach(name => actions[name]());
+      });
+
+      this._setEventListeners(element, [["change", "Validate"], ["change", "Action"], ["focus", "Focus"], ["blur", "Blur"], ["mousedown", "Mouse Down"], ["mouseenter", "Mouse Enter"], ["mouseleave", "Mouse Exit"], ["mouseup", "MouseUp"]], event => event.target.checked);
+    }
+
     this.container.appendChild(element);
     return this.container;
   }
@@ -10013,7 +10371,9 @@ class PushButtonWidgetAnnotationElement extends LinkAnnotationElement {
 
 class ChoiceWidgetAnnotationElement extends WidgetAnnotationElement {
   constructor(parameters) {
-    super(parameters, parameters.renderInteractiveForms);
+    super(parameters, {
+      isRenderable: parameters.renderInteractiveForms
+    });
   }
 
   render() {
@@ -10026,6 +10386,7 @@ class ChoiceWidgetAnnotationElement extends WidgetAnnotationElement {
     const selectElement = document.createElement("select");
     selectElement.disabled = this.data.readOnly;
     selectElement.name = this.data.fieldName;
+    selectElement.setAttribute("id", id);
 
     if (!this.data.combo) {
       selectElement.size = this.data.options.length;
@@ -10047,13 +10408,77 @@ class ChoiceWidgetAnnotationElement extends WidgetAnnotationElement {
       selectElement.appendChild(optionElement);
     }
 
-    selectElement.addEventListener("input", function (event) {
+    function getValue(event) {
       const options = event.target.options;
-      const value = options[options.selectedIndex].value;
-      storage.setValue(id, {
-        value
+      return options[options.selectedIndex].value;
+    }
+
+    if (this.enableScripting && this.hasJSActions) {
+      selectElement.addEventListener("updatefromsandbox", event => {
+        const {
+          detail
+        } = event;
+        const actions = {
+          value() {
+            const options = event.target.options;
+            const value = detail.value;
+            const i = options.indexOf(value);
+
+            if (i !== -1) {
+              options.selectedIndex = i;
+              storage.setValue(id, {
+                value
+              });
+            }
+          },
+
+          focus() {
+            setTimeout(() => event.target.focus({
+              preventScroll: false
+            }), 0);
+          },
+
+          hidden() {
+            event.target.style.visibility = detail.hidden ? "hidden" : "visible";
+            storage.setValue(id, {
+              hidden: detail.hidden
+            });
+          },
+
+          editable() {
+            event.target.disabled = !detail.editable;
+          }
+
+        };
+        Object.keys(detail).filter(name => name in actions).forEach(name => actions[name]());
       });
-    });
+      selectElement.addEventListener("input", event => {
+        const value = getValue(event);
+        storage.setValue(id, {
+          value
+        });
+        this.linkService.eventBus?.dispatch("dispatcheventinsandbox", {
+          source: this,
+          detail: {
+            id,
+            name: "Keystroke",
+            changeEx: value,
+            willCommit: true,
+            commitKey: 1,
+            keyDown: false
+          }
+        });
+      });
+
+      this._setEventListeners(selectElement, [["focus", "Focus"], ["blur", "Blur"], ["mousedown", "Mouse Down"], ["mouseenter", "Mouse Enter"], ["mouseleave", "Mouse Exit"], ["mouseup", "MouseUp"]], event => event.target.checked);
+    } else {
+      selectElement.addEventListener("input", function (event) {
+        storage.setValue(id, {
+          value: getValue(event)
+        });
+      });
+    }
+
     this.container.appendChild(selectElement);
     return this.container;
   }
@@ -10063,7 +10488,9 @@ class ChoiceWidgetAnnotationElement extends WidgetAnnotationElement {
 class PopupAnnotationElement extends AnnotationElement {
   constructor(parameters) {
     const isRenderable = !!(parameters.data.title || parameters.data.contents);
-    super(parameters, isRenderable);
+    super(parameters, {
+      isRenderable
+    });
   }
 
   render() {
@@ -10219,7 +10646,10 @@ class PopupElement {
 class FreeTextAnnotationElement extends AnnotationElement {
   constructor(parameters) {
     const isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    super(parameters, isRenderable, true);
+    super(parameters, {
+      isRenderable,
+      ignoreBorder: true
+    });
   }
 
   render() {
@@ -10237,7 +10667,10 @@ class FreeTextAnnotationElement extends AnnotationElement {
 class LineAnnotationElement extends AnnotationElement {
   constructor(parameters) {
     const isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    super(parameters, isRenderable, true);
+    super(parameters, {
+      isRenderable,
+      ignoreBorder: true
+    });
   }
 
   render() {
@@ -10266,7 +10699,10 @@ class LineAnnotationElement extends AnnotationElement {
 class SquareAnnotationElement extends AnnotationElement {
   constructor(parameters) {
     const isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    super(parameters, isRenderable, true);
+    super(parameters, {
+      isRenderable,
+      ignoreBorder: true
+    });
   }
 
   render() {
@@ -10297,7 +10733,10 @@ class SquareAnnotationElement extends AnnotationElement {
 class CircleAnnotationElement extends AnnotationElement {
   constructor(parameters) {
     const isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    super(parameters, isRenderable, true);
+    super(parameters, {
+      isRenderable,
+      ignoreBorder: true
+    });
   }
 
   render() {
@@ -10328,7 +10767,10 @@ class CircleAnnotationElement extends AnnotationElement {
 class PolylineAnnotationElement extends AnnotationElement {
   constructor(parameters) {
     const isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    super(parameters, isRenderable, true);
+    super(parameters, {
+      isRenderable,
+      ignoreBorder: true
+    });
     this.containerClassName = "polylineAnnotation";
     this.svgElementName = "svg:polyline";
   }
@@ -10375,7 +10817,10 @@ class PolygonAnnotationElement extends PolylineAnnotationElement {
 class CaretAnnotationElement extends AnnotationElement {
   constructor(parameters) {
     const isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    super(parameters, isRenderable, true);
+    super(parameters, {
+      isRenderable,
+      ignoreBorder: true
+    });
   }
 
   render() {
@@ -10393,7 +10838,10 @@ class CaretAnnotationElement extends AnnotationElement {
 class InkAnnotationElement extends AnnotationElement {
   constructor(parameters) {
     const isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    super(parameters, isRenderable, true);
+    super(parameters, {
+      isRenderable,
+      ignoreBorder: true
+    });
     this.containerClassName = "inkAnnotation";
     this.svgElementName = "svg:polyline";
   }
@@ -10435,8 +10883,11 @@ class InkAnnotationElement extends AnnotationElement {
 class HighlightAnnotationElement extends AnnotationElement {
   constructor(parameters) {
     const isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    super(parameters, isRenderable, true);
-    this.quadrilaterals = this._createQuadrilaterals(true);
+    super(parameters, {
+      isRenderable,
+      ignoreBorder: true,
+      createQuadrilaterals: true
+    });
   }
 
   render() {
@@ -10445,10 +10896,7 @@ class HighlightAnnotationElement extends AnnotationElement {
     }
 
     if (this.quadrilaterals) {
-      this.quadrilaterals.forEach(quadrilateral => {
-        quadrilateral.className = "highlightAnnotation";
-      });
-      return this.quadrilaterals;
+      return this._renderQuadrilaterals("highlightAnnotation");
     }
 
     this.container.className = "highlightAnnotation";
@@ -10460,16 +10908,23 @@ class HighlightAnnotationElement extends AnnotationElement {
 class UnderlineAnnotationElement extends AnnotationElement {
   constructor(parameters) {
     const isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    super(parameters, isRenderable, true);
+    super(parameters, {
+      isRenderable,
+      ignoreBorder: true,
+      createQuadrilaterals: true
+    });
   }
 
   render() {
-    this.container.className = "underlineAnnotation";
-
     if (!this.data.hasPopup) {
       this._createPopup(null, this.data);
     }
 
+    if (this.quadrilaterals) {
+      return this._renderQuadrilaterals("underlineAnnotation");
+    }
+
+    this.container.className = "underlineAnnotation";
     return this.container;
   }
 
@@ -10478,16 +10933,23 @@ class UnderlineAnnotationElement extends AnnotationElement {
 class SquigglyAnnotationElement extends AnnotationElement {
   constructor(parameters) {
     const isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    super(parameters, isRenderable, true);
+    super(parameters, {
+      isRenderable,
+      ignoreBorder: true,
+      createQuadrilaterals: true
+    });
   }
 
   render() {
-    this.container.className = "squigglyAnnotation";
-
     if (!this.data.hasPopup) {
       this._createPopup(null, this.data);
     }
 
+    if (this.quadrilaterals) {
+      return this._renderQuadrilaterals("squigglyAnnotation");
+    }
+
+    this.container.className = "squigglyAnnotation";
     return this.container;
   }
 
@@ -10496,16 +10958,23 @@ class SquigglyAnnotationElement extends AnnotationElement {
 class StrikeOutAnnotationElement extends AnnotationElement {
   constructor(parameters) {
     const isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    super(parameters, isRenderable, true);
+    super(parameters, {
+      isRenderable,
+      ignoreBorder: true,
+      createQuadrilaterals: true
+    });
   }
 
   render() {
-    this.container.className = "strikeoutAnnotation";
-
     if (!this.data.hasPopup) {
       this._createPopup(null, this.data);
     }
 
+    if (this.quadrilaterals) {
+      return this._renderQuadrilaterals("strikeoutAnnotation");
+    }
+
+    this.container.className = "strikeoutAnnotation";
     return this.container;
   }
 
@@ -10514,7 +10983,10 @@ class StrikeOutAnnotationElement extends AnnotationElement {
 class StampAnnotationElement extends AnnotationElement {
   constructor(parameters) {
     const isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    super(parameters, isRenderable, true);
+    super(parameters, {
+      isRenderable,
+      ignoreBorder: true
+    });
   }
 
   render() {
@@ -10531,22 +11003,21 @@ class StampAnnotationElement extends AnnotationElement {
 
 class FileAttachmentAnnotationElement extends AnnotationElement {
   constructor(parameters) {
-    super(parameters, true);
+    super(parameters, {
+      isRenderable: true
+    });
     const {
       filename,
       content
     } = this.data.file;
     this.filename = (0, _display_utils.getFilenameFromUrl)(filename);
     this.content = content;
-
-    if (this.linkService.eventBus) {
-      this.linkService.eventBus.dispatch("fileattachmentannotation", {
-        source: this,
-        id: (0, _util.stringToPDFString)(filename),
-        filename,
-        content
-      });
-    }
+    this.linkService.eventBus?.dispatch("fileattachmentannotation", {
+      source: this,
+      id: (0, _util.stringToPDFString)(filename),
+      filename,
+      content
+    });
   }
 
   render() {
@@ -10610,7 +11081,10 @@ class AnnotationLayer {
         svgFactory: new _display_utils.DOMSVGFactory(),
         annotationStorage: parameters.annotationStorage || new _annotation_storage.AnnotationStorage(),
         enableScripting: parameters.enableScripting,
-        hasJSActions: parameters.hasJSActions
+        hasJSActions: parameters.hasJSActions,
+        mouseState: parameters.mouseState || {
+          isDown: false
+        }
       });
 
       if (element.isRenderable) {
@@ -10657,6 +11131,74 @@ exports.AnnotationLayer = AnnotationLayer;
 
 /***/ }),
 /* 20 */
+/***/ ((__unused_webpack_module, exports) => {
+
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports.ColorConverters = void 0;
+
+function makeColorComp(n) {
+  return Math.floor(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, "0");
+}
+
+class ColorConverters {
+  static CMYK_G([c, y, m, k]) {
+    return ["G", 1 - Math.min(1, 0.3 * c + 0.59 * m + 0.11 * y + k)];
+  }
+
+  static G_CMYK([g]) {
+    return ["CMYK", 0, 0, 0, 1 - g];
+  }
+
+  static G_RGB([g]) {
+    return ["RGB", g, g, g];
+  }
+
+  static G_HTML([g]) {
+    const G = makeColorComp(g);
+    return `#${G}${G}${G}`;
+  }
+
+  static RGB_G([r, g, b]) {
+    return ["G", 0.3 * r + 0.59 * g + 0.11 * b];
+  }
+
+  static RGB_HTML([r, g, b]) {
+    const R = makeColorComp(r);
+    const G = makeColorComp(g);
+    const B = makeColorComp(b);
+    return `#${R}${G}${B}`;
+  }
+
+  static T_HTML() {
+    return "#00000000";
+  }
+
+  static CMYK_RGB([c, y, m, k]) {
+    return ["RGB", 1 - Math.min(1, c + k), 1 - Math.min(1, m + k), 1 - Math.min(1, y + k)];
+  }
+
+  static CMYK_HTML(components) {
+    return this.RGB_HTML(this.CMYK_RGB(components));
+  }
+
+  static RGB_CMYK([r, g, b]) {
+    const c = 1 - r;
+    const m = 1 - g;
+    const y = 1 - b;
+    const k = Math.min(c, m, y);
+    return ["CMYK", c, m, y, k];
+  }
+
+}
+
+exports.ColorConverters = ColorConverters;
+
+/***/ }),
+/* 21 */
 /***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
 
 
@@ -11353,7 +11895,7 @@ const renderTextLayer = function renderTextLayerClosure() {
 exports.renderTextLayer = renderTextLayer;
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
 
 
@@ -12878,7 +13420,7 @@ exports.SVGGraphics = SVGGraphics;
 }
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
 
 
@@ -12890,7 +13432,7 @@ exports.PDFNodeStream = void 0;
 
 var _util = __w_pdfjs_require__(2);
 
-var _network_utils = __w_pdfjs_require__(23);
+var _network_utils = __w_pdfjs_require__(24);
 
 ;
 
@@ -13346,7 +13888,7 @@ class PDFNodeStreamFsRangeReader extends BaseRangeReader {
 }
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
 
 
@@ -13361,7 +13903,7 @@ exports.validateResponseStatus = validateResponseStatus;
 
 var _util = __w_pdfjs_require__(2);
 
-var _content_disposition = __w_pdfjs_require__(24);
+var _content_disposition = __w_pdfjs_require__(25);
 
 function validateRangeRequestCapabilities({
   getResponseHeader,
@@ -13437,7 +13979,7 @@ function validateResponseStatus(status) {
 }
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -13624,7 +14166,7 @@ function getFilenameFromContentDispositionHeader(contentDisposition) {
 }
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
 
 
@@ -13636,7 +14178,7 @@ exports.PDFNetworkStream = void 0;
 
 var _util = __w_pdfjs_require__(2);
 
-var _network_utils = __w_pdfjs_require__(23);
+var _network_utils = __w_pdfjs_require__(24);
 
 ;
 const OK_RESPONSE = 200;
@@ -14166,7 +14708,7 @@ class PDFNetworkStreamRangeRequestReader {
 }
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
 
 
@@ -14178,7 +14720,7 @@ exports.PDFFetchStream = void 0;
 
 var _util = __w_pdfjs_require__(2);
 
-var _network_utils = __w_pdfjs_require__(23);
+var _network_utils = __w_pdfjs_require__(24);
 
 ;
 
