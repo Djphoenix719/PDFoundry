@@ -15,12 +15,14 @@
     limitations under the License.
     -->
 
-    <label for="{{ data.id }}">{{ localize data.label }}</label>
-    <select id="{{ data.id }}">
-        {{#select data.selected}} {{#each data.options as |option|}}
-        <option value="{{ option.value }}">{{ localize option.text }}</option>
-        {{/each}} {{/select}}
-    </select>
+    <div class="row">
+        <label for="{{ data.id }}">{{ localize data.label }}</label>
+        <select id="{{ data.id }}">
+            {{#select data.selected}} {{#each data.options as |option|}}
+                <option value="{{ option.value }}">{{ localize option.text }}</option>
+            {{/each}} {{/select}}
+        </select>
+    </div>
 
     <button id="{{ data.id }}-confirm">{{localize 'PDFOUNDRY.MISC.Confirm'}}</button>
 </div>

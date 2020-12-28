@@ -25,6 +25,22 @@ div.pdf-app {
         }
     }
 
+    div.row {
+        display: flex;
+        flex: 1;
+        label {
+            flex-shrink: 1;
+            align-self: center;
+            white-space: nowrap;
+            padding-right: 0.5em;
+        }
+        input,
+        select,
+        textarea {
+            flex-grow: 1;
+        }
+    }
+
     div.flex {
         position: relative;
         display: flex;
