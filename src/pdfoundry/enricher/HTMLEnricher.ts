@@ -25,9 +25,9 @@ export default class HTMLEnricher {
 
         // @ts-ignore
         TextEditor.enrichHTML = function (html: string, options: any) {
-            html = String(html);
+            html = oldEnrich.apply(this, [html, options]);
             html = HTMLEnricher.enrichAll(html);
-            return oldEnrich.apply(this, [html, options]);
+            return html;
         };
     }
 
