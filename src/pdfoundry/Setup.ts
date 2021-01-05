@@ -86,6 +86,8 @@ export default class Setup {
         HTMLEnricher.patchEnrich();
         // Bind click handlers to renderers
         Hooks.on('renderApplication', (app: Application, html: JQuery) => HTMLEnricher.bindRichTextLinks(html));
+        Hooks.on('renderItemSheet', (app: Application, html: JQuery) => HTMLEnricher.bindRichTextLinks(html));
+        Hooks.on('renderActorSheet', (app: Application, html: JQuery) => HTMLEnricher.bindRichTextLinks(html));
         Hooks.on('renderChatMessage', (app: Application, html: JQuery) => HTMLEnricher.bindRichTextLinks(html));
     }
 
