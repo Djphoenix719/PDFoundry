@@ -216,18 +216,46 @@ export default class FillableViewer extends BaseViewer {
     }
 
     protected onPageRendered(event) {
+        const POLL_INTERVAL = 5;
+        const MAX_POLL_TIME = 250;
         const container = $(event.source.div);
-        const elements = container.find('input, textarea, select') as JQuery<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
 
-        if (this.container === undefined || this.container.length === 0) {
-            this.container = $(container.parents().find('#viewerContainer'));
-        }
+        new Promise<any>((resolve, reject) => {
+            let timeout;
+            let totalWait = 0;
+            let elements: JQuery<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
 
-        this.initializeInputs(elements);
+            const returnOrWait = () => {
+                elements = container.find('input, textarea, select') as JQuery<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
 
-        elements.on('change', this.onInputChanged.bind(this));
+                if (elements.length > 0) {
+                    clearTimeout(timeout);
+                    resolve(elements);
+                    return;
+                } else if (totalWait < MAX_POLL_TIME) {
+                    totalWait += POLL_INTERVAL;
+                    timeout = setTimeout(returnOrWait, POLL_INTERVAL);
+                } else {
+                    reject({
+                        message: 'Page did not render in the allowed time.',
+                        event,
+                    });
+                }
+            };
+            returnOrWait();
+        })
+            .then((elements: JQuery<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+                if (this.container === undefined || this.container.length === 0) {
+                    this.container = $(container.parents().find('#viewerContainer'));
+                }
 
-        super.onPageRendered(event);
+                this.initializeInputs(elements);
+
+                elements.on('change', this.onInputChanged.bind(this));
+
+                super.onPageRendered(event);
+            })
+            .catch((reason) => console.error(reason));
     }
 
     protected onInputChanged(event) {
