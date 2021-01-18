@@ -274,8 +274,7 @@ export default class Setup {
                     event.stopImmediatePropagation();
                     if (journalEntry.owner) {
                         Setup.onClickPDFName(journalEntry);
-                    }
-                    else {
+                    } else {
                         Setup.onClickPDFThumbnail(journalEntry);
                     }
                 });
