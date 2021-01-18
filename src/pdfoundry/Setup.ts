@@ -272,7 +272,12 @@ export default class Setup {
             if (isEntityPDF(journalEntry)) {
                 target.find('h4').on('click', (event) => {
                     event.stopImmediatePropagation();
-                    Setup.onClickPDFName(journalEntry);
+                    if (journalEntry.owner) {
+                        Setup.onClickPDFName(journalEntry);
+                    }
+                    else {
+                        Setup.onClickPDFThumbnail(journalEntry);
+                    }
                 });
 
                 const pdfData = getPDFData(journalEntry);
