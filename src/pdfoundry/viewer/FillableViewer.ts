@@ -285,7 +285,10 @@ export default class FillableViewer extends BaseViewer {
             this.resolveDelta(this.flattenEntity(), {
                 [key]: value,
             }),
-        );
+        ).then((result) => {
+            const elementsToUpdate = this.container.find('input, textarea, select');
+            this.initializeInputs(elementsToUpdate);
+        });
     }
 
     protected initializeInputs(elements: JQuery) {
@@ -354,7 +357,7 @@ export default class FillableViewer extends BaseViewer {
         const args = duplicate(data);
         delete args['_id'];
 
-        const elementsToUpdate = this.container.find('input, textarea');
+        const elementsToUpdate = this.container.find('input, textarea, select');
         this.initializeInputs(elementsToUpdate);
         this.refreshTitle();
     }
