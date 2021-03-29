@@ -31,7 +31,7 @@ export default class ActorViewer extends FillableViewer {
     // <editor-fold desc="Static Methods"></editor-fold>
 
     // <editor-fold desc="Properties">
-    protected entity: Actor;
+    protected document: Actor;
     protected actorSheet: PDFActorSheetAdapter;
     // </editor-fold>
 
@@ -39,7 +39,7 @@ export default class ActorViewer extends FillableViewer {
     constructor(actor: Actor, pdfData: PDFData, sheet: PDFActorSheetAdapter, options?: Application.Options) {
         super(actor, pdfData, options);
 
-        this.entity = actor;
+        this.document = actor;
         this.actorSheet = sheet;
     }
     // </editor-fold>
@@ -96,11 +96,11 @@ export default class ActorViewer extends FillableViewer {
             buttons.unshift({
                 class: 'configure-token',
                 icon: 'fas fa-user-circle',
-                label: game.i18n.localize(this.entity.token ? 'Token' : 'TOKEN.TitlePrototype'),
+                label: game.i18n.localize(this.document.token ? 'Token' : 'TOKEN.TitlePrototype'),
                 onclick: async () => {
-                    const token = this.entity.token || new Token(this.entity.data.token);
+                    const token = this.document.token || new Token(this.document.data.token);
                     new TokenConfig(token, {
-                        configureDefault: !this.entity.token,
+                        configureDefault: !this.document.token,
                     }).render(true);
                 },
             });
@@ -110,7 +110,7 @@ export default class ActorViewer extends FillableViewer {
                 icon: 'fas fa-cog',
                 label: game.i18n.localize('Sheet'),
                 onclick: async () => {
-                    new EntitySheetConfig(this.entity).render(true);
+                    new EntitySheetConfig(this.document).render(true);
                 },
             });
 
@@ -139,7 +139,7 @@ export default class ActorViewer extends FillableViewer {
                     icon: 'fas fa-search',
                     label: game.i18n.localize('PDFOUNDRY.VIEWER.InspectData'),
                     onclick: () => {
-                        new PDFActorDataBrowser(this.entity).render(true);
+                        new PDFActorDataBrowser(this.document).render(true);
                     },
                 });
             }
@@ -176,7 +176,7 @@ export default class ActorViewer extends FillableViewer {
             }
 
             await this.actorSheet.close();
-            new PDFActorSheetAdapter(this.entity, this.options).render(true);
+            new PDFActorSheetAdapter(this.document, this.options).render(true);
         }
     }
 
