@@ -36,7 +36,7 @@ export default class ActorViewer extends FillableViewer {
     // </editor-fold>
 
     // <editor-fold desc="Constructor & Initialization">
-    constructor(actor: Actor, pdfData: PDFData, sheet: PDFActorSheetAdapter, options?: ApplicationOptions) {
+    constructor(actor: Actor, pdfData: PDFData, sheet: PDFActorSheetAdapter, options?: Application.Options) {
         super(actor, pdfData, options);
 
         this.entity = actor;
@@ -90,8 +90,9 @@ export default class ActorViewer extends FillableViewer {
             onclick: (ev) => this.actorSheet.close(),
         });
 
+        // @ts-ignore
         const canConfigure = game.user.isGM || (this.entity.owner && game.user.can('TOKEN_CONFIGURE'));
-        if (this.options.editable && canConfigure) {
+        if (this.options['editable'] && canConfigure) {
             buttons.unshift({
                 class: 'configure-token',
                 icon: 'fas fa-user-circle',

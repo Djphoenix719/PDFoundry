@@ -85,10 +85,11 @@ async function convert() {
             name: pdfData.name,
             permission,
         })) as JournalEntry;
+        // @ts-ignore
         delete pdfData.name;
 
         await setPDFData(journalEntry, pdfData);
-        await item.delete();
+        await item.delete({});
     }
 
     // @ts-ignore
@@ -106,12 +107,17 @@ function getLegacyData(item: Item): PDFData {
         PDFoundry_FillablePDF: PDFType.Fillable,
         PDFoundry_FillableActor: PDFType.Actor,
     };
+    // @ts-ignore
     let type = typeMap[item.data.data.pdf_type] ?? PDFType.Static;
     return {
         name: item.data.name,
+        // @ts-ignore
         url: item.data.data.url,
+        // @ts-ignore
         code: item.data.data.code,
+        // @ts-ignore
         offset: item.data.data.offset,
+        // @ts-ignore
         cache: item.data.data.cache,
         type,
     };

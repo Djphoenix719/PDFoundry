@@ -56,7 +56,7 @@ export default abstract class SelectApp extends Application {
     // </editor-fold>
     // <editor-fold desc="Constructor & Initialization">
 
-    constructor(callback?: SelectAppCallback, currentValue?: string, options?: ApplicationOptions) {
+    constructor(callback?: SelectAppCallback, currentValue?: string, options?: Application.Options) {
         super(options);
 
         this._current = currentValue;

@@ -56,7 +56,7 @@ export default abstract class BaseViewer extends Application {
 
     // <editor-fold desc="Constructor & Initialization">
 
-    protected constructor(options?: ApplicationOptions) {
+    protected constructor(options?: Application.Options) {
         super(options);
         this._eventStore = new EventStore<PDFViewerEvent>();
     }

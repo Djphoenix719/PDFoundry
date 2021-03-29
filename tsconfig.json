@@ -4,8 +4,7 @@
       "strictNullChecks": true,
       "alwaysStrict": true,
       "types": [
-        "foundry-pc-types",
-        "@types/pdfjs-dist"
+        "foundry-pc-types"
       ],
       "baseUrl": "src/pdfoundry",
       "paths": { }

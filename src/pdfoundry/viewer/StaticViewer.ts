@@ -39,7 +39,7 @@ export default class StaticViewer extends BaseViewer {
 
     // <editor-fold desc="Constructor & Initialization">
 
-    constructor(pdfData?: PDFData, options?: ApplicationOptions) {
+    constructor(pdfData?: PDFData, options?: Application.Options) {
         super(options);
 
         if (pdfData === undefined) {

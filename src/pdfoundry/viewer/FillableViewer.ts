@@ -145,7 +145,7 @@ export default class FillableViewer extends BaseViewer {
     // </editor-fold>
     // <editor-fold desc="Constructor & Initialization">
 
-    public constructor(entity: JournalEntry | Actor, pdfData: PDFData, options?: ApplicationOptions) {
+    public constructor(entity: JournalEntry | Actor, pdfData: PDFData, options?: Application.Options) {
         super(options);
 
         this.entity = entity;
@@ -349,12 +349,13 @@ export default class FillableViewer extends BaseViewer {
         $(this.element).parent().parent().find('.window-title').text(this.title);
     }
 
-    protected onUpdateEntity(actor: Actor, data: Partial<ActorData> & { _id: string }, options: { diff: boolean }, id: string) {
+    protected onUpdateEntity(actor: Actor, data: Partial<Actor.Data> & { _id: string }, options: { diff: boolean }, id: string) {
         if (data._id !== this.entity.id) {
             return;
         }
 
         const args = duplicate(data);
+        // @ts-ignore
         delete args['_id'];
 
         const elementsToUpdate = this.container.find('input, textarea, select');

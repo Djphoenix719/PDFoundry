@@ -67,7 +67,7 @@ export default abstract class ChatCommand {
      * @param args
      * @protected
      */
-    protected abstract async run(args: string[]): Promise<void>;
+    protected abstract run(args: string[]): Promise<void>;
 
     // </editor-fold>
 }
