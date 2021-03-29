@@ -47,14 +47,14 @@ export default class ActorViewer extends FillableViewer {
     // <editor-fold desc="Getters & Setters">
 
     get title(): string {
-        return this.entity.name;
+        return this.document.name;
     }
 
     /**
      * Get the URL for the current sheet from the actor flags.
      */
     public getSheetId(): string | undefined {
-        return this.entity.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID);
+        return this.document.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID);
     }
 
     /**
@@ -63,9 +63,9 @@ export default class ActorViewer extends FillableViewer {
      */
     public async setSheetId(value: string | undefined) {
         if (typeof value === 'string') {
-            return this.entity.setFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID, value);
+            return this.document.setFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID, value);
         } else {
-            return this.entity.unsetFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID);
+            return this.document.unsetFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID);
         }
     }
 
@@ -91,27 +91,23 @@ export default class ActorViewer extends FillableViewer {
         });
 
         // @ts-ignore
-        const canConfigure = game.user.isGM || (this.entity.owner && game.user.can('TOKEN_CONFIGURE'));
+        const canConfigure = game.user.isGM || (this.document.owner && game.user.can('TOKEN_CONFIGURE'));
         if (this.options['editable'] && canConfigure) {
             buttons.unshift({
+                // @ts-ignore TODO 0.8.x
+                label: this.token ? 'Token' : 'Prototype Token',
                 class: 'configure-token',
                 icon: 'fas fa-user-circle',
-                label: game.i18n.localize(this.document.token ? 'Token' : 'TOKEN.TitlePrototype'),
-                onclick: async () => {
-                    const token = this.document.token || new Token(this.document.data.token);
-                    new TokenConfig(token, {
-                        configureDefault: !this.document.token,
-                    }).render(true);
-                },
+                // @ts-ignore TODO 0.8.x
+                onclick: (ev) => this.actorSheet._onConfigureToken(ev),
             });
 
             buttons.unshift({
+                label: 'Sheet',
                 class: 'configure-sheet',
                 icon: 'fas fa-cog',
-                label: game.i18n.localize('Sheet'),
-                onclick: async () => {
-                    new EntitySheetConfig(this.document).render(true);
-                },
+                // @ts-ignore TODO 0.8.x
+                onclick: (ev) => this.actorSheet._onConfigureSheet(ev),
             });
 
             buttons.unshift({
@@ -119,17 +115,18 @@ export default class ActorViewer extends FillableViewer {
                 icon: 'fas fa-user-cog',
                 label: game.i18n.localize('PDFOUNDRY.VIEWER.SelectSheet'),
                 onclick: () => {
+                    const current = this.getSheetId();
                     new ActorSheetSelect(async (id) => {
                         await this.setSheetId(id);
                         await this.actorSheet.close();
                         const sheet = this.getSheetPdf();
-                        if (sheet) {
-                            const url = getAbsoluteURL(sheet.url);
-                            await this.open(url);
-                        } else {
+
+                        if (!sheet) {
                             await this.setSheetId(undefined);
                         }
-                    }, this.getSheetId()).render(true);
+
+                        await this.actorSheet.render(true);
+                    }, current).render(true);
                 },
             });
 

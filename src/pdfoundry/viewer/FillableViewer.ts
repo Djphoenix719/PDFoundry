@@ -138,7 +138,7 @@ export default class FillableViewer extends BaseViewer {
     // </editor-fold>
     // <editor-fold desc="Properties">
 
-    protected entity: Entity;
+    protected document: Entity;
     protected pdfData: PDFData;
     private container: JQuery;
 
@@ -148,7 +148,7 @@ export default class FillableViewer extends BaseViewer {
     public constructor(entity: JournalEntry | Actor, pdfData: PDFData, options?: Application.Options) {
         super(options);
 
-        this.entity = entity;
+        this.document = entity;
         this.pdfData = pdfData;
 
         this.bindHooks();
@@ -158,14 +158,14 @@ export default class FillableViewer extends BaseViewer {
     // <editor-fold desc="Getters & Setters">
 
     public get entityType(): 'Actor' | 'Item' {
-        return this.entity.data.type as 'Actor' | 'Item';
+        return this.document.data.type as 'Actor' | 'Item';
     }
 
     protected flattenEntity(): Record<string, string> {
         const data = flattenObject({
-            name: this.entity.name,
-            data: this.entity.data.data,
-            flags: this.entity.data.flags,
+            name: this.document.name,
+            data: this.document.data.data,
+            flags: this.document.data.flags,
         }) as Record<string, string>;
 
         // Do not allow non-data keys to make it into the flat object
@@ -324,7 +324,7 @@ export default class FillableViewer extends BaseViewer {
 
     protected resolveDelta(oldData: Record<string, any>, newData: Record<string, any>) {
         // Flags must be fully resolved
-        const delta = { ...flattenObject({ flags: this.entity.data.flags }) };
+        const delta = { ...flattenObject({ flags: this.document.data.flags }) };
         for (const [key, newValue] of Object.entries(newData)) {
             const oldValue = oldData[key];
 
@@ -350,7 +350,7 @@ export default class FillableViewer extends BaseViewer {
     }
 
     protected onUpdateEntity(actor: Actor, data: Partial<Actor.Data> & { _id: string }, options: { diff: boolean }, id: string) {
-        if (data._id !== this.entity.id) {
+        if (data._id !== this.document.id) {
             return;
         }
 
@@ -365,7 +365,7 @@ export default class FillableViewer extends BaseViewer {
 
     protected async update(delta: object) {
         // data must be expanded to set properly
-        return this.entity.update(expandObject(delta));
+        return this.document.update(expandObject(delta));
     }
 
     protected initializeTextInput(
