@@ -35,14 +35,14 @@ export default class ActorSheetSelect extends SelectApp {
     }
 
     protected get selectOptions(): SelectOption[] {
-        const journals: JournalEntry[] = game.journal.filter((je: JournalEntry) => {
-            return isEntityPDF(je) && getPDFData(je)?.type === PDFType.Actor;
+        const journals: JournalEntry[] = game.journal.filter((entry: JournalEntry) => {
+            return isEntityPDF(entry) && getPDFData(entry)?.type === PDFType.Actor;
         });
 
-        return journals.map((je) => {
+        return journals.map((entry) => {
             return {
-                text: je.data.name,
-                value: je.id,
+                text: entry.data.name,
+                value: entry.id,
             };
         });
     }
