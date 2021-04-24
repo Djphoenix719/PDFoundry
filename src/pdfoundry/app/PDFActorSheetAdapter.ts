@@ -82,6 +82,11 @@ export default class PDFActorSheetAdapter extends ActorSheet {
         return super.render(force, options);
     }
 
+    // TODO: Sandbox compatibility - should force this class to extend CONFIG class instead.
+    async scrollbarSet() {
+        return;
+    }
+
     async close(): Promise<void> {
         if (this._viewer) {
             await this._viewer.close();
