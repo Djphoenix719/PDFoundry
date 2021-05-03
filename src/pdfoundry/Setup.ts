@@ -326,13 +326,13 @@ export default class Setup {
     }
 
     private static onNoteConfig(app: NoteConfig, html: JQuery, data: any) {
-        const journalId = data.entryId as string;
+        const journalId = data.data.entryId;
         const journal = game.journal.get(journalId);
         if (isEntityPDF(journal)) {
             const container = $(`<div class="form-group"></div>`);
             const label = $(`<label>${game.i18n.localize('PDFOUNDRY.COMMON.PageNumber')}</label>`);
 
-            let pageNumber = data.object['flags']?.[Settings.MODULE_NAME]?.[Settings.FLAGS_KEY.PAGE_NUMBER];
+            let pageNumber = data.data['flags']?.[Settings.MODULE_NAME]?.[Settings.FLAGS_KEY.PAGE_NUMBER];
             if (pageNumber === undefined) {
                 pageNumber = '';
             }
