@@ -73,7 +73,7 @@ const defaultOptions = {
     kind: OptionKind.VIEWER + OptionKind.PREFERENCE
   },
   enableScripting: {
-    value: true,
+    value: false,
     kind: OptionKind.VIEWER + OptionKind.PREFERENCE
   },
   enableWebGL: {
@@ -9841,7 +9841,7 @@ class BaseViewer {
       throw new Error("Cannot initialize BaseViewer.");
     }
 
-    const viewerVersion = '2.9.202';
+    const viewerVersion = '2.9.204';
 
     if (_pdfjsLib.version !== viewerVersion) {
       throw new Error(`The API version "${_pdfjsLib.version}" does not match the Viewer version "${viewerVersion}".`);
@@ -13592,7 +13592,7 @@ class BasePreferences {
         "disablePageLabels": false,
         "enablePermissions": false,
         "enablePrintAutoRotate": true,
-        "enableScripting": true,
+        "enableScripting": false,
         "enableWebGL": false,
         "externalLinkTarget": 0,
         "historyUpdateUrl": false,
@@ -15084,8 +15084,8 @@ var _app_options = __webpack_require__(1);
 
 var _app = __webpack_require__(3);
 
-const pdfjsVersion = '2.9.202';
-const pdfjsBuild = '4f1ad0238';
+const pdfjsVersion = '2.9.204';
+const pdfjsBuild = '0720fb82b';
 window.PDFViewerApplication = _app.PDFViewerApplication;
 window.PDFViewerApplicationOptions = _app_options.AppOptions;
 ;
