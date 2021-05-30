@@ -1794,7 +1794,7 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
 
   return worker.messageHandler.sendWithPromise("GetDocRequest", {
     docId,
-    apiVersion: '2.9.204',
+    apiVersion: '2.9.207',
     source: {
       data: source.data,
       url: source.url,
@@ -3860,9 +3860,9 @@ const InternalRenderTask = function InternalRenderTaskClosure() {
   return InternalRenderTask;
 }();
 
-const version = '2.9.204';
+const version = '2.9.207';
 exports.version = version;
-const build = '0720fb82b';
+const build = '4b0fcdfec';
 exports.build = build;
 
 /***/ }),
@@ -8867,9 +8867,9 @@ var _util = __w_pdfjs_require__(2);
 
 var _annotation_storage = __w_pdfjs_require__(8);
 
-var _scripting_utils = __w_pdfjs_require__(19);
+var _app_options = __w_pdfjs_require__(19);
 
-var _app_options = __w_pdfjs_require__(20);
+var _scripting_utils = __w_pdfjs_require__(21);
 
 class AnnotationElementFactory {
   static create(parameters) {
@@ -9580,6 +9580,12 @@ class TextWidgetAnnotationElement extends WidgetAnnotationElement {
         element.classList.add("comb");
         element.style.letterSpacing = `calc(${combWidth}px - 1ch)`;
       }
+
+      element.style.padding = "0px";
+      const form = document.createElement("form");
+      form.setAttribute("autocomplete", "off");
+      form.appendChild(element);
+      element = form;
     } else {
       element = document.createElement("div");
       element.textContent = this.data.fieldValue;
@@ -10678,74 +10684,6 @@ exports.AnnotationLayer = AnnotationLayer;
 
 /***/ }),
 /* 19 */
-/***/ ((__unused_webpack_module, exports) => {
-
-
-
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports.ColorConverters = void 0;
-
-function makeColorComp(n) {
-  return Math.floor(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, "0");
-}
-
-class ColorConverters {
-  static CMYK_G([c, y, m, k]) {
-    return ["G", 1 - Math.min(1, 0.3 * c + 0.59 * m + 0.11 * y + k)];
-  }
-
-  static G_CMYK([g]) {
-    return ["CMYK", 0, 0, 0, 1 - g];
-  }
-
-  static G_RGB([g]) {
-    return ["RGB", g, g, g];
-  }
-
-  static G_HTML([g]) {
-    const G = makeColorComp(g);
-    return `#${G}${G}${G}`;
-  }
-
-  static RGB_G([r, g, b]) {
-    return ["G", 0.3 * r + 0.59 * g + 0.11 * b];
-  }
-
-  static RGB_HTML([r, g, b]) {
-    const R = makeColorComp(r);
-    const G = makeColorComp(g);
-    const B = makeColorComp(b);
-    return `#${R}${G}${B}`;
-  }
-
-  static T_HTML() {
-    return "#00000000";
-  }
-
-  static CMYK_RGB([c, y, m, k]) {
-    return ["RGB", 1 - Math.min(1, c + k), 1 - Math.min(1, m + k), 1 - Math.min(1, y + k)];
-  }
-
-  static CMYK_HTML(components) {
-    return this.RGB_HTML(this.CMYK_RGB(components));
-  }
-
-  static RGB_CMYK([r, g, b]) {
-    const c = 1 - r;
-    const m = 1 - g;
-    const y = 1 - b;
-    const k = Math.min(c, m, y);
-    return ["CMYK", c, m, y, k];
-  }
-
-}
-
-exports.ColorConverters = ColorConverters;
-
-/***/ }),
-/* 20 */
 /***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
 
 
@@ -10755,7 +10693,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports.OptionKind = exports.AppOptions = void 0;
 
-var _viewer_compatibility = __w_pdfjs_require__(21);
+var _viewer_compatibility = __w_pdfjs_require__(20);
 
 const OptionKind = {
   VIEWER: 0x02,
@@ -10770,7 +10708,7 @@ const defaultOptions = {
     kind: OptionKind.VIEWER + OptionKind.PREFERENCE
   },
   defaultUrl: {
-    value: "compressed.tracemonkey-pldi-09.pdf",
+    value: "",
     kind: OptionKind.VIEWER
   },
   defaultZoomValue: {
@@ -11018,7 +10956,7 @@ class AppOptions {
 exports.AppOptions = AppOptions;
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -11050,6 +10988,74 @@ const compatibilityParams = Object.create(null);
 }
 const viewerCompatibilityParams = Object.freeze(compatibilityParams);
 exports.viewerCompatibilityParams = viewerCompatibilityParams;
+
+/***/ }),
+/* 21 */
+/***/ ((__unused_webpack_module, exports) => {
+
+
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports.ColorConverters = void 0;
+
+function makeColorComp(n) {
+  return Math.floor(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, "0");
+}
+
+class ColorConverters {
+  static CMYK_G([c, y, m, k]) {
+    return ["G", 1 - Math.min(1, 0.3 * c + 0.59 * m + 0.11 * y + k)];
+  }
+
+  static G_CMYK([g]) {
+    return ["CMYK", 0, 0, 0, 1 - g];
+  }
+
+  static G_RGB([g]) {
+    return ["RGB", g, g, g];
+  }
+
+  static G_HTML([g]) {
+    const G = makeColorComp(g);
+    return `#${G}${G}${G}`;
+  }
+
+  static RGB_G([r, g, b]) {
+    return ["G", 0.3 * r + 0.59 * g + 0.11 * b];
+  }
+
+  static RGB_HTML([r, g, b]) {
+    const R = makeColorComp(r);
+    const G = makeColorComp(g);
+    const B = makeColorComp(b);
+    return `#${R}${G}${B}`;
+  }
+
+  static T_HTML() {
+    return "#00000000";
+  }
+
+  static CMYK_RGB([c, y, m, k]) {
+    return ["RGB", 1 - Math.min(1, c + k), 1 - Math.min(1, m + k), 1 - Math.min(1, y + k)];
+  }
+
+  static CMYK_HTML(components) {
+    return this.RGB_HTML(this.CMYK_RGB(components));
+  }
+
+  static RGB_CMYK([r, g, b]) {
+    const c = 1 - r;
+    const m = 1 - g;
+    const y = 1 - b;
+    const k = Math.min(c, m, y);
+    return ["CMYK", c, m, y, k];
+  }
+
+}
+
+exports.ColorConverters = ColorConverters;
 
 /***/ }),
 /* 22 */
@@ -15282,8 +15288,8 @@ var _svg = __w_pdfjs_require__(23);
 
 var _xfa_layer = __w_pdfjs_require__(24);
 
-const pdfjsVersion = '2.9.204';
-const pdfjsBuild = '0720fb82b';
+const pdfjsVersion = '2.9.207';
+const pdfjsBuild = '4b0fcdfec';
 {
   const {
     isNodeJS
