@@ -157,10 +157,6 @@ export default class FillableViewer extends BaseViewer {
     // </editor-fold>
     // <editor-fold desc="Getters & Setters">
 
-    public get entityType(): 'Actor' | 'Item' {
-        return this.document.data.type as 'Actor' | 'Item';
-    }
-
     protected flattenEntity(): Record<string, string> {
         const data = flattenObject({
             name: this.document.name,
@@ -182,24 +178,18 @@ export default class FillableViewer extends BaseViewer {
     // <editor-fold desc="Instance Methods">
 
     protected bindHooks(): void {
-        switch (this.entityType) {
-            case 'Actor':
-                Hooks.on('updateActor', this.onUpdateEntity.bind(this));
-                break;
-            case 'Item':
-                Hooks.on('updateItem', this.onUpdateEntity.bind(this));
-                break;
+        if (this.document.uuid.startsWith('Actor')) {
+            Hooks.on('updateActor', this.onUpdateEntity.bind(this));
+        } else if (this.document.uuid.startsWith('Item')) {
+            Hooks.on('updateItem', this.onUpdateEntity.bind(this));
         }
     }
 
     protected unbindHooks(): void {
-        switch (this.entityType) {
-            case 'Actor':
-                Hooks.off('updateActor', this.onUpdateEntity.bind(this));
-                break;
-            case 'Item':
-                Hooks.off('updateItem', this.onUpdateEntity.bind(this));
-                break;
+        if (this.document.uuid.startsWith('Actor')) {
+            Hooks.off('updateActor', this.onUpdateEntity.bind(this));
+        } else if (this.document.uuid.startsWith('Item')) {
+            Hooks.off('updateItem', this.onUpdateEntity.bind(this));
         }
     }
 
@@ -365,6 +355,7 @@ export default class FillableViewer extends BaseViewer {
 
     protected async update(delta: object) {
         // data must be expanded to set properly
+        // TODO: Flags seem to be always set - delta needs checking
         return this.document.update(expandObject(delta));
     }
 
