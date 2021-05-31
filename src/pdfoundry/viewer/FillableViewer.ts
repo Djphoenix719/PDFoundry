@@ -336,7 +336,7 @@ export default class FillableViewer extends BaseViewer {
     }
 
     public refreshTitle(): void {
-        $(this.element).parent().parent().find('.window-title').text(this.title);
+        $(this.element).find('.window-title').text(this.title);
     }
 
     protected onUpdateEntity(actor: Actor, data: Partial<Actor.Data> & { _id: string }, options: { diff: boolean }, id: string) {
