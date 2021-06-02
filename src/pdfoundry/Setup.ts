@@ -272,7 +272,8 @@ export default class Setup {
             if (isEntityPDF(journalEntry)) {
                 target.find('h4').on('click', (event) => {
                     event.stopImmediatePropagation();
-                    if (journalEntry.owner) {
+                    // @ts-ignore
+                    if (journalEntry.isOwner) {
                         Setup.onClickPDFName(journalEntry);
                     } else {
                         Setup.onClickPDFThumbnail(journalEntry);
