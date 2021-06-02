@@ -69,7 +69,6 @@ export class PDFConfig extends FormApplication {
     }
 
     get isEditable(): boolean {
-        console.warn(this.object);
         // @ts-ignore TODO: 0.8.x compat
         return this.object.testUserPermission(game.user, CONST.ENTITY_PERMISSIONS.OWNER);
     }
