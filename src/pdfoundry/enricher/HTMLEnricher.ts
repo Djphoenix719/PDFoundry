@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { PDFConfig } from '../app/PDFConfig';
 import Api from '../Api';
 
 /**
@@ -21,30 +20,18 @@ import Api from '../Api';
  * Enriches TinyMCE editor content
  */
 export default class HTMLEnricher {
-    public static HandleEnrich(app: Application, html: JQuery, data: any) {
-        if (app instanceof PDFConfig) return;
+    public static patchEnrich() {
+        const oldEnrich = TextEditor.enrichHTML;
 
-        HTMLEnricher.EnrichHTML(html);
-        HTMLEnricher.BindClicks(html);
+        // @ts-ignore
+        TextEditor.enrichHTML = function (html: string, options: any) {
+            html = oldEnrich.apply(this, [html, options]);
+            html = HTMLEnricher.enrichAll(html);
+            return html;
+        };
     }
 
-    private static EnrichHTML(html: JQuery) {
-        // Enrich HTML
-        for (const element of html.find('div.editor-content > *, p')) {
-            try {
-                // We replace one at a time until done
-                while (element.innerText.includes('@PDF')) {
-                    element.innerHTML = new HTMLEnricher($(element), element.innerHTML).enrich();
-                }
-            } catch (error) {
-                // Errors get propagated from instance for proper error modeling
-                ui.notifications.error(error.message);
-                console.error(error);
-            }
-        }
-    }
-
-    private static BindClicks(html: JQuery) {
+    public static bindRichTextLinks(html: JQuery) {
         html.find('a.pdfoundry-link').on('click', (event) => {
             event.preventDefault();
 
@@ -73,21 +60,15 @@ export default class HTMLEnricher {
         });
     }
 
-    private readonly _sPos: number;
-    private readonly _ePos: number;
-    private readonly _text: string;
-    private readonly _element: JQuery;
+    /**
+     * Replace the first @PDF link in the text with a rich link.
+     * @param text
+     */
+    public static enrich(text: string): string {
+        const sPos = text.indexOf('@');
+        const ePos = text.indexOf('}', sPos);
 
-    constructor(p: JQuery, text: string) {
-        this._element = p;
-        this._text = text;
-
-        this._sPos = this._text.indexOf('@');
-        this._ePos = this._text.indexOf('}', this._sPos + 1);
-    }
-
-    public enrich(): string {
-        const enrichMe = this._text.slice(this._sPos, this._ePos + 1);
+        const enrichMe = text.slice(sPos, ePos + 1);
 
         const lBracket = enrichMe.indexOf('[');
         const rBracket = enrichMe.indexOf(']');
@@ -143,10 +124,22 @@ export default class HTMLEnricher {
             const linkTitle = `${i18nOpen} ${nameOrCode} ${i18nPage} ${pageNumber}`;
             const result = `<a class="pdfoundry-link" title="${linkTitle}" data-ref="${nameOrCode}" data-page="${pageNumber}">${linkText}</a>`;
 
-            return this._text.slice(0, this._sPos) + result + this._text.slice(this._ePos + 1);
+            return text.slice(0, sPos) + result + text.slice(ePos + 1);
         } else {
             // Case 2 - User does not have permissions to see the PDF
-            return this._text.slice(0, this._sPos) + linkText + this._text.slice(this._ePos + 1);
+            return text.slice(0, sPos) + linkText + text.slice(ePos + 1);
         }
+    }
+
+    /**
+     * Replace all rich text markup with appropriate rich text HTML in the specified text.
+     * @param text
+     */
+    public static enrichAll(text: string): string {
+        while (text.includes('@PDF')) {
+            text = HTMLEnricher.enrich(text);
+        }
+
+        return text;
     }
 }

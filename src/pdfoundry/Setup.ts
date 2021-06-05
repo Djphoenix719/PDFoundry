@@ -64,6 +64,9 @@ export default class Setup {
         // Register the PDFoundry APi on the UI
         ui['PDFoundry'] = Api;
 
+        // Register the PDF sheet with the class picker
+        Setup.setupSheets();
+
         // Setup tasks requiring that FVTT is loaded
         Hooks.once('ready', Setup.lateRun);
 
@@ -78,6 +81,14 @@ export default class Setup {
 
         // Load base themes
         Setup.registerThemes();
+
+        // Patch the TextEnricher with a proxy
+        HTMLEnricher.patchEnrich();
+        // Bind click handlers to renderers
+        Hooks.on('renderApplication', (app: Application, html: JQuery) => HTMLEnricher.bindRichTextLinks(html));
+        Hooks.on('renderItemSheet', (app: Application, html: JQuery) => HTMLEnricher.bindRichTextLinks(html));
+        Hooks.on('renderActorSheet', (app: Application, html: JQuery) => HTMLEnricher.bindRichTextLinks(html));
+        Hooks.on('renderChatMessage', (app: Application, html: JQuery) => HTMLEnricher.bindRichTextLinks(html));
     }
 
     private static readonly COMMANDS = [new FixMissingTypes(), new PurgeCache()];
@@ -86,16 +97,8 @@ export default class Setup {
      * Late setup tasks happen when the system is loaded
      */
     public static lateRun() {
-        // Register the PDF sheet with the class picker
-        Setup.setupSheets();
         // Register socket event handlers
         Socket.initialize();
-
-        // Bind always-run event handlers
-        // Enrich Journal & Item Sheet rich text links
-        Hooks.on('renderItemSheet', HTMLEnricher.HandleEnrich);
-        Hooks.on('renderJournalSheet', HTMLEnricher.HandleEnrich);
-        Hooks.on('renderActorSheet', HTMLEnricher.HandleEnrich);
 
         // Chat command processing
         Hooks.on('chatMessage', Setup.onChatMessage);
@@ -128,7 +131,7 @@ export default class Setup {
      */
     public static setupSheets() {
         // Register actor "sheet"
-        Actors.registerSheet(Settings.MODULE_NAME, PDFActorSheetAdapter, { makeDefault: false });
+        Actors.registerSheet(Settings.MODULE_NAME, PDFActorSheetAdapter);
     }
 
     /**
@@ -228,12 +231,7 @@ export default class Setup {
         const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
         button.on('click', Api.showHelp);
 
-        // TODO: Remove <0.6.6 method once stable hits
-        if (['0.6.6', '0.7.3', '0.7.4'].includes(game.data.version)) {
-            html.find('#settings-documentation').append(button);
-        } else {
-            html.find('h2').last().before(button);
-        }
+        html.find('#settings-documentation').append(button);
     }
 
     private static async createPDF() {
@@ -274,7 +272,12 @@ export default class Setup {
             if (isEntityPDF(journalEntry)) {
                 target.find('h4').on('click', (event) => {
                     event.stopImmediatePropagation();
-                    Setup.onClickPDFName(journalEntry);
+                    // @ts-ignore
+                    if (journalEntry.isOwner) {
+                        Setup.onClickPDFName(journalEntry);
+                    } else {
+                        Setup.onClickPDFThumbnail(journalEntry);
+                    }
                 });
 
                 const pdfData = getPDFData(journalEntry);
@@ -324,13 +327,13 @@ export default class Setup {
     }
 
     private static onNoteConfig(app: NoteConfig, html: JQuery, data: any) {
-        const journalId = data.entryId as string;
+        const journalId = data.data.entryId;
         const journal = game.journal.get(journalId);
         if (isEntityPDF(journal)) {
             const container = $(`<div class="form-group"></div>`);
             const label = $(`<label>${game.i18n.localize('PDFOUNDRY.COMMON.PageNumber')}</label>`);
 
-            let pageNumber = data.object['flags']?.[Settings.MODULE_NAME]?.[Settings.FLAGS_KEY.PAGE_NUMBER];
+            let pageNumber = data.data['flags']?.[Settings.MODULE_NAME]?.[Settings.FLAGS_KEY.PAGE_NUMBER];
             if (pageNumber === undefined) {
                 pageNumber = '';
             }
@@ -358,18 +361,20 @@ export default class Setup {
         const journal = note.entry as JournalEntry;
         const pdf = getPDFData(journal);
         if (isEntityPDF(journal) && pdf) {
-            let pageText = note.data.flags?.[Settings.MODULE_NAME]?.[Settings.FLAGS_KEY.PAGE_NUMBER] as string | undefined;
-            let pageNumber = 0;
+            note.mouseInteractionManager.callbacks['clickLeft2'] = () => {
+                let pageText: string | number | undefined = note.data.flags?.[Settings.MODULE_NAME]?.[Settings.FLAGS_KEY.PAGE_NUMBER];
+                let pageNumber = 0;
 
-            if (typeof pageText === 'string') {
-                try {
-                    pageNumber = parseInt(pageText);
-                } catch (e) {
-                    pageNumber = 0;
+                if (typeof pageText === 'string') {
+                    try {
+                        pageNumber = parseInt(pageText);
+                    } catch (e) {
+                        pageNumber = 0;
+                    }
+                } else if (typeof pageText === 'number') {
+                    pageNumber = pageText;
                 }
-            }
 
-            note.mouseInteractionManager.callbacks['clickLeft2'] = (event) => {
                 if (pageNumber === 0) {
                     Api.openPDF(pdf);
                 } else {

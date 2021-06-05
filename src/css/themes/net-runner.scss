@@ -17,7 +17,12 @@
     --main-color: rgba(0, 255, 65, 1);
     --body-bg-color: rgba(0, 0, 0, 1);
     --errorWrapper-bg-color: rgba(199, 17, 17, 1);
-    --progressBar-color: rgba(0, 143, 17, 1);
+    --progressBar-color: rgba(0, 255, 65, 1);
+    --progressBar-indeterminate-bg-color: rgba(0, 59, 0, 1);
+    --progressBar-indeterminate-blend-color: rgba(0, 129, 0, 1);
+    --scrollbar-color: rgba(0, 255, 65, 1);
+    --scrollbar-bg-color: rgba(0, 129, 0, 1);
+    --toolbar-icon-bg-color: rgba(0, 255, 65, 1);
 
     --sidebar-bg-color: rgba(0, 0, 0, 1);
     --toolbar-bg-color: rgba(0, 0, 0, 1);
@@ -29,53 +34,18 @@
     --field-color: rgba(0, 255, 65, 1);
     --field-bg-color: rgba(0, 59, 0, 1);
     --field-border-color: rgba(0, 129, 0, 1);
-    --findbar-nextprevious-btn-bg-color: rgba(0, 129, 0, 1);
-    --outline-color: rgba(0, 255, 65, 1);
-    --outline-hover-color: rgba(0, 255, 65, 1);
-    --outline-active-color: rgba(0, 59, 0, 1);
-    --outline-active-bg-color: rgba(0, 59, 0, 1);
-    --sidebaritem-bg-color: rgba(0, 59, 0, 1);
+    --findbar-nextprevious-btn-bg-color: rgba(0, 0, 0, 1);
+    --treeitem-color: rgba(0, 255, 65, 1);
+    --treeitem-hover-color: rgba(0, 255, 65, 0.8);
+    --treeitem-active-color: rgba(0, 59, 0, 1);
+    --treeitem-active-bg-color: rgba(0, 59, 0, 1);
+    --sidebaritem-bg-color: rgba(0, 255, 65, 1);
     --doorhanger-bg-color: rgba(0, 0, 0, 1);
     --doorhanger-border-color: rgba(0, 59, 0, 1);
     --doorhanger-hover-color: rgba(0, 59, 0, 1);
     --doorhanger-separator-color: rgba(0, 129, 0, 1);
-    --overlay-button-bg-color: rgba(0, 59, 0, 1);
-    --overlay-button-hover-color: rgba(0, 129, 0, 1);
-
-    --loading-icon: url(images/loading-dark.svg);
-    --treeitem-expanded-icon: url(images/treeitem-expanded-dark.svg);
-    --treeitem-collapsed-icon: url(images/treeitem-collapsed-dark.svg);
-    --toolbarButton-menuArrow-icon: url(images/toolbarButton-menuArrow-dark.svg);
-    --toolbarButton-sidebarToggle-icon: url(images/toolbarButton-sidebarToggle-dark.svg);
-    --toolbarButton-secondaryToolbarToggle-icon: url(images/toolbarButton-secondaryToolbarToggle-dark.svg);
-    --toolbarButton-pageUp-icon: url(images/toolbarButton-pageUp-dark.svg);
-    --toolbarButton-pageDown-icon: url(images/toolbarButton-pageDown-dark.svg);
-    --toolbarButton-zoomOut-icon: url(images/toolbarButton-zoomOut-dark.svg);
-    --toolbarButton-zoomIn-icon: url(images/toolbarButton-zoomIn-dark.svg);
-    --toolbarButton-presentationMode-icon: url(images/toolbarButton-presentationMode-dark.svg);
-    --toolbarButton-print-icon: url(images/toolbarButton-print-dark.svg);
-    --toolbarButton-openFile-icon: url(images/toolbarButton-openFile-dark.svg);
-    --toolbarButton-download-icon: url(images/toolbarButton-download-dark.svg);
-    --toolbarButton-bookmark-icon: url(images/toolbarButton-bookmark-dark.svg);
-    --toolbarButton-viewThumbnail-icon: url(images/toolbarButton-viewThumbnail-dark.svg);
-    --toolbarButton-viewOutline-icon: url(images/toolbarButton-viewOutline-dark.svg);
-    --toolbarButton-viewAttachments-icon: url(images/toolbarButton-viewAttachments-dark.svg);
-    --toolbarButton-search-icon: url(images/toolbarButton-search-dark.svg);
-    --findbarButton-previous-icon: url(images/findbarButton-previous-dark.svg);
-    --findbarButton-next-icon: url(images/findbarButton-next-dark.svg);
-    --secondaryToolbarButton-firstPage-icon: url(images/secondaryToolbarButton-firstPage-dark.svg);
-    --secondaryToolbarButton-lastPage-icon: url(images/secondaryToolbarButton-lastPage-dark.svg);
-    --secondaryToolbarButton-rotateCcw-icon: url(images/secondaryToolbarButton-rotateCcw-dark.svg);
-    --secondaryToolbarButton-rotateCw-icon: url(images/secondaryToolbarButton-rotateCw-dark.svg);
-    --secondaryToolbarButton-selectTool-icon: url(images/secondaryToolbarButton-selectTool-dark.svg);
-    --secondaryToolbarButton-handTool-icon: url(images/secondaryToolbarButton-handTool-dark.svg);
-    --secondaryToolbarButton-scrollVertical-icon: url(images/secondaryToolbarButton-scrollVertical-dark.svg);
-    --secondaryToolbarButton-scrollHorizontal-icon: url(images/secondaryToolbarButton-scrollHorizontal-dark.svg);
-    --secondaryToolbarButton-scrollWrapped-icon: url(images/secondaryToolbarButton-scrollWrapped-dark.svg);
-    --secondaryToolbarButton-spreadNone-icon: url(images/secondaryToolbarButton-spreadNone-dark.svg);
-    --secondaryToolbarButton-spreadOdd-icon: url(images/secondaryToolbarButton-spreadOdd-dark.svg);
-    --secondaryToolbarButton-spreadEven-icon: url(images/secondaryToolbarButton-spreadEven-dark.svg);
-    --secondaryToolbarButton-documentProperties-icon: url(images/secondaryToolbarButton-documentProperties-dark.svg);
+    --overlay-button-bg-color: rgba(0, 255, 65, 1);
+    --overlay-button-hover-color: rgba(0, 59, 0, 1);
 }
 
 #viewerContainer,

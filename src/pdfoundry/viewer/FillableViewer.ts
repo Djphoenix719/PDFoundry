@@ -138,17 +138,17 @@ export default class FillableViewer extends BaseViewer {
     // </editor-fold>
     // <editor-fold desc="Properties">
 
-    protected entity: Entity;
+    protected document: Entity;
     protected pdfData: PDFData;
     private container: JQuery;
 
     // </editor-fold>
     // <editor-fold desc="Constructor & Initialization">
 
-    public constructor(entity: JournalEntry | Actor, pdfData: PDFData, options?: ApplicationOptions) {
+    public constructor(entity: JournalEntry | Actor, pdfData: PDFData, options?: Application.Options) {
         super(options);
 
-        this.entity = entity;
+        this.document = entity;
         this.pdfData = pdfData;
 
         this.bindHooks();
@@ -157,15 +157,11 @@ export default class FillableViewer extends BaseViewer {
     // </editor-fold>
     // <editor-fold desc="Getters & Setters">
 
-    public get entityType(): 'Actor' | 'Item' {
-        return this.entity.data.type as 'Actor' | 'Item';
-    }
-
     protected flattenEntity(): Record<string, string> {
         const data = flattenObject({
-            name: this.entity.name,
-            data: this.entity.data.data,
-            flags: this.entity.data.flags,
+            name: this.document.name,
+            data: this.document.data.data,
+            flags: this.document.data.flags,
         }) as Record<string, string>;
 
         // Do not allow non-data keys to make it into the flat object
@@ -182,24 +178,18 @@ export default class FillableViewer extends BaseViewer {
     // <editor-fold desc="Instance Methods">
 
     protected bindHooks(): void {
-        switch (this.entityType) {
-            case 'Actor':
-                Hooks.on('updateActor', this.onUpdateEntity.bind(this));
-                break;
-            case 'Item':
-                Hooks.on('updateItem', this.onUpdateEntity.bind(this));
-                break;
+        if (this.document.uuid.startsWith('Actor')) {
+            Hooks.on('updateActor', this.onUpdateEntity.bind(this));
+        } else if (this.document.uuid.startsWith('Item')) {
+            Hooks.on('updateItem', this.onUpdateEntity.bind(this));
         }
     }
 
     protected unbindHooks(): void {
-        switch (this.entityType) {
-            case 'Actor':
-                Hooks.off('updateActor', this.onUpdateEntity.bind(this));
-                break;
-            case 'Item':
-                Hooks.off('updateItem', this.onUpdateEntity.bind(this));
-                break;
+        if (this.document.uuid.startsWith('Actor')) {
+            Hooks.off('updateActor', this.onUpdateEntity.bind(this));
+        } else if (this.document.uuid.startsWith('Item')) {
+            Hooks.off('updateItem', this.onUpdateEntity.bind(this));
         }
     }
 
@@ -216,18 +206,46 @@ export default class FillableViewer extends BaseViewer {
     }
 
     protected onPageRendered(event) {
+        const POLL_INTERVAL = 5;
+        const MAX_POLL_TIME = 250;
         const container = $(event.source.div);
-        const elements = container.find('input, textarea, select') as JQuery<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
 
-        if (this.container === undefined || this.container.length === 0) {
-            this.container = $(container.parents().find('#viewerContainer'));
-        }
+        new Promise<any>((resolve, reject) => {
+            let timeout;
+            let totalWait = 0;
+            let elements: JQuery<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
 
-        this.initializeInputs(elements);
+            const returnOrWait = () => {
+                elements = container.find('input, textarea, select') as JQuery<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
 
-        elements.on('change', this.onInputChanged.bind(this));
+                if (elements.length > 0) {
+                    clearTimeout(timeout);
+                    resolve(elements);
+                    return;
+                } else if (totalWait < MAX_POLL_TIME) {
+                    totalWait += POLL_INTERVAL;
+                    timeout = setTimeout(returnOrWait, POLL_INTERVAL);
+                } else {
+                    reject({
+                        message: 'Page did not render in the allowed time.',
+                        event,
+                    });
+                }
+            };
+            returnOrWait();
+        })
+            .then((elements: JQuery<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+                if (this.container === undefined || this.container.length === 0) {
+                    this.container = $(container.parents().find('#viewerContainer'));
+                }
 
-        super.onPageRendered(event);
+                this.initializeInputs(elements);
+
+                elements.on('change', this.onInputChanged.bind(this));
+
+                super.onPageRendered(event);
+            })
+            .catch((reason) => console.error(reason));
     }
 
     protected onInputChanged(event) {
@@ -257,7 +275,10 @@ export default class FillableViewer extends BaseViewer {
             this.resolveDelta(this.flattenEntity(), {
                 [key]: value,
             }),
-        );
+        ).then((result) => {
+            const elementsToUpdate = this.container.find('input, textarea, select');
+            this.initializeInputs(elementsToUpdate);
+        });
     }
 
     protected initializeInputs(elements: JQuery) {
@@ -293,7 +314,7 @@ export default class FillableViewer extends BaseViewer {
 
     protected resolveDelta(oldData: Record<string, any>, newData: Record<string, any>) {
         // Flags must be fully resolved
-        const delta = { ...flattenObject({ flags: this.entity.data.flags }) };
+        const delta = { ...flattenObject({ flags: this.document.data.flags }) };
         for (const [key, newValue] of Object.entries(newData)) {
             const oldValue = oldData[key];
 
@@ -315,25 +336,27 @@ export default class FillableViewer extends BaseViewer {
     }
 
     public refreshTitle(): void {
-        $(this.element).parent().parent().find('.window-title').text(this.title);
+        $(this.element).find('.window-title').text(this.title);
     }
 
-    protected onUpdateEntity(actor: Actor, data: Partial<ActorData> & { _id: string }, options: { diff: boolean }, id: string) {
-        if (data._id !== this.entity.id) {
+    protected onUpdateEntity(actor: Actor, data: Partial<Actor.Data> & { _id: string }, options: { diff: boolean }, id: string) {
+        if (data._id !== this.document.id) {
             return;
         }
 
         const args = duplicate(data);
+        // @ts-ignore
         delete args['_id'];
 
-        const elementsToUpdate = this.container.find('input, textarea');
+        const elementsToUpdate = this.container.find('input, textarea, select');
         this.initializeInputs(elementsToUpdate);
         this.refreshTitle();
     }
 
     protected async update(delta: object) {
         // data must be expanded to set properly
-        return this.entity.update(expandObject(delta));
+        // TODO: Flags seem to be always set - delta needs checking
+        return this.document.update(expandObject(delta));
     }
 
     protected initializeTextInput(

@@ -35,7 +35,7 @@ export default class PDFActorDataBrowser extends Application {
     private actor: Actor;
     private timeout: any;
 
-    constructor(actor: Actor, options?: ApplicationOptions) {
+    constructor(actor: Actor, options?: Application.Options) {
         super(options);
         this.actor = actor;
     }
@@ -215,7 +215,7 @@ export default class PDFActorDataBrowser extends Application {
         });
     }
 
-    render(force?: boolean, options?: RenderOptions): Application {
+    render(force?: boolean, options?: Application.RenderOptions): Application {
         if (this.timeout) {
             clearTimeout(this.timeout);
         }

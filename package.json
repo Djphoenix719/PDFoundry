@@ -5,8 +5,7 @@
         "@babel/plugin-transform-runtime": "^7.10.1",
         "@babel/preset-env": "^7.0.0",
         "@babel/preset-typescript": "^7.10.1",
-        "@convergencelabs/typedoc-plugin-custom-modules": "^0.4.0",
-        "@types/pdfjs-dist": "^2.1.4",
+        "@convergencelabs/typedoc-plugin-custom-modules": "0.4.0",
         "archiver": "^4.0.2",
         "babel-core": "7.0.0-bridge.0",
         "babelify": "^10.0.0",
@@ -26,11 +25,10 @@
         "lodash.assign": "^4.2.0",
         "node-fetch": "^2.6.1",
         "node-sass": "^4.14.1",
-        "pdfjs-dist": "^2.4.456",
         "tsdoc": "0.0.4",
         "tsify": "^4.0.2",
         "typedoc": "^0.17.8",
-        "typescript": "^3.9.6",
+        "typescript": "^3.9.9",
         "vinyl-buffer": "^1.0.1",
         "vinyl-source-stream": "^2.0.0",
         "watchify": "^3.11.1"
@@ -38,5 +36,5 @@
     "repository": "https://github.com/Djphoenix719/PDFoundry",
     "license": "https://github.com/Djphoenix719/PDFoundry/blob/master/LICENSE",
     "dependencies": {},
-    "version": "v0.3.0"
+    "version": "v0.8.3"
 }

@@ -203,7 +203,7 @@ export default class Api {
      * @param allowInvisible If true, PDFs hidden from the active user will be returned.
      * @category PDFData
      */
-    public static findPDFEntity(comparer: PDFValidator, allowInvisible: boolean = true): JournalEntry | undefined {
+    public static findPDFEntity(comparer: PDFValidator, allowInvisible: boolean = true): JournalEntry | null {
         return game.journal.find((journalEntry: JournalEntry) => {
             if (!isEntityPDF(journalEntry)) {
                 return false;

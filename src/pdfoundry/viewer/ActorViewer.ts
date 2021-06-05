@@ -31,15 +31,15 @@ export default class ActorViewer extends FillableViewer {
     // <editor-fold desc="Static Methods"></editor-fold>
 
     // <editor-fold desc="Properties">
-    protected entity: Actor;
+    protected document: Actor;
     protected actorSheet: PDFActorSheetAdapter;
     // </editor-fold>
 
     // <editor-fold desc="Constructor & Initialization">
-    constructor(actor: Actor, pdfData: PDFData, sheet: PDFActorSheetAdapter, options?: ApplicationOptions) {
+    constructor(actor: Actor, pdfData: PDFData, sheet: PDFActorSheetAdapter, options?: Application.Options) {
         super(actor, pdfData, options);
 
-        this.entity = actor;
+        this.document = actor;
         this.actorSheet = sheet;
     }
     // </editor-fold>
@@ -47,14 +47,14 @@ export default class ActorViewer extends FillableViewer {
     // <editor-fold desc="Getters & Setters">
 
     get title(): string {
-        return this.entity.name;
+        return this.document.name;
     }
 
     /**
      * Get the URL for the current sheet from the actor flags.
      */
     public getSheetId(): string | undefined {
-        return this.entity.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID);
+        return this.document.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID);
     }
 
     /**
@@ -63,9 +63,9 @@ export default class ActorViewer extends FillableViewer {
      */
     public async setSheetId(value: string | undefined) {
         if (typeof value === 'string') {
-            return this.entity.setFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID, value);
+            return this.document.setFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID, value);
         } else {
-            return this.entity.unsetFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID);
+            return this.document.unsetFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID);
         }
     }
 
@@ -90,27 +90,24 @@ export default class ActorViewer extends FillableViewer {
             onclick: (ev) => this.actorSheet.close(),
         });
 
-        const canConfigure = game.user.isGM || (this.entity.owner && game.user.can('TOKEN_CONFIGURE'));
-        if (this.options.editable && canConfigure) {
+        // @ts-ignore
+        const canConfigure = game.user.isGM || (this.document.owner && game.user.can('TOKEN_CONFIGURE'));
+        if (this.options['editable'] && canConfigure) {
             buttons.unshift({
+                // @ts-ignore TODO 0.8.x
+                label: this.token ? 'Token' : 'Prototype Token',
                 class: 'configure-token',
                 icon: 'fas fa-user-circle',
-                label: game.i18n.localize(this.entity.token ? 'Token' : 'TOKEN.TitlePrototype'),
-                onclick: async () => {
-                    const token = this.entity.token || new Token(this.entity.data.token);
-                    new TokenConfig(token, {
-                        configureDefault: !this.entity.token,
-                    }).render(true);
-                },
+                // @ts-ignore TODO 0.8.x
+                onclick: (ev) => this.actorSheet._onConfigureToken(ev),
             });
 
             buttons.unshift({
+                label: 'Sheet',
                 class: 'configure-sheet',
                 icon: 'fas fa-cog',
-                label: game.i18n.localize('Sheet'),
-                onclick: async () => {
-                    new EntitySheetConfig(this.entity).render(true);
-                },
+                // @ts-ignore TODO 0.8.x
+                onclick: (ev) => this.actorSheet._onConfigureSheet(ev),
             });
 
             buttons.unshift({
@@ -118,17 +115,18 @@ export default class ActorViewer extends FillableViewer {
                 icon: 'fas fa-user-cog',
                 label: game.i18n.localize('PDFOUNDRY.VIEWER.SelectSheet'),
                 onclick: () => {
+                    const current = this.getSheetId();
                     new ActorSheetSelect(async (id) => {
                         await this.setSheetId(id);
                         await this.actorSheet.close();
                         const sheet = this.getSheetPdf();
-                        if (sheet) {
-                            const url = getAbsoluteURL(sheet.url);
-                            await this.open(url);
-                        } else {
+
+                        if (!sheet) {
                             await this.setSheetId(undefined);
                         }
-                    }, this.getSheetId()).render(true);
+
+                        await this.actorSheet.render(true);
+                    }, current).render(true);
                 },
             });
 
@@ -138,7 +136,7 @@ export default class ActorViewer extends FillableViewer {
                     icon: 'fas fa-search',
                     label: game.i18n.localize('PDFOUNDRY.VIEWER.InspectData'),
                     onclick: () => {
-                        new PDFActorDataBrowser(this.entity).render(true);
+                        new PDFActorDataBrowser(this.document).render(true);
                     },
                 });
             }
@@ -175,7 +173,7 @@ export default class ActorViewer extends FillableViewer {
             }
 
             await this.actorSheet.close();
-            new PDFActorSheetAdapter(this.entity, this.options).render(true);
+            new PDFActorSheetAdapter(this.document, this.options).render(true);
         }
     }
 

@@ -39,7 +39,7 @@ export default class PlayerSelect extends Application {
     private readonly _ids;
     private readonly _callback: PDFPlayerSelectCallback;
 
-    constructor(ids: string[], cb: PDFPlayerSelectCallback, options?: ApplicationOptions) {
+    constructor(ids: string[], cb: PDFPlayerSelectCallback, options?: Application.Options) {
         super(options);
 
         this._ids = ids;

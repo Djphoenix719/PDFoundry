@@ -1,0 +1,112 @@
+{
+  "PDFOUNDRY": {
+    "CONTEXT": {
+      "OpenPDF": "Ouvrir le PDF",
+      "PreloadPDF": "Précharger le PDF"
+    },
+    "PDFSHEET": {
+      "TOOLTIP": {
+        "Name": "Quel est le nom long et lisible de ce PDF ?",
+        "Code": "Quel est le code court qui sera utilisé pour ouvrir ce PDF ?",
+        "URL": "Quel fichier PDF doit être ouvert ?",
+        "PageOffset": "Lorsque vous demandez au système d'ouvrir une page, de combien de pages doit-elle être 'décalée' pour que la 'bonne' page s'ouvre réellement ?",
+        "EnableCaching": "Ce PDF doit-il être mis en cache sur l'ordinateur d'un joueur après avoir été ouvert ? Cela peut permettre d'économiser de la bande passante, mais nécessitera de l'espace de stockage sur l'ordinateur de l'utilisateur.",
+        "PDFType": "Voir le manuel pour une description des types de PDF."
+      },
+      "LABEL": {
+        "Name": "Nom du PDF",
+        "Code": "Code du PDF",
+        "URL": " URL du PDF",
+        "PageOffset": "Décalage de page",
+        "EnableCaching": "Activer le cache",
+        "PDFType": "Type de PDF",
+        "TestSettings": "Lorsque vous cliquez sur ce bouton, votre PDF devrait s'ouvrir à la page 5. Si ce n'est pas le cas, fermez le PDF, puis ajustez le décalage de la page jusqu'à ce qu'il le fasse.."
+      },
+      "PLACEHOLDER": {
+        "Name": "Nouveau PDF",
+        "Code": "TGTL",
+        "URL": "Chemin relatif de votre répertoire de données.",
+        "PageOffset": "0, 3, -5, ..."
+      },
+      "BUTTON": {
+        "TestSettings": "Test param.",
+        "Browse": "Parcourir"
+      }
+    },
+    "VIEWER": {
+      "ViewPDF": "Voir le PDF",
+
+      "ShowToPlayersText": "Montrez à ...",
+      "ShowToPlayersTitle": "Appuyez sur la touche SHIFT pour afficher à TOUS les joueurs sauf vous.",
+
+      "SelectPlayers": "Sélectionner les joueurs",
+      "SelectPlayersConfirm": "Valider",
+      "SelectSheet": "Sélectionner le PDF",
+      "SelectSheetConfirm": "Valider",
+      "InspectData": "Inspecter les données",
+      "InspectDataHelp1": "Vous pouvez laisser cette fenêtre ouverte et retourner dans votre fiche de personnage si vous le souhaitez. La fenêtre se rafraîchit toutes les 10 secondes pour refléter les changements apportés à l'acteur, mais vous pouvez également la rafraîchir manuellement avec le bouton 'Actualiser' situé en haut de la fenêtre.",
+      "InspectDataHelp2": "Vous devez être très prudent lorsque vous utilisez ces formules dans un PDF. Le code de couleur est une 'meilleure estimation' et, bien qu'il soit généralement correct, certains systèmes peuvent présenter des exceptions ou faire en sorte que les modifications que vous entrez dans la feuille soient annulées par le système.",
+      "InspectDataHelp3": "Bien que le bouton pour copier/syntaxe de lancer (de dés) soit fourni pour des raisons pratique, des données peuvent être volontairement omises ou modifiées par le système pendant un lancer. Si une syntaxe /roll ne produit pas le résultat escompté, il ne s'agit pas d'un bug."
+    },
+    "MANUAL": {
+      "Name": "Manuel Utilisateur PDFoundry"
+    },
+    "ERROR": {
+      "NoPDFWithCode": "Impossible de trouver le PDF avec le code spécifié.",
+      "NoPDFWithName": "Impossible de trouver le PDF avec le nom spécifié.",
+      "PageMustBePositive": "La page doit être supérieure ou égale à 1.",
+      "FileNotFound": "Erreur lors de l'ouverture du PDF : Le fichier n'a pas été trouvé sur le serveur."
+    },
+    "ENRICH": {
+      "InvalidFormat": "Format invalide pour le tag @PDF.",
+      "EmptyLinkText": "Le texte du lien est requis pour les balises @PDF.",
+      "LinkTitleOpen": "ouvrir",
+      "LinkTitlePage": "p."
+    },
+    "SETTINGS": {
+      "WindowTitle": "Paramètres PDFoundry",
+      "SettingsMenuButtonLabel": "Configurer PDFoundry",
+      "OpenHelp": "Ouvrir le manuel PDFoundry",
+      "CacheSizeName": "Taille du cache PDF",
+      "CacheSizeHint": "Combien de Mo d'espace disque peut-on allouer au cache PDF ? Il doit être compris entre 64 et 1024 inclus.",
+      "ViewerThemeName": "Thème de la visionneuse",
+      "ViewerThemeHint": "Quel thème doit être utilisé pour la visionneuse ? Les modifications ne concernent que les nouvelles ouvertures de la visionneuse.",
+      "ShowInExistingViewerName": "Afficher les PDF partagés dans la visionneuse existante",
+      "ShowInExistingViewerHint": "Si cette option est activée, lorsqu'un autre lecteur vous montre un PDF, si vous avez déjà ouvert le PDF, la page changera au lieu d'ouvrir une nouvelle fenêtre."
+    },
+    "COMMON": {
+      "PageNumber": "Numéro de page"
+    },
+    "MISC": {
+      "PDFTYPE": {
+        "Static": "Statique",
+        "Fillable": "Formulaire  (non lié)",
+        "Actor": "Formulaire (Feuille de Personnage)"
+      },
+
+      "DANGER": {
+        "Safe": "Cette formule peut à priori être utilisée en toute sécurité",
+        "Low": "Cette formule est peu susceptible d'être dangereuse mais faîtes preuve de prudence.",
+        "High": "Cette formule est très susceptible de causer des problèmes si elle est utilisée.",
+        "Critical": "Vous ne devriez en aucun cas utiliser cette formule!"
+      },
+
+      "CreatePDF": "Créer un PDF",
+      "NewPDF": "Nouveau PDF",
+
+      "Confirm": "Confirmer",
+      "Refresh": "Actualiser",
+      "CopiedToClipboard": "Copier!",
+      "CopyDataPath": "Copier la formule de données.",
+      "CopyRollPath": "Copier la syntaxe de lancer /roll."
+    },
+    "COMMANDS": {
+      "Success": "PDFoundry: $COMMAND_NAME$ effectuer avec succès.",
+      "Failure": "PDFoundry: $COMMAND_NAME$ a rencontré une erreur. Consulter la console pour plus de détails.",
+
+      "PurgeCacheSuccess": "Le cache PDF a été vidé.",
+      "FixMissingTypesSuccess": "Corrections effectuées des PDF comportant des définitions de type manquantes.",
+      "FixMissingTypesFailure": "Aucun PDF avec des définitions de type manquantes n'a été trouvé."
+    }
+  }
+}

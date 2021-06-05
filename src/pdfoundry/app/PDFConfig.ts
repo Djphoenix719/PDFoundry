@@ -45,7 +45,7 @@ export class PDFConfig extends FormApplication {
     // </editor-fold>
     // <editor-fold desc="Constructor & Initialization">
 
-    constructor(journalEntry: JournalEntry, options?: ApplicationOptions) {
+    constructor(journalEntry: JournalEntry, options?: Application.Options) {
         super(journalEntry, options);
     }
 
@@ -69,7 +69,8 @@ export class PDFConfig extends FormApplication {
     }
 
     get isEditable(): boolean {
-        return this.object.hasPerm(game.user, 'OWNER');
+        // @ts-ignore TODO: 0.8.x compat
+        return this.object.testUserPermission(game.user, CONST.ENTITY_PERMISSIONS.OWNER);
     }
 
     // </editor-fold>
@@ -99,6 +100,7 @@ export class PDFConfig extends FormApplication {
             this.picker =
                 this.picker ??
                 new FilePicker({
+                    // @ts-ignore TODO
                     callback: () => {
                         this._onSubmit(new Event('input'), { preventClose: true });
                     },
@@ -164,7 +166,9 @@ export class PDFConfig extends FormApplication {
         await this.object.update(formData);
     }
 
+    // @ts-ignore TODO
     submit({ updateData }: { updateData?: any }): FormApplication {
+        // @ts-ignore TODO
         return super.submit({ updateData });
     }
 

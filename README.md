@@ -16,6 +16,8 @@ PDFoundry (pronounced *Pee-Dee-Foundry*/*pi di ˈfaʊndri*) is a *fully featured
 #### Thanks to
 Spanish localization: [José E. Lozano (lozalojo)](https://github.com/lozalojo)
 
+French localization: [Baktov](https://github.com/Baktov)
+
 ## Community Resources
 [Tutorials and resources created by users of PDFoundry can be found here](https://github.com/Djphoenix719/PDFoundry/wiki/Community-Resources)
 

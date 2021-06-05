@@ -26,13 +26,13 @@ export default class PDFActorSheetAdapter extends ActorSheet {
     // <editor-fold desc="Properties">
 
     private _viewer: ActorViewer;
-    private readonly _options?: ApplicationOptions;
+    private readonly _options?: Application.Options;
 
     // </editor-fold>
 
     // <editor-fold desc="Constructor & Initialization">
 
-    constructor(actor: Actor, options?: ApplicationOptions) {
+    constructor(actor: Actor, options?: Application.Options) {
         super(actor, options);
 
         this._options = options;
@@ -50,6 +50,7 @@ export default class PDFActorSheetAdapter extends ActorSheet {
 
     protected activateListeners(html: JQuery | HTMLElement) {
         $(this.element).css('display', 'none');
+        this.form = $(html).first().get(0);
         super.activateListeners(html);
     }
 
@@ -58,7 +59,7 @@ export default class PDFActorSheetAdapter extends ActorSheet {
         return;
     }
 
-    getData(): ActorSheetData {
+    getData(): ActorSheet.Data {
         return mergeObject(super.getData(), this._viewer.getData());
     }
 
@@ -66,7 +67,7 @@ export default class PDFActorSheetAdapter extends ActorSheet {
         return super._updateObject(event, formData);
     }
 
-    render(force?: boolean, options?: RenderOptions): Application {
+    render(force?: boolean, options?: Application.RenderOptions): Application {
         if (!this._viewer) {
             const sheetId = this.actor.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID);
             this._viewer = new ActorViewer(this.actor, sheetId, this, this._options);
@@ -81,9 +82,15 @@ export default class PDFActorSheetAdapter extends ActorSheet {
         return super.render(force, options);
     }
 
+    // TODO: Sandbox compatibility - should force this class to extend CONFIG class instead.
+    async scrollbarSet() {
+        return;
+    }
+
     async close(): Promise<void> {
         if (this._viewer) {
             await this._viewer.close();
+            // @ts-ignore
             delete this._viewer;
         }
         return super.close();
