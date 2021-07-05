@@ -198,11 +198,15 @@ export default class FillableViewer extends BaseViewer {
     }
 
     protected elementIsInput(element: HTMLElement): element is HTMLInputElement | HTMLTextAreaElement {
-        return element.tagName === 'INPUT' || element.tagName === 'TEXTAREA';
+        return (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') && element.getAttribute('type') !== 'radio';
     }
 
     protected elementIsSelect(element: HTMLElement): element is HTMLSelectElement {
         return element.tagName === 'SELECT';
+    }
+
+    protected elementIsRadio(element: HTMLElement): element is HTMLInputElement {
+        return element.tagName === 'INPUT' && element.getAttribute('type') === 'radio';
     }
 
     protected onPageRendered(event) {
@@ -269,6 +273,8 @@ export default class FillableViewer extends BaseViewer {
             value = this.getTextInputValue($(element as HTMLInputElement | HTMLTextAreaElement));
         } else if (this.elementIsSelect(element)) {
             value = this.getTextInputValue($(element as HTMLSelectElement));
+        } else if (this.elementIsRadio(element)) {
+            value = this.getRadioInputValue($(element));
         }
 
         this.update(
@@ -302,6 +308,8 @@ export default class FillableViewer extends BaseViewer {
                 write = this.initializeTextInput($(element), key, newData) || write;
             } else if (this.elementIsSelect(element)) {
                 write = this.initializeTextInput($(element), key, newData) || write;
+            } else if (this.elementIsRadio(element)) {
+                write = this.initializeRadioInput($(element), key, newData) || write;
             } else {
                 console.error('Unsupported input type in PDF.');
             }
@@ -395,6 +403,22 @@ export default class FillableViewer extends BaseViewer {
         return false;
     }
 
+    protected initializeRadioInput(input: JQuery<HTMLInputElement>, key: string, data: Record<string, string>): boolean {
+        let value = data[key];
+        if (value === undefined || value === '') {
+            data[key] = this.getRadioInputValue(input);
+            return true;
+        } else {
+            // if we're looking at the right radio for the group enable it
+            if (data[key] === input.attr('id')) {
+                this.setCheckInput(input, 'true');
+            } else {
+                this.setCheckInput(input, 'false');
+            }
+        }
+        return false;
+    }
+
     protected setTextInput(input: JQuery<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>, value: string) {
         input.val(value);
     }
@@ -418,6 +442,18 @@ export default class FillableViewer extends BaseViewer {
 
     protected getCheckInputValue(input: JQuery<HTMLInputElement>): string {
         return (window.getComputedStyle(input.get(0), ':before').content !== 'none').toString();
+    }
+
+    protected getRadioInputValue(input: JQuery<HTMLInputElement>): string {
+        const name = input.attr('name');
+        const elements = $(this.container).find(`input[name="${name}"]`) as JQuery<HTMLElement>;
+        for (let i = 0; i < elements.length; i++) {
+            const element = elements.get(i);
+            if (window.getComputedStyle(element, ':before').content !== 'none') {
+                return element.id;
+            }
+        }
+        return '';
     }
 
     async close(): Promise<any> {

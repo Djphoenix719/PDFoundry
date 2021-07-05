@@ -2,7 +2,7 @@
     "name": "pdfoundry",
     "title": "PDFoundry",
     "description": "A fully featured PDF Viewer Module. Includes journal support, form fillable support, and more.",
-    "version": "0.8.9",
+    "version": "0.8.10",
     "author": "Andrew Cuccinello [DJ#1982]",
     "packs": [],
     "languages": [
@@ -28,6 +28,6 @@
     "compatibleCoreVersion": "0.8.6",
     "minimumCoreVersion": "0.8.0",
     "manifest": "https://raw.githubusercontent.com/Djphoenix719/PDFoundry/master/module.json",
-    "download": "https://github.com/Djphoenix719/PDFoundry/releases/download/v0.8.9/pdfoundry-v0.8.9.zip",
+    "download": "https://github.com/Djphoenix719/PDFoundry/releases/download/v0.8.10/pdfoundry-v0.8.10.zip",
     "url": "https://github.com/Djphoenix719/PDFoundry"
 }
