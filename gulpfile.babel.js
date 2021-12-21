@@ -1,7 +1,8 @@
-/* Copyright 2020 Andrew Cuccinello
- *
+/*
+ * Copyright 2021 Andrew Cuccinello
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ *
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -13,17 +14,11 @@
  * limitations under the License.
  */
 
-const gulp = require('gulp');
-const tasks = require('./gulp.tasks');
-const logger = require('gulplog');
-const chalk = require('chalk');
+import * as gulp from 'gulp';
+import * as tasks from './gulp.tasks';
 
-gulp.task('build', tasks.build);
-gulp.task('rebuild', tasks.rebuild);
-gulp.task('rewatch', tasks.rewatch);
-gulp.task('watch', tasks.watch);
-gulp.task('assets', tasks.assets);
 gulp.task('clean', tasks.clean);
-gulp.task('sass', tasks.sass);
-gulp.task('docs', tasks.docs);
-exports.default = tasks.build;
+gulp.task('build', tasks.build);
+gulp.task('watch', tasks.watch);
+gulp.task('rebuild', gulp.series(tasks.clean, tasks.build));
+gulp.task('rewatch', gulp.series(tasks.clean, tasks.watch));

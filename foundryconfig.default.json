@@ -1,9 +1,9 @@
 {
     "path": {
-        "modules": "FULL_PATH_TO_YOUR_MODULES_FOLDER_HERE",
+        "modules": "./",
         "entry": {
-            "script": "FULL_PATH_TO_SCRIPT_ENTRY_POINT",
-            "sass": "FULL_PATH_TO_SASS_ENTRY_POINT"
+            "script": "./src/module/Main.ts",
+            "sass": "./src/css/bundle.scss"
         },
         "assets": [
             ["module.json", "./"],
@@ -14,7 +14,7 @@
         ]
     },
     "dist": {
-        "name": "pf2e-toolbox",
+        "name": "pdfoundry",
         "bundle": "bundle.js"
     }
 }

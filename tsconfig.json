@@ -1,12 +1,15 @@
 {
-    "compilerOptions": {
-      "target": "es2017",
-      "strictNullChecks": true,
-      "alwaysStrict": true,
-      "types": [
-        "foundry-pc-types"
-      ],
-      "baseUrl": "src/pdfoundry",
-      "paths": { }
-    }
+  "compilerOptions": {
+    "target": "es2020",
+    "strictNullChecks": true,
+    "alwaysStrict": true,
+    "types": [
+      "@league-of-foundry-developers/foundry-vtt-types",
+      "./FVTT-Common/src/types"
+    ],
+    "moduleResolution": "node",
+    "baseUrl": "",
+    "esModuleInterop": true,
+    "paths": { }
   }
+}
