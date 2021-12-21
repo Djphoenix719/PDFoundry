@@ -2,7 +2,7 @@
     "name": "pdfoundry",
     "title": "PDFoundry",
     "description": "A fully featured PDF Viewer Module. Includes journal support, form fillable support, and more.",
-    "version": "0.8.9",
+    "version": "0.9",
     "author": "Andrew Cuccinello [DJ#1982]",
     "packs": [],
     "languages": [

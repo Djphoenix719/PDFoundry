@@ -1,7 +1,8 @@
-/* Copyright 2020 Andrew Cuccinello
- *
+/*
+ * Copyright 2021 Andrew Cuccinello
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ *
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -203,7 +204,7 @@ export default class PDFActorDataBrowser extends Application {
         return data;
     }
 
-    protected activateListeners(html: JQuery) {
+    public activateListeners(html: JQuery) {
         super.activateListeners(html);
 
         html.find('i.copy').on('click', async (event) => {
@@ -215,7 +216,7 @@ export default class PDFActorDataBrowser extends Application {
         });
     }
 
-    render(force?: boolean, options?: Application.RenderOptions): Application {
+    render(force?: boolean, options?: Application.RenderOptions) {
         if (this.timeout) {
             clearTimeout(this.timeout);
         }

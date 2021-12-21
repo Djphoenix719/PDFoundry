@@ -8,9 +8,11 @@
         "assets": [
             ["module.json", "./"],
             ["LICENSE", "./"],
+            ["pdfjs/**/*", "./pdfjs"],
             ["src/templates/**/*", "./templates"],
+            ["assets/**/*", "./assets"],
             ["FVTT-Common/src/templates/**/*", "./templates"],
-            ["src/packs/**/*", "./packs"]
+            ["locale/**/*", "./locale"]
         ]
     },
     "dist": {

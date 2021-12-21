@@ -1,7 +1,8 @@
-/* Copyright 2020 Andrew Cuccinello
- *
+/*
+ * Copyright 2021 Andrew Cuccinello
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ *
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -24,6 +25,8 @@ import { PDFData, PDFDataDelete, PDFDataUpdate } from './common/types/PDFData';
 import Settings from './Settings';
 import { PDFType } from './common/types/PDFType';
 import { DOMAIN_WHITELIST } from './common/Whitelist';
+import { Document } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/module.mjs';
+import { AnyDocumentData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/data.mjs';
 
 // *************
 // URL HELPERS
@@ -92,7 +95,7 @@ export function validateAbsoluteURL(dataUrl: string): boolean {
  * @see {@link Api.Utilities}
  * @module Utilities
  */
-export function isEntityPDF(entity: Entity): boolean {
+export function isEntityPDF(entity: Document<AnyDocumentData>): boolean {
     return entity !== undefined && entity !== null && entity.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.PDF_DATA) !== undefined;
 }
 
@@ -111,7 +114,7 @@ export function getPDFData(journalEntry: JournalEntry | null | undefined): PDFDa
     if (pdfData === undefined) {
         return undefined;
     }
-    pdfData.name = journalEntry.name;
+    pdfData.name = journalEntry.name!;
     return pdfData;
 }
 
@@ -173,8 +176,8 @@ export function canOpenPDF(pdfData: PDFData) {
  * @module Utilities
  */
 export function getUserIdsExceptMe() {
-    return game.users
-        .filter((user: User) => {
+    return game!
+        .users!.filter((user: User) => {
             return user.id !== game.userId;
         })
         .map((user: User) => user.id);

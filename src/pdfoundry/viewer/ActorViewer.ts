@@ -1,7 +1,8 @@
-/* Copyright 2020 Andrew Cuccinello
- *
+/*
+ * Copyright 2021 Andrew Cuccinello
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ *
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -20,6 +21,8 @@ import PDFActorSheetAdapter from '../app/PDFActorSheetAdapter';
 import FillableViewer from './FillableViewer';
 import { PDFData } from '../common/types/PDFData';
 import PDFActorDataBrowser from '../app/PDFActorDataBrowser';
+import { AnyDocumentData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/data.mjs';
+import { Document } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/module.mjs';
 
 /**
  * The FillableViewer class provides an interface for displaying, serializing, and observing form-fillable PDFs,
@@ -31,12 +34,12 @@ export default class ActorViewer extends FillableViewer {
     // <editor-fold desc="Static Methods"></editor-fold>
 
     // <editor-fold desc="Properties">
-    protected document: Actor;
+    protected document: Document<AnyDocumentData>; //TODO: Can type properly
     protected actorSheet: PDFActorSheetAdapter;
     // </editor-fold>
 
     // <editor-fold desc="Constructor & Initialization">
-    constructor(actor: Actor, pdfData: PDFData, sheet: PDFActorSheetAdapter, options?: Application.Options) {
+    constructor(actor: Document<AnyDocumentData>, pdfData: PDFData, sheet: PDFActorSheetAdapter, options?: Application.Options) {
         super(actor, pdfData, options);
 
         this.document = actor;
@@ -47,14 +50,14 @@ export default class ActorViewer extends FillableViewer {
     // <editor-fold desc="Getters & Setters">
 
     get title(): string {
-        return this.document.name;
+        return this.document.name!;
     }
 
     /**
      * Get the URL for the current sheet from the actor flags.
      */
     public getSheetId(): string | undefined {
-        return this.document.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID);
+        return this.document.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID) as string;
     }
 
     /**
@@ -76,7 +79,7 @@ export default class ActorViewer extends FillableViewer {
         const id = this.getSheetId();
         if (id === undefined) return undefined;
 
-        return getPDFData(game.journal.get(id));
+        return getPDFData(game!.journal!.get(id));
     }
 
     protected _getHeaderButtons(): any[] {
@@ -130,13 +133,13 @@ export default class ActorViewer extends FillableViewer {
                 },
             });
 
-            if (game.user.isGM) {
+            if (game!.user!.isGM) {
                 buttons.unshift({
                     class: 'pdf-browse-data',
                     icon: 'fas fa-search',
                     label: game.i18n.localize('PDFOUNDRY.VIEWER.InspectData'),
                     onclick: () => {
-                        new PDFActorDataBrowser(this.document).render(true);
+                        new PDFActorDataBrowser(this.document as Actor).render(true);
                     },
                 });
             }
@@ -173,7 +176,7 @@ export default class ActorViewer extends FillableViewer {
             }
 
             await this.actorSheet.close();
-            new PDFActorSheetAdapter(this.document, this.options).render(true);
+            new PDFActorSheetAdapter(this.document as Actor, this.options as any).render(true);
         }
     }
 

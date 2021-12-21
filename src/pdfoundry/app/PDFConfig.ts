@@ -1,7 +1,8 @@
-/* Copyright 2020 Andrew Cuccinello
- *
+/*
+ * Copyright 2021 Andrew Cuccinello
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ *
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -53,7 +54,7 @@ export class PDFConfig extends FormApplication {
     // <editor-fold desc="Getters & Setters">
 
     public get title(): string {
-        return this.object.name;
+        return this.object.name!;
     }
 
     public get id(): string {
@@ -76,19 +77,19 @@ export class PDFConfig extends FormApplication {
     // </editor-fold>
     // <editor-fold desc="Instance Methods">
 
-    protected activateListeners(html: JQuery): void {
+    public activateListeners(html: JQuery): void {
         super.activateListeners(html);
 
         const urlInput = html.find('#data-url');
         const offsetInput = html.find('#data-offset');
 
         // Default behavior opens the file picker in this form setup, override
-        html.find('input').on('keypress', (event) => {
+        html.find('input').on('keypress', (event: any) => {
             if (event.key === 'Enter') {
                 this._onSubmit(event, { preventClose: true });
             }
         });
-        html.find('input, select').on('input', (event) => {
+        html.find('input, select').on('input', (event: any) => {
             this._onSubmit(event, { preventClose: true });
         });
 
@@ -145,7 +146,7 @@ export class PDFConfig extends FormApplication {
         });
     }
 
-    public getData(): object {
+    public getData() {
         const data = super.getData();
 
         data['types'] = Object.entries(PDFType).map(([key]) => {

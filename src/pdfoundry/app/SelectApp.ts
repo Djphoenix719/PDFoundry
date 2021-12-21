@@ -1,7 +1,8 @@
-/* Copyright 2020 Andrew Cuccinello
- *
+/*
+ * Copyright 2021 Andrew Cuccinello
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ *
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -113,7 +114,7 @@ export default abstract class SelectApp extends Application {
     getData(options?: any): any | Promise<any> {
         const data = super.getData(options);
 
-        data.data = {
+        data['data'] = {
             id: this.selectId,
             label: this.selectLabel,
             selected: this._current,
@@ -123,7 +124,7 @@ export default abstract class SelectApp extends Application {
         return data;
     }
 
-    protected activateListeners(html: JQuery): void {
+    public activateListeners(html: JQuery): void {
         super.activateListeners(html);
 
         const button = html.find(`button#${this.selectId}-confirm`);

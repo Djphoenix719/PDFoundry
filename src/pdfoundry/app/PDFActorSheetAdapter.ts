@@ -1,7 +1,8 @@
-/* Copyright 2020 Andrew Cuccinello
- *
+/*
+ * Copyright 2021 Andrew Cuccinello
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ *
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -15,12 +16,13 @@
 
 import ActorViewer from '../viewer/ActorViewer';
 import Settings from '../Settings';
+import { PDFData } from '../common/types/PDFData';
 
 /**
  * Adapts a FillableViewer to function as a ActorSheet
  * @internal
  */
-export default class PDFActorSheetAdapter extends ActorSheet {
+export default class PDFActorSheetAdapter extends ActorSheet<ActorSheet.Options> {
     // <editor-fold desc="Static Properties"></editor-fold>
     // <editor-fold desc="Static Methods"></editor-fold>
     // <editor-fold desc="Properties">
@@ -32,7 +34,7 @@ export default class PDFActorSheetAdapter extends ActorSheet {
 
     // <editor-fold desc="Constructor & Initialization">
 
-    constructor(actor: Actor, options?: Application.Options) {
+    constructor(actor: Actor, options?: ActorSheet.Options) {
         super(actor, options);
 
         this._options = options;
@@ -48,9 +50,9 @@ export default class PDFActorSheetAdapter extends ActorSheet {
     // </editor-fold>
     // <editor-fold desc="Instance Methods">
 
-    protected activateListeners(html: JQuery | HTMLElement) {
+    public activateListeners(html: JQuery) {
         $(this.element).css('display', 'none');
-        this.form = $(html).first().get(0);
+        this.form = $(html).first().get(0)!;
         super.activateListeners(html);
     }
 
@@ -59,18 +61,18 @@ export default class PDFActorSheetAdapter extends ActorSheet {
         return;
     }
 
-    getData(): ActorSheet.Data {
-        return mergeObject(super.getData(), this._viewer.getData());
+    async getData(): Promise<ActorSheet.Data> {
+        return mergeObject(await super.getData(), await this._viewer.getData());
     }
 
-    protected _updateObject(event: Event | JQuery.Event, formData: any): Promise<any> {
+    protected _updateObject(event: Event, formData: any): Promise<any> {
         return super._updateObject(event, formData);
     }
 
-    render(force?: boolean, options?: Application.RenderOptions): Application {
+    public render(force?: boolean, options?: Application.RenderOptions) {
         if (!this._viewer) {
-            const sheetId = this.actor.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID);
-            this._viewer = new ActorViewer(this.actor, sheetId, this, this._options);
+            const sheetId = this.actor.getFlag(Settings.MODULE_NAME, Settings.FLAGS_KEY.SHEET_ID) as PDFData;
+            this._viewer = new ActorViewer(this.actor as any, sheetId, this, this._options);
         }
 
         // If this window is already open, don't re-render
@@ -79,7 +81,7 @@ export default class PDFActorSheetAdapter extends ActorSheet {
         }
 
         this._viewer.render(force, options);
-        return super.render(force, options);
+        return super.render(force, options as any);
     }
 
     // TODO: Sandbox compatibility - should force this class to extend CONFIG class instead.

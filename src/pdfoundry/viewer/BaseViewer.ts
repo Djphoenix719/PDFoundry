@@ -1,7 +1,8 @@
-/* Copyright 2020 Andrew Cuccinello
- *
+/*
+ * Copyright 2021 Andrew Cuccinello
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ *
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -205,13 +206,13 @@ export default abstract class BaseViewer extends Application {
     /**
      * @internal
      */
-    public getData(options?: any): any | Promise<any> {
-        const data = super.getData(options);
+    public async getData(options?: any): Promise<any> {
+        const data: any = await super.getData(options);
         data.viewerFramePath = `${Settings.PATH_PDFJS}/web/viewer.html`;
         return data;
     }
 
-    protected async activateListeners(html: JQuery): Promise<void> {
+    public async activateListeners(html: JQuery): Promise<void> {
         this.onViewerOpening();
         super.activateListeners(html);
 

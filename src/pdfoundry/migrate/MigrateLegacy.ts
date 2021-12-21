@@ -1,7 +1,8 @@
-/* Copyright 2020 Andrew Cuccinello
- *
+/*
+ * Copyright 2021 Andrew Cuccinello
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ *
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -24,7 +25,7 @@ import Settings from '../Settings';
  */
 export function legacyMigrationRequired(): boolean {
     if (Settings.get(Settings.SETTINGS_KEY.DATA_VERSION) === 'undefined') {
-        if (game.items.find((i: Item) => i.data.type === 'PDFoundry_PDF') !== null) {
+        if (game!.items!.find((i: Item) => i.data.type === 'PDFoundry_PDF') !== null) {
             return true;
         } else {
             Settings.set(Settings.SETTINGS_KEY.DATA_VERSION, 'v0.6.0');
@@ -76,7 +77,7 @@ export function migrateLegacy(): Promise<void> {
  * @internal
  */
 async function convert() {
-    const items = game.items.filter((i: Item) => i.data.type === 'PDFoundry_PDF') as Item[];
+    const items = game!.items!.filter((i: Item) => i.data.type === 'PDFoundry_PDF') as Item[];
     for (const item of items) {
         let pdfData = getLegacyData(item);
         // @ts-ignore

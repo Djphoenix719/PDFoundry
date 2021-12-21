@@ -1,7 +1,8 @@
-/* Copyright 2020 Andrew Cuccinello
- *
+/*
+ * Copyright 2021 Andrew Cuccinello
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ *
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -16,6 +17,8 @@
 import BaseViewer from './BaseViewer';
 import Settings from '../Settings';
 import { PDFData } from '../common/types/PDFData';
+import { Document } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/module.mjs';
+import { AnyDocumentData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/data.mjs';
 
 // TODO: Move to wrapped input model to standardize inputs.
 //  Current code is insane and has too much branching.
@@ -138,17 +141,17 @@ export default class FillableViewer extends BaseViewer {
     // </editor-fold>
     // <editor-fold desc="Properties">
 
-    protected document: Entity;
+    protected document: Document<AnyDocumentData>; // TODO: Can type this properly.
     protected pdfData: PDFData;
     private container: JQuery;
 
     // </editor-fold>
     // <editor-fold desc="Constructor & Initialization">
 
-    public constructor(entity: JournalEntry | Actor, pdfData: PDFData, options?: Application.Options) {
+    public constructor(document: Document<AnyDocumentData>, pdfData: PDFData, options?: Application.Options) {
         super(options);
 
-        this.document = entity;
+        this.document = document;
         this.pdfData = pdfData;
 
         this.bindHooks();
@@ -160,8 +163,8 @@ export default class FillableViewer extends BaseViewer {
     protected flattenEntity(): Record<string, string> {
         const data = flattenObject({
             name: this.document.name,
-            data: this.document.data.data,
-            flags: this.document.data.flags,
+            data: this.document.data['data'],
+            flags: this.document.data['flags'],
         }) as Record<string, string>;
 
         // Do not allow non-data keys to make it into the flat object
@@ -178,17 +181,17 @@ export default class FillableViewer extends BaseViewer {
     // <editor-fold desc="Instance Methods">
 
     protected bindHooks(): void {
-        if (this.document.uuid.startsWith('Actor')) {
+        if (this.document['uuid'].startsWith('Actor')) {
             Hooks.on('updateActor', this.onUpdateEntity.bind(this));
-        } else if (this.document.uuid.startsWith('Item')) {
+        } else if (this.document['uuid'].startsWith('Item')) {
             Hooks.on('updateItem', this.onUpdateEntity.bind(this));
         }
     }
 
     protected unbindHooks(): void {
-        if (this.document.uuid.startsWith('Actor')) {
+        if (this.document['uuid'].startsWith('Actor')) {
             Hooks.off('updateActor', this.onUpdateEntity.bind(this));
-        } else if (this.document.uuid.startsWith('Item')) {
+        } else if (this.document['uuid'].startsWith('Item')) {
             Hooks.off('updateItem', this.onUpdateEntity.bind(this));
         }
     }
@@ -322,7 +325,7 @@ export default class FillableViewer extends BaseViewer {
 
     protected resolveDelta(oldData: Record<string, any>, newData: Record<string, any>) {
         // Flags must be fully resolved
-        const delta = { ...flattenObject({ flags: this.document.data.flags }) };
+        const delta = { ...flattenObject({ flags: this.document.data['flags'] }) };
         for (const [key, newValue] of Object.entries(newData)) {
             const oldValue = oldData[key];
 
@@ -347,7 +350,12 @@ export default class FillableViewer extends BaseViewer {
         $(this.element).find('.window-title').text(this.title);
     }
 
-    protected onUpdateEntity(actor: Actor, data: Partial<Actor.Data> & { _id: string }, options: { diff: boolean }, id: string) {
+    protected onUpdateEntity(
+        actor: Actor,
+        data: Partial<ConstructorParameters<typeof foundry.documents.BaseActor>[0]> & { _id: string },
+        options: { diff: boolean },
+        id: string,
+    ) {
         if (data._id !== this.document.id) {
             return;
         }
@@ -441,7 +449,7 @@ export default class FillableViewer extends BaseViewer {
     }
 
     protected getCheckInputValue(input: JQuery<HTMLInputElement>): string {
-        return (window.getComputedStyle(input.get(0), ':before').content !== 'none').toString();
+        return (window.getComputedStyle(input.get(0)!, ':before').content !== 'none').toString();
     }
 
     protected getRadioInputValue(input: JQuery<HTMLInputElement>): string {
@@ -449,8 +457,8 @@ export default class FillableViewer extends BaseViewer {
         const elements = $(this.container).find(`input[name="${name}"]`) as JQuery<HTMLElement>;
         for (let i = 0; i < elements.length; i++) {
             const element = elements.get(i);
-            if (window.getComputedStyle(element, ':before').content !== 'none') {
-                return element.id;
+            if (window.getComputedStyle(element!, ':before').content !== 'none') {
+                return element!.id;
             }
         }
         return '';

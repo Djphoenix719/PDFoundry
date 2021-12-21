@@ -1,7 +1,8 @@
-/* Copyright 2020 Andrew Cuccinello
- *
+/*
+ * Copyright 2021 Andrew Cuccinello
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ *
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -38,6 +39,7 @@ import PDFCache from './cache/PDFCache';
 import BaseViewer from './viewer/BaseViewer';
 import { PDFType } from './common/types/PDFType';
 import FillableViewer from './viewer/FillableViewer';
+import { Collection } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/utils/module.mjs';
 
 // noinspection JSUnusedGlobalSymbols
 
@@ -138,7 +140,7 @@ export default class Api {
      * Get the currently enabled theme id.
      */
     public static get activeTheme(): ViewerTheme {
-        const id = Settings.get(Settings.SETTINGS_KEY.VIEWER_THEME);
+        const id = Settings.get(Settings.SETTINGS_KEY.VIEWER_THEME) as string;
         return Api._availableThemes[id];
     }
 
@@ -203,8 +205,8 @@ export default class Api {
      * @param allowInvisible If true, PDFs hidden from the active user will be returned.
      * @category PDFData
      */
-    public static findPDFEntity(comparer: PDFValidator, allowInvisible: boolean = true): JournalEntry | null {
-        return game.journal.find((journalEntry: JournalEntry) => {
+    public static findPDFEntity(comparer: PDFValidator, allowInvisible: boolean = true): ReturnType<Collection<JournalEntry>['find']> {
+        return game!.journal!.find((journalEntry: JournalEntry) => {
             if (!isEntityPDF(journalEntry)) {
                 return false;
             }

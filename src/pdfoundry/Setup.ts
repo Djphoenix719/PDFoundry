@@ -1,7 +1,8 @@
-/* Copyright 2020 Andrew Cuccinello
- *
+/*
+ * Copyright 2021 Andrew Cuccinello
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ *
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -54,6 +55,7 @@ export default class Setup {
                         '<p style="font-weight: bold">The module version of PDFoundry will not function.</p>',
                         '</div>',
                     ].join(''),
+                    default: '',
                     buttons: {},
                 });
                 d.render(true);
@@ -142,7 +144,7 @@ export default class Setup {
     public static getJournalContextOptions(html: JQuery, options: any[]) {
         const getJournalEntryFromLi = (html: JQuery): JournalEntry => {
             const id = html.data('entity-id');
-            return game.journal.get(id);
+            return game!.journal!.get(id)!;
         };
 
         const shouldAdd = (entityHtml: JQuery) => {
@@ -150,7 +152,7 @@ export default class Setup {
             return isEntityPDF(journalEntry) && getPDFData(journalEntry)?.type !== PDFType.Actor;
         };
 
-        if (game.user.isGM) {
+        if (game!.user!.isGM) {
             options.unshift({
                 name: game.i18n.localize('PDFOUNDRY.CONTEXT.PreloadPDF'),
                 icon: '<i class="fas fa-download fa-fw"></i>',
@@ -196,7 +198,7 @@ export default class Setup {
     }
 
     private static userLogin() {
-        if (!game.user.isGM) {
+        if (!game!.user!.isGM) {
             return;
         }
 
@@ -244,7 +246,7 @@ export default class Setup {
     }
 
     private static createJournalButton(app: Application, html: JQuery) {
-        if (!game.user.isGM) {
+        if (!game!.user!.isGM) {
             return;
         }
 
@@ -262,17 +264,16 @@ export default class Setup {
     }
 
     private static hookListItems(app: Application, html: JQuery) {
-        const lis = html.find('li.journal');
+        const lis = html.find('li.journalentry');
 
         for (const li of lis) {
             const target = $(li);
-            const id = target.data('entity-id');
-            const journalEntry = game.journal.get(id);
+            const id = target.data('document-id');
+            const journalEntry = game!.journal!.get(id)!;
 
             if (isEntityPDF(journalEntry)) {
                 target.find('h4').on('click', (event) => {
                     event.stopImmediatePropagation();
-                    // @ts-ignore
                     if (journalEntry.isOwner) {
                         Setup.onClickPDFName(journalEntry);
                     } else {
@@ -328,7 +329,7 @@ export default class Setup {
 
     private static onNoteConfig(app: NoteConfig, html: JQuery, data: any) {
         const journalId = data.data.entryId;
-        const journal = game.journal.get(journalId);
+        const journal = game!.journal!.get(journalId)!;
         if (isEntityPDF(journal)) {
             const container = $(`<div class="form-group"></div>`);
             const label = $(`<label>${game.i18n.localize('PDFOUNDRY.COMMON.PageNumber')}</label>`);
@@ -361,8 +362,10 @@ export default class Setup {
         const journal = note.entry as JournalEntry;
         const pdf = getPDFData(journal);
         if (isEntityPDF(journal) && pdf) {
-            note.mouseInteractionManager.callbacks['clickLeft2'] = () => {
-                let pageText: string | number | undefined = note.data.flags?.[Settings.MODULE_NAME]?.[Settings.FLAGS_KEY.PAGE_NUMBER];
+            note!.mouseInteractionManager!.callbacks['clickLeft2'] = () => {
+                let pageText: string | number | undefined = (note.data.flags?.[Settings.MODULE_NAME] as string | number | undefined)?.[
+                    Settings.FLAGS_KEY.PAGE_NUMBER
+                ];
                 let pageNumber = 0;
 
                 if (typeof pageText === 'string') {

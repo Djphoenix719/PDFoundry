@@ -1,7 +1,8 @@
-/* Copyright 2020 Andrew Cuccinello
- *
+/*
+ * Copyright 2021 Andrew Cuccinello
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ *
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -41,7 +42,7 @@ export default class PDFCache {
      * Max size of the cache for the active user, defaults to 256 MB.
      */
     private static get MAX_BYTES() {
-        return Settings.get(Settings.SETTINGS_KEY.CACHE_SIZE) * 2 ** 20;
+        return (Settings.get(Settings.SETTINGS_KEY.CACHE_SIZE) as number) * 2 ** 20;
     }
 
     private static readonly IDB_NAME: string = 'PDFoundry';

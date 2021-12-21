@@ -1,7 +1,8 @@
-/* Copyright 2020 Andrew Cuccinello
- *
+/*
+ * Copyright 2021 Andrew Cuccinello
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ *
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -30,6 +31,7 @@ export default class PlayerSelect extends Application {
         const options = super.defaultOptions;
         options.classes = ['sheet', 'item'];
         options.template = `${Settings.PATH_TEMPLATES}/app/pdf-player-select.html`;
+        // @ts-ignore
         options.width = 'auto';
         options.height = 'auto';
         options.title = game.i18n.localize('PDFOUNDRY.VIEWER.SelectPlayers');
@@ -52,7 +54,7 @@ export default class PlayerSelect extends Application {
         const users: any[] = [];
         for (const id of this._ids) {
             users.push({
-                name: game.users.get(id).name,
+                name: game!.users!.get(id)!.name,
                 id,
             });
         }
@@ -63,7 +65,7 @@ export default class PlayerSelect extends Application {
         return data;
     }
 
-    protected activateListeners(html: JQuery<HTMLElement> | HTMLElement): void {
+    public activateListeners(html: JQuery): void {
         super.activateListeners(html);
 
         const button = $(html).find('#confirm');
