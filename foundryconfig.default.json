@@ -2,7 +2,7 @@
     "path": {
         "modules": "./",
         "entry": {
-            "script": "./src/module/Main.ts",
+            "script": "./src/pdfoundry/Main.ts",
             "sass": "./src/css/bundle.scss"
         },
         "assets": [
