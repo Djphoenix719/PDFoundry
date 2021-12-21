@@ -229,11 +229,11 @@ export default class Setup {
      * Hook handler for rendering the settings tab
      */
     public static onRenderSettings(settings: any, html: JQuery, data: any) {
-        const icon = '<i class="far fa-file-pdf"></i>';
-        const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
-        button.on('click', Api.showHelp);
-
-        html.find('#settings-documentation').append(button);
+        // const icon = '<i class="far fa-file-pdf"></i>';
+        // const button = $(`<button>${icon} ${game.i18n.localize('PDFOUNDRY.SETTINGS.OpenHelp')}</button>`);
+        // button.on('click', Api.showHelp);
+        //
+        // html.find('#settings-documentation').append(button);
     }
 
     private static async createPDF() {
