@@ -2039,7 +2039,7 @@ async function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
 
   const workerId = await worker.messageHandler.sendWithPromise("GetDocRequest", {
     docId,
-    apiVersion: '2.13.16',
+    apiVersion: '2.13.22',
     source: {
       data: source.data,
       url: source.url,
@@ -4214,9 +4214,9 @@ class InternalRenderTask {
 
 }
 
-const version = '2.13.16';
+const version = '2.13.22';
 exports.version = version;
-const build = '2f5be5f21';
+const build = '6abbe21c7';
 exports.build = build;
 
 /***/ }),
@@ -10038,6 +10038,14 @@ class TextWidgetAnnotationElement extends WidgetAnnotationElement {
     const storage = this.annotationStorage;
     const id = this.data.id;
     this.container.className = "textWidgetAnnotation";
+    const urlParams = new URLSearchParams(window.location.search);
+    console.log(window.location);
+    console.log(urlParams.has("renderInteractiveForms"));
+    console.log(urlParams.get("renderInteractiveForms"));
+    console.log(urlParams.has("enableScripting"));
+    console.log(urlParams.get("enableScripting"));
+    this.renderForms = urlParams.has("renderInteractiveForms") && urlParams.get("renderInteractiveForms") === "true";
+    this.enableScripting = urlParams.has("enableScripting") && urlParams.get("enableScripting") === "true";
     let element = null;
 
     if (this.renderForms) {
@@ -16222,8 +16230,8 @@ var _svg = __w_pdfjs_require__(23);
 
 var _xfa_layer = __w_pdfjs_require__(21);
 
-const pdfjsVersion = '2.13.16';
-const pdfjsBuild = '2f5be5f21';
+const pdfjsVersion = '2.13.22';
+const pdfjsBuild = '6abbe21c7';
 {
   if (_is_node.isNodeJS) {
     const {

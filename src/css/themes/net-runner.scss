@@ -1,0 +1,72 @@
+/*!
+ * Copyright 2022 Andrew Cuccinello
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+:root {
+    --main-color: rgba(0, 255, 65, 1);
+    --body-bg-color: rgba(0, 0, 0, 1);
+    --errorWrapper-bg-color: rgba(199, 17, 17, 1);
+    --progressBar-color: rgba(0, 255, 65, 1);
+    --progressBar-indeterminate-bg-color: rgba(0, 59, 0, 1);
+    --progressBar-indeterminate-blend-color: rgba(0, 129, 0, 1);
+    --scrollbar-color: rgba(0, 255, 65, 1);
+    --scrollbar-bg-color: rgba(0, 129, 0, 1);
+    --toolbar-icon-bg-color: rgba(0, 255, 65, 1);
+
+    --sidebar-bg-color: rgba(0, 0, 0, 1);
+    --toolbar-bg-color: rgba(0, 0, 0, 1);
+    --toolbar-border-color: rgba(0, 59, 0, 1);
+    --button-hover-color: rgba(0, 59, 0, 1);
+    --toggled-btn-bg-color: rgba(0, 129, 0, 1);
+    --dropdown-btn-bg-color: rgba(0, 59, 0, 1);
+    --separator-color: rgba(0, 255, 65, 1);
+    --field-color: rgba(0, 255, 65, 1);
+    --field-bg-color: rgba(0, 59, 0, 1);
+    --field-border-color: rgba(0, 129, 0, 1);
+    --findbar-nextprevious-btn-bg-color: rgba(0, 0, 0, 1);
+    --treeitem-color: rgba(0, 255, 65, 1);
+    --treeitem-hover-color: rgba(0, 255, 65, 0.8);
+    --treeitem-active-color: rgba(0, 59, 0, 1);
+    --treeitem-active-bg-color: rgba(0, 59, 0, 1);
+    --sidebaritem-bg-color: rgba(0, 255, 65, 1);
+    --doorhanger-bg-color: rgba(0, 0, 0, 1);
+    --doorhanger-border-color: rgba(0, 59, 0, 1);
+    --doorhanger-hover-color: rgba(0, 59, 0, 1);
+    --doorhanger-separator-color: rgba(0, 129, 0, 1);
+    --overlay-button-bg-color: rgba(0, 255, 65, 1);
+    --overlay-button-hover-color: rgba(0, 59, 0, 1);
+}
+
+#viewerContainer,
+#thumbnailView,
+#outlineView,
+#attachmentsView {
+    &::-webkit-scrollbar {
+        background: var(--doorhanger-bg-color);
+    }
+    &::-webkit-scrollbar:vertical,
+    &::-webkit-scrollbar:horizontal {
+        border-left: 1px solid var(--toolbar-border-color);
+    }
+    &::-webkit-scrollbar-thumb {
+        -webkit-transition: background-color 0.2s;
+        transition: background-color 0.2s;
+        background: rgba(0, 0, 0, 1);
+        border: 1px solid var(--main-color);
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 59, 0, 1);
+    }
+}
