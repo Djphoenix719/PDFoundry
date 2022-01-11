@@ -21,14 +21,14 @@ import { PDFViewerApplication } from './application/PDFViewerApplication';
 export const FEATURES: IFeatureDefinition[] = [
     {
         id: FEATURE_CACHE_ENABLED,
-        title: 'PDFOUNDRY.SETTINGS.CacheEnabled',
+        title: 'PDFOUNDRY.SETTINGS.CacheEnabledName',
         attributes: [],
         description: 'PDFOUNDRY.SETTINGS.CacheEnabledHint',
         default: true,
         inputs: [
             {
                 name: FEATURE_CACHE_SIZE,
-                label: 'PDFOUNDRY.SETTINGS.CacheSize',
+                label: 'PDFOUNDRY.SETTINGS.CacheSizeName',
                 type: 'number',
                 value: 256,
                 help: 'PDFOUNDRY.SETTINGS.CacheSizeHint',
@@ -63,6 +63,7 @@ Hooks.on('init', () =>
     }),
 );
 
-Hooks.on('init', () => {
+Hooks.on('ready', () => {
     setTimeout(() => new PDFViewerApplication('http://localhost:30000/5EFillableTestSheet.pdf', { page: 1 }).render(true), 250);
 });
+CONFIG.debug.hooks = true;

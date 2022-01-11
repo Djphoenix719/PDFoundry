@@ -67,6 +67,8 @@
       "WindowTitle": "PDFoundry Settings",
       "SettingsMenuButtonLabel": "Configure PDFoundry",
       "OpenHelp": "Open PDFoundry Manual",
+      "CacheEnabledName": "Cache Enabled",
+      "CacheEnabledHint": "Caching allows PDFoundry to quickly load large PDFs by storing a copy in the user's browser. This takes up some hard drive space on each user's computer, but PDFoundry will not cache PDFs until they are required.",
       "CacheSizeName": "PDF Cache Size",
       "CacheSizeHint": "How many MB of hard drive space should be allowed to be taken up by the PDF cache? Must be between 64 and 1024 inclusive.",
       "ViewerThemeName": "Viewer Theme",

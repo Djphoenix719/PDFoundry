@@ -54,6 +54,9 @@ export interface PDFViewerOpenArgs {
     enableScripting: boolean;
 }
 
+/**
+ * A PDF viewer which can position and manage itself in an arbitrary HTML element.
+ */
 export class PDFViewer {
     protected _iframe: HTMLIFrameElement | undefined;
     protected _application: PDFJS.PDFApplication | undefined;
@@ -85,6 +88,11 @@ export class PDFViewer {
         }
 
         if (options.enableScripting === undefined) {
+            options.enableScripting = false;
+        }
+
+        // Interactive forms MUST be enabled for Scripting to work.
+        if (options.enableScripting && !options.renderInteractiveForms) {
             options.enableScripting = false;
         }
 
@@ -129,8 +137,7 @@ export class PDFViewer {
     }
 
     /**
-     * Get the number of pages in open PDF.
-     * Note: Returns NaN if the value is unknown (e.g. when a PDF is not open).
+     * Get the number of pages in open PDF. Returns NaN if the value is unknown (e.g. when a PDF is not open).
      */
     public get pagesCount(): number {
         return this._application ? this._application.pagesCount : NaN;
@@ -146,7 +153,7 @@ export class PDFViewer {
     // </editor-fold>
 
     /**
-     * Bind the viewer to an HTML element.
+     * Bind the viewer to an HTML element. This method will create an iframe inside the target element, you do not need to create this frame yourself.
      * @param element The element to bind to.
      * @return boolean True if the binding & initialization completed successfully.
      */
@@ -185,11 +192,6 @@ export class PDFViewer {
         if (!this._eventBus) {
             return false;
         }
-
-        console.warn(this._application);
-        console.warn(this._eventBus);
-
-        console.warn(this);
 
         return true;
     }
@@ -237,7 +239,6 @@ export class PDFViewer {
         const iframe = document.createElement('iframe');
         iframe.classList.add(...this._options.classList);
         iframe.src = `modules/${MODULE_NAME}/pdfjs/web/viewer.html`;
-        // TODO: This needs to be done either a different way, or the fork must be edited to support it
         iframe.src += `?renderInteractiveForms=${this._options.renderInteractiveForms}`;
         iframe.src += `&enableScripting=${this._options.enableScripting}`;
         return iframe;

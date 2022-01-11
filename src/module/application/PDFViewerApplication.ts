@@ -15,14 +15,14 @@
  */
 
 import { PDFViewer, PDFViewerOpenArgs } from '../viewer/PDFViewer';
+import { MODULE_NAME } from '../Constants';
 
 export class PDFViewerApplication extends Application {
     static get defaultOptions() {
         const options = super.defaultOptions;
         options.classes = ['app', 'window-app', 'pdfoundry-viewer'];
-        options.template = `modules/pdfoundry/templates/viewer/default.html`;
+        options.template = `modules/${MODULE_NAME}/templates/viewer/default.html`;
         options.title = game.i18n.localize('PDFOUNDRY.VIEWER.ViewPDF');
-        // TODO: Personal setting for default application size.
         options.width = 8.5 * 100 + 64;
         options.height = 11 * 100 + 64;
         options.resizable = true;
