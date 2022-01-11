@@ -17,6 +17,7 @@
 import ModuleSettings, { IFeatureDefinition } from '../../FVTT-Common/src/module/ModuleSettings';
 import { FEATURE_CACHE_ENABLED, FEATURE_CACHE_SIZE, MODULE_NAME } from './Constants';
 import { PDFViewerApplication } from './application/PDFViewerApplication';
+import { DocumentDataStore } from './store/DocumentDataStore';
 
 export const FEATURES: IFeatureDefinition[] = [
     {
@@ -64,6 +65,20 @@ Hooks.on('init', () =>
 );
 
 Hooks.on('ready', () => {
-    setTimeout(() => new PDFViewerApplication('http://localhost:30000/5EFillableTestSheet.pdf', { page: 1 }).render(true), 250);
+    setTimeout(() => {
+        new PDFViewerApplication('http://localhost:30000/5EFillableTestSheet.pdf', {
+            page: 1,
+            renderInteractiveForms: true,
+            enableScripting: true,
+        }).render(true);
+
+        const journal = game.journal!.getName('Store')!;
+        const journalStore = new DocumentDataStore(journal);
+        console.warn(journalStore.getAll());
+
+        const actor = game.actors!.getName('Test Actor')!;
+        const actorStore = new DocumentDataStore(actor);
+        console.warn(actorStore.getAll());
+    }, 250);
 });
 CONFIG.debug.hooks = true;

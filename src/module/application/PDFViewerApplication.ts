@@ -42,7 +42,7 @@ export class PDFViewerApplication extends Application {
     public async activateListeners(html: JQuery) {
         super.activateListeners(html);
 
-        const viewer = new PDFViewer();
+        const viewer = new PDFViewer(this._options);
         await viewer.bind(html);
 
         if (this._file) {
