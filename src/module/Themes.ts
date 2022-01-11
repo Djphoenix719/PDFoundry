@@ -31,56 +31,57 @@ export interface PDFViewerTheme {
     path: string;
 }
 
+const ROOT_PATH = `modules/${MODULE_NAME}/themes`
 const DEFAULT_THEMES: Record<string, PDFViewerTheme> = {
     'fantasy': {
         id: 'fantasy',
         name: 'Fantasy (Default)',
-        path: `modules/${MODULE_NAME}/themes/fantasy.css`,
+        path: `${ROOT_PATH}/fantasy.css`,
     },
     'dark': {
         id: 'dark',
         name: 'Dark',
-        path: `modules/${MODULE_NAME}/themes/default-dark.css`,
+        path: `${ROOT_PATH}/default-dark.css`,
     },
     'light': {
         id: 'light',
         name: 'Light',
-        path: `modules/${MODULE_NAME}/themes/default-light.css`,
+        path: `${ROOT_PATH}/default-light.css`,
     },
     'net-runner-dark': {
         id: 'net-runner-dark',
         name: 'Net Runner',
-        path: `modules/${MODULE_NAME}/themes/net-runner.css`,
+        path: `${ROOT_PATH}/net-runner.css`,
     },
     'gay-pride-light': {
         id: 'gay-pride-light',
         name: 'Gay Pride (Light)',
-        path: `modules/${MODULE_NAME}/themes/gay-pride-light.css`,
+        path: `${ROOT_PATH}/gay-pride-light.css`,
     },
     'gay-pride-dark': {
         id: 'gay-pride-dark',
         name: 'Gay Pride (Dark)',
-        path: `modules/${MODULE_NAME}/themes/gay-pride-dark.css`,
+        path: `${ROOT_PATH}/gay-pride-dark.css`,
     },
     'trans-light': {
         id: 'trans-light',
         name: 'Trans Pride (Light)',
-        path: `modules/${MODULE_NAME}/themes/trans-pride-light.css`,
+        path: `${ROOT_PATH}/trans-pride-light.css`,
     },
     'trans-dark': {
         id: 'trans-dark',
         name: 'Trans Pride (Dark)',
-        path: `modules/${MODULE_NAME}/themes/trans-pride-dark.css`,
+        path: `${ROOT_PATH}/trans-pride-dark.css`,
     },
     'nonbinary-light': {
         id: 'nonbinary-light',
         name: 'Non-binary Pride (Light)',
-        path: `modules/${MODULE_NAME}/themes/nonbinary-pride-light.css`,
+        path: `${ROOT_PATH}/nonbinary-pride-light.css`,
     },
     'nonbinary-dark': {
         id: 'nonbinary-dark',
         name: 'Non-binary Pride (Dark)',
-        path: `modules/${MODULE_NAME}/themes/nonbinary-pride-dark.css`,
+        path: `${ROOT_PATH}/nonbinary-pride-dark.css`,
     },
 };
 
