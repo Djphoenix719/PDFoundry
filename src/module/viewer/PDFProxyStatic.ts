@@ -18,68 +18,72 @@ import { MODULE_NAME } from '../Constants';
 import { PollingWrapper } from '../util/PollingWrapper';
 import { PDFThemeManager } from '../Themes';
 import { getAbsoluteURL } from '../util/Utilities';
+import { AbstractDataStore } from '../store/AbstractDataStore';
+
+/**
+ * Arguments for opening a PDF file.
+ */
+export interface PDFProxyOpenArgs {
+    /**
+     * Page to open to when the viewer opens. Pass undefined to open to the last page the user was viewing.
+     */
+    page?: number | string;
+    //TODO: Viewable-range?
+    renderInteractiveForms?: boolean;
+    enableScripting?: boolean;
+}
 
 /**
  * Constructor arguments for the PDF viewer.
  */
-export interface PDFViewerOptions {
+export interface PDFProxyConstructorArgs extends PDFProxyOpenArgs {
     classList: string[];
     polling: {
         wait: number;
         tries: number;
     };
     theme: string;
-    renderInteractiveForms: boolean;
-    enableScripting: boolean;
+    dataStore?: AbstractDataStore;
+}
+
+class PDFProxyError extends Error {
+    protected readonly viewer: PDFProxyStatic | null;
+
+    constructor(message: string, viewer: PDFProxyStatic | null) {
+        super(message);
+
+        this.viewer = viewer;
+    }
 }
 
 /**
- * Arguments that may be passed when opening a PDF file.
+ * A proxy responsible for binding PDFJS to an arbitrary HTML element.
  */
-export interface PDFViewerOpenArgs {
-    /**
-     * What page should the PDF open to?
-     * Default: 1
-     */
-    page: number | string;
-    /**
-     * Should interactive forms (e.g. fillable forms) be enabled?
-     * Default: False
-     */
-    renderInteractiveForms: boolean;
-    /**
-     * Should scripting in PDFs be enabled? Requires renderInteractiveForms.
-     * Default: False
-     */
-    enableScripting: boolean;
-}
-
-/**
- * A PDF viewer which can position and manage itself in an arbitrary HTML element.
- */
-export class PDFViewer {
+export class PDFProxyStatic {
+    protected _options: PDFProxyConstructorArgs;
     protected _iframe: HTMLIFrameElement | undefined;
     protected _application: PDFJS.PDFApplication | undefined;
     protected _eventBus: PDFJS.EventBus | undefined;
-    protected _options: Required<PDFViewerOptions>;
 
-    public constructor(options?: Partial<PDFViewerOptions>) {
+    public constructor(options?: Partial<PDFProxyConstructorArgs>) {
+        console.warn('PDFProxyStatic');
+
         if (options === undefined) {
             options = {};
         }
 
-        if (!options.classList) {
+        if (options.classList === undefined) {
             options.classList = ['pdfViewer'];
         }
 
-        if (!options.polling) {
+        if (options.polling === undefined) {
             options.polling = {
                 wait: 5,
                 tries: 1000,
             };
         }
 
-        if (!options.theme) {
+        if (options.theme === undefined) {
             options.theme = PDFThemeManager.instance.active.id;
         }
 
@@ -96,7 +100,7 @@ export class PDFViewer {
             options.enableScripting = false;
         }
 
-        this._options = options as Required<PDFViewerOptions>;
+        this._options = options as Required<PDFProxyConstructorArgs>;
     }
 
     // <editor-fold desc="Viewer Property Accessors">
@@ -152,11 +156,6 @@ export class PDFViewer {
 
     // </editor-fold>
 
-    /**
-     * Bind the viewer to an HTML element. This method will create an iframe inside the target element, you do not need to create this frame yourself.
-     * @param element The element to bind to.
-     * @return boolean True if the binding & initialization completed successfully.
-     */
     public async bind(element: JQuery | HTMLElement): Promise<boolean> {
         element = $(element);
 
@@ -196,14 +195,9 @@ export class PDFViewer {
         return true;
     }
 
-    /**
-     * Open a PDF by URL or byte array.
-     * @param file The file to open, either a URL or a byte array of the PDF.
-     * @param args PDF open args.
-     */
-    public async open(file: PDFJS.File, args?: Partial<PDFViewerOpenArgs>): Promise<void> {
+    public async open(file: PDFJS.File, args?: Partial<PDFProxyOpenArgs>): Promise<void> {
         if (!this._application) {
-            throw new PDFViewerError(`Viewer is not yet initialized.`, null);
+            throw new PDFProxyError(`Viewer is not yet initialized.`, null);
         }
 
         if (args === undefined) {
@@ -235,7 +229,7 @@ export class PDFViewer {
      * Create an iframe used to render the actual viewer.
      * @private
      */
-    private _createFrame(): HTMLIFrameElement {
+    protected _createFrame(): HTMLIFrameElement {
         const iframe = document.createElement('iframe');
         iframe.classList.add(...this._options.classList);
         iframe.src = `modules/${MODULE_NAME}/pdfjs/web/viewer.html`;
@@ -248,24 +242,14 @@ export class PDFViewer {
      * Apply the active theme to the viewer.
      * @private
      */
-    private _applyTheme(): void {
+    protected _applyTheme(): void {
         const frameDocument = this._iframe?.contentDocument;
         if (!frameDocument) {
-            throw new PDFViewerError('Something went wrong while applying the theme, the viewer does not appear to be initialized.', this);
+            throw new PDFProxyError('Something went wrong while applying the theme, the viewer does not appear to be initialized.', this);
         }
 
         const theme = PDFThemeManager.instance.active;
         const head = $(frameDocument).find('head');
         head.append($(`<link href="${getAbsoluteURL(theme.path)}" rel="stylesheet" type="text/css" media="all">`));
-    }
-}
-
-class PDFViewerError extends Error {
-    protected readonly viewer: PDFViewer | null;
-
-    constructor(message: string, viewer: PDFViewer | null) {
-        super(message);
-
-        this.viewer = viewer;
     }
 }

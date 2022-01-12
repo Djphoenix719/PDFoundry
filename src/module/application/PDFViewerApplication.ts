@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-import { PDFViewer, PDFViewerOpenArgs } from '../viewer/PDFViewer';
 import { MODULE_NAME } from '../Constants';
+import { PDFProxyConstructorArgs, PDFProxyStatic } from '../viewer/PDFProxyStatic';
+import { PDFProxyInteractive } from '../viewer/PDFProxyInteractive';
+import { NullDataStore } from '../store/NullDataStore';
 
+/**
+ * A no-fuss PDF viewer application which can open an arbitrary PDF to a specified page.
+ */
 export class PDFViewerApplication extends Application {
     static get defaultOptions() {
         const options = super.defaultOptions;
@@ -30,24 +35,33 @@ export class PDFViewerApplication extends Application {
     }
 
     protected _file: PDFJS.File | undefined;
-    protected _options: Partial<PDFViewerOpenArgs> | undefined;
+    protected _pdfOptions: Partial<PDFProxyConstructorArgs> | undefined;
+    protected _viewer: PDFProxyStatic | undefined;
 
-    constructor(file: PDFJS.File, pdfOptions?: Partial<PDFViewerOpenArgs>, applicationOptions?: Partial<Application.Options>) {
+    constructor(file: PDFJS.File, pdfOptions: Partial<PDFProxyConstructorArgs> = {}, applicationOptions: Partial<Application.Options> = {}) {
         super(applicationOptions);
 
         this._file = file;
-        this._options = pdfOptions;
+        this._pdfOptions = pdfOptions;
     }
 
     public async activateListeners(html: JQuery) {
         super.activateListeners(html);
 
-        const viewer = new PDFViewer(this._options);
-        await viewer.bind(html);
+        if (this._pdfOptions && this._pdfOptions.renderInteractiveForms) {
+            if (this._pdfOptions.dataStore === undefined) {
+                this._pdfOptions.dataStore = new NullDataStore();
+            }
+            this._viewer = new PDFProxyInteractive(this._pdfOptions.dataStore, this._pdfOptions);
+        } else {
+            this._viewer = new PDFProxyStatic(this._pdfOptions);
+        }
 
-        if (this._file) {
-            await viewer.open(this._file, this._options);
-            // clear potentially large memory if byte data was passed
+        const success = await this._viewer.bind(html);
+
+        if (success && this._file) {
+            await this._viewer.open(this._file, this._pdfOptions);
+            // Clear potentially large memory if byte data was passed
             if (this._file.hasOwnProperty('byteLength')) {
                 delete this._file;
             }

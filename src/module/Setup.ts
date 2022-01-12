@@ -17,7 +17,6 @@
 import ModuleSettings, { IFeatureDefinition } from '../../FVTT-Common/src/module/ModuleSettings';
 import { FEATURE_CACHE_ENABLED, FEATURE_CACHE_SIZE, MODULE_NAME } from './Constants';
 import { PDFViewerApplication } from './application/PDFViewerApplication';
-import { DocumentDataStore } from './store/DocumentDataStore';
 
 export const FEATURES: IFeatureDefinition[] = [
     {
@@ -71,14 +70,6 @@ Hooks.on('ready', () => {
             renderInteractiveForms: true,
             enableScripting: true,
         }).render(true);
-
-        const journal = game.journal!.getName('Store')!;
-        const journalStore = new DocumentDataStore(journal);
-        console.warn(journalStore.getAll());
-
-        const actor = game.actors!.getName('Test Actor')!;
-        const actorStore = new DocumentDataStore(actor);
-        console.warn(actorStore.getAll());
     }, 250);
 });
 CONFIG.debug.hooks = true;
