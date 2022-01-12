@@ -17,7 +17,7 @@
 export type Pollable<T> = () => Promise<T>;
 
 /**
- * Wrap a function in a polling timeout, which runs the function ever {@param wait} ms, up to a maximum of {@param tries}, until it returns a value.
+ * Wrap a function in a polling timeout, which runs the function every {@param wait} ms, up to a maximum of {@param tries}, until it returns a value.
  * @param executor The function to run at the specified interval.
  * @param wait The number of milliseconds between tries.
  * @param tries The maximum number of attempts, or no maximum if not specified.
