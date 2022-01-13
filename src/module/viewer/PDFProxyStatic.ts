@@ -19,6 +19,7 @@ import { PollingWrapper } from '../util/PollingWrapper';
 import { PDFThemeManager } from '../Themes';
 import { getAbsoluteURL } from '../util/Utilities';
 import { AbstractDataStore } from '../store/AbstractDataStore';
+import { EventHandler } from '../util/EventHandler';
 
 /**
  * Arguments for opening a PDF file.
@@ -64,6 +65,7 @@ export class PDFProxyStatic {
     protected _iframe: HTMLIFrameElement | undefined;
     protected _application: PDFJS.PDFApplication | undefined;
     protected _eventBus: PDFJS.EventBus | undefined;
+    protected _eventHandler: EventHandler<PDFJS.EventBusType>;
 
     public constructor(options?: Partial<PDFProxyConstructorArgs>) {
         console.warn('PDFProxyStatic');

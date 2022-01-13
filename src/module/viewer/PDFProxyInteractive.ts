@@ -27,4 +27,19 @@ export class PDFProxyInteractive extends PDFProxyStatic {
 
         this._dataStore = dataStore;
     }
+
+    public async bind(element: JQuery | HTMLElement): Promise<boolean> {
+        const success = await super.bind(element);
+
+        if (success) {
+            console.warn('Interactive Viewer Bound Successfully.');
+            console.warn(this._options);
+            console.warn(this._iframe);
+            console.warn(this._application);
+            console.warn(this._eventBus);
+            console.warn(this._dataStore);
+        }
+
+        return success;
+    }
 }
