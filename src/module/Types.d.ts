@@ -42,26 +42,7 @@ declare namespace PDFJS {
         open(file: File): Promise<void>;
     }
 
-    interface EventBus {
-        on(eventName: string, listener: Function, options?: EventBusRegisterArguments): void;
-        off(eventName: string, listener: Function): void;
-    }
-
-    interface PDFViewer {
-        // TODO
-        get pagesPromise(): Promise<unknown>;
-    }
-
-    interface PDFDocumentProxy {
-        get fingerprint(): string;
-        get numPages(): number;
-    }
-
-    interface EventBusRegisterArguments {
-        once: boolean;
-    }
-
-    type EventBusType =
+    type PDFEvent =
         | 'afterprint'
         | 'attachmentsloaded'
         | 'beforeprint'
@@ -121,7 +102,22 @@ declare namespace PDFJS {
         | 'zoomout'
         | 'zoomreset';
 
-    type EventBusTypeMap = {
-        [TEventName in EventBusType]: Function;
-    };
+    interface EventBus {
+        on(eventName: PDFEvent, listener: Function, options?: EventBusRegisterArguments): void;
+        off(eventName: PDFEvent, listener: Function): void;
+    }
+
+    interface EventBusRegisterArguments {
+        once: boolean;
+    }
+
+    interface PDFViewer {
+        // TODO
+        get pagesPromise(): Promise<unknown>;
+    }
+
+    interface PDFDocumentProxy {
+        get fingerprint(): string;
+        get numPages(): number;
+    }
 }

@@ -19,7 +19,7 @@ import { PollingWrapper } from '../util/PollingWrapper';
 import { PDFThemeManager } from '../Themes';
 import { getAbsoluteURL } from '../util/Utilities';
 import { AbstractDataStore } from '../store/AbstractDataStore';
-import { EventHandler } from '../util/EventHandler';
+import PDFEvent = PDFJS.PDFEvent;
 
 /**
  * Arguments for opening a PDF file.
@@ -65,7 +65,6 @@ export class PDFProxyStatic {
     protected _iframe: HTMLIFrameElement | undefined;
     protected _application: PDFJS.PDFApplication | undefined;
     protected _eventBus: PDFJS.EventBus | undefined;
-    protected _eventHandler: EventHandler<PDFJS.EventBusType>;
 
     public constructor(options?: Partial<PDFProxyConstructorArgs>) {
         console.warn('PDFProxyStatic');
@@ -100,6 +99,7 @@ export class PDFProxyStatic {
         // Interactive forms MUST be enabled for Scripting to work.
         if (options.enableScripting && !options.renderInteractiveForms) {
             options.enableScripting = false;
+            console.warn('You have specified scripting be enabled, but interactive forms be disabled. This is not supported, and scripting has been disabled.');
         }
 
         this._options = options as Required<PDFProxyConstructorArgs>;
@@ -158,6 +158,10 @@ export class PDFProxyStatic {
 
     // </editor-fold>
 
+    /**
+     * Bind the rendering of the proxy to the specified HTML element.
+     * @param element
+     */
     public async bind(element: JQuery | HTMLElement): Promise<boolean> {
         element = $(element);
 
@@ -197,6 +201,11 @@ export class PDFProxyStatic {
         return true;
     }
 
+    /**
+     * Open a PDF file in this proxy. Requires the viewer to be bound.
+     * @param file
+     * @param args
+     */
     public async open(file: PDFJS.File, args?: Partial<PDFProxyOpenArgs>): Promise<void> {
         if (!this._application) {
             throw new PDFProxyError(`Viewer is not yet initialized.`, null);
@@ -225,6 +234,37 @@ export class PDFProxyStatic {
         if (args.page && this._application.page !== args.page) {
             this._application.page = args.page;
         }
+    }
+
+    /**
+     * Register an event callback with the proxy.
+     * @param eventName
+     * @param callback
+     * @param args
+     */
+    public on(eventName: PDFEvent, callback: Function, args?: PDFJS.EventBusRegisterArguments) {
+        if (this._eventBus === undefined) {
+            throw new PDFProxyError('Event system has yet to be initialized.', this);
+        }
+
+        if (args === undefined) {
+            args = { once: false };
+        }
+
+        this._eventBus.on(eventName, callback, args);
+    }
+
+    /**
+     * Remove an event callback from the proxy.
+     * @param eventName
+     * @param callback
+     */
+    public off(eventName: PDFEvent, callback: Function) {
+        if (this._eventBus === undefined) {
+            throw new PDFProxyError('Event system has yet to be initialized.', this);
+        }
+
+        this._eventBus.off(eventName, callback);
     }
 
     /**
