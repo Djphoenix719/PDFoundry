@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Andrew Cuccinello
+ * Copyright 2022 Andrew Cuccinello
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  *
@@ -143,7 +143,7 @@ export default class Setup {
      */
     public static getJournalContextOptions(html: JQuery, options: any[]) {
         const getJournalEntryFromLi = (html: JQuery): JournalEntry => {
-            const id = html.data('entity-id');
+            const id = html.data('document-id');
             return game!.journal!.get(id)!;
         };
 
