@@ -1,0 +1,112 @@
+{
+    "PDFOUNDRY": {
+      "CONTEXT": {
+        "OpenPDF": "PDFを開く",
+        "PreloadPDF": "PDFを先読み"
+      },
+      "PDFSHEET": {
+        "TOOLTIP": {
+          "Name": "このPDFの正式な名前を記入してください。",
+          "Code": "このPDFのコードとなる略称を記入してください。",
+          "URL": "どのPDFファイルを開きますか？",
+          "PageOffset": "PDFのウィンドウを開く時、すべての内容が正常に表示されるようにどのぐらいの幅（オフセット）を確保すべきですか？",
+          "EnableCaching": "このPDFを開いた後、プレイヤーのPCのキャッシュに残しますか？再ダウンロードの必要がなくなり遅い回線のPLに優しいですが、そのぶんメモりが場合によって多く必要になります。",
+          "PDFType": "PDFの種類の解説についてはマニュアルを参照してください。"
+        },
+        "LABEL": {
+          "Name": "PDF名",
+          "Code": "PDFコード",
+          "URL": "PDFのURL",
+          "PageOffset": "ページオフセット",
+          "EnableCaching": "キャッシュ有効化",
+          "PDFType": "PDFの種類",
+          "TestSettings": "（テスト設定）このボタンをクリックすると、選択されたPDFの5ページ目が開くはずです。正しく開かない場合はPDFを一旦閉じてからページオフセットを調整してください。"
+        },
+        "PLACEHOLDER": {
+          "Name": "クトゥルフ神話TRPG",
+          "Code": "CoC",
+          "URL": "ユーザデータからの相対パス",
+          "PageOffset": "0, 3, -5, ..."
+        },
+        "BUTTON": {
+          "TestSettings": "テスト設定",
+          "Browse": "ブラウズ"
+        }
+      },
+      "VIEWER": {
+        "ViewPDF": "PDFを表示",
+  
+        "ShowToPlayersText": "共有先…",
+        "ShowToPlayersTitle": "SHIFTキーを押すと自分以外のすべてのプレイヤーに表示を共有します。",
+  
+        "SelectPlayers": "プレイヤー選択",
+        "SelectPlayersConfirm": "共有",
+        "SelectSheet": "PDF選択",
+        "SelectSheetConfirm": "選択",
+        "InspectData": "データ参照",
+        "InspectDataHelp1": "このウィンドウを開いた状態でシートを通常のシステムシートに戻すことができます。データ参照は10秒ごとにシートの中身の最新の状態を反映しますが、「更新」ボタンで最新の状態を手動で取得することもできます。。",
+        "InspectDataHelp2": "このデータを使用するときは細心の注意を払ってください。使用しているカラーコードはあくまでも「推測」であり、いろんなシステムのすべての例外やシートの自動的な計算からくる上書きに対応できるものではありません。",
+        "InspectDataHelp3": "/rollの構文をコピーする機能は利便性のために提供されていますが、システムが意図的に中身を省略・変更している可能性があります。構文が意図しない結果を産まない場合はバグではありません。"
+      },
+      "MANUAL": {
+        "Name": "PDFoundryユーザーマニュアル"
+      },
+      "ERROR": {
+        "NoPDFWithCode": "指定されたコードのPDFを見つけることができません。",
+        "NoPDFWithName": "指定された名前のPDFを見つけることができません。",
+        "PageMustBePositive": "ページは1以上でなければなりません。",
+        "FileNotFound": "PDF表示にエラーは発生：サーバ内に対象ファイルが見つかりません。"
+      },
+      "ENRICH": {
+        "InvalidFormat": "@PDFタグの形式が無効です。",
+        "EmptyLinkText": "@PDFタグのリンクテキストが必要です。",
+        "LinkTitleOpen": "開く",
+        "LinkTitlePage": "p."
+      },
+      "SETTINGS": {
+        "WindowTitle": "PDFoundry設定",
+        "SettingsMenuButtonLabel": "PDFoundryの設定",
+        "OpenHelp": "PDFoundryのマニュアルを開く",
+        "CacheSizeName": "PDFキャッシュサイズ",
+        "CacheSizeHint": "PDFキャッシュのキャッシュがハードディスク上で使用できるファイルサイズ（MB単位）の上限を設定します。64から1024の間から指定してください。",
+        "ViewerThemeName": "PDF表示のテーマ",
+        "ViewerThemeHint": "PDF表示のテーマを選択肢てください。変更の適用にはPDFを開き直す必要があります。",
+        "ShowInExistingViewerName": "共有されたPDFを既存のPDF表示設定で表示する",
+        "ShowInExistingViewerHint": "有効時、他のプレイヤーからPDFを見せられて、自分もPDFを開いている状態であれば、新たなページとして表示します。"
+      },
+      "COMMON": {
+        "PageNumber": "ページ番号"
+      },
+      "MISC": {
+        "PDFTYPE": {
+          "Static": "通常",
+          "Fillable": "入力可能なPDF（リンク無し）",
+          "Actor": "入力可能なPDF（キャラシート）"
+        },
+  
+        "DANGER": {
+          "Safe": "このデータは安全に使用できる可能性が高いです。",
+          "Low": "このデータは危険である可能性は低いですが、取り扱い注意です。",
+          "High": "このデータを使用すると問題が発生する可能性が高いです。",
+          "Critical": "このデータは絶対に使わないでください！"
+        },
+  
+        "CreatePDF": "PDF作成",
+        "NewPDF": "新規PDF",
+  
+        "Confirm": "確認",
+        "Refresh": "更新",
+        "CopiedToClipboard": "コピーしました！",
+        "CopyDataPath": "データパスをクリップボードにコピー",
+        "CopyRollPath": "/roll構文パスをクリップボードにコピー"
+      },
+      "COMMANDS": {
+        "Success": "PDFoundry: $COMMAND_NAME$が正常に完了しました。",
+        "Failure": "PDFoundry: $COMMAND_NAME$にエラーが発生しました。詳細はコンソールより参照してください。",
+  
+        "PurgeCacheSuccess": "PDFキャッシュがクリアされました。",
+        "FixMissingTypesSuccess": "タイプが未定義のPDFを修正しました。",
+        "FixMissingTypesFailure": "タイプが未定義のPDFが見つかりませんでした。"
+      }
+    }
+  }

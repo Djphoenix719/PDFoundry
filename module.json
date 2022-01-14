@@ -20,6 +20,11 @@
             "lang": "fr",
             "name": "French",
             "path": "locale/fr/config.json"
+        },
+        {
+            "lang": "ja",
+            "name": "日本語",
+            "path": "locale/ja/config.json"
         }
     ],
     "esmodules": ["./bundle.js"],
