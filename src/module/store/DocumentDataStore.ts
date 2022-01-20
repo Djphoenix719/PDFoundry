@@ -59,21 +59,25 @@ export class DocumentDataStore<TDocumentData extends AnyDocumentData = AnyDocume
     private readonly _document: StoredDocument<foundry.abstract.Document<any, any>>;
     public constructor(document: StoredDocument<foundry.abstract.Document<any, any>>) {
         super();
-
         this._document = document;
     }
 
-    public get keys(): DataStoreValidKey[] {
-        return []; // TODO
-    }
-
-    public get values(): DataStoreValidValue[] {
-        return []; // TODO
+    /**
+     * Get flattened and pruned version of this documents' data.
+     * @protected
+     */
+    protected getFlattenedDocumentData(): Record<string, any> {
+        let data: Record<string, any> = {};
+        data = mergeObject(data, { data: this._document.data.data });
+        data = mergeObject(data, this._document.data['flags'][FLAGS_SCOPE]?.[FLAGS_KEY] ?? {});
+        data['name'] = this._document.name;
+        data = flattenObject(data);
+        return data;
     }
 
     public getValue<TValue>(key: DataStoreValidKey): TValue | undefined {
         key = DocumentDataStore.normalizeKey(key.toString());
-        const flattened = flattenObject(this._document);
+        const flattened = this.getFlattenedDocumentData();
         return flattened[key];
     }
 
@@ -96,7 +100,7 @@ export class DocumentDataStore<TDocumentData extends AnyDocumentData = AnyDocume
     }
 
     public async setAll(data: Record<DataStoreValidKey, DataStoreValidValue>): Promise<boolean> {
-        let normalizedData = {};
+        let normalizedData: Record<DataStoreValidKey, DataStoreValidValue> = {};
         for (const [key, value] of Object.entries(data)) {
             normalizedData = mergeObject(normalizedData, {
                 [DocumentDataStore.normalizeKey(key)]: value,

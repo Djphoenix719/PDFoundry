@@ -18,28 +18,54 @@ declare namespace PDFJS {
     type File = string | ArrayBuffer;
 
     interface PDFApplication {
-        readonly downloadComplete: boolean;
-
-        readonly eventBus: EventBus;
-
-        readonly initialized: boolean;
         get initializedPromise(): Promise<void>;
-
-        initialBookmark: string;
-
-        readonly metadata: Map<string, string>;
-
         get page(): number;
-        set page(value: number);
-
         get pagesCount(): number;
-
+        initialBookmark: string;
+        open(file: File): Promise<void>;
+        readonly downloadComplete: boolean;
+        readonly eventBus: EventBus;
+        readonly initialized: boolean;
+        readonly metadata: Map<string, string>;
         readonly pdfDocument: PDFDocumentProxy;
         readonly pdfViewer: PDFViewer;
-
         readonly scriptingReady: boolean;
+        set page(value: number);
+    }
 
-        open(file: File): Promise<void>;
+    interface FieldObject {
+        defaultValue: string | null;
+        editable: boolean;
+        hidden: boolean;
+        id: string;
+        multiline: boolean;
+        name: string;
+        page: number;
+        password: boolean;
+        rect: [number, number, number, number];
+        type: string;
+        value: string;
+    }
+    interface AnnotationLayerBuilder {
+        annotationStorage: AnnotationStorage;
+        div: HTMLDivElement;
+        _fieldObjectsPromise: Promise<Record<string, FieldObject[]>>;
+        _hasJSActionsPromise: Promise<boolean>;
+    }
+
+    interface PDFPageView {
+        // TODO: Flesh out.
+        annotationLayer: AnnotationLayerBuilder;
+        div: HTMLDivElement;
+        pageDiv: HTMLDivElement;
+        scale: number;
+    }
+
+    interface TextLayerBuilder {
+        pageNumber: number;
+        renderingDone: boolean;
+        textDivs: HTMLElement[];
+        textDivLayer: HTMLDivElement;
     }
 
     type PDFEvent =
@@ -111,13 +137,36 @@ declare namespace PDFJS {
         once: boolean;
     }
 
+    interface PDFEventArgsPageRendered {
+        cssTransform: boolean;
+        error: null | Error;
+        pageNumber: number;
+        source: PDFPageView;
+        timestamp: number;
+    }
+    interface PDFEventArgsTextLayerRendered {
+        numTextDivs: number;
+        pageNumber: number;
+        source: TextLayerBuilder;
+    }
+
     interface PDFViewer {
         // TODO
+        container: HTMLDivElement;
         get pagesPromise(): Promise<unknown>;
     }
 
     interface PDFDocumentProxy {
         get fingerprint(): string;
         get numPages(): number;
+        get annotationStorage(): AnnotationStorage;
+    }
+
+    interface AnnotationStorage {
+        onResetModified(): void;
+        onSetModified(): void;
+        _modified: boolean;
+        _storage: Map<string, object>;
+        lastModified: string;
     }
 }

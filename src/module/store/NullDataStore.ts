@@ -24,32 +24,19 @@ export class NullDataStore extends AbstractDataStore {
         super();
     }
 
-    public get keys(): DataStoreValidKey[] {
-        return [];
-    }
-
-    public get values(): DataStoreValidValue[] {
-        return [];
-    }
-
     public getValue<TValue>(key: DataStoreValidKey): TValue | undefined {
-        console.warn(`NullDataStore::Get ${key}`);
         return undefined;
     }
 
     public async setValue<TValue>(key: DataStoreValidKey, value: TValue): Promise<boolean> {
-        console.warn(`NullDataStore::Set ${key} -> ${value}`);
         return true;
     }
 
     public getAll(): Record<DataStoreValidKey, DataStoreValidValue> {
-        console.warn(`NullDataStore::GetAll`);
         return {};
     }
 
     public async setAll(data: Record<DataStoreValidKey, DataStoreValidValue>): Promise<boolean> {
-        console.warn(`NullDataStore::SetAll`);
-        console.warn(data);
         return true;
     }
 }

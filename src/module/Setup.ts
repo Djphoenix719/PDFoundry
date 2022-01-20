@@ -17,6 +17,7 @@
 import ModuleSettings, { IFeatureDefinition } from '../../FVTT-Common/src/module/ModuleSettings';
 import { FEATURE_CACHE_ENABLED, FEATURE_CACHE_SIZE, MODULE_NAME } from './Constants';
 import { PDFViewerApplication } from './application/PDFViewerApplication';
+import { DocumentDataStore } from './store/DocumentDataStore';
 
 export const FEATURES: IFeatureDefinition[] = [
     {
@@ -65,11 +66,15 @@ Hooks.on('init', () =>
 
 Hooks.on('ready', () => {
     setTimeout(() => {
-        new PDFViewerApplication('http://localhost:30000/5EFillableTestSheet.pdf', {
+        const actor = game.actors!.getName('Broth-R-PXR-4');
+        const store = new DocumentDataStore(actor!);
+        const application = new PDFViewerApplication('http://localhost:30000/worlds/paranoia/ParanoiaCharacterSheet.pdf', {
             page: 1,
             renderInteractiveForms: true,
             enableScripting: true,
-        }).render(true);
+            dataStore: store,
+        });
+        application.render(true);
     }, 250);
 });
 CONFIG.debug.hooks = true;

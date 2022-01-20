@@ -28,7 +28,7 @@ export function PollingWrapper<T>(executor: Pollable<T | undefined>, wait: numbe
         let timeout: NodeJS.Timeout;
         const poll = async () => {
             const value: T | undefined = await executor();
-            if (value) {
+            if (value !== undefined) {
                 return resolve(value);
             }
 

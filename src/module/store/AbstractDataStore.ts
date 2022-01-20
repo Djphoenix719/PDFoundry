@@ -15,7 +15,7 @@
  */
 
 export type DataStoreValidKey = string | number;
-export type DataStoreValidValue = string | number | object;
+export type DataStoreValidValue = string | number;
 
 /**
  * An abstraction of a method to store/retrieve keyed data.
@@ -44,24 +44,4 @@ export abstract class AbstractDataStore<TKey extends DataStoreValidKey = DataSto
      * @param data The data to set to.
      */
     public abstract setAll(data: Record<TKey, TValue>): Promise<boolean>;
-
-    /**
-     * Return an array of keys which have values stored in this object.
-     */
-    public abstract get keys(): TKey[];
-
-    /**
-     * Return a list of values stored in this object.
-     */
-    public abstract get values(): TValue[];
-}
-
-export class DataStoreError extends Error {
-    protected readonly store: AbstractDataStore | null;
-
-    constructor(message: string, store: AbstractDataStore | null) {
-        super(message);
-
-        this.store = store;
-    }
 }

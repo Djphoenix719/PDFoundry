@@ -156,6 +156,13 @@ export class PDFProxyStatic {
         return !!this._application && this._application.scriptingReady;
     }
 
+    /**
+     * Get the div containing all rendered page elements.
+     */
+    public get container(): HTMLDivElement | undefined {
+        return this._application?.pdfViewer.container;
+    }
+
     // </editor-fold>
 
     /**
@@ -171,8 +178,8 @@ export class PDFProxyStatic {
         // Await the application to finish initializing
         this._application = await PollingWrapper(
             async () => {
-                if (this._iframe && this._iframe.contentWindow && (this._iframe.contentWindow as any)['PDFViewerApplication']) {
-                    return (this._iframe.contentWindow as any)['PDFViewerApplication'] as PDFJS.PDFApplication;
+                if (this._iframe && this._iframe.contentWindow && this._iframe.contentWindow['PDFViewerApplication']) {
+                    return this._iframe.contentWindow['PDFViewerApplication'] as PDFJS.PDFApplication;
                 }
             },
             this._options.polling.wait,
