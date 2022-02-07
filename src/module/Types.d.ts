@@ -163,9 +163,7 @@ declare namespace PDFJS {
     }
 
     interface AnnotationStorage {
-        onResetModified(): void;
-        onSetModified(): void;
-        _modified: boolean;
+        resetModified(): void;
         _storage: Map<string, object>;
         lastModified: string;
     }

@@ -17,6 +17,7 @@
 import { PDFProxyConstructorArgs, PDFProxyStatic } from './PDFProxyStatic';
 import { AbstractDataStore, DataStoreValidValue } from '../store/AbstractDataStore';
 import { PollingWrapper } from '../util/PollingWrapper';
+import { NullDataStore } from '../store/NullDataStore';
 
 const EVENT_NAMES = [
     'afterprint',
@@ -82,8 +83,12 @@ export class PDFProxyInteractive extends PDFProxyStatic {
     protected readonly _dataStore: AbstractDataStore;
     protected _formDOMReadyPromise: Promise<JQuery<HTMLDivElement> | undefined>;
 
-    public constructor(dataStore: AbstractDataStore, options?: Partial<PDFProxyConstructorArgs>) {
+    public constructor(dataStore?: AbstractDataStore, options?: Partial<PDFProxyConstructorArgs>) {
         super(options);
+
+        if (dataStore === undefined) {
+            dataStore = new NullDataStore();
+        }
 
         console.warn('PDFProxyInteractive');
 
@@ -104,25 +109,32 @@ export class PDFProxyInteractive extends PDFProxyStatic {
         const pdfFields = await args.source.annotationLayer._fieldObjectsPromise;
         const newFields: Record<string, string> = {};
         for (const [key, entries] of Object.entries(pdfFields)) {
+            // Entries is actually an array containing all fields with the same name
+            //  We don't support this right now, so we look at the first field with
+            //  each name only, and ignore the other fields.
             const entry = entries[0];
             if (entries.length > 1) {
                 console.warn(`PDFoundry: A field with the name "${key}" appears more than once.`);
             }
 
-            // Case 1: No type specified in the PDF, skip this input
-            if (entry.type === '') {
-                continue;
-            }
-
-            // Case 2: We already have a value stored for this input
+            // Case 1: We already have a value stored for this input
             const existingValue = this._dataStore.getValue(key) as DataStoreValidValue;
             if (existingValue !== undefined) {
                 const element = container.find(`#${entry.id}`);
+                const stringValue = existingValue.toString().toLowerCase();
+
+                // case 1: deal with checkboxes
+                if (stringValue === 'true' || stringValue === 'false') {
+                    element.attr('checked', existingValue);
+                    continue;
+                }
+
+                // case 2: anything else
                 element.val(existingValue);
                 continue;
             }
 
-            // Case 3: This value is fresh, and needs to be inserted
+            // Case 2: This value is fresh, and needs to be inserted
             newFields[key] = entry.value;
         }
 
@@ -169,6 +181,30 @@ export class PDFProxyInteractive extends PDFProxyStatic {
                 20,
                 1000,
             );
+            this._formDOMReadyPromise.then((container) => {
+                if (container !== undefined) {
+                    const elements = container.find('input, textarea, select');
+                    elements.on('change', async (event) => {
+                        const input = $(event.target);
+                        const name = input.attr('name');
+                        // input has no storage location defined
+                        if (name === undefined) {
+                            return;
+                        }
+
+                        let value: string | string[] | number | boolean | undefined = input.val();
+                        if (value === 'on' || value === 'off') {
+                            value = input.is(':checked');
+                        }
+
+                        await this._dataStore.setValue(name, value);
+
+                        // safe to reload, clear "changes may not be saved" prompt
+                        this._application!.pdfDocument.annotationStorage.resetModified();
+                        console.warn(`${name} -> ${value}`);
+                    });
+                }
+            });
         }
 
         return success;

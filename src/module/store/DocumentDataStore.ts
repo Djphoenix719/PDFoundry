@@ -20,6 +20,7 @@ import { MODULE_NAME } from '../Constants';
 
 const FLAGS_SCOPE = MODULE_NAME;
 const FLAGS_KEY = 'FormData';
+const FLAGS_PREFIX = `flags.${FLAGS_SCOPE}.${FLAGS_KEY}`;
 export class DocumentDataStore<TDocumentData extends AnyDocumentData = AnyDocumentData> extends AbstractDataStore {
     /**
      * Normalize a key into a canonical store-able form, depending on where the storage should occur.
@@ -41,9 +42,6 @@ export class DocumentDataStore<TDocumentData extends AnyDocumentData = AnyDocume
         }
 
         // Case 3: No data path, data should be stored in the flags
-        //  The PDF spec supports spaces in form field names, but this has caused
-        //  issues in the past. Out of an abundance of caution we remove them.
-        key = key.replace(/\s/g, '_');
         return `flags.${FLAGS_SCOPE}.${FLAGS_KEY}.${key}`;
     }
 
@@ -69,7 +67,7 @@ export class DocumentDataStore<TDocumentData extends AnyDocumentData = AnyDocume
     protected getFlattenedDocumentData(): Record<string, any> {
         let data: Record<string, any> = {};
         data = mergeObject(data, { data: this._document.data.data });
-        data = mergeObject(data, this._document.data['flags'][FLAGS_SCOPE]?.[FLAGS_KEY] ?? {});
+        data = mergeObject(data, { [FLAGS_PREFIX]: this._document.data['flags'][FLAGS_SCOPE]?.[FLAGS_KEY] ?? {} });
         data['name'] = this._document.name;
         data = flattenObject(data);
         return data;
