@@ -124,7 +124,7 @@ export default class Setup {
             }
 
             // PDFoundry is ready
-            Setup.userLogin();
+            // Setup.userLogin();
         });
     }
 
