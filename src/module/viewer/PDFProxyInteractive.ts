@@ -15,70 +15,13 @@
  */
 
 import { PDFProxyConstructorArgs, PDFProxyStatic } from './PDFProxyStatic';
-import { AbstractDataStore, DataStoreValidValue } from '../store/AbstractDataStore';
+import { AbstractDataStore, DataStoreValidKey, DataStoreValidValue } from '../store/AbstractDataStore';
 import { PollingWrapper } from '../util/PollingWrapper';
 import { NullDataStore } from '../store/NullDataStore';
 
-const EVENT_NAMES = [
-    'afterprint',
-    'attachmentsloaded',
-    'beforeprint',
-    'currentoutlineitem',
-    'cursortoolchanged',
-    'documentproperties',
-    'download',
-    'fileattachmentannotation',
-    'fileinputchange',
-    'find',
-    'findbarclose',
-    'findfromurlhash',
-    'firstpage',
-    'hashchange',
-    'lastpage',
-    'layersloaded',
-    'localized',
-    'namedaction',
-    'nextpage',
-    'openfile',
-    'optionalcontentconfig',
-    'optionalcontentconfigchanged',
-    'outlineloaded',
-    'pagechanging',
-    'pagemode',
-    'pagenumberchanged',
-    'pagerender',
-    'pagerendered',
-    'pagesloaded',
-    'presentationmode',
-    'presentationmodechanged',
-    'previouspage',
-    'print',
-    'resetlayers',
-    'resize',
-    'rotateccw',
-    'rotatecw',
-    'rotationchanging',
-    'save',
-    'scalechanged',
-    'scalechanging',
-    'scrollmodechanged',
-    'secondarytoolbarreset',
-    'sidebarviewchanged',
-    'spreadmodechanged',
-    'switchcursortool',
-    'switchscrollmode',
-    'switchspreadmode',
-    'textlayerrendered',
-    'togglelayerstree',
-    'toggleoutlinetree',
-    'updatefindcontrolstate',
-    'updatefindmatchescount',
-    'updatetextlayermatches',
-    'updateviewarea',
-    'zoomin',
-    'zoomout',
-    'zoomreset',
-];
+/**
+ * A PDF viewer which also managed updates to a data store.
+ */
 export class PDFProxyInteractive extends PDFProxyStatic {
     protected readonly _dataStore: AbstractDataStore;
     protected _formDOMReadyPromise: Promise<JQuery<HTMLDivElement> | undefined>;
@@ -90,8 +33,6 @@ export class PDFProxyInteractive extends PDFProxyStatic {
             dataStore = new NullDataStore();
         }
 
-        console.warn('PDFProxyInteractive');
-
         this._dataStore = dataStore;
     }
 
@@ -100,7 +41,7 @@ export class PDFProxyInteractive extends PDFProxyStatic {
      * @param args
      * @protected
      */
-    protected async onPageInitialized(args: PDFJS.PDFEventArgsPageRendered) {
+    protected async _onPageInitialized(args: PDFJS.PDFEventArgsPageRendered) {
         let container = await this._formDOMReadyPromise;
         if (container === undefined) {
             throw new Error(`PDFoundry: Failed to initialize form fields, no fields were found or the request timed out.`);
@@ -135,37 +76,56 @@ export class PDFProxyInteractive extends PDFProxyStatic {
             }
 
             // Case 2: This value is fresh, and needs to be inserted
-            newFields[key] = entry.value;
+            if (entry.value !== undefined) {
+                newFields[key] = entry.value;
+            }
         }
 
         return this._dataStore.setAll(newFields);
     }
 
+    /**
+     * Gets bound to the inputs on the PDF form, a standard JS change event.
+     * @param event
+     */
+    protected async _onInputChanged(event: JQuery.ChangeEvent) {
+        const input = $(event.target);
+        const name = input.attr('name');
+        // input has no storage location defined
+        if (name === undefined) {
+            return;
+        }
+
+        let value: string | string[] | number | boolean | undefined = input.val();
+        // Chrome returns non-boolean values in the case of checkboxes
+        if (value === 'on' || value === 'off') {
+            value = input.is(':checked');
+        }
+
+        await this._dataStore.setValue(name, value);
+
+        // safe to reload, clear "changes may not be saved" prompt
+        this._application!.pdfDocument.annotationStorage.resetModified();
+    }
+
+    /**
+     * Response callback to handle external data changes in the data store.
+     * @param changes
+     */
+    protected _onStoreUpdate(changes: Record<DataStoreValidKey, DataStoreValidValue>) {
+        if (this.container) {
+            const container = $(this.container);
+
+        }
+    }
+
     public async bind(element: JQuery | HTMLElement): Promise<boolean> {
         const success = await super.bind(element);
 
-        // TODO: Debug - Remove this.
-        window['VIEWER'] = this._application;
-
         if (success && this._application) {
-            console.warn('Interactive Viewer Bound Successfully.');
-            console.warn(this._options);
-            console.warn(this._iframe);
-            console.warn(this._application);
-            console.warn(this._eventBus);
-            console.warn(this._dataStore);
+            this.on('pagerendered', this._onPageInitialized.bind(this));
 
-            const logger = (name: string) => {
-                return function (...args) {
-                    console.warn([name, ...args]);
-                };
-            };
-            for (const eventName of EVENT_NAMES) {
-                this.on(eventName as PDFJS.PDFEvent, logger(eventName));
-            }
-
-            this.on('pagerendered', this.onPageInitialized.bind(this));
-
+            // No reliable way to await the viewer, so this is 'hacky' but works
             this._formDOMReadyPromise = PollingWrapper(
                 async () => {
                     if (this._application && this._application.pdfViewer.container) {
@@ -181,32 +141,21 @@ export class PDFProxyInteractive extends PDFProxyStatic {
                 20,
                 1000,
             );
+            // Bind change events on the form
             this._formDOMReadyPromise.then((container) => {
                 if (container !== undefined) {
                     const elements = container.find('input, textarea, select');
-                    elements.on('change', async (event) => {
-                        const input = $(event.target);
-                        const name = input.attr('name');
-                        // input has no storage location defined
-                        if (name === undefined) {
-                            return;
-                        }
-
-                        let value: string | string[] | number | boolean | undefined = input.val();
-                        if (value === 'on' || value === 'off') {
-                            value = input.is(':checked');
-                        }
-
-                        await this._dataStore.setValue(name, value);
-
-                        // safe to reload, clear "changes may not be saved" prompt
-                        this._application!.pdfDocument.annotationStorage.resetModified();
-                        console.warn(`${name} -> ${value}`);
-                    });
+                    elements.on('change', this._onInputChanged.bind(this));
                 }
             });
         }
 
+        this._dataStore.bindEvents();
         return success;
+    }
+
+    public async close(): Promise<void> {
+        this._dataStore.unbindEvents();
+        return super.close();
     }
 }

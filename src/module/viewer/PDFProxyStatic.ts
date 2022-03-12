@@ -244,6 +244,22 @@ export class PDFProxyStatic {
     }
 
     /**
+     * Close the proxy and clean up memory. After this is called you must create a new proxy
+     *  or call bind again to re-initialize the proxy.
+     */
+    public async close(): Promise<void> {
+        // Not yet initialized, do nothing
+        if (this._iframe === undefined) {
+            return;
+        }
+
+        // Ensure this memory gets dropped from the heap
+        this._iframe.outerHTML = '';
+        delete this._application;
+        delete this._eventBus;
+    }
+
+    /**
      * Register an event callback with the proxy.
      * @param eventName
      * @param callback

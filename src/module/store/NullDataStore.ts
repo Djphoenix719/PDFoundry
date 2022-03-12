@@ -39,4 +39,8 @@ export class NullDataStore extends AbstractDataStore {
     public async setAll(data: Record<DataStoreValidKey, DataStoreValidValue>): Promise<boolean> {
         return true;
     }
+
+    public bindEvents(): void {}
+
+    public unbindEvents(): void {}
 }

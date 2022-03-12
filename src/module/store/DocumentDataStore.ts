@@ -21,6 +21,7 @@ import { MODULE_NAME } from '../Constants';
 const FLAGS_SCOPE = MODULE_NAME;
 const FLAGS_KEY = 'FormData';
 const FLAGS_PREFIX = `flags.${FLAGS_SCOPE}.${FLAGS_KEY}`;
+
 export class DocumentDataStore<TDocumentData extends AnyDocumentData = AnyDocumentData> extends AbstractDataStore {
     /**
      * Normalize a key into a canonical store-able form, depending on where the storage should occur.
@@ -98,14 +99,33 @@ export class DocumentDataStore<TDocumentData extends AnyDocumentData = AnyDocume
     }
 
     public async setAll(data: Record<DataStoreValidKey, DataStoreValidValue>): Promise<boolean> {
-        let normalizedData: Record<DataStoreValidKey, DataStoreValidValue> = {};
+        let normalizedData: Record<DataStoreValidKey, DataStoreValidValue | object> = {};
         for (const [key, value] of Object.entries(data)) {
             normalizedData = mergeObject(normalizedData, {
                 [DocumentDataStore.normalizeKey(key)]: value,
             });
         }
 
-        const result = await this._document.update({ normalizedData } as any);
+        if (isObjectEmpty(normalizedData)) {
+            return true;
+        }
+
+        const result = await this._document.update({ ...normalizedData } as any);
         return result !== undefined;
+    }
+
+    public bindEvents(): void {
+        Hooks.on(`update${this._document.documentName}`, this._onUpdateDocument.bind(this));
+    }
+
+    public unbindEvents(): void {
+        Hooks.off(`update${this._document.documentName}`, this._onUpdateDocument.bind(this));
+    }
+
+    private async _onUpdateDocument(document: StoredDocument<foundry.abstract.Document<any, any>>, changes: Record<string, any>): Promise<void> {
+        console.warn('Update Document');
+        console.warn(changes);
+        const flattenedChanges = flattenObject(changes);
+        console.warn(flattenedChanges);
     }
 }

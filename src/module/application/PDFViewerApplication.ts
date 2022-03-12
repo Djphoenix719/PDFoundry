@@ -67,4 +67,9 @@ export class PDFViewerApplication extends Application {
             }
         }
     }
+
+    public async close(options?: Application.CloseOptions): Promise<void> {
+        await this._viewer?.close();
+        return super.close();
+    }
 }

@@ -17,10 +17,38 @@
 export type DataStoreValidKey = string | number;
 export type DataStoreValidValue = string | number;
 
+export const DataStoreUpdateEventType = 'storeUpdate';
+export type DataStoreUpdateEventType = typeof DataStoreUpdateEventType;
+
+export type DataStoreEventType = DataStoreUpdateEventType;
+
+export class DataStoreEvent extends Event {
+    type: DataStoreEventType;
+    store: AbstractDataStore;
+
+    public constructor(type: DataStoreEventType, store: AbstractDataStore) {
+        super(type);
+
+        this.store = store;
+    }
+}
+
+export class DataStoreUpdateEvent extends DataStoreEvent {
+    public readonly changes: Record<DataStoreValidKey, DataStoreValidValue>;
+    constructor(type: DataStoreEventType, store: AbstractDataStore, changes: Record<DataStoreValidKey, DataStoreValidValue>) {
+        super(DataStoreUpdateEventType);
+        this.changes = changes;
+    }
+}
+
 /**
  * An abstraction of a method to store/retrieve keyed data.
  */
 export abstract class AbstractDataStore<TKey extends DataStoreValidKey = DataStoreValidKey, TValue = DataStoreValidValue> {
+    protected _eventMap: Record<string, Function[]>;
+
+    protected constructor() {}
+
     /**
      * Get a specific value by key, returning undefined if the value is not found.
      * @param key The key to fetch the value of.
@@ -44,4 +72,18 @@ export abstract class AbstractDataStore<TKey extends DataStoreValidKey = DataSto
      * @param data The data to set to.
      */
     public abstract setAll(data: Record<TKey, TValue>): Promise<boolean>;
+
+    /**
+     * Bind necessary event handlers to receive updates from Foundry or other sources.
+     */
+    public abstract bindEvents(): void;
+
+    /**
+     * Unbind bound event handlers to stop receive updates from Foundry or other sources.
+     */
+    public abstract unbindEvents(): void;
+
+    public on(eventType: 'update', callback: Function) {}
+
+    public off(eventType: 'update');
 }
