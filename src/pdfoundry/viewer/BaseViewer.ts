@@ -137,7 +137,7 @@ export default abstract class BaseViewer extends Application {
      * @override
      */
     public get title(): string {
-        return this.document?.name ?? game.i18n.localize('PDFOUNDRY.VIEWER.ViewPDF');
+        return game.i18n.localize('PDFOUNDRY.VIEWER.ViewPDF');
     }
 
     /**
