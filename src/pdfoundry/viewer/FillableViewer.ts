@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Andrew Cuccinello
+ * Copyright 2022 Andrew Cuccinello
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  *
@@ -159,6 +159,10 @@ export default class FillableViewer extends BaseViewer {
 
     // </editor-fold>
     // <editor-fold desc="Getters & Setters">
+
+    public get title(): string {
+        return this.document.name ?? super.title;
+    }
 
     protected flattenEntity(): Record<string, string> {
         const data = flattenObject({
