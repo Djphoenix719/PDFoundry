@@ -222,6 +222,7 @@ export default abstract class BaseViewer extends Application {
 
             const theme = Api.activeTheme;
             const frameDocument = $(this._frame.contentDocument as Document);
+            frameDocument.on('click',() => this.bringToTop());
             const head = frameDocument.find('head');
             head.append($(`<link href="${getAbsoluteURL(theme.filePath)}" rel="stylesheet" type="text/css" media="all">`));
 
