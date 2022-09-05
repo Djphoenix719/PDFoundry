@@ -33,6 +33,6 @@
     "compatibleCoreVersion": "10",
     "minimumCoreVersion": "10",
     "manifest": "https://raw.githubusercontent.com/Djphoenix719/PDFoundry/master/module.json",
-    "download": "https://github.com/Djphoenix719/PDFoundry/releases/download/v0.9.5/pdfoundry-v0.9.5.zip",
+    "download": "https://github.com/Djphoenix719/PDFoundry/releases/download/v0.9.6/pdfoundry-v0.9.6.zip",
     "url": "https://github.com/Djphoenix719/PDFoundry"
 }
