@@ -21,13 +21,13 @@ import Settings from './Settings';
 import PDFCache from './cache/PDFCache';
 import Api, { ViewerTheme } from './Api';
 import HTMLEnricher from './enricher/HTMLEnricher';
-import TinyMCEPlugin from './enricher/TinyMCEPlugin';
 import PDFActorSheetAdapter from './app/PDFActorSheetAdapter';
 import { PDFType } from './common/types/PDFType';
 import { PDFConfig } from './app/PDFConfig';
 import FixMissingTypes from './commands/FixMissingTypes';
 import PurgeCache from './commands/PurgeCache';
 import { legacyMigrationRequired, migrateLegacy } from './migrate/MigrateLegacy';
+import TinyMCEPlugin from './enricher/TinyMCEPlugin';
 
 /**
  * A collection of methods used for setting up the API & system state.
@@ -84,8 +84,14 @@ export default class Setup {
         // Load base themes
         Setup.registerThemes();
 
-        // Patch the TextEnricher with a proxy
-        HTMLEnricher.patchEnrich();
+        // TODO:
+        // @ts-ignore
+        CONFIG.TextEditor.enrichers = CONFIG.TextEditor.enrichers.concat([
+            {
+                pattern : HTMLEnricher.PATTERN,
+                enricher : HTMLEnricher.enricher
+            }])
+        // TODO:
         // Bind click handlers to renderers
         Hooks.on('renderApplication', (app: Application, html: JQuery) => HTMLEnricher.bindRichTextLinks(html));
         Hooks.on('renderItemSheet', (app: Application, html: JQuery) => HTMLEnricher.bindRichTextLinks(html));
