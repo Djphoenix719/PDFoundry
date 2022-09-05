@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Andrew Cuccinello
+ * Copyright 2022 Andrew Cuccinello
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  *
@@ -70,8 +70,8 @@ export class PDFConfig extends FormApplication {
     }
 
     get isEditable(): boolean {
-        // @ts-ignore TODO: 0.8.x compat
-        return this.object.testUserPermission(game.user, CONST.ENTITY_PERMISSIONS.OWNER);
+        // @ts-ignore TODO: v10 FVTT Types
+        return this.object.testUserPermission(game.user, CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER);
     }
 
     // </editor-fold>
