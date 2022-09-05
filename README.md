@@ -1,5 +1,9 @@
-# PDFoundry
+# PDFoundry has been depracated
+PDFoundry has been deprecated as Foundry VTT now includes builtin PDF support, and there are only a few cases where PDFoundry's extra features exceed Foundry's. It may return one day to provide the missing features, but will require enough work to do so that it is currently not viable without a more complete re-write.
 
+So long, and thanks for all the fish!
+
+# PDFoundry
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/DJPhoenix719/PDFoundry)
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Djphoenix719/PDFoundry/Release%20Module)
 [![GitHub issues](https://img.shields.io/github/issues/Djphoenix719/PDFoundry)](https://github.com/Djphoenix719/PDFoundry/issues)
